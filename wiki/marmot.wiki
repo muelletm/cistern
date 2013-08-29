@@ -1,9 +1,7 @@
 #labels CRF,POS,NLP,Morphology,HMM,Tagger
 = Introduction =
 
-MarMoT is a generic [http://en.wikipedia.org/wiki/Conditional_random_field Conditional Random Field] (CRF) framework as well as a state-of-the-art morphological tagger.
-
-The latest version can be downloaded [goo.gl/L2JVgz here].
+MarMoT is a generic [http://en.wikipedia.org/wiki/Conditional_random_field Conditional Random Field] (CRF) framework as well as a state-of-the-art morphological tagger. The latest version can be downloaded [http://goo.gl/L2JVgz here].
 
 = Quickstart =
 
