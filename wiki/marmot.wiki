@@ -31,19 +31,19 @@ Will produce a file in (truncated) [http://ufal.mff.cuni.cz/conll2009-st/task-de
 
 <pre>
 0       Murmeltiere     _       _       _       NN      _       case=nom|number=pl|gender=masc
-1       sind    _       _       _       VAFIN   _       number=pl|person=3|tense=pres|mood=ind
-2       im      _       _       _       APPRART _       case=dat|number=sg|gender=neut
+1       sind            _       _       _       VAFIN   _       number=pl|person=3|tense=pres|mood=ind
+2       im              _       _       _       APPRART _       case=dat|number=sg|gender=neut
 3       Hochgebirge     _       _       _       NN      _       case=dat|number=sg|gender=neut
-4       zu      _       _       _       APPR    _       _ 
-5       Hause   _       _       _       NN      _       case=dat|number=sg|gender=neut
-6       .       _       _       _       $.      _       _
+4       zu              _       _       _       APPR    _       _ 
+5       Hause           _       _       _       NN      _       case=dat|number=sg|gender=neut
+6       .               _       _       _       $.      _       _
 </pre>
 
-The actual tags will depend on the annotation of the treebank that was used to train the MarMoT model. The tags here are in the format used by [http://www.ims.uni-stuttgart.de/forschung/ressourcen/korpora/tiger.html TIGER].
+The actual tags will depend on the annotation of the treebank that was used to train the MarMoT model. The tags here are in the [https://catalog.clarin.eu/isocat/rest/dcs/376 STTS] format used by [http://www.ims.uni-stuttgart.de/forschung/ressourcen/korpora/tiger.html TIGER].
 
 =References=
 
-Please cite the following paper, if you use MarMoT.
+If you use this code in your research and would like to acknowledge it, please refer to the following paper.
 
 <pre>
 @InProceedings{mueller2013,
