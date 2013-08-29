@@ -1,8 +1,6 @@
 #labels CRF,POS,NLP,Morphology,HMM,Tagger
 # MarMoT Morphological Tagger
 
-[http://upload.wikimedia.org/wikipedia/commons/4/43/Marmota_flaviventris_%28Yellow_Bellied_Marmot%29%2C_Yosemite_NP_-_Diliff.jpg]
-
 = Introduction =
 
 MarMoT is a generic [http://en.wikipedia.org/wiki/Conditional_random_field Conditional Random Field] (CRF) framework as well as a state-of-the-art morphological tagger.
@@ -14,14 +12,12 @@ The most typical thing to do with MarMoT is to annotate words with their morphol
 
 Given a file text.txt in a one-word-per-line format:
 <pre>
-Ich
-mag
 Murmeltiere
-.
-
-Murmeltiere
-mögen
-mich
+sind
+im
+Hochgebirge
+zu
+Hause
 .
 </pre>
 
@@ -33,20 +29,19 @@ java -cp marmot.jar marmot.morph.cmd.Annotator\
  --pred-file text.out.txt\
 </pre>
 
-While produce a file in (truncated) [http://ufal.mff.cuni.cz/conll2009-st/task-description.html CoNLL09] format:
+Will produce a file in (truncated) [http://ufal.mff.cuni.cz/conll2009-st/task-description.html CoNLL09] format:
 
 <pre>
-0	Ich	_	_	_	PPER	_	case=nom|number=sg|gender=*|person=1
-1	mag	_	_	_	VMFIN	_	number=sg|person=1|tense=pres|mood=ind
-2	Murmeltiere	_	_	_	NN	_	case=acc|number=pl|gender=neut
-3	.	_	_	_	$.	_	_
-
-0	Murmeltiere	_	_	_	NN	_	case=nom|number=pl|gender=masc
-1	mögen	_	_	_	VMFIN	_	number=pl|person=3|tense=pres|mood=ind
-2	mich	_	_	_	PPER	_	case=acc|number=sg|gender=*|person=1
-3	.	_	_	_	$.	_	_
+0       Murmeltiere     _       _       _       NN      _       case=nom|number=pl|gender=masc
+1       sind    _       _       _       VAFIN   _       number=pl|person=3|tense=pres|mood=ind
+2       im      _       _       _       APPRART _       case=dat|number=sg|gender=neut
+3       Hochgebirge     _       _       _       NN      _       case=dat|number=sg|gender=neut
+4       zu      _       _       _       APPR    _       _ 
+5       Hause   _       _       _       NN      _       case=dat|number=sg|gender=neut
+6       .       _       _       _       $.      _       _
 </pre>
 
+The actual tags will depend on the annotation of the treebank that was used to train the MarMoT model. The tags here are in [http://www.ims.uni-stuttgart.de/forschung/ressourcen/korpora/tiger.html TIGER's]
 
 =References=
 
