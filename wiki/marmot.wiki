@@ -41,6 +41,11 @@ Will produce a file in (truncated) [http://ufal.mff.cuni.cz/conll2009-st/task-de
 
 The actual tags will depend on the annotation of the treebank that was used to train the MarMoT model. The tags here are in the [https://catalog.clarin.eu/isocat/rest/dcs/376 STTS] format used by [http://www.ims.uni-stuttgart.de/forschung/ressourcen/korpora/tiger.html TIGER].
 
+
+=Download=
+
+[https://drive.google.com/folderview?id=0B-W6oyNpXgJ1UWl3MEhPNXlpUFk&usp=sharing marmot-2013-08-28].
+
 =References=
 
 If you use MarMoT in your research and would like to acknowledge it, please refer to the following paper.
