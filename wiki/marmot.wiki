@@ -1,6 +1,4 @@
 #labels CRF,POS,NLP,Morphology,HMM,Tagger
-# MarMoT Morphological Tagger
-
 = Introduction =
 
 MarMoT is a generic [http://en.wikipedia.org/wiki/Conditional_random_field Conditional Random Field] (CRF) framework as well as a state-of-the-art morphological tagger.
