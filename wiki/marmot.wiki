@@ -43,7 +43,7 @@ The actual tags will depend on the annotation of the treebank that was used to t
 
 =References=
 
-If you use this code in your research and would like to acknowledge it, please refer to the following paper.
+If you use MarMoT in your research and would like to acknowledge it, please refer to the following paper.
 
 <pre>
 @InProceedings{mueller2013,
