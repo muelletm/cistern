@@ -41,7 +41,7 @@ Will produce a file in (truncated) [http://ufal.mff.cuni.cz/conll2009-st/task-de
 6       .       _       _       _       $.      _       _
 </pre>
 
-The actual tags will depend on the annotation of the treebank that was used to train the MarMoT model. The tags here are in [http://www.ims.uni-stuttgart.de/forschung/ressourcen/korpora/tiger.html TIGER's]
+The actual tags will depend on the annotation of the treebank that was used to train the MarMoT model. The tags here are in format used by [http://www.ims.uni-stuttgart.de/forschung/ressourcen/korpora/tiger.html TIGER].
 
 =References=
 
