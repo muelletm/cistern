@@ -5,9 +5,7 @@ MarMoT is a generic [http://en.wikipedia.org/wiki/Conditional_random_field Condi
 
 = Quickstart =
 
-The most typical thing to do with MarMoT is to annotate words with their morphological properties. 
-
-Given a file text.txt in a one-word-per-line format:
+The most typical thing to do with MarMoT is to annotate words with their morphological properties. Given a file text.txt in a one-word-per-line format:
 <pre>
 Murmeltiere
 sind
