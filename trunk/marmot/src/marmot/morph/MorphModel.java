@@ -1,0 +1,704 @@
+// Copyright 2013 Thomas Müller
+// This file is part of MarMoT, which is licensed under GPLv3.
+
+package marmot.morph;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import marmot.core.Model;
+import marmot.core.Sequence;
+import marmot.core.SimpleTagger;
+import marmot.core.State;
+import marmot.core.Tagger;
+import marmot.core.Token;
+import marmot.core.Trainer;
+import marmot.core.TrainerFactory;
+import marmot.core.WeightVector;
+import marmot.morph.io.FileOptions;
+import marmot.morph.io.SentenceReader;
+import marmot.morph.signature.Trie;
+import marmot.util.Counter;
+import marmot.util.Ling;
+import marmot.util.SymbolTable;
+
+public class MorphModel extends Model {
+	private static final long serialVersionUID = 1L;
+
+	private SymbolTable<String> word_table_;
+	private SymbolTable<String> shape_table_;
+	private SymbolTable<Character> char_table_;
+	private SymbolTable<String> token_feature_table_;
+
+	private List<SymbolTable<String>> subtag_tables_;
+	private Map<String, Integer> signature_map;
+
+	private int[] vocab_;
+	private int[][] tag_classes_;
+	private int[][] transitions_;
+	private int[][][] tag_to_subtag_;
+	private List<Set<Integer>> observed_sets_;
+
+	private Trie trie_;
+	private boolean verbose_;
+	private boolean shape_;
+	private boolean tag_morph_;
+	private int morph_index_;
+	private int num_folds_;
+	private int pos_index_;
+	private int rare_word_max_freq_;
+
+	private boolean split_morphs_;
+	private boolean split_pos_;
+	private String subtag_seperator_;
+
+	public void init(MorphOptions options, Collection<Sequence> sentences) {
+		verbose_ = options.getVerbose();
+		rare_word_max_freq_ = options.getRareWordMaxFreq();
+		pos_index_ = 0;
+		morph_index_ = 1;
+		num_folds_ = 10;
+		shape_ = options.getShape();
+		tag_morph_ = options.getTagMorph();
+		split_pos_ = options.getSplitPos();
+		split_morphs_ = options.getSplitMorphs();
+		subtag_seperator_ = options.getSubTagSeperator();
+
+		init(options, extractCategories(sentences));
+
+		List<SymbolTable<String>> tag_tables_ = getTagTables();
+
+		subtag_tables_ = new ArrayList<SymbolTable<String>>();
+		subtag_tables_.add(null);
+		subtag_tables_.add(null);
+
+		if (split_pos_) {
+			subtag_tables_.set(pos_index_, new SymbolTable<String>());
+		}
+
+		if (tag_morph_ && split_morphs_) {
+			subtag_tables_.set(morph_index_, new SymbolTable<String>());
+		}
+
+		word_table_ = new SymbolTable<String>(true);
+		char_table_ = new SymbolTable<Character>();
+		if (shape_) {
+			shape_table_ = new SymbolTable<String>();
+		}
+		signature_map = new HashMap<String, Integer>();
+
+		if (tag_morph_) {
+			token_feature_table_ = new SymbolTable<String>();
+		}
+
+		if ((shape_)) {
+
+			File file = null;
+			if (!options.getShapeTriePath().isEmpty()) {
+				file = new File(options.getShapeTriePath());
+			}
+			if (file == null || !file.exists()) {
+				if (verbose_) {
+					System.err.println("Inducing shape trie.");
+				}
+				trie_ = Trie
+						.train(options.getTrainFile(), options.getVeryVerbose());
+				if (file != null) {
+					if (verbose_) {
+						System.err.format("Writing shape trie to: %s.\n",
+								options.getShapeTriePath());
+					}
+					Trie.saveToFile(options.getShapeTriePath(), trie_);
+				}
+			} else {
+				System.err.format("Loading shape trie from: %s.\n",
+						options.getShapeTriePath());
+				trie_ = Trie.loadFromFile(options.getShapeTriePath());
+			}
+		}
+
+		if (trie_ == null) {
+			shape_ = false;
+		}
+
+		for (Sequence sentence : sentences) {
+			for (Token token : sentence) {
+				Word word = (Word) token;
+				addIndexes(word, true);
+			}
+		}
+
+		vocab_ = extractVocabulary(options, sentences);
+		transitions_ = extractPossibleTransitions(options, sentences);
+		observed_sets_ = extractObservedSets(sentences);
+		tag_classes_ = extractTagClasses(tag_tables_);
+		extractSubTags();
+
+		for (Sequence sentence : sentences) {
+			for (Token token : sentence) {
+				Word word = (Word) token;
+				addShape(word, true);
+			}
+		}
+	}
+
+	private int getBiIndex(int word, int level, int tag) {
+		int length = 1;
+		for (int clevel = 0; clevel <= level; clevel++) {
+			length *= getTagTables().get(clevel).size();
+		}
+
+		assert tag < length;
+
+		return word * length + tag;
+	}
+
+	public boolean hasBeenObserved(int form_index, int level, int tag_index) {
+		if (isRare(form_index)) {
+			form_index = word_table_.size();
+		}
+		Set<Integer> set = observed_sets_.get(level);
+		int index = getBiIndex(form_index, level, tag_index);
+		return set.contains(index);
+	}
+
+	private void extractSubTags() {
+		tag_to_subtag_ = new int[subtag_tables_.size()][][];
+
+		int offset = 0;
+		for (int level = 0; level < subtag_tables_.size(); level++) {
+
+			if (level >= getTagTables().size())
+				break;
+
+			SymbolTable<String> table = getTagTables().get(level);
+
+			if (table != null && subtag_tables_.get(level) != null) {
+				tag_to_subtag_[level] = new int[table.size()][];
+				for (Map.Entry<String, Integer> entry : table.entrySet()) {
+					tag_to_subtag_[level][entry.getValue()] = getSubTags(
+							entry.getKey(), level, true, offset);
+				}
+
+				offset += subtag_tables_.get(level).size();
+			}
+		}
+
+	}
+
+	private int[][] extractTagClasses(List<SymbolTable<String>> tag_tables) {
+		int[][] tag_classes = new int[tag_tables.size()][];
+		for (int level = 0; level < tag_tables.size(); level++) {
+			int num_tags = tag_tables.get(level).size();
+			tag_classes[level] = new int[num_tags - 1];
+
+			int index = 0;
+			for (int tag_index = 0; tag_index < num_tags; tag_index++) {
+				if (tag_index == getBoundaryIndex())
+					continue;
+				tag_classes[level][index] = tag_index;
+
+				index++;
+			}
+		}
+		return tag_classes;
+	}
+
+	private List<Set<Integer>> extractObservedSets(
+			Collection<Sequence> sentences) {
+		List<SymbolTable<String>> tag_tables = getTagTables();
+		List<Set<Integer>> observed_sets = new ArrayList<Set<Integer>>(
+				tag_tables.size());
+
+		List<Map<Integer, Set<Integer>>> wordform_to_candidates = new ArrayList<Map<Integer, Set<Integer>>>();
+
+		for (int level = 0; level < tag_tables.size(); level++) {
+			wordform_to_candidates.add(new HashMap<Integer, Set<Integer>>());
+		}
+
+		for (Sequence sentence : sentences) {
+			for (Token xtoken : sentence) {
+				Word token = (Word) xtoken;
+
+				int word_index = token.getWordFormIndex();
+
+				int tag_index = 0;
+				for (int level = 0; level < tag_tables.size(); level++) {
+					tag_index *= tag_tables.get(level).size();
+					tag_index += token.getTagIndexes()[level];
+
+					Set<Integer> tags = wordform_to_candidates.get(level).get(
+							word_index);
+					if (tags == null) {
+						tags = new HashSet<Integer>();
+						wordform_to_candidates.get(level).put(word_index, tags);
+					}
+					tags.add(tag_index);
+				}
+
+			}
+		}
+
+		List<List<Integer>> open_tag_classes_per_level = getOpenPosTagClassesCrossValidation(
+				sentences, num_folds_, tag_tables);
+
+		for (int level = 0; level < tag_tables.size(); level++) {
+			Set<Integer> observed_set = new HashSet<Integer>();
+			observed_sets.add(observed_set);
+
+			List<Integer> open_tag_classes = open_tag_classes_per_level
+					.get(level);
+
+			for (int tag : open_tag_classes) {
+				int biindex = getBiIndex(word_table_.size(), level, tag);
+				observed_set.add(biindex);
+			}
+
+			for (Entry<Integer, Set<Integer>> entry : wordform_to_candidates
+					.get(level).entrySet()) {
+				int word_index = entry.getKey();
+				Set<Integer> set = entry.getValue();
+				if (!isRare(word_index)) {
+					int[] tags = new int[set.size()];
+					int index = 0;
+					for (int tag : set) {
+						tags[index++] = tag;
+					}
+					for (int tag : tags) {
+						int biindex = getBiIndex(word_index, level, tag);
+						observed_set.add(biindex);
+					}
+
+				}
+			}
+
+		}
+
+		return observed_sets;
+	}
+
+	public static List<List<Integer>> getOpenPosTagClassesCrossValidation(
+			Collection<Sequence> sentences, int num_folds,
+			List<SymbolTable<String>> tag_tables) {
+
+		int sentences_per_fold = sentences.size() / num_folds;
+		if (sentences_per_fold == 0)
+			sentences_per_fold = 1;
+
+		Set<Integer> known = new HashSet<Integer>();
+		List<Counter<Integer>> counters = new ArrayList<Counter<Integer>>(
+				tag_tables.size());
+
+		for (int level = 0; level < tag_tables.size(); level++) {
+			counters.add(new Counter<Integer>());
+		}
+
+		int start_index = 0;
+
+		while (start_index < sentences.size()) {
+			known.clear();
+
+			int end_index = start_index + sentences_per_fold;
+			if (end_index + sentences_per_fold >= sentences.size()) {
+				end_index = sentences.size();
+			}
+
+			int index = 0;
+			for (Sequence sentence : sentences) {
+				if (index < start_index || index >= end_index) {
+					for (Token token : sentence) {
+						known.add(((Word) token).getWordFormIndex());
+					}
+				}
+
+				index++;
+			}
+
+			index = 0;
+			for (Sequence sentence : sentences) {
+				if (index >= start_index && index < end_index) {
+					for (Token token : sentence) {
+						int form = ((Word) token).getWordFormIndex();
+						if (!known.contains(form)) {
+							int tag_index = 0;
+							for (int level = 0; level < tag_tables.size(); level++) {
+								tag_index *= tag_tables.get(level).size();
+								tag_index += token.getTagIndexes()[level];
+								counters.get(level).increment(tag_index, 1.0);
+							}
+						}
+					}
+				}
+				index++;
+			}
+
+			start_index = end_index;
+		}
+
+		List<List<Integer>> list = new ArrayList<List<Integer>>(
+				tag_tables.size());
+		for (int level = 0; level < tag_tables.size(); level++) {
+			Counter<Integer> counter = counters.get(level);
+			double total_count = counter.totalCount();
+			List<Integer> open_tag_classes = new LinkedList<Integer>();
+			for (Map.Entry<Integer, Double> entry : counter.entrySet()) {
+				if (entry.getValue() / total_count > 0.0001) {
+					open_tag_classes.add(entry.getKey());
+				}
+			}
+			list.add(open_tag_classes);
+		}
+
+		return list;
+	}
+
+	private int[] extractVocabulary(MorphOptions options,
+			Collection<Sequence> sentences) {
+
+		Counter<Integer> vocab_counter = new Counter<Integer>();
+
+		for (Sequence sentence : sentences) {
+			for (Token token : sentence) {
+				Word word = (Word) token;
+				int word_index = word.getWordFormIndex();
+				vocab_counter.increment(word_index, 1.);
+			}
+		}
+
+		int[] vocab_array = new int[vocab_counter.size()];
+		for (Map.Entry<Integer, Double> entry : vocab_counter.entrySet()) {
+			vocab_array[entry.getKey()] = entry.getValue().intValue();
+		}
+
+		return vocab_array;
+	}
+
+	private int[][] extractPossibleTransitions(MorphOptions options,
+			Collection<Sequence> sentences) {
+		if (!(options.getRestricTransitions() && tag_morph_))
+			return null;
+
+		Map<Integer, Set<Integer>> tag_to_morph = new HashMap<Integer, Set<Integer>>();
+
+		for (Sequence sentence : sentences) {
+			for (Token token : sentence) {
+				int from_index = token.getTagIndexes()[pos_index_];
+				int to_index = token.getTagIndexes()[morph_index_];
+				Set<Integer> tags = tag_to_morph.get(from_index);
+				if (tags == null) {
+					tags = new HashSet<Integer>();
+					tag_to_morph.put(from_index, tags);
+				}
+				tags.add(to_index);
+			}
+		}
+
+		int[][] transitions = new int[tag_to_morph.size() + 1][];
+		transitions[0] = new int[1];
+
+		for (Map.Entry<Integer, Set<Integer>> entry : tag_to_morph.entrySet()) {
+			int from_index = entry.getKey();
+			int[] to_indexes = new int[entry.getValue().size()];
+
+			int index = 0;
+			for (int to_index : entry.getValue()) {
+				to_indexes[index++] = to_index;
+			}
+			Arrays.sort(to_indexes);
+
+			assert transitions[from_index] == null;
+			transitions[from_index] = to_indexes;
+		}
+
+		return transitions;
+	}
+
+	private SymbolTable<String> extractCategories(Collection<Sequence> sentences) {
+		SymbolTable<String> catgegory_table = new SymbolTable<String>(true);
+		catgegory_table.toIndex("pos", true);
+		if (tag_morph_) {
+			catgegory_table.toIndex("morph", true);
+		}
+		return catgegory_table;
+	}
+
+	public void addIndexes(Word word, boolean insert) {
+		String word_form = word.getWordForm();
+
+		int word_index = word_table_.toIndex(word_form, -1, insert);
+		word.setWordIndex(word_index);
+
+		word.setTagIndexes(getTagIndexes(word, -1, insert));
+
+		short[] char_indexes = new short[word_form.length()];
+		for (int index = 0; index < word_form.length(); index++) {
+			char_indexes[index] = (short) char_table_.toIndex(
+					word_form.charAt(index), -1, insert);
+
+			if (char_indexes[index] < 0) {
+				if (verbose_)
+					System.err.format("Warning: Unknown character: %c\n",
+							word_form.charAt(index));
+			}
+
+		}
+		word.setCharIndexes(char_indexes);
+
+		Integer signature = signature_map.get(word_form);
+		if (signature == null) {
+			signature = 0;
+			if (Ling.containsDigit(word_form)) {
+				signature += 1;
+			}
+			signature *= 2;
+			if (Ling.containsHyphon(word_form)) {
+				signature += 1;
+			}
+			signature *= 2;
+			if (Ling.containsUpperCase(word_form)) {
+				signature += 1;
+			}
+			signature *= 2;
+			if (Ling.containsLowerCase(word_form)) {
+				signature += 1;
+			}
+			assert signature >= 0 && signature <= 32 - 1;
+
+			if (insert) {
+				signature_map.put(word_form, signature);
+			}
+		}
+
+		word.setWordSignature(signature);
+
+		String token_feature = word.getTokenFeature();
+		if (token_feature != null && tag_morph_ && token_feature_table_ != null) {
+			String[] fst_sub_morphs = token_feature.split("#");
+			int[] indexes = new int[fst_sub_morphs.length];
+			int index = 0;
+			for (String fst_sub_morph : fst_sub_morphs) {
+				indexes[index] = token_feature_table_.toIndex(fst_sub_morph,
+						-1, insert);
+
+				index++;
+			}
+			word.setTokenFeatureIndexes(indexes);
+			word.setTokenFeature(null);
+		}
+
+		addShape(word, insert);
+	}
+
+	private int[] getSubTags(String morph, int level, boolean insert, int offset) {
+		if (morph.equals(BORDER_SYMBOL_)) {
+			return null;
+		}
+
+		if (morph.equals("_")) {
+			return null;
+		}
+
+		if (level >= subtag_tables_.size()) {
+			return null;
+		}
+
+		SymbolTable<String> subtag_table = subtag_tables_.get(level);
+
+		if (subtag_table == null) {
+			return null;
+		}
+
+		String[] sub_tags = morph.split(subtag_seperator_);
+
+		if (sub_tags.length == 1) {
+			return null;
+		}
+
+		List<Integer> indexes = new LinkedList<Integer>();
+		for (String sub_tag : sub_tags) {
+
+			if (sub_tag.length() > 0) {
+
+				int value = subtag_table.toIndex(sub_tag, -1, insert);
+				if (value >= 0) {
+					indexes.add(value);
+				}
+
+			}
+
+		}
+
+		int[] array = new int[indexes.size()];
+		int i = 0;
+		for (int index : indexes) {
+			array[i++] = index + offset;
+		}
+
+		return array;
+	}
+
+	private int[] getTagIndexes(Word word, int head, boolean insert) {
+		List<SymbolTable<String>> tag_tables = getTagTables();
+		String pos_tag = word.getPosTag();
+		String morph = word.getMorphTag();
+
+		int[] tag_indexes = new int[tag_tables.size()];
+
+		tag_indexes[0] = tag_tables.get(0).toIndex(pos_tag, -1, insert);
+		if (tag_morph_) {
+			tag_indexes[1] = tag_tables.get(1).toIndex(morph, -1, insert);
+		}
+
+		return tag_indexes;
+	}
+
+	private void addShape(Word word, boolean insert) {
+		if (shape_) {
+			int word_index = word.getWordFormIndex();
+
+			if (vocab_ == null) {
+				return;
+			}
+
+			if (isRare(word_index)) {
+				int shape_index = -1;
+				if (trie_ != null) {
+					String shape = Integer.toString(trie_.classify(word
+							.getWordForm()));
+					shape_index = shape_table_.toIndex(shape, -1, insert);
+				}
+				word.setWordShapeIndex(shape_index);
+			}
+		}
+	}
+
+	public boolean isRare(int word) {
+		if (word < 0 || word >= vocab_.length) {
+			return true;
+		}
+		return vocab_[word] < rare_word_max_freq_;
+	}
+
+	public SymbolTable<String> getWordTable() {
+		return word_table_;
+	}
+
+	public static Tagger train(MorphOptions options) {
+		long time = System.currentTimeMillis();
+		List<Sequence> train_sentences = new LinkedList<Sequence>();
+
+		SentenceReader reader = new SentenceReader(options.getTrainFile());
+		if (options.getTagMorph())
+			reader.getFileOptions().dieIfPropertyIsEmpty(
+					FileOptions.MORPH_INDEX);
+
+		for (Sequence sentence : reader) {
+			train_sentences.add(sentence);
+		}
+
+		MorphModel model = new MorphModel();
+
+		model.init(options, train_sentences);
+
+		List<Sequence> test_sentences = null;
+
+		if (!options.getTestFile().isEmpty()) {
+			reader = new SentenceReader(options.getTestFile());
+			if (options.getTagMorph())
+				reader.getFileOptions().dieIfPropertyIsEmpty(
+						FileOptions.MORPH_INDEX);
+
+			test_sentences = new LinkedList<Sequence>();
+			for (Sequence sentence : reader) {
+				for (Token token : sentence) {
+					Word word = (Word) token;
+					model.addIndexes(word, false);
+				}
+				test_sentences.add(sentence);
+			}
+		}
+
+		WeightVector weights = new MorphWeightVector(options);
+		weights.init(model, train_sentences);
+		Tagger tagger = new SimpleTagger(model, model.getOrder(), weights);
+
+		Trainer trainer = TrainerFactory.create(options);
+
+		MorphEvaluator evaluator = null;
+		if (test_sentences != null) {
+			evaluator = new MorphEvaluator(test_sentences);
+		}
+
+		trainer.train(tagger, train_sentences, evaluator);
+
+		if (!options.getModelFile().isEmpty())
+			tagger.saveToFile(options.getModelFile());
+
+		if (options.getVerbose())
+			System.err.format("Training took: %ds\n",
+					(System.currentTimeMillis() - time) / 1000);
+
+		return tagger;
+	}
+
+	public SymbolTable<Character> getCharTable() {
+		return char_table_;
+	}
+
+	public int getNumShapes() {
+		if (trie_ == null) {
+			return shape_table_.size();
+		} else {
+			return trie_.getIndex();
+		}
+	}
+
+	public SymbolTable<String> getShapeTable() {
+		return shape_table_;
+	}
+
+	public boolean isOOV(int form_index) {
+		return form_index < 0 || vocab_[form_index] == 0;
+	}
+
+	public int getNumSubTags() {
+		int total = 0;
+		if (subtag_tables_ != null) {
+			for (SymbolTable<String> table : subtag_tables_) {
+				if (table != null) {
+					total += table.size();
+				}
+			}
+		}
+		return total;
+	}
+
+	public SymbolTable<String> getTokenFeatureTable() {
+		return token_feature_table_;
+	}
+
+	@Override
+	public int[] getTagCandidates(Sequence sequence, int index, State state) {
+		int level = (state == null) ? 0 : state.getLevel() + 1;
+
+		if (transitions_ != null && level == morph_index_) {
+			return transitions_[state.getIndex()];
+		}
+
+		return tag_classes_[level];
+	}
+
+	public int[][][] getTagToSubTags() {
+		return tag_to_subtag_;
+	}
+
+}
