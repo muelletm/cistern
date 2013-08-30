@@ -3,5 +3,154 @@
 
 = Introduction =
 
-MarMoT can be used to train plain part-of-speech (POS) taggers as well as joint POS and morphological taggers.
+MarMoT can be used to train plain [http://en.wikipedia.org/wiki/Part-of-speech part-of-speech (POS)] taggers as well as joint POS and morphological taggers.
 
+= Training POS Taggers =
+
+Given a training file train.txt in a column format:
+
+<pre>
+1  Marmots    NNS
+2  are        VBP
+3  large      JJ
+4  ground     NN
+5  squirrels  NNS
+6  .          .
+</pre>
+
+A model can be trained by running:
+
+<pre>
+$ java -Xmx5G -cp marmot.jar marmot.morph.cmd.Trainer\
+   -train-file form-index=1,tag-index=2,train.txt\
+   -tag-morph false\
+   -model-file en.marmot
+</pre>
+
+= Training Morphological Taggers =
+
+For training a morphological tagger we also need morphological information in the training file.
+
+<pre>
+0       El       d       pos=article|gen=m|num=s  
+1       género   n       pos=common|gen=m|num=s 
+2       Marmota  n       pos=proper|gen=c|num=c 
+3       incluye  v       pos=main|gen=c|num=s|per=3|mood=ind|tense=p 
+4       catorce  d       postype=numeral|gen=c|num=p 
+5       especies n       postype=common|gen=f|num=p 
+6       .        f       punct=period 
+</pre>
+
+And we have to specify the index of the morphological tag:
+
+<pre>
+$ java -Xmx5G -cp marmot.jar marmot.morph.cmd.Trainer\
+   -train-file form-index=1,tag-index=2,morph-index=3,train.txt\
+   -tag-morph true\
+   -model-file es.marmot
+</pre>
+
+= Advanced Training Options =
+
+Run the training command without arguments to have a look at advanced training options.
+
+<pre>
+$ java marmot.jar marmot.morph.cmd.Trainer
+
+General Options:
+	prune:
+		Whether to use pruning.
+		Default value: "true"
+	effective-order:
+		Maximal order to reach before increasing the level.
+		Default value: "1"
+	prob-threshold:
+		Initial pruning threshold. Changing this value should have almost no effect.
+		Default value: "0.01"
+	very-verbose:
+		Whether to print a lot of status messages.
+		Default value: "false"
+	oracle:
+		Whether to do oracle pruning. Probably not relevant. Have a look at the paper!
+		Default value: "false"
+	trainer:
+		Which trainer to use. (There is also a perceptron trainer but don't use it.)
+		Default value: "marmot.core.CrfTrainer"
+	num-iterations:
+		Number of training iterations.
+		Default value: "10"
+	candidates-per-state:
+		Average number of states to obtain after pruning at each order. These are the mu values from the paper.
+		Default value: "[4, 2, 1.5]"
+	max-transition-feature-level:
+		Something for testing the code. Don't change it.
+		Default value: "-1"
+	beam-size:
+		Specify the beam size of the n-best decoder.
+		Default value: "1"
+	order:
+		Set the model order.
+		Default value: "2"
+	initial-vector-size:
+		Size of the weight vector.
+		Default value: "10000000"
+	averaging:
+		Whether to use averaging. Perceptron only!
+		Default value: "true"
+	shuffle:
+		Whether to shuffle between training iterations.
+		Default value: "true"
+	verbose:
+		Whether to print status messages.
+		Default value: "false"
+	quadratic-penalty:
+		L2 penalty parameter.
+		Default value: "0.0"
+	penalty:
+		L1 penalty parameter.
+		Default value: "0.1"
+
+Morph Options:
+	model-file:
+		Output model file.
+		Default value: ""
+	observed-feature:
+		Whether to use the observed feature. Have a look at the paper!
+		Default value: "true"
+	split-pos:
+		Whether to split POS tags. See subtag-seperator. Have a look at the paper!
+		Default value: "false"
+	shape:
+		Whether to use shape features.
+		Default value: "true"
+	restrict-transitions:
+		Whether to only allow POS -> MORPH transitions that have been seen during training.
+		Default value: "true"
+	type-dict:
+		Word type dictionary file (optional)
+		Default value: ""
+	split-morphs:
+		Whether to split MORPG tags. See subtag-seperator. Have a look at the paper!
+		Default value: "true"
+	rare-word-max-freq:
+		Maximal frequency of a rare word.
+		Default value: "10"
+	train-file:
+		Input training file
+		Default value: ""
+	pred-file:
+		Ouput prediction file in CoNLL09. (optional for training)
+		Default value: ""
+	shape-trie-path:
+		Path to the shape trie. Will be created if non-existent.
+		Default value: ""
+	tag-morph:
+		Whether to train a morphological tagger or a POS tagger.
+		Default value: "true"
+	subtag-seperator:
+		Regular expression to use for splitting tags. (Has to work with Java's String.split)
+		Default value: "\|"
+	test-file:
+		Input test file. (optional for training)
+		Default value: ""
+</pre>
