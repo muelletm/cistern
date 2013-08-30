@@ -139,7 +139,7 @@ Morph Options:
 		Input training file
 		Default value: ""
 	pred-file:
-		Ouput prediction file in CoNLL09. (optional for training)
+		Output prediction file in CoNLL09. (optional for training)
 		Default value: ""
 	shape-trie-path:
 		Path to the shape trie. Will be created if non-existent.
