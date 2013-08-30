@@ -22,7 +22,7 @@ The following command:
 <pre>
 java -cp marmot.jar marmot.morph.cmd.Annotator\
  --model-file de.marmot\
- --test-file text.txt\
+ --test-file form-index=0,text.txt\
  --pred-file text.out.txt\
 </pre>
 
