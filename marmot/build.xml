@@ -1,0 +1,41 @@
+<project name="marmot" default="jar" basedir=".">
+
+  <tstamp/>
+
+  <property name="classes" value="${basedir}/classes"/>
+  <property name="src" value="${basedir}/src"/>
+  <property name="jarfile" value="${basedir}/marmot-13-08-29.jar"/>
+
+  <path id="classpath">
+    <!--<fileset file="${lib}/*.jar"/>-->
+  </path>
+
+  <target name="compile" depends="clean,timestamp">
+    <mkdir dir="${classes}"/>
+
+    <javac srcdir="${src}" destdir="${classes}" debug="on" classpathref="classpath" includeAntRuntime="false" includes="**/*.java" excludes="marmot/test/**,marmot/cluster/**,marmot/lemma/**">
+    </javac>
+
+  </target>
+
+  <target name="jar" depends="compile">
+    <jar jarfile="${jarfile}">
+      <fileset dir="${classes}" includes="**/*.class"/>
+      <fileset dir="${src}" includes="**/*.java" excludes="marmot/test/**,marmot/cluster/**,marmot/lemma/**" />
+    	<fileset dir="${basedir}" includes="LICENSE,README" />	
+    </jar>
+  </target>
+
+  <target name="clean">
+    <delete dir="${classes}"/>
+    <delete file="${jarfile}"/>
+  </target>
+
+  <target name="timestamp">
+    <tstamp>
+      <format property="current.time" pattern="MM/dd/yyyy hh:mm:ss aa" />
+    </tstamp>
+  <echo message="TIME: ${current.time}" />
+  </target>
+
+</project>
