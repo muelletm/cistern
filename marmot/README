@@ -19,7 +19,7 @@ GNU General Public License for more details.
 For a copy of the GNU General Public License
 see LICENSE or <http://www.gnu.org/licenses/>.
 
-You can build MarMot by running:
+You can build MarMoT by running:
 
 $ ant
 
