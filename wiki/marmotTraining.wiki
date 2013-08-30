@@ -149,7 +149,7 @@ Morph Options:
 		Default value: "true"
 	subtag-seperator:
 		Regular expression to use for splitting tags. (Has to work with Java's String.split)
-		Default value: "\|"
+		Default value: "\\|"
 	test-file:
 		Input test file. (optional for training)
 		Default value: ""
