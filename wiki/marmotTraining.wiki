@@ -1,0 +1,7 @@
+#summary Training new MarMoT models.
+#labels CRF,Morphology,POS
+
+= Introduction =
+
+MarMoT can be used to train plain part-of-speech (POS) taggers as well as joint POS and morphological taggers.
+
