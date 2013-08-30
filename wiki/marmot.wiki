@@ -26,7 +26,7 @@ java -cp marmot.jar marmot.morph.cmd.Annotator\
  --pred-file text.out.txt\
 </pre>
 
-Will produce a file in (truncated) [http://ufal.mff.cuni.cz/conll2009-st/task-description.html CoNLL09] format:
+Will produce a file in (a truncated) [http://ufal.mff.cuni.cz/conll2009-st/task-description.html CoNLL09] format:
 
 <pre>
 0       Murmeltiere     _       _       _       NN      _       case=nom|number=pl|gender=masc
