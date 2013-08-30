@@ -1,4 +1,4 @@
-#summary MarMot - MarMot Morphological Tagger
+#summary MarMoT - MarMoT Morphological Tagger
 #labels CRF,POS,NLP,Morphology,HMM,Tagger
 
 [http://www.cis.lmu.de/~muellets/marmot/marmot.png]
