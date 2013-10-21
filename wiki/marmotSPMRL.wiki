@@ -1,0 +1,5 @@
+#summary MarMoT predictions for the SPMRL data sets
+
+A team of [http://www.ims.uni-stuttgart.de/ IMS], [http://www.inf.u-szeged.hu Szeged ] and [http://cis.uni-muenchen.de CIS] participated in the [http://www.spmrl.org/spmrl2013-sharedtask.html SPMRL 2013 shared task] on parsing morphologically rich languages.
+
+The team used MarMoT for the prediction of PoS and morphological tags and submitted the highest scoring systems for all languages but French.
