@@ -1,4 +1,7 @@
 #summary MarMoT predictions for the SPMRL data sets
+#labels SPMRL
+
+= SPMRL =
 
 A team of [http://www.ims.uni-stuttgart.de/ IMS], [http://www.inf.u-szeged.hu Szeged ] and [http://cis.uni-muenchen.de CIS] participated in the [http://www.spmrl.org/spmrl2013-sharedtask.html SPMRL 2013 shared task] on parsing morphologically rich languages.
 
@@ -18,8 +21,5 @@ python make_conll09.py\
 </pre>
 
 Where the predicted SPMRL file is used to extract predicted lemmas. The predicted file can also be left unspecified.
-
-
-
 
 
