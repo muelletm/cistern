@@ -4,7 +4,22 @@ A team of [http://www.ims.uni-stuttgart.de/ IMS], [http://www.inf.u-szeged.hu Sz
 
 The team used MarMoT for the prediction of PoS and morphological tags and submitted the highest scoring systems for all languages but French.
 
-Here you can find the used predictions for training, development and test files. The training predictions were created by 5-fold jack-knifing. Details can be found in the system description [paper ]
+Here you can find the used predictions for training, development and test files. The training predictions were created by 5-fold jack-knifing. Details can be found in the system description [http://aclweb.org/anthology/W/W13/W13-4916.pdf paper].
+
+The predictions as well a script for creating CoNLL 2009 files out of the SPMRL files can be downloaded [http://www.cis.lmu.de/~muellets/marmot/marmot_spmrl.tar.bz2 here].
+
+You can run the script with the following command:
+
+<pre>
+python make_conll09.py\
+ -g GERMAN_SPMRL/gold/conll/train/train.German.gold.conll\
+ -p GERMAN_SPMRL/pred/conll/train/train.German.pred.conll\
+ -m train.German.marmot.txt -o train.German.conll09
+</pre>
+
+Where the predicted SPMRL file is used to extract predicted lemmas. The predicted file can also be left unspecified.
 
 
-The prediction as well a script for creating CoNLL 2009 files out of the   
+
+
+
