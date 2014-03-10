@@ -6,9 +6,9 @@ The codes provides here will compute CoSimRank. You can also compute the cosine 
  
 = Get started = 
  
-  # download the code via SVN 
-  # go to the folder and compile the code (make command) 
-  # run sandbox/sandbox.sh to play around 
+  # checkout the code via SVN: `svn checkout http://cistern.googlecode.com/svn/trunk/ cistern-read-only`
+  # go to the folder and compile the code (`make`) 
+  # run `sandbox/sandbox.sh` to play around 
  
 = Graph files = 
  
