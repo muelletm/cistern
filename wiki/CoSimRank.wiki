@@ -1,4 +1,3 @@
-
 CoSimRank is a new graph based similarity measure based on PageRank. 
  
 = Introduction = 
@@ -25,7 +24,7 @@ The codes also contains the matching dictionary files for the graphs.
  
 = Seed file = 
  
-For bilingual experiments a seed file is required. This file contains known translations. For monolingual experiments (synonym extraction) this file is not used. 
+For bilingual experiments a seed file is required. This file contains known translations. It is also in [http://math.nist.gov/MatrixMarket/ matrix market] file file format and usually contains edges of weigth 1. But other weights might be interesting as well. For monolingual experiments (synonym extraction) this file is not used. 
  
 = Testset file = 
  
