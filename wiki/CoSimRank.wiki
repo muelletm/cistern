@@ -1,4 +1,4 @@
-CoSimRank is a new graph based similarity measure based on [http://en.wikipedia.org/wiki/PageRank PageRank]. 
+[http://www.cis.lmu.de/~sascha/CoSimRank/wordle.png]
  
 = Introduction = 
  
@@ -12,7 +12,7 @@ The codes provides here will compute CoSimRank. You can also compute the cosine 
  
 = Graph files = 
  
-The graph files are in [http://math.nist.gov/MatrixMarket/ matrix market] file file format. Each graph can contain several files, each one presenting one edge type. 
+The graph files are in [http://math.nist.gov/MatrixMarket/ matrix market] file format. Each graph can contain several files, each one presenting one edge type. 
  
 The code comes with an English and a German graph, with approximately 30k words each. The graphs have no edges type (or just one). 
  
