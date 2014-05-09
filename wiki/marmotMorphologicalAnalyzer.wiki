@@ -1,5 +1,7 @@
 #summary Integrating the output of a morphological analyzer
 
+= Introduction =
+
 This article assumes that you know how to train standard MarMoT models.
 If not read [marmotTraining Training new models] first.
 
@@ -13,6 +15,9 @@ The first way is to create a morphological dictionary, which is a text file list
 zweitägige      zweitägige      ADJA    degree=pos|gender=neut|case=nom|number=sg
 zweitägige      zweitägige      ADJA    degree=pos|gender=noGend|case=acc|number=pl
 zweitägige      zweitägige      ADJA    degree=pos|gender=noGend|case=nom|number=pl
+Zustrom         Zustrom         NN      gender=masc|case=acc|number=sg
+Zustrom         Zustrom         NN      gender=masc|case=dat|number=sg
+Zustrom         Zustrom         NN      gender=masc|case=nom|number=sg
 </pre>
 
 In the example the dictionary lists the form, lemma, PoS and the morphological features.
@@ -74,4 +79,3 @@ java -cp marmot.jar marmot.morph.cmd.Annotator\
  --test-file form-index=0,token-feature-index=1,text.txt\
  --pred-file text.out.txt\
 </pre>
-
