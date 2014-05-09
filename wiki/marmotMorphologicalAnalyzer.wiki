@@ -3,19 +3,16 @@
 This article assumes that you know how to train standard MarMoT models.
 If not read [marmotTraining Training new models] first.
 
-There are two ways of integrating the output of an analyzer into Marmot.
+There are two ways of integrating the output of an analyzer.
 
 = Morphological Dictionary =
 
-The first way is to create a morphological dictionary, which is a text file listing a word form an a number of morphological features in each line. Word forms may occur multiple times. A German example could look like this:
+The first way is to create a morphological dictionary, which is a text file listing a word form and a number of morphological features in each line. Word forms may occur multiple times. A German example could look like this:
 
 <pre>
 zweitägige      zweitägige      ADJA    degree=pos|gender=neut|case=nom|number=sg
 zweitägige      zweitägige      ADJA    degree=pos|gender=noGend|case=acc|number=pl
 zweitägige      zweitägige      ADJA    degree=pos|gender=noGend|case=nom|number=pl
-Zweitausendeins Zweitausendeins NN      gender=fem|case=acc|number=sg
-Zweitausendeins zweitausendeins NN      gender=fem|case=acc|number=sg
-Zweitausendeins Zweitausendeins NN      gender=fem|case=acc|number=sg
 </pre>
 
 In the example the dictionary lists the form, lemma, PoS and the morphological features.
@@ -48,7 +45,7 @@ In order to use it we have to add a column containing the features to the traini
 6       .        f       punct=period                _
 </pre>
 
-Where features are separated by the '#' symbol and columns consisting only of '_' get ignored. For training we just add an option specifying the column:
+Where features are separated by the "#" symbol and columns consisting only of "`_`" get ignored. For training we just add an option specifying the column:
 
 <pre>
 $ java -Xmx5G -cp marmot.jar marmot.morph.cmd.Trainer\
@@ -69,12 +66,12 @@ especies feat2#feat4
 .        _
 </pre>
 
+We also have to add the feature index to the tagging command:
+
 <pre>
 java -cp marmot.jar marmot.morph.cmd.Annotator\
  --model-file de.marmot\
  --test-file form-index=0,token-feature-index=1,text.txt\
  --pred-file text.out.txt\
 </pre>
-
-
 
