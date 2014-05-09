@@ -1,0 +1,31 @@
+#summary Integrating the output of a morphological analyzer
+
+There are two ways of integrating the output of an analyzer into Marmot.
+
+= Morphological Dictionary =
+
+The first way is to create a morphological dictionary, which is a text file listing a word form an a number of morphological features in each line. Word forms may occur multiple times. A German example could look like this:
+
+<pre>
+zweitägige      zweitägige      ADJA    degree=pos|gender=neut|case=nom|number=sg
+zweitägige      zweitägige      ADJA    degree=pos|gender=noGend|case=acc|number=pl
+zweitägige      zweitägige      ADJA    degree=pos|gender=noGend|case=nom|number=pl
+Zweitausendeins Zweitausendeins NN      gender=fem|case=acc|number=sg
+Zweitausendeins zweitausendeins NN      gender=fem|case=acc|number=sg
+Zweitausendeins Zweitausendeins NN      gender=fem|case=acc|number=sg
+</pre>
+
+In the example the dictionary lists the form, lemma, PoS and the morphological features.
+
+If the dictionary file is 'mdict.txt' we can train a model using the following command:
+
+<pre>
+$ java -Xmx5G -cp marmot.jar marmot.morph.cmd.Trainer\
+   -train-file form-index=1,tag-index=2,train.txt\
+   -model-file de.marmot
+   -type-dict mdict.txt,2,3
+</pre>
+
+Where 2 and 3 are the columns that hold features we want to use.
+The form must be in column 0 and all other columns (the lemma in the example) are ignored.
+
