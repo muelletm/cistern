@@ -22,7 +22,7 @@ Zustrom         Zustrom         NN      gender=masc|case=nom|number=sg
 
 In the example the dictionary lists the form, lemma, PoS and the morphological features.
 
-If the dictionary file is 'mdict.txt' we can train a model using the following command:
+If the dictionary file is 'mdict.txt' you can train a model using the following command:
 
 <pre>
 $ java -Xmx5G -cp marmot.jar marmot.morph.cmd.Trainer\
@@ -31,14 +31,14 @@ $ java -Xmx5G -cp marmot.jar marmot.morph.cmd.Trainer\
    -type-dict mdict.txt,2,3
 </pre>
 
-Where 2 and 3 are the columns that hold features we want to use.
+Where 2 and 3 are the columns that hold features you want to use.
 The word form must be in column 0 and all other columns (the lemma in the example) are ignored.
 
 = Token Features =
 
 While the morphological dictionary allows for simple feature integrating it does not provide a way to include word forms not know at training time. If MarMoT is to be used in a pipeline the token-feature-index is a more powerful alternative.
 
-In order to use it we have to add a column containing the features to the training and test files:
+In order to use it you have to add a column containing the features to the training and test files:
 
 <pre>
 0       El       d       pos=article|gen=m|num=s     feat1#feat2
@@ -50,7 +50,7 @@ In order to use it we have to add a column containing the features to the traini
 6       .        f       punct=period                _
 </pre>
 
-Where features are separated by the "#" symbol and columns consisting only of "`_`" get ignored. For training we just add an option specifying the column:
+Where features are separated by the "#" symbol and columns consisting only of "`_`" get ignored. For training you just have to add an option specifying the column:
 
 <pre>
 $ java -Xmx5G -cp marmot.jar marmot.morph.cmd.Trainer\
@@ -59,7 +59,7 @@ $ java -Xmx5G -cp marmot.jar marmot.morph.cmd.Trainer\
    -model-file es.marmot
 </pre>
 
-In contrast to the dictionary approach we also have to integrate the features during tagging:
+In contrast to the dictionary approach you also have to integrate the features during tagging:
 
 <pre>
 El       feat1#feat2
