@@ -2,7 +2,7 @@
  
 = Introduction = 
  
-The codes provides here will compute CoSimRank. You can also compute the cosine of personalized [http://en.wikipedia.org/wiki/PageRank PageRank] vectors. Our experiments have shown that CoSimRank is more accurate. 
+The codes provided here will compute CoSimRank. You can also compute the cosine of personalized [http://en.wikipedia.org/wiki/PageRank PageRank] vectors. Our experiments have shown that CoSimRank is more accurate. 
  
 = Get started = 
  
