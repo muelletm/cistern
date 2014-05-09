@@ -1,5 +1,8 @@
 #summary Integrating the output of a morphological analyzer
 
+This article assumes that you know how to train standard MarMoT models.
+If not read [marmotTraining Training new models] first.
+
 There are two ways of integrating the output of an analyzer into Marmot.
 
 = Morphological Dictionary =
@@ -27,5 +30,51 @@ $ java -Xmx5G -cp marmot.jar marmot.morph.cmd.Trainer\
 </pre>
 
 Where 2 and 3 are the columns that hold features we want to use.
-The form must be in column 0 and all other columns (the lemma in the example) are ignored.
+The word form must be in column 0 and all other columns (the lemma in the example) are ignored.
+
+= Token Features =
+
+While the morphological dictionary allows for simple feature integrating it does not provide a way to include word forms not know at training time. If MarMoT is to be used in a pipeline the token-feature-index is a more powerful alternative.
+
+In order to use it we have to add a column containing the features to the training and test files:
+
+<pre>
+0       El       d       pos=article|gen=m|num=s     feat1#feat2
+1       género   n       pos=common|gen=m|num=s      feat4
+2       Marmota  n       pos=proper|gen=c|num=c      feat4#feat5
+3       incluye  v       pos=main|gen=c|num=s|per=3  feat5
+4       catorce  d       postype=numeral|gen=c|num=p feat1
+5       especies n       postype=common|gen=f|num=p  feat2#feat4
+6       .        f       punct=period                _
+</pre>
+
+Where features are separated by the '#' symbol and columns consisting only of '_' get ignored. For training we just add an option specifying the column:
+
+<pre>
+$ java -Xmx5G -cp marmot.jar marmot.morph.cmd.Trainer\
+   -train-file form-index=1,tag-index=2,morph-index=3,token-feature-index=4,train.txt\
+   -tag-morph true\
+   -model-file es.marmot
+</pre>
+
+In contrast to the dictionary approach we also have to integrate the features during tagging:
+
+<pre>
+El       feat1#feat2
+género   feat4
+Marmota  feat4#feat5
+incluye  feat5
+catorce  feat1
+especies feat2#feat4
+.        _
+</pre>
+
+<pre>
+java -cp marmot.jar marmot.morph.cmd.Annotator\
+ --model-file de.marmot\
+ --test-file form-index=0,token-feature-index=1,text.txt\
+ --pred-file text.out.txt\
+</pre>
+
+
 
