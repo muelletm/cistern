@@ -49,7 +49,7 @@ The actual tags will depend on the annotation of the treebank that was used to t
 
 =Further Reading=
  * [marmotTraining Training new models]
- * [marmotMorphologicalAnalyzer Integrating the output of a Morphological Analyzer]
+ * [marmotMorphologicalAnalyzer Integrating the output of an Morphological Analyzer]
  * [marmotSPMRL Predictions for the SPMRL data sets]
 
 =References=
