@@ -1,0 +1,29 @@
+.TH fst-lowmem 1 "March 2005" "" "fst-lowmem"
+.SH NAME
+fst-lowmem \- transforms transducers to the lowmem format
+.SH SYNOPSIS
+.B fst-lowmem
+.I [ file [ file ] ]
+.SH OPTIONS
+.TP
+.B \-s
+Switch surface and analysis layer of the transducer. You have to use this
+switch in order to use
+.I fst-infl3
+for generation rather than analysis.
+.SH DESCRIPTION
+.I fst-lowmem
+reads a transducer in standard format from the input and writes it in
+lowmem format to the output. The lowmem format is only support by the
+fst-infl3 program.
+
+.SH BUGS
+No bugs are known so far.
+.SH "SEE ALSO"
+fst-compiler, fst-infl3
+.SH AUTHOR
+Helmut Schmid,
+Institute for Computational Linguistics,
+University of Stuttgart,
+Email: schmid@ims.uni-stuttgart.de,
+This software is available under the GNU Public License.

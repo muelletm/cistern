@@ -1,0 +1,290 @@
+.TH fst-compiler 1 "December 2004" "" "fst-compiler"
+.SH NAME
+fst-compiler fst-compiler-utf8 \- Two compilers for SFST programs
+.SH SYNOPSIS
+.B fst-compiler
+.I grammar-file
+[
+.I output-file
+]
+.br
+.B fst-compiler-utf8
+.I grammar-file
+[
+.I output-file
+]
+.SH OPTIONS
+.TP
+.B \-c
+Store the transducer in compact format which is used by fst-infl2.
+.TP
+.B \-l
+Store the transducer in lowmem format.
+.TP
+.B \-s
+Switch surface and analysis layer of the transducer. You have to use
+this switch in order to use
+.I fst-infl (fst-infl2, fst-infl3)
+for generation rather than analysis.
+.SH DESCRIPTION
+.B fst-compiler
+is a compiler for finite-state transducer programs. It generates a
+minimized finite state transducer which can be used with 
+.I fst-mor,
+.I fst-infl,
+.I fst-print,
+.I fst-compare,
+.I fst-parse,
+and
+.I fst-lattice.
+The compact transducer representation which is generated with the -c
+flag, is supported by
+.I fst-infl2,
+.I fst-train,
+and
+.I fst-match.
+The memory-efficient transducer representation which is generated with
+the -l flag, is only supported by
+.I fst-infl3.
+.PP
+The first program argument is the name of a file which contains the
+transducer program. The programming language is described below. The
+second argument is the name of the file to which the resulting
+transducer will be written in binary form. If a second argument is
+missing, the output will be written to
+.I stdout.
+.PP
+.I fst-compiler-utf8
+differs from
+.I fst-compiler
+only in the character encoding. 
+.I fst-compiler-utf8
+supports UTF8 encoding of the source files whereas
+.I fst-compiler
+is to be used for 8-Bit character codes like latin1 which are an
+extension of the ASCII code. Information about the encoding is stored
+in the transducer files and used by the other SFST programs.
+.SH "FILE FORMATS"
+A transducer program consists of an (optional) sequence of
+.I alphabet
+and 
+.I variable
+definitions followed by a single 
+.I transducer expression
+which defines the result transducer.
+.PP
+.SM Alphabet
+.PP
+An alphabet definition consists of the keyword ALPHABET followed by
+= and some transducer expression e.g.
+.TP
+    ALPHABET = [a-z]:[A-Z]
+.PP
+This command redefines the alphabet as the set of symbol pairs
+occurring on the transitions of the transducer. Occurrences of
+two-level operators, negation operators and unquoted periods always
+have to be preceded by an alphabet definition.
+.PP
+.SM Variables
+.PP
+There are two different types of variables. 
+.I Symbol set variables
+are enclosed by hash signs (#) and take symbol sequences (see below)
+as values:
+.TP 0
+    #UC# = A-Z
+    #LC# = a-z
+.PP
+.I Transducer variables
+are enclosed by dollar signs and take transducer expressions as
+values:
+.TP 0
+    $MAP$ = [a-z]:[A-Z]+
+    $MAP$ = [#LC#]:[#UC#]+
+.PP
+Variables whose name starts with the symbol `=' are special
+.I agreement
+variables. If an agreement variable occurs more than once in a
+transducer expression, it will always have the same value. Consider
+the following transducer program:
+.TP 0
+    $=1$ = [abc]
+    $=1$ X $=1$
+.PP
+The result transducer recognizes the strings aXa, bXb, and cXc. Only
+acyclic transducers (i.e. transducers with a finite set of string
+mappings) can be assigned to agreement variables.
+.PP
+.SM Symbols
+.PP
+A symbol is either 
+.PP
+- a single character like A s 5,
+.PP
+- a quoted character like \\* or \\_,
+.TP 2
+- a multi-character symbol like <X> or <ab.c5> (which is always
+enclosed in angle brackets) or
+.TP
+- a backslash followed by a number which is the numeric code of the
+designated character
+.PP
+- the null symbol <>.
+.PP
+.SM Symbol sequence
+.PP
+A symbol sequence is a sequence of characters, multi-character symbols
+and character ranges, e.g. a-z \\. <x>.
+.PP
+.SM symbol range
+.PP
+A symbol range is either
+.PP
+- a single symbol
+.PP
+- a symbol sequence enclosed in square brackets like [A-Za-z] or
+.PP
+- a symbol sequence starting with ^ and enclosed in square brackets
+like [^A-Za-z] (designating the complement of [a-zA-Z]) or
+.PP
+- the period (which represents any symbol from the alphabet)
+.PP
+.SM Transducer expressions
+.PP
+A transducer expression (TE) is recursively defined as follows:
+.TP 2
+- A pair of two symbol ranges separated by a colon is a TE.
+
+[a-z]:[a-Z]
+.TP 1
+- A single symbol range like [a-z] is a TE.
+.BR
+It is a short form for [a-z]:[a-z].
+.TP 1
+- Two symbol sequences enclosed in braces and separated by a colon are
+a TE. {a[bc]}:{def} is equivalent to a:d b:e <>:f | a:d c:e <>:f.
+.TP 1
+- X Y is a TE if X and Y are TEs.
+.BR
+(Blanks are ignored unless they are quoted.)
+.TP 1
+- (X) is a TE if X is a TE.
+.TP 1
+- X op is a TE is X is a TE and op is either * (Kleene's star operator), +
+(Kleene's plus operator), or ? (optionality operator)
+.TP 1
+- op X is a TE is X is a TE and op is either ! (negation operator), ^
+(target language extraction operator), _ (source language extraction
+operator), or ^_ (source and target switch operator).
+.TP 1
+- X op Y is a TE is X and Y are TEs and op is either & (conjunction
+operator), | (disjunction operator), || (composition operator), or -
+(subtraction operator)
+.TP 1
+- L x op y R is a TE if L and R are TEs, x and y are symbol ranges and
+op is either => (two-level restriction), <= (two-level coercion), or
+<=> (two-level restriction and coercion).
+.TP 1
+- X op L__R is a TE if X, L and R are TEs and op is either ^-> (upward
+replacement), _-> (downward replacement), /-> (leftward replacement)
+or \\-> (rightward replacement). Furthermore, L and R must define
+automata (i.e. which map their strings onto themselves). These
+operators correspond to Karttunen's replace operators. If the arrow is
+followed by a question mark (?), the replacement becomes optional.
+.TP 1
+- X << l is a TE if X is a TE, and l is either of the form
+a or the form a:b where a and b are single characters or symbols. The
+result is a transducer where l was freely inserted into X. The
+transducer ab << c for instance is equivalent to c*ac*bc*.
+.TP 1
+- X op Y L1__R2, ... , LN__RN is a TE if X,Y, L1 through LN and R1
+through RN are TEs, and op is either => (general restriction), <=
+(general coercion), ^=> (general surface restriction), ^<= (general
+surface coercion), ^<=> (general surface restriction and coercion),
+_=> (general deep restriction), _<= (general deep coercion), _<=>
+(general deep restriction and coercion). (These operators were
+implemented following a suggestion by Anssi Yli-Jyra.)
+.TP 1
+- "fname" is a TE. The compiler reads the file named fname and turns
+it into a transducer of the form line1|line2|line3|... where linex is
+the x-th line of the file. All characters other than : and \\ are
+interpreted literally (i.e. not as operators). This TE is typically
+used e.g. to read morpheme list from a file.
+.TP 1
+- "<fname>" is a TE. The compiler reads a pre-compiled transducer from
+the file named fname. This
+.PP
+Further Features
+.PP
+Comments start with the symbol % and extend up to the end of the line.
+Blanks are ignored unless they are quoted. Expressions terminate at
+the end of a line unless the end of line is preceded by a backslash.
+The command
+.TP
+#include "fname"
+.PP
+can be used to insert source code from a
+file named fname.
+The command
+.TP
+RE >> "fname"
+.PP
+stores the regular expression RE in the file fname.
+The command
+.TP
+#use hopcroft
+.PP
+tells the compiler to use the Hopcroft minimisation algorithm from now on, and
+.TP
+#use default
+.PP
+switsches back to the default minimisation algorithm (Brzozowski).
+The command
+
+.SH EXAMPLE
+Here is an example of a simple transducer program. Assuming that
+the file "adj-stems" contains the two lines
+.PP
+.ti +3
+easy
+.ti +3
+late
+.ti +3
+big
+.PP
+this transducer will correctly analyze the adjective forms easy,
+easier, easiest and late, later, and latest.
+.PP
+
+ALPHABET = [a-zA-Z] y:i e:<> <ADJ>:<> 
+
+$R$ = y<=>i (<ADJ>:<> e)
+
+$R2$ = e<=><> (<ADJ>:<> e)
+
+$R$ = $R$ & $R2$
+
+$Stems$ = "adj-stems"
+
+$S$ = $Stems$ <ADJ> (<pos>:<>|<cmp>:{er}|<sup>:{est})
+
+$S$ || $R$
+
+.SH "EXIT STATUS"
+.B fst-compiler
+returns 0 unless some error occurs.
+.\" .SH FILES
+.SH BUGS
+The compiler gets the operator precedence wrong in case of two-level
+rules and interprets the expression "ab c<=>d ef" as "a(b c<=>d
+(ef))". Therefore, you should always surround the left context of
+two-level rules with parenthesis: (ab) c<=>d (ef)
+.SH "SEE ALSO"
+fst-mor, fst-infl, fst-infl2, fst-infl3, fst-print, fst-compact,
+fst-parse, fst-compare, fst-compact, fst-lowmem, fst-lattice, fst-train
+.SH AUTHOR
+Helmut Schmid,
+Institute for Computational Linguistics,
+University of Stuttgart,
+Email: schmid@ims.uni-stuttgart.de,
+This software is available under the GNU Public License.

@@ -1,0 +1,33 @@
+.TH fst-text2bin 1 "June 2007" "" "fst-text2bin"
+.SH NAME
+fst-text2bin \- converts a transducer from its text form to binary format
+.SH SYNOPSIS
+.B fst-text2bin 
+.I text-file
+.I bin-file
+.SH OPTIONS
+.TP
+.B \-h
+Print usage information.
+.SH DESCRIPTION
+.B fst-text2bin
+is a tool which reads a transducer which was stored in text form from the input file and write it in the binary format to the output file. The input format is identical to the output format of the 
+.I fst-print
+command. The output format is equivalent to the standard output format of the
+.I fst-compiler
+program. The programs
+.I fst-compact
+and
+.I fst-lowmem
+can be used to produce the other binary transducer formats.
+
+.SH BUGS
+No bugs are known so far.
+.SH "SEE ALSO"
+fst-compiler, fst-print, fst-compact, fst-lowmem
+.SH AUTHOR
+Helmut Schmid,
+Institute for Computational Linguistics,
+University of Stuttgart,
+Email: schmid@ims.uni-stuttgart.de,
+This software is available under the GNU Public License.

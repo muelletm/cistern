@@ -1,0 +1,56 @@
+.TH fst-train 1 "October 2005" "" "fst-train"
+.SH NAME
+fst-train \- learning transducer weights
+.SH SYNOPSIS
+.B fst-train [ options ]
+.I file
+[
+.I input-file
+]
+.SH OPTIONS
+.TP
+.B \-t file
+use multiple transducers in the same way as 
+.B fst-infl2.
+.TP
+.B \-b
+This option is used for supervised training with disambiguated data.
+.TP
+.B \-d
+Disambiguate the analyses symbolically as described in the man pages
+of 
+.B fst-infl2.
+.TP
+.B \-q
+quiet mode
+.SH DESCRIPTION
+.I fst-train
+is used to learn statistical weights for the transducers transitions
+based on training data. Training is either unsupervised (default) or
+supervised (option -b).
+.br
+In supervised mode, the input contains fully disambiguated data with
+the surface and the analysis form. The format restrictions are
+identical to those applying for lexicon entries, i.e. all operators
+other than the colon operator (:) are interpreted literally.
+.br
+In unsupervised mode, the input data consists of surface strings. The
+format is identical to the input format of 
+.I fst-infl
+and
+.I fst-infl2.
+.br
+The transducer weights are stored in files whose names are obtained by
+appending 
+.I .prob
+to the names of the transducer files.
+.SH BUGS
+No bugs are known so far.
+.SH "SEE ALSO"
+fst-infl2, fst-compiler
+.SH AUTHOR
+Helmut Schmid,
+Institute for Computational Linguistics,
+University of Stuttgart,
+Email: schmid@ims.uni-stuttgart.de,
+This software is available under the GNU Public License.

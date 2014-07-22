@@ -1,0 +1,17 @@
+Source code files of the XMOR morphology
+
+morph.fst	 main file
+symbols.fst	 definition of the single- and multi-character symbols (tags)
+map1.fst	 mapping of the analysis symbols of the lexicon entries
+map2.fst	 mapping of the surface symbols of the lexicon entries
+defaultstems.fst generation of default compounding and derivational stems
+		 from base stems
+suffixfilter.fst  filter checking agreement of the suffix features
+prefixfilter.fst filter checking agreement of the prefix features
+compoundfilter.fst filter checking the structure of compounds
+inflection.fst	 definition of the inflectional endings
+inflectionfilter.fst filter checking agreement of the inflection feature
+phon.fst	 morpho-phonological rules
+
+lexicon		 contains the list of lexicon entries
+
