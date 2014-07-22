@@ -23,7 +23,7 @@ A compiled SMOR transducer is available [http://www.cis.uni-muenchen.de/~schmid/
 Gertrud Faaß did an evaluation of SMOR and created a [http://www.cis.uni-muenchen.de/~schmid/tools/SMOR/dspin/ documentation] for it (in German).
 
 = Developers =
-SMOR was developed by Helmut Schmid at the Institut für maschinelle Sprachverarbeitung (IMS) of the University of Stuttgart and is based on earlier work on DMOR by Anne Schiller and on work done in the DeKo project. The SMOR morphology is based on the IMSLex lexical database which provides information about stems and their inflection class. The development of the IMSLex resource was lead by Prof. Ulrich Heid during his time at IMS. SMOR is jointly maintained by the universities of Hildesheim, Munich and Stuttgart, 
+SMOR was developed by Helmut Schmid at the Institut für maschinelle Sprachverarbeitung (IMS) of the University of Stuttgart and is based on earlier work on DMOR by Anne Schiller and on work done in the !DeKo project. The SMOR morphology is based on the IMSLex lexical database which provides information about stems and their inflection class. The development of the IMSLex resource was lead by Prof. Ulrich Heid during his time at IMS. SMOR is jointly maintained by the universities of Hildesheim, Munich and Stuttgart, 
 
 = Publications =
 Please cite the following publication in order to refer to the SMOR morphology:
