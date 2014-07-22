@@ -15,7 +15,7 @@ un<PREF>übersetzen<V>bar<SUFF><+ADJ><Sup><Neut><Nom><Sg><St>
 un<PREF>übersetzen<V>bar<SUFF><+ADJ><Sup><Neut><Acc><Sg><St>
 }}}
 
-= Licensing =
+= License =
 
 SMOR is freely available for non-commercial purposes such as research, education, and evaluation.
 
