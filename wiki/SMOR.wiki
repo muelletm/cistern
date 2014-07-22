@@ -19,8 +19,7 @@ un<PREF>übersetzen<V>bar<SUFF><+ADJ><Sup><Neut><Acc><Sg><St>
 SMOR was developed by Helmut Schmid during his time at the Institut für maschinelle Sprachverarbeitung (IMS) of the University of Stuttgart and builds on earlier work on DMOR by Anne Schiller and on work done in the !DeKo project. The SMOR morphology uses the IMSLex lexical database which provides information about stems and their inflection class. The development of the [http://www.ims.uni-stuttgart.de/forschung/ressourcen/lexika/IMSLex.html IMSLex] resource was led by Prof. Ulrich Heid during his time at IMS. SMOR is jointly maintained by the universities
 of Hildesheim ([http://www.uni-hildesheim.de/fb3/institute/iwist/mitglieder/heid/" Prof. Ulrich Heid], Institut für Informationswissenschaft und
 Sprachtechnologie),
-Munich ([http://www.cis.uni-muenchen.de/~schmid/ Dr. Helmut
-  Schmid], Centrum für Informations- und Sprachtechnologie) and Stuttgart
+Munich ([http://www.cis.uni-muenchen.de/~schmid/ Dr. Helmut Schmid], Centrum für Informations- und Sprachtechnologie) and Stuttgart
 ([http://www.ims.uni-stuttgart.de/institut/mitarbeiter/jonas/ Prof. Jonas
   Kuhn], IMS). 
 
