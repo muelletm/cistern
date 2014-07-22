@@ -1,0 +1,37 @@
+.TH fst-generate 1 "October 2003" "" "fst-generate"
+.SH NAME
+fst-generate \- randomly generate strings of character pairs from a transducer
+.SH SYNOPSIS
+.B fst-generate
+.I file1 [ file [ file ] ]
+.SH OPTIONS
+.TP
+.B \-u
+print upper layer characters only
+.TP
+.B \-l
+print lower layer characters only
+.TP
+.B \-b
+print upper and lower layer characters as separate strings
+.TP
+.B \-h
+print usage information.
+.TP
+.B \-q
+quiet mode
+.SH DESCRIPTION
+.I fst-generate
+randomly generate sequences of character pairs which are accepted by
+the transducer.
+
+.SH BUGS
+No bugs are known so far.
+.SH "SEE ALSO"
+fst-parse
+.SH AUTHOR
+Helmut Schmid,
+Institute for Computational Linguistics,
+University of Stuttgart,
+Email: schmid@ims.uni-stuttgart.de,
+This software is available under the GNU Public License.

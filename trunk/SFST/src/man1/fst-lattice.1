@@ -1,0 +1,34 @@
+.TH fst-lattice 1 "October 2005" "" "fst-lattice"
+.SH NAME
+fst-lattice \- analyzes the input printing a transducer rather than a
+set of strings
+.SH SYNOPSIS
+.B fst-lattice
+.I file1 [ file [ file ] ]
+.SH OPTIONS
+.TP
+.B \-h
+print usage information.
+.TP
+.B \-q
+quiet mode
+.TP
+.B \-a
+print the analysis characters only (and not the surface characters).debugging mode
+.SH DESCRIPTION
+.I fst-lattice
+reads a transducer from the first argument file, composes it with each
+line of the input file and prints the resulting transducers.
+.TP
+This program is useful to print the set of possible analyses compactly
+in the form of a transducer/automaton.
+.SH BUGS
+No bugs are known so far.
+.SH "SEE ALSO"
+fst-infl, fst-compiler
+.SH AUTHOR
+Helmut Schmid,
+Institute for Computational Linguistics,
+University of Stuttgart,
+Email: schmid@ims.uni-stuttgart.de,
+This software is available under the GNU Public License.
