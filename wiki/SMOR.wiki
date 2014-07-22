@@ -33,7 +33,7 @@ Gertrud Faaß did an evaluation of SMOR and created a [http://www.cis.uni-muench
 = Publications =
 Please cite the following publication in order to refer to the SMOR morphology:
 
-Helmut Schmid, Arne Fitschen and Ulrich Heid: SMOR: *A German Computational Morphology Covering Derivation, Composition, and Inflection*, Proceedings of the IVth International Conference on Language Resources and Evaluation (LREC 2004), p. 1263-1266, Lisbon, Portugal.
+Helmut Schmid, Arne Fitschen and Ulrich Heid: SMOR: *A German Computational Morphology Covering Derivation, Composition, and Inflection*, Proceedings of the IVth International Conference on Language Resources and Evaluation (LREC 2004), p. 1263-1266, Lisbon, Portugal. ([http://dblp.uni-trier.de/rec/bibtex/conf/lrec/SchmidFH04 bibtex]
 
 == Contact ==
 Please send comments, suggestions and bug reports to Helmut Schmid at !FirstName.!LastName@ims.uni-stuttgart.de. (Insert the name into the email address.) 
