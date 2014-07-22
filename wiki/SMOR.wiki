@@ -35,4 +35,4 @@ Please cite the following publication in order to refer to the SMOR morphology:
 Helmut Schmid, Arne Fitschen and Ulrich Heid: SMOR: *A German Computational Morphology Covering Derivation, Composition, and Inflection*, Proceedings of the IVth International Conference on Language Resources and Evaluation (LREC 2004), p. 1263-1266, Lisbon, Portugal.
 
 = Contact =
-[mailto:schmid@cis.uni-muenchen.de Helmut Schmid]
+Please send comments, suggestions and bug reports to Helmut Schmid at FirstName.LastName@ims.uni-stuttgart.de. (Insert the name into the email address.) 
