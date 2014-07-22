@@ -11,7 +11,7 @@ Haus<+NN><Neut><Gen><Pl>
 Haus<+NN><Neut><Nom><Pl>
 }}}
 
-And here are the analyses of "unübersetzbarstes" showing prefixation, suffixation and gradation:
+And here is the analysis of "unübersetzbarstes" showing prefixation, suffixation and gradation:
 {{{
 un<PREF>übersetzen<V>bar<SUFF><+ADJ><Sup><Neut><Nom><Sg><St>
 un<PREF>übersetzen<V>bar<SUFF><+ADJ><Sup><Neut><Acc><Sg><St>
