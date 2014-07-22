@@ -20,8 +20,7 @@ SMOR was developed by Helmut Schmid during his time at the Institut für maschin
 of Hildesheim ([http://www.uni-hildesheim.de/fb3/institute/iwist/mitglieder/heid/" Prof. Ulrich Heid], Institut für Informationswissenschaft und
 Sprachtechnologie),
 Munich ([http://www.cis.uni-muenchen.de/~schmid/ Dr. Helmut Schmid], Centrum für Informations- und Sprachtechnologie) and Stuttgart
-([http://www.ims.uni-stuttgart.de/institut/mitarbeiter/jonas/ Prof. Jonas
-  Kuhn], IMS). 
+([http://www.ims.uni-stuttgart.de/institut/mitarbeiter/jonas/ Prof. Jonas Kuhn], IMS). 
 
 = License =
 
