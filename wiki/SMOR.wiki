@@ -1,0 +1,31 @@
+SMOR - A German Computational Morphology
+
+= Introduction =
+
+SMOR is a comprehensive German finite-state morphology covering inflection, derivation and compounding. Here is an example analysis of SMOR for the word "Häuser":
+{{{
+Haus<+NN><Neut><Acc><Pl>
+Haus<+NN><Neut><Gen><Pl>
+Haus<+NN><Neut><Nom><Pl>
+}}}
+
+And here are the analyses of "unübersetzbarstes" showing prefixation, suffixation and gradation:
+{{{
+un<PREF>übersetzen<V>bar<SUFF><+ADJ><Sup><Neut><Nom><Sg><St>
+un<PREF>übersetzen<V>bar<SUFF><+ADJ><Sup><Neut><Acc><Sg><St>
+}}}
+
+= Download =
+A compiled SMOR transducer is available [https://code.google.com/p/cistern/wiki/SFST here]. You have to install the SFST tools first before you can run the morphology.
+
+
+= Documentation =
+Gertrud Faaß did an evaluation of SMOR and created a [http://www.cis.uni-muenchen.de/~schmid/tools/SMOR/dspin/ documentation] for it (in German).
+
+= Developers =
+SMOR was developed by Helmut Schmid at the Institut für maschinelle Sprachverarbeitung (IMS) of the University of Stuttgart and is based on earlier work on DMOR by Anne Schiller and on work done in the DeKo project. The SMOR morphology is based on the IMSLex lexical database which provides information about stems and their inflection class. The development of the IMSLex resource was lead by Prof. Ulrich Heid during his time at IMS. 
+
+= Publications =
+Please cite the following publication in order to refer to the SMOR morphology:
+
+Helmut Schmid, Arne Fitschen and Ulrich Heid: SMOR: *A German Computational Morphology Covering Derivation, Composition, and Inflection*, Proceedings of the IVth International Conference on Language Resources and Evaluation (LREC 2004), p. 1263-1266, Lisbon, Portugal.
