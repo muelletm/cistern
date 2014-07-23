@@ -2,7 +2,7 @@ SMOR - A German Computational Morphology
 
 = Introduction =
 
-SMOR is a comprehensive German finite-state morphology covering inflection, derivation and compounding which was developed at the [http://www.ims.uni-stuttgart.de/ Institut für Maschinelle Sprachverarbeitung (IMS), University of Stuttgart] in the years 2000 to 2013. 
+SMOR is a comprehensive German finite-state morphology covering inflection, derivation and compounding which was developed at the [http://www.ims.uni-stuttgart.de/ Institut für Maschinelle Sprachverarbeitung (IMS), University of Stuttgart] in the years 2002 to 2013. 
 
 Here is an example analysis of SMOR for the word "Häuser":
 {{{
