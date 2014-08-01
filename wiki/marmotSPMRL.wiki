@@ -23,4 +23,4 @@ python make_conll09.py\
 Where the predicted SPMRL file is used to extract predicted lemmas. The predicted file can also be left unspecified.
 
 
-* DISCLAIMER: Until June, 13 2014 some of the files contained gold predictions, be sure to use the current version in. * 
+* DISCLAIMER: Until June, 13 2014 some of the files contained gold predictions, please be sure to use the current version. * 
