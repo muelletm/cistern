@@ -53,7 +53,7 @@ There are two projects which extend the functionality of SFST in various ways:
 
 === Contributions by other authors ===
   * Alex Linke provided an [http://www.use-strict.de/software/fst2dot.html interface] to the Graphviz tool for the graphical output of transducers. 
-  * Sebastian Nagel wrote an [http://www.cis.uni-muenchen.de/~schmid/tools/SFST/sfst.el Emacs mode] for editing transducer files and a [http://www.cis.uni-muenchen.de/~wastl/misc/Fst2Dot.pl Perl program] which converts SFST transducers to the Graphviz format (similar to that of Alex Linke). 
+  * Sebastian Nagel wrote an [http://www.cis.uni-muenchen.de/~schmid/tools/SFST/data/sfst.el Emacs mode] for editing transducer files and a [http://www.cis.uni-muenchen.de/~schmid/tools/SFST/data/Fst2Dot.pl Perl program] which converts SFST transducers to the Graphviz format (similar to that of Alex Linke). 
   * Stefan Evert also sent me a [http://www.cis.uni-muenchen.de/~schmid/tools/SFST/data/fst-draw Graphviz converter].
   * Matthias Kistler provided a [http://www.cis.uni-muenchen.de/~schmid/tools/SFST/data/vim-mode.tar.gz highlighting mode] for the VIM editor.
   * Toni Arnold developed a [http://home.gna.org/pysfst/ Python interface] for the SFST library and [http://home.gna.org/emores/ Emores], an Empirical MOrphological REaSoning engine for the automatic acquisition of lemmas from a word list. 
