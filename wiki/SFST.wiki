@@ -34,7 +34,7 @@ Documentation
   * short [http://www.cis.uni-muenchen.de/~schmid/tools/SFST/data/SFST-Manual.pdf manual] (included in the source code package)
   * [http://www.cis.uni-muenchen.de/~schmid/tools/SFST/data/SFST-Tutorial.pdf tutorial] on the implementation of computational morphologies (included in the source code package)
 
-Packages (not always up to date)
+Packages (not necessarily up to date)
   * [http://packages.debian.org/sid/sfst Debian package] for SFST (created by Francis Tyers)
 
 === Publications ===
