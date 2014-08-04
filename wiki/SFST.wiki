@@ -24,7 +24,7 @@ SFST is a toolkit for the implementation of morphological analysers and other to
 
 === Downloads ===
 Source code of the SFST tools
-  * [http://www.cis.uni-muenchen.de/~schmid/tools/SFST/data/SFST-1.4.6h.tar.gz SMOR version 1.4.6h]
+  * [http://www.cis.uni-muenchen.de/~schmid/tools/SFST/data/SFST-1.4.6h.tar.gz SFST version 1.4.6h]
 
 Precompiled morphological transducers
   * [https://code.google.com/p/cistern/wiki/SMOR SMOR], a German finite-state morphology which is based on SFST.
@@ -43,4 +43,22 @@ Please cite the following publication if you want to refer to the SFST tools:
 
 Helmut Schmid, A Programming Language for Finite State Transducers, Proceedings of the 5th International Workshop on Finite State Methods in Natural Language Processing (FSMNLP 2005), Helsinki, Finland.
 
-More information is available at [http://www.cis.uni-muenchen.de/~schmid/tools/SFST].
+
+=== Relationship to other FST Toolkits ===
+There are two projects which extend the functionality of SFST in various ways:
+
+  * Anssi Yli-Jyrä's [http://www.ling.helsinki.fi/~aylijyra/afst AFST] toolkit is based on SFST
+
+  * The [http://www.ling.helsinki.fi/kieliteknologia/tutkimus/hfst HFST] tookit developed by Krister Lindén, Kimmo Koskenniemi, and colleagues was implemented on top of the three alternative FST libraries SFST, [http://www.openfst.org OpenFST], and [http://wiki.apertium.org/wiki/Foma foma]. 
+
+=== Contributions by other authors ===
+  * Alex Linke provided an [http://www.use-strict.de/software/fst2dot.html interface] to the Graphviz tool for the graphical output of transducers. 
+  * Sebastian Nagel wrote an [http://www.cis.uni-muenchen.de/~wastl/emacs/sfst.el Emacs mode] for editing transducer files and a [http://www.cis.uni-muenchen.de/~wastl/misc/Fst2Dot.pl Perl program] which converts SFST transducers to the Graphviz format (similar to that of Alex Linke). 
+  * Stefan Evert also sent me a [http://www.cis.uni-muenchen.de/~schmid/tools/SFST/data/fst-draw Graphviz converter].
+  * Matthias Kistler provided a [http://www.cis.uni-muenchen.de/~schmid/tools/SFST/data/vim-mode.tar.gz highlighting mode] for the VIM editor.
+  * Toni Arnold developed a [http://home.gna.org/pysfst/ Python interface] for the SFST library and [http://home.gna.org/emores/ Emores], an Empirical MOrphological REaSoning engine for the automatic acquisition of lemmas from a word list. 
+  * Marius L. Jøhndal created a [http://github.com/mlj/ruby-sfst/tree/master Ruby interface] for the SFST library.
+  * [http://code.google.com/p/dkpro-core-asl UIMA wrapper] for SFST (developed at the UKP Lab)
+
+
+Please send comments, suggestions and bug reports to Helmut Schmid at FirstName.LastName@ims.uni-stuttgart.de. (Insert the name into the email address.)
