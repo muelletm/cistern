@@ -23,7 +23,7 @@ SMOR is freely available for non-commercial purposes such as research, education
 purchase a license. 
 
 = Download =
-A compiled SMOR transducer is available [http://www.cis.uni-muenchen.de/~schmid/tools/SMOR/ here]. You have to install the [SFST] tools first before you can run the morphology.
+A compiled SMOR transducer is available [http://www.cis.uni-muenchen.de/~schmid/tools/SMOR/data/SMOR-linux.tar.gz here].
 
 
 = Documentation =
