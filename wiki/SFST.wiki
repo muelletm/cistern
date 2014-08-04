@@ -32,8 +32,7 @@ Precompiled morphological transducers
 
 Documentation
   * short [http://www.cis.uni-muenchen.de/~schmid/tools/SFST/data/SFST-Manual.pdf manual] (included in the source code package)
-  * [http://www.cis.uni-muenchen.de/~schmid/tools/SFST/data/SFST-Tutorial.pdf tutorial]
-on the implementation of computational morphologies (included in the
+  * [http://www.cis.uni-muenchen.de/~schmid/tools/SFST/data/SFST-Tutorial.pdf tutorial] on the implementation of computational morphologies (included in the
 source code package)
 
 Packages (not always up to date)
