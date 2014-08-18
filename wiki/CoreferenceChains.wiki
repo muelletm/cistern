@@ -8,12 +8,12 @@ http://www.cis.lmu.de/~heike/resources.html
 
 = Details =
 
-The chains have been automatically extracted using the Stanford CoreNLP tool [1].
+The chains have been automatically extracted using the Stanford CoreNLP tool (1).
 
-They are based on a part of English Gigaword Data [2].
+They are based on a part of English Gigaword Data (2).
 
 
 = References =
-[1] Heeyoong Lee, Yves Peirsman, Angel Chang, Nathanael Chambers, Mihai Surdeanu and Dan Jurafsky: "Stanford's multi-pass sieve coreference resolution system at the CoNLL-2011 shared task", 15th conference on CoNLL: Shared Task, pages 28-34, 2011.
+(1) Heeyoong Lee, Yves Peirsman, Angel Chang, Nathanael Chambers, Mihai Surdeanu and Dan Jurafsky: "Stanford's multi-pass sieve coreference resolution system at the CoNLL-2011 shared task", 15th conference on CoNLL: Shared Task, pages 28-34, 2011.
 
-[2] LDC2012T21, Agence France Presse 2010 
+(2) LDC2012T21, Agence France Presse 2010 
