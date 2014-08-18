@@ -1,0 +1,7 @@
+Word-antonym-pairs
+
+= Introduction =
+
+This resource is a collection of 6225 English word-antonym pairs from the online dictionary Merriam Webster (http://www.merriam-webster.com).
+
+The resource is available at http://www.cis.lmu.de/~heike/resources.html
