@@ -9,6 +9,8 @@ import java.util.List;
 
 import marmot.core.State;
 import marmot.core.WeightVector;
+import marmot.util.Check;
+import marmot.util.Numerics;
 
 
 
@@ -66,6 +68,7 @@ public class ZeroOrderSumLattice implements SumLattice {
 			int state_index = 0;
 			for (State state : candidates_.get(index)) {
 				double score = state.getScore() - score_sum;
+				assert Check.isNormal(score);
 				
 				boolean is_oracle_state = false;
 				if (oracle_ && gold_candidate_indexes_ != null ) {
@@ -96,23 +99,25 @@ public class ZeroOrderSumLattice implements SumLattice {
 		return candidates;
 	}
 	
-//	private double getScoreSum(Collection<State> states) {
-//		double score_sum = Double.NEGATIVE_INFINITY;
-//		for (State state : states) {
-//			score_sum = Numerics.sumLogProb(score_sum, state.getScore());
-//		}
-//		assert score_sum != Double.NEGATIVE_INFINITY;
-//		return score_sum;
-//	}
+	private double getScoreSum(Collection<State> states) {
+		double score_sum = Double.NEGATIVE_INFINITY;
+		for (State state : states) {
+			assert Check.isNormal(state.getScore());
+			score_sum = Numerics.sumLogProb(score_sum, state.getScore());
+		}
+		assert score_sum != Double.NEGATIVE_INFINITY;
+		assert Check.isNormal(score_sum);
+		return score_sum;
+	}
 	
 	// Faster but numerically less robust.
-	private double getScoreSum(Collection<State> states) {
-		double score_sum = 0.0;
-		for (State state : states) {
-			score_sum += Math.exp(state.getScore());
-		}
-		return Math.log(score_sum);
-	}
+//	private double getScoreSum(Collection<State> states) {
+//		double score_sum = 0.0;
+//		for (State state : states) {
+//			score_sum += Math.exp(state.getScore());
+//		}
+//		return Math.log(score_sum);
+//	}
 
 	@Override
 	public double update(WeightVector weights, double step_width) {

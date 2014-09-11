@@ -19,6 +19,9 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import marmot.util.Mutable;
+import marmot.util.StringUtils;
+
 public class Options extends java.util.Properties {
 
 	public static final long serialVersionUID = 1L;
@@ -39,13 +42,15 @@ public class Options extends java.util.Properties {
 	public static final String VERY_VERBOSE = "very-verbose";
 	public static final String TRAINER = "trainer";
 	public static final String AVERAGING = "averaging";
+	public static final String SEED = "seed";
 
 	private static final Map<String, String> DEFALUT_VALUES_ = new HashMap<String, String>();
 	private static final Map<String, String> COMMENTS_ = new HashMap<String, String>();
 
 	static {
 		DEFALUT_VALUES_.put(BEAM_SIZE, "1");
-		COMMENTS_.put(BEAM_SIZE, "Specify the beam size of the n-best decoder.");		
+		COMMENTS_
+				.put(BEAM_SIZE, "Specify the beam size of the n-best decoder.");
 		DEFALUT_VALUES_.put(ORDER, "2");
 		COMMENTS_.put(ORDER, "Set the model order.");
 		DEFALUT_VALUES_.put(PRUNE, "true");
@@ -55,13 +60,19 @@ public class Options extends java.util.Properties {
 		DEFALUT_VALUES_.put(PENALTY, "0.1");
 		COMMENTS_.put(PENALTY, "L1 penalty parameter.");
 		DEFALUT_VALUES_.put(PROB_THRESHOLD, "0.01");
-		COMMENTS_.put(PROB_THRESHOLD, "Initial pruning threshold. Changing this value should have almost no effect.");
+		COMMENTS_
+				.put(PROB_THRESHOLD,
+						"Initial pruning threshold. Changing this value should have almost no effect.");
 		DEFALUT_VALUES_.put(SHUFFLE, "true");
-		COMMENTS_.put(SHUFFLE, "Whether to shuffle between training iterations.");
+		COMMENTS_.put(SHUFFLE,
+				"Whether to shuffle between training iterations.");
 		DEFALUT_VALUES_.put(CANDIDATES_PER_STATE, "[4, 2, 1.5]");
-		COMMENTS_.put(CANDIDATES_PER_STATE, "Average number of states to obtain after pruning at each order. These are the mu values from the paper.");
+		COMMENTS_
+				.put(CANDIDATES_PER_STATE,
+						"Average number of states to obtain after pruning at each order. These are the mu values from the paper.");
 		DEFALUT_VALUES_.put(EFFECTIVE_ORDER, "1");
-		COMMENTS_.put(EFFECTIVE_ORDER, "Maximal order to reach before increasing the level.");
+		COMMENTS_.put(EFFECTIVE_ORDER,
+				"Maximal order to reach before increasing the level.");
 		DEFALUT_VALUES_.put(VECTOR_SIZE, "10000000");
 		COMMENTS_.put(VECTOR_SIZE, "Size of the weight vector.");
 		DEFALUT_VALUES_.put(VERBOSE, "false");
@@ -69,16 +80,25 @@ public class Options extends java.util.Properties {
 		DEFALUT_VALUES_.put(QUADRATIC_PENALTY, "0.0");
 		COMMENTS_.put(QUADRATIC_PENALTY, "L2 penalty parameter.");
 		DEFALUT_VALUES_.put(ORACLE, "false");
-		COMMENTS_.put(ORACLE, "Whether to do oracle pruning. Probably not relevant. Have a look at the paper!");
+		COMMENTS_
+				.put(ORACLE,
+						"Whether to do oracle pruning. Probably not relevant. Have a look at the paper!");
 		DEFALUT_VALUES_.put(MAX_TRANSITION_FEATURE_LEVEL, "-1");
-		COMMENTS_.put(MAX_TRANSITION_FEATURE_LEVEL, "Something for testing the code. Don't change it.");
+		COMMENTS_.put(MAX_TRANSITION_FEATURE_LEVEL,
+				"Something for testing the code. Don't change it.");
 		DEFALUT_VALUES_.put(VERY_VERBOSE, "false");
-		COMMENTS_.put(VERY_VERBOSE, "Whether to print a lot of status messages.");
+		COMMENTS_.put(VERY_VERBOSE,
+				"Whether to print a lot of status messages.");
 		DEFALUT_VALUES_.put(TRAINER, CrfTrainer.class.getCanonicalName());
-		COMMENTS_.put(TRAINER, "Which trainer to use. (There is also a perceptron trainer but don't use it.)");
+		COMMENTS_
+				.put(TRAINER,
+						"Which trainer to use. (There is also a perceptron trainer but don't use it.)");
 		DEFALUT_VALUES_.put(AVERAGING, "true");
 		COMMENTS_.put(AVERAGING, "Whether to use averaging. Perceptron only!");
-		
+		DEFALUT_VALUES_.put(SEED, "0");
+		COMMENTS_.put(AVERAGING, "Random Seed to use for shuffling. 0 for nondeterministic seed");
+
+
 	}
 
 	public Options() {
@@ -200,6 +220,9 @@ public class Options extends java.util.Properties {
 				checkBoundaries(index, args);
 				this.setProperty(option, args[index++]);
 			} else {
+
+				usage();
+
 				throw new RuntimeException(String.format(
 						"Unknown property: %s\n", option));
 			}
@@ -217,25 +240,28 @@ public class Options extends java.util.Properties {
 			throw new RuntimeException("Missing argument");
 		}
 	}
-	
+
 	public void dieIfPropertyIsEmpty(String property) {
 		if (getProperty(property).isEmpty()) {
 			usage();
-			System.err.format("Error: Property '%s' needs to be set!\n", property);
+			System.err.format("Error: Property '%s' needs to be set!\n",
+					property);
 			System.exit(1);
 		}
 	}
 
-	protected void usage(Map<String,String> defaults, Map<String,String> comments) {
+	protected void usage(Map<String, String> defaults,
+			Map<String, String> comments) {
 		for (Map.Entry<String, String> entry : defaults.entrySet()) {
 			System.err.format("\t%s:\n", entry.getKey());
 			String comment = comments.get(entry.getKey());
 			assert comment != null;
 			System.err.format("\t\t%s\n", comment);
-			System.err.format("\t\tDefault value: \"%s\"\n", entry.getValue().replaceAll("\\\\", "\\\\\\\\"));
+			System.err.format("\t\tDefault value: \"%s\"\n", entry.getValue()
+					.replaceAll("\\\\", "\\\\\\\\"));
 		}
 	}
-	
+
 	protected void usage() {
 		System.err.println("General Options:");
 		usage(DEFALUT_VALUES_, COMMENTS_);
@@ -271,29 +297,14 @@ public class Options extends java.util.Properties {
 	}
 
 	public double[] getCandidatesPerState() {
-		String array_string = getProperty(CANDIDATES_PER_STATE).trim();
-		boolean error = false;
-		double[] array = null;
+		double[] array = StringUtils
+				.parseDoubleArray(getProperty(CANDIDATES_PER_STATE), new Mutable<>(0));
 
-		if (array_string.length() > 2 && array_string.charAt(0) == '['
-				&& array_string.charAt(array_string.length() - 1) == ']') {
-			array_string = array_string.substring(1, array_string.length() - 1);
-			String[] element_strings = array_string.split(",");
-			array = new double[element_strings.length];
-			for (int index = 0; index < element_strings.length; index++) {
-				double element = Double.valueOf(element_strings[index]);
-				array[index] = element;
-				if (element < 1.0) {
-					error = true;
-				}
+		for (double element : array) {
+
+			if (element < 1.0) {
+				throw new InvalidParameterException("Candidates per state must be >= 1.0: " + getProperty(CANDIDATES_PER_STATE));
 			}
-		} else {
-			error = true;
-		}
-
-		if (error) {
-			throw new InvalidParameterException("Not an array: "
-					+ getProperty(CANDIDATES_PER_STATE));
 		}
 
 		return array;
@@ -333,6 +344,10 @@ public class Options extends java.util.Properties {
 
 	public boolean getAveraging() {
 		return Boolean.parseBoolean(getProperty(AVERAGING));
+	}
+
+	public long getSeed() {
+		return Long.parseLong(getProperty(SEED));
 	}
 
 }

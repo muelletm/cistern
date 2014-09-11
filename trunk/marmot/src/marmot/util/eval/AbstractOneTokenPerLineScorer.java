@@ -53,6 +53,10 @@ public abstract class AbstractOneTokenPerLineScorer implements Scorer {
 				
 			}
 			
+			if (number_of_tokens > 0) {
+				scores.add(score);
+			}
+			
 			if (actual_reader.ready() || prediction_reader.ready()) {
 				actual_reader.close();
 				prediction_reader.close();

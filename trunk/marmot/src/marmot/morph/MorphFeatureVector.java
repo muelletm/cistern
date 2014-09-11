@@ -29,5 +29,5 @@ public class MorphFeatureVector extends FeatureVector {
 	public void setWordIndex(int form_index) {
 		word_index_ = form_index;
 	}
-	
+
 }

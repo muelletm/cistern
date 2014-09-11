@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.zip.GZIPInputStream;
 
+//import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
+
 
 public class LineIterator implements Iterator<List<String>> {
 	
@@ -25,6 +27,13 @@ public class LineIterator implements Iterator<List<String>> {
 			InputStream stream = new FileInputStream(filename);
 			if (filename.endsWith(".gz")) {
 				stream = new GZIPInputStream(stream);
+			} else if (filename.endsWith(".bz2")) {
+				
+				throw new RuntimeException("Unsupported ending: .bz2");
+				
+				
+				
+				//stream = new BZip2CompressorInputStream(stream);
 			}		
 			reader_ = new BufferedReader(new InputStreamReader(stream));
 		} catch(FileNotFoundException e){

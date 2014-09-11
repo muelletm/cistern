@@ -17,6 +17,7 @@ import marmot.morph.MorphModel;
 import marmot.morph.MorphOptions;
 import marmot.morph.Sentence;
 import marmot.morph.Word;
+import marmot.util.FileUtils;
 
 
 public class Eyeballer {
@@ -26,7 +27,7 @@ public class Eyeballer {
 		options.setPropertiesFromStrings(args);		
 		options.dieIfPropertyIsEmpty(MorphOptions.MODEL_FILE);
 		
-		SimpleTagger tagger = SimpleTagger.loadFromFile(options.getModelFile());
+		SimpleTagger tagger = FileUtils.loadFromFile(args[0]); 
 		MorphModel model = (MorphModel) tagger.getModel();
 	
 		BufferedReader console = new BufferedReader(new InputStreamReader(
@@ -44,7 +45,7 @@ public class Eyeballer {
 				List<Word> words = new LinkedList<Word>();
 				
 				for (String form : command_line.split("\\s")) {
-					words.add(new Word(form, null, null, null));
+					words.add(new Word(form));
 				}
 
 				Sentence sentence = new Sentence(words);

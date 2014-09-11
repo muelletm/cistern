@@ -153,4 +153,8 @@ public class SymbolTable<T> implements Serializable {
 		return bidirectional_;
 	}
 
+	public void insert(T symbol) {
+		toIndex(symbol, true);
+	}
+
 }

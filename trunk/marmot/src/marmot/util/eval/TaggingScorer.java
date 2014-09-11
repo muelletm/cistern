@@ -15,9 +15,11 @@ public class TaggingScorer extends AbstractOneTokenPerLineScorer {
 		String actual_tag = actual_tokens[gold_tag_index_];
 		
 		boolean tag_correct = actual_tag.equals(expected_tokens[predicted_tag_index_]);
+			
 		if (tag_correct) {
 			return 1.0;
 		}
+		
 		return 0.0;
 	}
 

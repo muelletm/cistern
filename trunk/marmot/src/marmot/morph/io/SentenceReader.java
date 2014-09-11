@@ -3,7 +3,6 @@
 
 package marmot.morph.io;
 
-
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,8 +11,8 @@ import java.util.NoSuchElementException;
 import marmot.core.Sequence;
 import marmot.morph.Sentence;
 import marmot.morph.Word;
+import marmot.util.Converter;
 import marmot.util.LineIterator;
-
 
 public class SentenceReader implements Iterable<Sequence> {
 
@@ -41,7 +40,6 @@ public class SentenceReader implements Iterable<Sequence> {
 				int tag_index = options_.getTagIndex();
 				int morph_index = options_.getMorphIndex();
 				int token_feature_index = options_.getTokenFeatureIndex();
-				boolean over_tokenize = options_.getOverTokenizer();
 
 				if (!hasNext()) {
 					throw new NoSuchElementException();
@@ -71,13 +69,12 @@ public class SentenceReader implements Iterable<Sequence> {
 
 					if (morph_index >= row.size()) {
 						RuntimeException e = new RuntimeException(
-								"morph_index out of range: " + tag_index
+								"morph_index out of range: " + morph_index
 										+ " : " + row);
 						throw e;
 					}
 
 					String word = row.get(form_index);
-					
 
 					String tag = null;
 					if (tag_index >= 0) {
@@ -88,27 +85,54 @@ public class SentenceReader implements Iterable<Sequence> {
 					if (morph_index >= 0) {
 						morph = row.get(morph_index);
 					}
-					
-					String token_feature = null;
-					if (token_feature_index >= 0) {
-						token_feature = row.get(token_feature_index);
+
+					List<String> token_feature_list = null;
+					List<String> weighted_token_feature_list = new LinkedList<>();
+					List<Double> weighted_token_feature_weight_list = new LinkedList<>();
+
+					if (token_feature_index >= 0 && token_feature_index < row.size()) {
+						String[] token_features = row.get(token_feature_index)
+								.split("#");
+
+						token_feature_list = new LinkedList<>();
+						weighted_token_feature_list = new LinkedList<>();
+
+						for (String token_feature : token_features) {
+							int colon_index = token_feature.indexOf(':');
+							Double weight = null;
+							if (colon_index > 0) {
+								try {
+									weight = Double.parseDouble(token_feature
+											.substring(colon_index + 1));
+									token_feature = token_feature.substring(0,
+											colon_index);
+								} catch (NumberFormatException e) {
+
+								}
+							}
+
+							if (weight != null) {
+								weighted_token_feature_list.add(token_feature);
+								weighted_token_feature_weight_list.add(weight);
+							} else {
+								token_feature_list.add(token_feature);
+							}
+
+						}
+
 					}
 
-					tokens.add(new Word(word, tag, morph, token_feature));
+					tokens.add(new Word(word, tag, morph, Converter.toStringArray(token_feature_list), Converter.toStringArray(weighted_token_feature_list), Converter.toDoubleArray(weighted_token_feature_weight_list)));
 				}
-				
+
 				if (tokens.isEmpty()) {
-					throw new RuntimeException("Error: Found empty sentence!");
+					System.err.println("Warning: Found empty sentence!");
 				}
 
 				number_++;
-				
+
 				Sentence sentence = new Sentence(tokens);
-				
-				if (over_tokenize) {
-					sentence = Tokenizer.overTokenize(sentence);
-				}
-				
+
 				return sentence;
 			}
 
@@ -128,11 +152,6 @@ public class SentenceReader implements Iterable<Sequence> {
 
 		};
 	}
-
-
-	
-
-
 
 	public FileOptions getFileOptions() {
 		return options_;

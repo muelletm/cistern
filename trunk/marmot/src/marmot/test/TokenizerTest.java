@@ -10,7 +10,6 @@ import java.util.List;
 
 import marmot.morph.Sentence;
 import marmot.morph.Word;
-import marmot.morph.io.SentenceReader;
 import marmot.morph.io.Tokenizer;
 
 import org.junit.Test;
@@ -23,21 +22,21 @@ public class TokenizerTest {
 		List<Word> tokens;
 
 		tokens = new LinkedList<Word>();
-		tokens.add(new Word("-LRB-", "(", "_", null));
-		tokens.add(new Word("das", "A", "c=N|n=S", null));
-		tokens.add(new Word("ist", "V", "n=S", null));
-		tokens.add(new Word("ein", "A", "c=N|n=S", null));
-		tokens.add(new Word("Unit-Test", "N", "c=N|n=S", null));
-		tokens.add(new Word("...", ".", "_", null));
-		tokens.add(new Word("-RRB-", ")", "_", null));
+		tokens.add(new Word("-LRB-", "(", "_"));
+		tokens.add(new Word("das", "A", "c=N|n=S"));
+		tokens.add(new Word("ist", "V", "n=S"));
+		tokens.add(new Word("ein", "A", "c=N|n=S"));
+		tokens.add(new Word("Unit-Test", "N", "c=N|n=S"));
+		tokens.add(new Word("...", ".", "_"));
+		tokens.add(new Word("-RRB-", ")", "_"));
 		sentences.add(new Sentence(tokens));
 		
 		tokens = new LinkedList<Word>();
-		tokens.add(new Word("_", "", null, null));
-		tokens.add(new Word("_das", "", null, null));
-		tokens.add(new Word("ist_", "", null, null));
-		tokens.add(new Word("e_i_n", "", null, null));
-		tokens.add(new Word("Test_", "", null, null));
+		tokens.add(new Word("_", ""));
+		tokens.add(new Word("_das", ""));
+		tokens.add(new Word("ist_", ""));
+		tokens.add(new Word("e_i_n", ""));
+		tokens.add(new Word("Test_", ""));
 		sentences.add(new Sentence(tokens));
 		
 
@@ -49,30 +48,56 @@ public class TokenizerTest {
 		List<Word> tokens;
 
 		tokens = new LinkedList<Word>();
-		tokens.add(new Word("(", "O|(", "_", null));
-		tokens.add(new Word("das", "O|A", "c=N|n=S", null));
-		tokens.add(new Word("ist", "O|V", "n=S", null));
-		tokens.add(new Word("ein", "O|A", "c=N|n=S", null));
-		tokens.add(new Word("Unit", "B|N", "c=N|n=S", null));
-		tokens.add(new Word("-", "I|N", "c=N|n=S", null));
-		tokens.add(new Word("Test", "I|N", "c=N|n=S", null));
-		tokens.add(new Word(".", "B|.", "_", null));
-		tokens.add(new Word(".", "I|.", "_", null));
-		tokens.add(new Word(".", "I|.", "_", null));
-		tokens.add(new Word(")", "O|)", "_", null));
+		tokens.add(new Word("(", "B|(", "_"));
+		tokens.add(new Word("das", "B|A", "c=N|n=S"));
+		tokens.add(new Word("ist", "B|V", "n=S"));
+		tokens.add(new Word("ein", "B|A", "c=N|n=S"));
+		tokens.add(new Word("Unit", "B|N", "c=N|n=S"));
+		tokens.add(new Word("-", "I|N", "c=N|n=S"));
+		tokens.add(new Word("Test", "I|N", "c=N|n=S"));
+		tokens.add(new Word(".", "B|.", "_"));
+		tokens.add(new Word(".", "I|.", "_"));
+		tokens.add(new Word(".", "I|.", "_"));
+		tokens.add(new Word(")", "B|)", "_"));
 		sentences.add(new Sentence(tokens));
 		
 		tokens = new LinkedList<Word>();
-		tokens.add(new Word("_", "O|", null, null));
-		tokens.add(new Word("_", "B|", null, null));
-		tokens.add(new Word("das", "I|", null, null));
-		tokens.add(new Word("ist", "B|", null, null));
-		tokens.add(new Word("_", "I|", null, null));
-		tokens.add(new Word("e", "B|", null, null));
-		tokens.add(new Word("i", "I|", null, null));
-		tokens.add(new Word("n", "I|", null, null));
-		tokens.add(new Word("Test", "B|", null, null));
-		tokens.add(new Word("_", "I|", null, null));
+		tokens.add(new Word("das", "B|"));
+		tokens.add(new Word("ist", "B|"));
+		tokens.add(new Word("e", "B|"));
+		tokens.add(new Word("i", "I|"));
+		tokens.add(new Word("n", "I|"));
+		tokens.add(new Word("Test", "B|"));
+		sentences.add(new Sentence(tokens));
+
+		return sentences;
+	}
+	
+	public List<Sentence> getOutputBetweenSentences() {
+		List<Sentence> sentences = new LinkedList<Sentence>();
+		List<Word> tokens;
+
+		tokens = new LinkedList<Word>();
+		tokens.add(new Word("(", "B|(", "_"));
+		tokens.add(new Word("das", "B|A", "c=N|n=S"));
+		tokens.add(new Word("ist", "B|V", "n=S"));
+		tokens.add(new Word("ein", "B|A", "c=N|n=S"));
+		tokens.add(new Word("Unit-Test", "B|N", "c=N|n=S"));
+		tokens.add(new Word(".", "B|.", "_"));
+		tokens.add(new Word(".", "I|.", "_"));
+		tokens.add(new Word(".", "I|.", "_"));
+		tokens.add(new Word(")", "B|)", "_"));
+		sentences.add(new Sentence(tokens));
+		
+		tokens = new LinkedList<Word>();
+		tokens.add(new Word("_", "B|", null));
+		tokens.add(new Word("_", "B|", null));
+		tokens.add(new Word("das", "I|", null));
+		tokens.add(new Word("ist", "B|", null));
+		tokens.add(new Word("_", "I|", null));
+		tokens.add(new Word("e_i_n", "B|", null));
+		tokens.add(new Word("Test", "B|", null));
+		tokens.add(new Word("_", "I|", null));
 		sentences.add(new Sentence(tokens));
 
 		return sentences;
@@ -85,13 +110,51 @@ public class TokenizerTest {
 		List<Sentence> output_sentences = getOutputSentences();
 		
 		for (int i = 0; i< input_sentences.size(); i++) {
-			Sentence actual_sentence = Tokenizer.overTokenize(input_sentences.get(i));
+			Tokenizer tokenizer = new Tokenizer(false, true);
+			Sentence actual_sentence = tokenizer.overTokenize(input_sentences.get(i), true);
+			assertEqual(actual_sentence, output_sentences.get(i));
+		}
+		
+	}
+	
+	@Test
+	public void testInBetween() {
+		List<Sentence> input_sentences = getInputSentences();
+		List<Sentence> output_sentences = getOutputBetweenSentences();
+		
+		for (int i = 0; i< input_sentences.size(); i++) {
+			Tokenizer tokenizer = new Tokenizer(true, false);
+			Sentence actual_sentence = tokenizer.overTokenize(input_sentences.get(i), true);
 			
 			assertEqual(actual_sentence, output_sentences.get(i));
 		}
 		
 	}
+	
+	@Test
+	public void plainTextTokenizer() {
+		String sentence = "Das ist ein Test.";
+		Tokenizer tokenizer = new Tokenizer(true, true);
 
+		List<Word> tokens;
+
+		tokens = new LinkedList<Word>();
+
+		tokens.add(new Word("Das", null, null ));
+		tokens.add(new Word("ist", null, null ));
+		tokens.add(new Word("ein", null, null ));
+		tokens.add(new Word("Test", null, null ));
+		tokens.add(new Word(".", null, null ));
+		
+		sentence = " Das ist ein Test. ";
+		assertEqual(tokenizer.tokenize(sentence), new Sentence(tokens));
+		
+		sentence = " _Das ___ _ist ein Test. _";
+		assertEqual(tokenizer.tokenize(sentence), new Sentence(tokens));
+
+		
+	}
+	
 	private void assertEqual(Sentence actual_sentence, Sentence sentence) {
 		assertEquals(actual_sentence.size(), sentence.size());
 		for (int i = 0; i< sentence.size(); i++) {
