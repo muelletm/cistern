@@ -1,3 +1,6 @@
+// Copyright 2013 Thomas Müller
+// This file is part of MarMoT, which is licensed under GPLv3.
+
 package marmot.test;
 
 import static org.junit.Assert.*;
