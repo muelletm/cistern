@@ -19,7 +19,7 @@
 
   <target name="jar" depends="compile">
   	<tstamp>
-  	     <format property="version" pattern="yyyy-MM-dd-hh" />
+  	     <format property="version" pattern="yyyy-MM-dd" />
   	</tstamp>
   	
   	<property name="jarfile" value="${basedir}/marmot-${version}.jar"/>
