@@ -9,7 +9,7 @@ MarMoT is a generic [http://en.wikipedia.org/wiki/Conditional_random_field Condi
 
 = Download =
 
-To get the latest binary release of MarMoT, please visit MarMoT's [http://www.cis.lmu.de/~muellets/marmot/ CIS home page].
+To get the latest binary release of MarMoT, please visit MarMoT's [http://www.cis.lmu.de/~muellets/marmot/CURRENT CIS home page].
 
 
 = Quickstart =
