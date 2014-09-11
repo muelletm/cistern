@@ -64,6 +64,9 @@ General Options:
 	effective-order:
 		Maximal order to reach before increasing the level.
 		Default value: "1"
+	seed:
+		Random seed to use for shuffling. 0 for nondeterministic seed
+		Default value: "0"
 	prob-threshold:
 		Initial pruning threshold. Changing this value should have almost no effect.
 		Default value: "0.01"
@@ -111,6 +114,9 @@ General Options:
 		Default value: "0.1"
 
 Morph Options:
+	type-embeddings:
+		Word type embeddings file (optional)
+		Default value: ""
 	model-file:
 		Output model file.
 		Default value: ""
@@ -141,15 +147,15 @@ Morph Options:
 	pred-file:
 		Output prediction file in CoNLL09. (optional for training)
 		Default value: ""
+	subtag-seperator:
+		Regular expression to use for splitting tags. (Has to work with Java's String.split)
+		Default value: "\\|"
 	shape-trie-path:
 		Path to the shape trie. Will be created if non-existent.
 		Default value: ""
 	tag-morph:
 		Whether to train a morphological tagger or a POS tagger.
 		Default value: "true"
-	subtag-seperator:
-		Regular expression to use for splitting tags. (Has to work with Java's String.split)
-		Default value: "\\|"
 	test-file:
 		Input test file. (optional for training)
 		Default value: ""
