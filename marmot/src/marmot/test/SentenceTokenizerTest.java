@@ -6,8 +6,6 @@ package marmot.test;
 import java.util.List;
 
 import marmot.core.Sequence;
-import marmot.core.Token;
-import marmot.morph.Word;
 import marmot.morph.io.SentenceTokenizer;
 
 import org.junit.Test;

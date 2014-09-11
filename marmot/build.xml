@@ -13,7 +13,7 @@
 
   <target name="compile" depends="clean,timestamp">
     <mkdir dir="${classes}"/> 	
-    <javac compiler="javac1.7" source="1.7" target="1.7" srcdir="${src}" destdir="${classes}" debug="on" classpathref="classpath" includeAntRuntime="false" includes="**/*.java" excludes="marmot/test/**,marmot/lemma/**">
+    <javac compiler="javac1.7" srcdir="${src}" destdir="${classes}" debug="on" classpathref="classpath" includeAntRuntime="false" includes="**/*.java" excludes="marmot/test/**,marmot/morph/mapper/**">
     </javac>
   </target>
 
@@ -26,7 +26,7 @@
   	
     <jar jarfile="${jarfile}">
       <fileset dir="${classes}" includes="**/*.class"/>
-      <fileset dir="${src}" includes="**/*.java" excludes="marmot/test/**" />
+      <fileset dir="${src}" includes="**/*.java" excludes="marmot/test/**,marmot/morph/mapper/**" />
     	<fileset dir="${basedir}" includes="LICENSE" />	
     </jar>
   </target>

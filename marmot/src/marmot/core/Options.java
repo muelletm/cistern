@@ -96,7 +96,7 @@ public class Options extends java.util.Properties {
 		DEFALUT_VALUES_.put(AVERAGING, "true");
 		COMMENTS_.put(AVERAGING, "Whether to use averaging. Perceptron only!");
 		DEFALUT_VALUES_.put(SEED, "0");
-		COMMENTS_.put(AVERAGING, "Random Seed to use for shuffling. 0 for nondeterministic seed");
+		COMMENTS_.put(SEED, "Random seed to use for shuffling. 0 for nondeterministic seed");
 
 
 	}
