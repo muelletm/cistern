@@ -21,7 +21,7 @@ public class SentenceTokenizerTest {
 	public void test() {
 		PipelineTest ptest = new PipelineTest();
 		
-		List<Sequence> sentences = ptest.getSentences("form-index=1,tag-index=4,morph-index=6,overtokenize=false,trn.txt", 100);
+		List<Sequence> sentences = ptest.getSentences("form-index=1,tag-index=4,morph-index=6,trn.txt", 100);
 		
 		System.err.println("num tokens: " + getNumTokens(sentences));
 		

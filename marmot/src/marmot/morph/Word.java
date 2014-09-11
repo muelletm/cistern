@@ -14,8 +14,8 @@ public class Word implements Token {
 	private String word_;
 	private String tag_;
 	private String morph_;
-	private String token_feature_;
-
+	private String[] token_features_;
+	
 	private int word_index_;
 	private short[] char_indexes_;
 	private int word_shape_index_;
@@ -23,15 +23,32 @@ public class Word implements Token {
 	private int signature_;
 	private int[] token_feature_indexes_;
 	private FeatureVector vector_;
+	private String[] weighted_token_features_;
+	private double[] weighted_token_feature_weights_;
+	private int[] weighted_token_feature_indexes_;
 	
-	public Word(String word, String tag, String morph, String token_feature) {
+	public Word(String word, String tag, String morph, String[] token_features, String[] weighted_token_features, double[] weighted_token_feature_weights) {
 		word_ = word;
 		tag_ = tag;
 		morph_ = morph;
-		token_feature_ = token_feature;
+		token_features_ = token_features;
+		weighted_token_features_ = weighted_token_features;
+		weighted_token_feature_weights_ = weighted_token_feature_weights;
 		word_index_ = -1;
 		word_shape_index_ = -1;
 		signature_ = -1;
+	}
+	
+	public Word(String word, String tag, String morph) {
+		this(word, tag, morph, null, null, null);
+	}
+	
+	public Word(String word, String tag) {
+		this(word, tag, null);
+	}
+	
+	public Word(String word) {
+		this(word, null);
 	}
 
 	public String getWordForm() {
@@ -48,7 +65,7 @@ public class Word implements Token {
 	
 	@Override
 	public String toString() {
-		return word_ + " " + tag_ + " " + morph_;
+		return word_ + " " + tag_ + " " + morph_ + " " + Arrays.toString(token_features_);
 	}
 
 	public void setWordIndex(int word_index) {
@@ -95,8 +112,8 @@ public class Word implements Token {
 		signature_ = signature;
 	}
 
-	public String getTokenFeature() {
-		return token_feature_;
+	public String[] getTokenFeatures() {
+		return token_features_;
 	}
 
 	public void setTokenFeatureIndexes(int[] token_feature_indexes) {
@@ -111,10 +128,6 @@ public class Word implements Token {
 		morph_ = morph;
 	}
 
-	public void setTokenFeature(Object object) {
-		token_feature_ = null;
-	}
-
 	@Override
 	public void setVector(FeatureVector vector) {
 		vector_ = vector;
@@ -126,7 +139,7 @@ public class Word implements Token {
 	}
 
 	public Word shallowCopy() {
-		Word word = new Word(word_, tag_, morph_, token_feature_);		
+		Word word = new Word(word_, tag_, morph_, token_features_, weighted_token_features_, weighted_token_feature_weights_);		
 		word.word_index_ = word_index_; 
 		word.char_indexes_ = char_indexes_;
 		word.word_shape_index_ = word_shape_index_;
@@ -134,6 +147,7 @@ public class Word implements Token {
 		word.signature_ = signature_;
 		word.token_feature_indexes_ = token_feature_indexes_;
 		word.vector_ = vector_;
+		word.weighted_token_feature_indexes_ = token_feature_indexes_;
 		return word;
 	}
 
@@ -146,13 +160,12 @@ public class Word implements Token {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + Arrays.hashCode(char_indexes_);
-		result = prime * result
-				+ ((token_feature_ == null) ? 0 : token_feature_.hashCode());
-		result = prime * result + Arrays.hashCode(token_feature_indexes_);
 		result = prime * result + ((morph_ == null) ? 0 : morph_.hashCode());
 		result = prime * result + signature_;
 		result = prime * result + ((tag_ == null) ? 0 : tag_.hashCode());
 		result = prime * result + Arrays.hashCode(tag_indexes_);
+		result = prime * result + Arrays.hashCode(token_feature_indexes_);
+		result = prime * result + Arrays.hashCode(token_features_);
 		result = prime * result + ((vector_ == null) ? 0 : vector_.hashCode());
 		result = prime * result + ((word_ == null) ? 0 : word_.hashCode());
 		result = prime * result + word_index_;
@@ -171,13 +184,6 @@ public class Word implements Token {
 		Word other = (Word) obj;
 		if (!Arrays.equals(char_indexes_, other.char_indexes_))
 			return false;
-		if (token_feature_ == null) {
-			if (other.token_feature_ != null)
-				return false;
-		} else if (!token_feature_.equals(other.token_feature_))
-			return false;
-		if (!Arrays.equals(token_feature_indexes_, other.token_feature_indexes_))
-			return false;
 		if (morph_ == null) {
 			if (other.morph_ != null)
 				return false;
@@ -191,6 +197,11 @@ public class Word implements Token {
 		} else if (!tag_.equals(other.tag_))
 			return false;
 		if (!Arrays.equals(tag_indexes_, other.tag_indexes_))
+			return false;
+		if (!Arrays
+				.equals(token_feature_indexes_, other.token_feature_indexes_))
+			return false;
+		if (!Arrays.equals(token_features_, other.token_features_))
 			return false;
 		if (vector_ == null) {
 			if (other.vector_ != null)
@@ -208,4 +219,22 @@ public class Word implements Token {
 			return false;
 		return true;
 	}
+
+	public void setWeightedTokenFeatureIndexes(int[] indexes) {
+		weighted_token_feature_indexes_ = indexes;
+	}
+
+	public String[] getWeightedTokenFeatures() {
+		return weighted_token_features_;
+	}
+	
+	public int[] getWeightedTokenFeatureIndexes() {
+		return weighted_token_feature_indexes_;
+	}
+
+	public double[] getWeightedTokenFeatureWeights() {
+		return weighted_token_feature_weights_;
+	}
+
+	
 }

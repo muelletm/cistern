@@ -4,12 +4,12 @@
 package marmot.core;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import marmot.core.lattice.SumLattice;
-
-
 
 public class CrfTrainer implements Trainer {
 	private double penalty_;
@@ -19,13 +19,22 @@ public class CrfTrainer implements Trainer {
 	private boolean verbose_;
 	private boolean very_verbose_;
 	private double quadratic_penalty_;
+	private long seed_;
 
 	@Override
-	public void train(Tagger tagger, List<Sequence> sequences,
+	public void train(Tagger tagger, Collection<Sequence> in_sequences,
 			Evaluator evaluator) {
+		
+		Random rng = null;
 		if (shuffle_) {
-			sequences = new ArrayList<Sequence>(sequences);
+			if (seed_ == 0) {
+				rng = new Random();
+			} else {
+				rng = new Random(seed_);
+			}
 		}
+		
+		List<Sequence> sequences = new ArrayList<Sequence>(in_sequences);
 
 		int fraction = Math.max(sequences.size() / 4, 1);
 		int smaller_fraction = Math.max(sequences.size() / 4000, 1);
@@ -42,7 +51,7 @@ public class CrfTrainer implements Trainer {
 				System.err.println("step: " + step);
 
 			if (shuffle_)
-				Collections.shuffle(sequences);
+				Collections.shuffle(sequences, rng);
 
 			int current_sentence = 0;
 			long train_time = System.currentTimeMillis();
@@ -102,7 +111,8 @@ public class CrfTrainer implements Trainer {
 
 			if (evaluator != null && verbose_) {
 				weights.setExtendFeatureSet(false);
-				evaluator.eval(tagger);
+				Result result = evaluator.eval(tagger);
+				System.err.println(result);
 				weights.setExtendFeatureSet(true);
 			}
 		}
@@ -114,18 +124,19 @@ public class CrfTrainer implements Trainer {
 	@Override
 	public void setOptions(Options options) {
 		setOptions(options.getPenalty(), options.getQuadraticPenalty(), options.getNumIterations(), options
-				.getShuffle(), options.getVerbose(), options.getVeryVerbose());	
+				.getShuffle(), options.getVerbose(), options.getVeryVerbose(), options.getSeed());	
 	}
 
 	private void setOptions(double penalty, double quadratic_penalty,
 			int steps, boolean shuffle, boolean verbose,
-			boolean very_verbose) {
+			boolean very_verbose, long seed) {
 		penalty_ = penalty;
 		steps_ = steps;
 		shuffle_ = shuffle;
 		verbose_ = verbose;
 		very_verbose_ = very_verbose;
 		quadratic_penalty_ = quadratic_penalty;
+		seed_ = seed;
 	}
 
 }

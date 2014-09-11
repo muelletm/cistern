@@ -5,6 +5,6 @@ package marmot.core;
 
 public interface Evaluator {
 
-	Object eval(Tagger tagger);
+	Result eval(Tagger tagger);
 	
 }

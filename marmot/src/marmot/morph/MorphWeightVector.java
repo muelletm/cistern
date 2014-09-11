@@ -5,18 +5,22 @@ package marmot.morph;
 
 import java.util.Collection;
 
+import marmot.core.ArrayFloatFeatureVector;
+import marmot.core.ConcatFloatFeatureVector;
 import marmot.core.Feature;
 import marmot.core.FeatureVector;
+import marmot.core.FloatFeatureVector;
+import marmot.core.FloatWeights;
 import marmot.core.Model;
 import marmot.core.Sequence;
 import marmot.core.State;
 import marmot.core.Token;
 import marmot.core.WeightVector;
+import marmot.core.ZeroFloatFeatureVector;
 import marmot.util.Encoder;
 import marmot.util.SymbolTable;
 
-
-public class MorphWeightVector implements WeightVector {
+public class MorphWeightVector implements WeightVector, FloatWeights {
 	private static final long serialVersionUID = 1L;
 	private static final int MAX_AFFIX_LENGTH_ = 10;
 	private static final int NUM_STATE_FEATURES_ = 3 + 2 + 3 + 1
@@ -52,19 +56,38 @@ public class MorphWeightVector implements WeightVector {
 	private int initial_vector_size_;
 	private int token_feature_bits_;
 	private int max_transition_feature_level_;
-	private boolean tag_morph_;
 	private MorphDictionary mdict_;
+	private FloatHashDictionary fdict_;
 	private int mdict_bits_;
+	private double[] float_weights_;
+	// private double[] accumulated_float_penalty_;
+	private static final boolean use_bigrams_ = true;
+	private static final boolean use_state_features_ = true;
 
 	public MorphWeightVector(MorphOptions options) {
 		shape_ = options.getShape();
-		tag_morph_ = options.getTagMorph();
 		max_transition_feature_level_ = options.getMaxTransitionFeatureLevel();
 		initial_vector_size_ = options.getInitialVectorSize();
 
 		if (!options.getMorphDict().isEmpty()) {
-			mdict_ = new MorphDictionary(options.getMorphDict());
+			mdict_ = MorphDictionary.create(options.getMorphDict());
 			mdict_bits_ = Encoder.bitsNeeded(mdict_.numTags());
+		}
+
+		if (!options.getFloatTypeDict().isEmpty()) {
+
+			fdict_ = new FloatHashDictionary();
+
+			MorphDictionaryOptions opt = MorphDictionaryOptions.parse(
+					options.getFloatTypeDict(), false);
+
+			if (opt.getIndexes() == null) {
+				int[] indexes = { 0 };
+				opt.setIndexes(indexes);
+			}
+
+			fdict_.init(opt);
+
 		}
 	}
 
@@ -85,6 +108,11 @@ public class MorphWeightVector implements WeightVector {
 			if (accumulated_penalty_ == null) {
 				accumulated_penalty_ = new double[weights_.length];
 			}
+			// if (accumulated_float_penalty_ == null && float_weights_ != null)
+			// {
+			// accumulated_float_penalty_ = new double[float_weights_.length];
+			// }
+
 		}
 	}
 
@@ -140,189 +168,196 @@ public class MorphWeightVector implements WeightVector {
 						+ ((mdict_indexes == null) ? 0 : mdict_indexes.length));
 		int fc = 0;
 
-		if (form_index >= 0) {
-			encoder_.append(0, order_bits_);
-			encoder_.append(0, level_bits_);
-			encoder_.append(fc, state_feature_bits_);
-			encoder_.append(form_index, word_bits_);
-			features.add(getFeatureIndex(encoder_
-					.getFeature(extend_feature_set_)));
-			encoder_.reset();
-
-		}
-		fc++;
-
-		encoder_.append(0, order_bits_);
-		encoder_.append(0, level_bits_);
-		encoder_.append(fc, state_feature_bits_);
-		encoder_.append(is_rare);
-		features.add(getFeatureIndex(encoder_.getFeature(extend_feature_set_)));
-		encoder_.reset();
-
-		fc++;
-
-		if (token_index - 1 >= 0) {
-			int pform_index = ((Word) sentence.get(token_index - 1))
-					.getWordFormIndex();
-			if (pform_index >= 0) {
+		if (use_state_features_) {
+			if (form_index >= 0) {
 				encoder_.append(0, order_bits_);
 				encoder_.append(0, level_bits_);
 				encoder_.append(fc, state_feature_bits_);
-				encoder_.append(pform_index, word_bits_);
+				encoder_.append(form_index, word_bits_);
 				features.add(getFeatureIndex(encoder_
 						.getFeature(extend_feature_set_)));
+				encoder_.reset();
 
-				if (form_index >= 0) {
-					encoder_.append(form_index, word_bits_);
+			}
+			fc++;
+
+			encoder_.append(0, order_bits_);
+			encoder_.append(0, level_bits_);
+			encoder_.append(fc, state_feature_bits_);
+			encoder_.append(is_rare);
+			features.add(getFeatureIndex(encoder_
+					.getFeature(extend_feature_set_)));
+			encoder_.reset();
+
+			fc++;
+
+			if (token_index - 1 >= 0) {
+				int pform_index = ((Word) sentence.get(token_index - 1))
+						.getWordFormIndex();
+				if (pform_index >= 0) {
+					encoder_.append(0, order_bits_);
+					encoder_.append(0, level_bits_);
+					encoder_.append(fc, state_feature_bits_);
+					encoder_.append(pform_index, word_bits_);
 					features.add(getFeatureIndex(encoder_
 							.getFeature(extend_feature_set_)));
+
+					if (form_index >= 0 && use_bigrams_) {
+						encoder_.append(form_index, word_bits_);
+						features.add(getFeatureIndex(encoder_
+								.getFeature(extend_feature_set_)));
+					}
+					encoder_.reset();
 				}
-				encoder_.reset();
+
+				int pshape_index = -1;
+
+				if (shape_) {
+					pshape_index = ((Word) sentence.get(token_index - 1))
+							.getWordShapeIndex();
+				}
+
+				if (pshape_index >= 0) {
+					encoder_.append(0, order_bits_);
+					encoder_.append(0, level_bits_);
+					encoder_.append(fc + 1, state_feature_bits_);
+					encoder_.append(pshape_index, shape_bits_);
+
+					if (model_.isRare(pform_index)) {
+						features.add(getFeatureIndex(encoder_
+								.getFeature(extend_feature_set_)));
+					}
+					encoder_.reset();
+				}
 			}
+			fc++;
+			fc++;
 
-			int pshape_index = -1;
+			if (token_index + 1 < sentence.size()) {
+				int nform_index = ((Word) sentence.get(token_index + 1))
+						.getWordFormIndex();
 
+				if (nform_index >= 0) {
+					encoder_.append(0, order_bits_);
+					encoder_.append(0, level_bits_);
+					encoder_.append(fc, state_feature_bits_);
+					encoder_.append(nform_index, word_bits_);
+					features.add(getFeatureIndex(encoder_
+							.getFeature(extend_feature_set_)));
+
+					if (form_index >= 0 && use_bigrams_) {
+						encoder_.append(form_index, word_bits_);
+						features.add(getFeatureIndex(encoder_
+								.getFeature(extend_feature_set_)));
+					}
+					encoder_.reset();
+				}
+
+				int nshape_index = -1;
+				if (shape_) {
+					nshape_index = ((Word) sentence.get(token_index + 1))
+							.getWordShapeIndex();
+				}
+				if (nshape_index >= 0) {
+					encoder_.append(0, order_bits_);
+					encoder_.append(0, level_bits_);
+					encoder_.append(fc + 1, state_feature_bits_);
+					encoder_.append(nshape_index, shape_bits_);
+
+					if (model_.isRare(nform_index)) {
+						features.add(getFeatureIndex(encoder_
+								.getFeature(extend_feature_set_)));
+					}
+
+					encoder_.reset();
+				}
+			}
+			fc++;
+			fc++;
+
+			int shape_index = -1;
 			if (shape_) {
-				pshape_index = ((Word) sentence.get(token_index - 1))
-						.getWordShapeIndex();
+				shape_index = token.getWordShapeIndex();
 			}
 
-			if (pshape_index >= 0) {
-				encoder_.append(0, order_bits_);
-				encoder_.append(0, level_bits_);
-				encoder_.append(fc + 1, state_feature_bits_);
-				encoder_.append(pshape_index, shape_bits_);
-
-				if (model_.isRare(pform_index)) {
-					features.add(getFeatureIndex(encoder_
-							.getFeature(extend_feature_set_)));
-				}
-				encoder_.reset();
-			}
-		}
-		fc++;
-		fc++;
-
-		if (token_index + 1 < sentence.size()) {
-			int nform_index = ((Word) sentence.get(token_index + 1))
-					.getWordFormIndex();
-
-			if (nform_index >= 0) {
+			if (is_rare && shape_index >= 0) {
 				encoder_.append(0, order_bits_);
 				encoder_.append(0, level_bits_);
 				encoder_.append(fc, state_feature_bits_);
-				encoder_.append(nform_index, word_bits_);
+				encoder_.append(shape_index, shape_bits_);
 				features.add(getFeatureIndex(encoder_
 						.getFeature(extend_feature_set_)));
-
-				if (form_index >= 0) {
-					encoder_.append(form_index, word_bits_);
-					features.add(getFeatureIndex(encoder_
-							.getFeature(extend_feature_set_)));
-				}
 				encoder_.reset();
 			}
+			fc++;
 
-			int nshape_index = -1;
-			if (shape_) {
-				nshape_index = ((Word) sentence.get(token_index + 1))
-						.getWordShapeIndex();
-			}
-			if (nshape_index >= 0) {
+			if (is_rare) {
+				int signature = token.getWordSignature();
 				encoder_.append(0, order_bits_);
 				encoder_.append(0, level_bits_);
-				encoder_.append(fc + 1, state_feature_bits_);
-				encoder_.append(nshape_index, shape_bits_);
+				encoder_.append(fc, state_feature_bits_);
+				encoder_.append(signature, 4);
+				features.add(getFeatureIndex(encoder_
+						.getFeature(extend_feature_set_)));
+				encoder_.reset();
+			}
+			fc++;
 
-				if (model_.isRare(nform_index)) {
+			// Prefix feature
+			if (is_rare) {
+				encoder_.append(0, order_bits_);
+				encoder_.append(0, level_bits_);
+				encoder_.append(fc, state_feature_bits_);
+
+				for (int position = 0; position < Math.min(chars.length,
+						MAX_AFFIX_LENGTH_); position++) {
+					assert chars != null;
+					short c = chars[position];
+					if (c < 0) {
+						// Unknown character!
+						break;
+					}
+					encoder_.append(c, char_bits_);
 					features.add(getFeatureIndex(encoder_
 							.getFeature(extend_feature_set_)));
 				}
-
 				encoder_.reset();
 			}
-		}
-		fc++;
-		fc++;
+			fc++;
 
-		int shape_index = -1;
-		if (shape_) {
-			shape_index = token.getWordShapeIndex();
-		}
+			// Suffix feature
+			if (is_rare) {
+				encoder_.append(0, order_bits_);
+				encoder_.append(0, level_bits_);
+				encoder_.append(fc, state_feature_bits_);
+				for (int position = 0; position < Math.min(chars.length,
+						MAX_AFFIX_LENGTH_); position++) {
+					short c = chars[chars.length - position - 1];
+					if (c < 0) {
+						// Unknown character!
+						break;
+					}
+					encoder_.append(c, char_bits_);
+					features.add(getFeatureIndex(encoder_
+							.getFeature(extend_feature_set_)));
 
-		if (is_rare && shape_index >= 0) {
-			encoder_.append(0, order_bits_);
-			encoder_.append(0, level_bits_);
-			encoder_.append(fc, state_feature_bits_);
-			encoder_.append(shape_index, shape_bits_);
-			features.add(getFeatureIndex(encoder_
-					.getFeature(extend_feature_set_)));
-			encoder_.reset();
-		}
-		fc++;
-
-		if (is_rare) {
-			int signature = token.getWordSignature();
-			encoder_.append(0, order_bits_);
-			encoder_.append(0, level_bits_);
-			encoder_.append(fc, state_feature_bits_);
-			encoder_.append(signature, 4);
-			features.add(getFeatureIndex(encoder_
-					.getFeature(extend_feature_set_)));
-			encoder_.reset();
-		}
-		fc++;
-
-		// Prefix feature
-		if (is_rare) {
-			encoder_.append(0, order_bits_);
-			encoder_.append(0, level_bits_);
-			encoder_.append(fc, state_feature_bits_);
-
-			for (int position = 0; position < Math.min(chars.length,
-					MAX_AFFIX_LENGTH_); position++) {
-				assert chars != null;
-				short c = chars[position];
-				if (c < 0) {
-					// Unknown character!
-					break;
 				}
-				encoder_.append(c, char_bits_);
-				features.add(getFeatureIndex(encoder_
-						.getFeature(extend_feature_set_)));
+				encoder_.reset();
 			}
-			encoder_.reset();
+			fc++;
 		}
-		fc++;
-
-		// Suffix feature
-		if (is_rare) {
-			encoder_.append(0, order_bits_);
-			encoder_.append(0, level_bits_);
-			encoder_.append(fc, state_feature_bits_);
-			for (int position = 0; position < Math.min(chars.length,
-					MAX_AFFIX_LENGTH_); position++) {
-				short c = chars[chars.length - position - 1];
-				if (c < 0) {
-					// Unknown character!
-					break;
-				}
-				encoder_.append(c, char_bits_);
-				features.add(getFeatureIndex(encoder_
-						.getFeature(extend_feature_set_)));
-
-			}
-			encoder_.reset();
-		}
-		fc++;
 
 		int[] token_feature_indexes = token.getTokenFeatureIndexes();
 		if (token_feature_indexes != null) {
+			
+			//System.err.println("TFT: " + model_.getTokenFeatureTable().size());
+			
 			for (int token_feature_index : token_feature_indexes) {
 				if (token_feature_index >= 0) {
 					encoder_.append(0, order_bits_);
 					encoder_.append(0, level_bits_);
 					encoder_.append(fc, state_feature_bits_);
+
 					encoder_.append(token_feature_index, token_feature_bits_);
 					features.add(getFeatureIndex(encoder_
 							.getFeature(extend_feature_set_)));
@@ -330,6 +365,22 @@ public class MorphWeightVector implements WeightVector {
 				}
 			}
 			fc++;
+		}
+
+		if (fdict_ != null) {
+
+			FloatFeatureVector vector = extractFloatFeatures(sentence, token_index);
+			features.setFloatVector(vector);
+
+		} else {
+			token_feature_indexes = token.getWeightedTokenFeatureIndexes();
+			if (token_feature_indexes != null) {
+
+				features.setFloatVector(new ArrayFloatFeatureVector(
+						token_feature_indexes, token
+								.getWeightedTokenFeatureWeights(), model_
+								.getWeightedTokenFeatureTable().size()));
+			}
 		}
 
 		if (mdict_indexes != null) {
@@ -351,6 +402,37 @@ public class MorphWeightVector implements WeightVector {
 		features.setWordIndex(form_index);
 
 		return features;
+	}
+
+	private FloatFeatureVector extractFloatFeatures(Sequence sentence,
+			int token_index) {
+		FloatFeatureVector vector = null;
+
+		for (int offset : fdict_.getOffsets()) {
+			int index = token_index + offset;
+
+			FloatFeatureVector current_vector = null;
+			if (index >= 0 && index < sentence.size()) {
+				String form = ((Word) sentence.get(index)).getWordForm();
+				current_vector = fdict_.getVector(form);
+			}
+				
+			if (current_vector == null) {
+				current_vector = new ZeroFloatFeatureVector(fdict_.size());
+			}
+
+			assert (current_vector != null);
+
+			if (vector == null) {
+				vector = current_vector;
+			} else {
+				vector = new ConcatFloatFeatureVector(vector,
+						current_vector);
+			}
+		}
+
+		assert vector != null;
+		return vector;
 	}
 
 	private int getFeatureIndex(Feature feature) {
@@ -405,11 +487,18 @@ public class MorphWeightVector implements WeightVector {
 		State zero_order_state = state.getZeroOrderState();
 		int tag_index = getUniversalIndex(zero_order_state);
 		double score = 0.0;
-		for (int feature : vector) {
+
+		for (int findex = 0; findex < vector.size(); findex++) {
+			int feature = vector.get(findex);
 			int index = getIndex(feature, tag_index);
 			score += getWeight(index);
 		}
-		
+
+		FloatFeatureVector float_vector = vector.getFloatVector();
+		if (float_vector != null) {
+			score += float_vector.getDotProduct(this, tag_index, 0);
+		}
+
 		score += dotProductSubTags(zero_order_state, vector);
 
 		if (vector.getIsState()) {
@@ -421,7 +510,15 @@ public class MorphWeightVector implements WeightVector {
 
 		return score * scale_factor_;
 	}
-	
+
+	public double getFloatWeight(int index) {
+		return float_weights_[index];
+	}
+
+	public int getFloatIndex(int feature, int tag_index) {
+		return feature * total_num_tags_ + tag_index;
+	}
+
 	private double dotProductSubTags(State state, FeatureVector vector) {
 		int level = state.getLevel();
 
@@ -444,12 +541,19 @@ public class MorphWeightVector implements WeightVector {
 		double score = 0.0;
 		for (int index : indexes) {
 			int simple_index = getSimpleSubMorphIndex(index);
-			for (int feature : vector) {
+
+			for (int findex = 0; findex < vector.size(); findex++) {
+				int feature = vector.get(findex);
 				int f_index = getIndex(feature, simple_index);
 				score += getWeight(f_index);
 			}
+
+			FloatFeatureVector float_vector = vector.getFloatVector();
+			if (float_vector != null) {
+				score += float_vector.getDotProduct(this, simple_index, 0);
+			}
 		}
-		
+
 		return score;
 	}
 
@@ -521,9 +625,15 @@ public class MorphWeightVector implements WeightVector {
 		order_bits_ = Encoder.bitsNeeded(model.getOrder());
 		level_bits_ = Encoder.bitsNeeded(max_level);
 
-		if (tag_morph_) {
-			token_feature_bits_ = Encoder.bitsNeeded(model_.getTokenFeatureTable()
-					.size());
+		token_feature_bits_ = Encoder.bitsNeeded(model_.getTokenFeatureTable()
+				.size());
+		
+		if (fdict_ != null) {
+			float_weights_ = new double[fdict_.getOffsets().length
+					* fdict_.size() * total_num_tags_];
+		} else {
+			float_weights_ = new double[model_.getWeightedTokenFeatureTable()
+					.size() * total_num_tags_];
 		}
 
 		extend_feature_set_ = true;
@@ -545,9 +655,15 @@ public class MorphWeightVector implements WeightVector {
 			while (run != null) {
 
 				int tag_index = getUniversalIndex(run);
-				for (int feature : vector) {
+				for (int findex = 0; findex < vector.size(); findex++) {
+					int feature = vector.get(findex);
 					int index = getIndex(feature, tag_index);
 					updateWeight(index, value);
+				}
+
+				FloatFeatureVector float_vector = vector.getFloatVector();
+				if (float_vector != null) {
+					float_vector.updateFloatWeight(this, tag_index, 0, value);
 				}
 
 				updateSubTags(run, vector, value);
@@ -595,11 +711,18 @@ public class MorphWeightVector implements WeightVector {
 
 		for (int index : indexes) {
 			int simple_index = getSimpleSubMorphIndex(index);
-			for (int feature : vector) {
+			for (int findex = 0; findex < vector.size(); findex++) {
+				int feature = vector.get(findex);
 				int f_index = getIndex(feature, simple_index);
 				updateWeight(f_index, value);
 			}
+
+			FloatFeatureVector float_vector = vector.getFloatVector();
+			if (float_vector != null) {
+				float_vector.updateFloatWeight(this, simple_index, 0, value);				
+			}
 		}
+
 	}
 
 	protected int getSimpleSubMorphIndex(int sub_morph_index) {
@@ -611,6 +734,10 @@ public class MorphWeightVector implements WeightVector {
 		if (penalize_) {
 			weights_[index] = applyPenalty(index, weights_[index]);
 		}
+	}
+
+	public void updateFloatWeight(int index, double value) {
+		float_weights_[index] += value;
 	}
 
 	protected int getObservedIndex(MorphFeatureVector vector, State state) {

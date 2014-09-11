@@ -4,8 +4,10 @@
 package marmot.core;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import marmot.core.lattice.SequenceViterbiLattice;
 import marmot.core.lattice.SumLattice;
@@ -20,13 +22,22 @@ public class PerceptronTrainer implements Trainer {
 	private boolean shuffle_;
 	private boolean verbose_;
 	private boolean averaging_;
+	private long seed_;
 
 	@Override
-	public void train(Tagger tagger, List<Sequence> sequences,
+	public void train(Tagger tagger, Collection<Sequence> in_sequences,
 			Evaluator evaluator) {
+		
+		Random rng = null;
 		if (shuffle_) {
-			sequences = new ArrayList<Sequence>(sequences);
+			if (seed_ == 0) {
+				rng = new Random();
+			} else {
+				rng = new Random(seed_);
+			}
 		}
+		
+		List<Sequence> sequences = new ArrayList<Sequence>(in_sequences);
 
 		int fraction = Math.max(sequences.size() / 4, 1);
 		WeightVector weights = tagger.getWeightVector();
@@ -43,8 +54,8 @@ public class PerceptronTrainer implements Trainer {
 			if (verbose_)
 				System.err.println("step: " + step);
 
-			if (shuffle_)
-				Collections.shuffle(sequences);
+			if (shuffle_) 
+				Collections.shuffle(sequences, rng);
 
 			int current_sentence = 0;
 			long train_time = System.currentTimeMillis();
@@ -147,6 +158,7 @@ public class PerceptronTrainer implements Trainer {
 		shuffle_ = options.getShuffle();
 		verbose_ = options.getVerbose();
 		averaging_ = options.getAveraging();
+		seed_ = options.getSeed();
 	}
 
 }

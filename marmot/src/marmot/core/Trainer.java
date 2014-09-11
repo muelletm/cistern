@@ -3,11 +3,11 @@
 
 package marmot.core;
 
-import java.util.List;
+import java.util.Collection;
 
 public interface Trainer {
 
-	void train(Tagger tagger, List<Sequence> sequences,
+	void train(Tagger tagger, Collection<Sequence> sequences,
 			Evaluator evaluator);
 
 	void setOptions(Options options);

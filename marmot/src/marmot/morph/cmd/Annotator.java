@@ -8,22 +8,19 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import marmot.core.Sequence;
-import marmot.core.SimpleTagger;
 import marmot.core.Tagger;
-import marmot.core.Token;
 import marmot.morph.MorphDictionary;
-import marmot.morph.MorphModel;
 import marmot.morph.MorphOptions;
 import marmot.morph.MorphWeightVector;
 import marmot.morph.Sentence;
 import marmot.morph.Word;
 import marmot.morph.io.SentenceReader;
-import marmot.util.SymbolTable;
-
-
+import marmot.util.FileUtils;
 
 public class Annotator {
 	
@@ -38,7 +35,7 @@ public class Annotator {
 		options.dieIfPropertyIsEmpty(MorphOptions.PRED_FILE);
 		options.dieIfPropertyIsEmpty(MorphOptions.TEST_FILE);
 		
-		Tagger tagger = SimpleTagger.loadFromFile(options.getModelFile());
+		Tagger tagger = FileUtils.loadFromFile(options.getModelFile());
 		
 		if (!options.getMorphDict().isEmpty()) {
 			MorphWeightVector vector = (MorphWeightVector) tagger.getWeightVector();
@@ -71,28 +68,41 @@ public class Annotator {
 		}
 	}
 
-	public static void annotate(Tagger tagger, String text_file, Writer writer) throws IOException {
-		MorphModel model = (MorphModel) tagger.getModel();
-		
+	public static void annotate(Tagger tagger, String text_file, Writer writer) throws IOException {	
 		SentenceReader reader = new SentenceReader(text_file);
 		
 		for (Sequence sequence : reader) {
 			Sentence sentence = (Sentence) sequence;
 			
-			for (Token token : sentence) {
-				Word word = (Word) token;
-				model.addIndexes(word, false);
+			if (sentence.isEmpty()) {
+				System.err.println("Warning: Skipping empty sentence!");
+				continue;
 			}
 			
-			for (SymbolTable<String> table : model.getTagTables())
-				table.setBidirectional(true);
+			List<List<String>> tags;
 			
-			List<List<String>> tags = tagger.tag(sentence);
+			try {
+			
+			tags = tagger.tag(sentence);
+			
+			} catch (OutOfMemoryError e) {
+				
+				tags = new ArrayList<>(sentence.size());
+				
+				List<String> tag = Collections.singletonList("_");
+				
+				for (int index = 0; index < sentence.size(); index ++) {
+					tags.add(tag);
+				}
+				
+				System.err.format("Warning: Can't tag sentence of length: %d (Not enough memory)!\n", sentence.size());
+				
+			}
 			
 			for (int i = 0; i < sentence.size(); i ++) {
 				Word word = sentence.getWord(i);
 				
-				writer.append(Integer.toString(i));
+				writer.append(Integer.toString(i + 1));
 				writer.append(SEPERATOR_);
 				writer.append(word.getWordForm());
 				

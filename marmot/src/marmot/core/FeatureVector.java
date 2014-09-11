@@ -3,14 +3,14 @@
 
 package marmot.core;
 
-import java.util.Iterator;
-
-public class FeatureVector implements Iterable<Integer> {
+public class FeatureVector {
 	private int[] features_;
+
 	private int length_;
 	private boolean is_state_ = false;
 	private boolean concat_;
 	private FeatureVector sub_vector_;
+	private FloatFeatureVector float_vector_;
 
 	public FeatureVector(int capacity) {
 		this(capacity, null, false);
@@ -58,40 +58,6 @@ public class FeatureVector implements Iterable<Integer> {
 		is_state_ = is_state;
 	}
 
-	public FeatureVector getSubVector() {
-		return sub_vector_;
-	}
-
-	public FeatureVector getDeepestVector() {
-		if (sub_vector_ == null) {
-			return this;
-		}
-		return sub_vector_.getDeepestVector();
-	}
-
-	@Override
-	public Iterator<Integer> iterator() {
-		return new Iterator<Integer>() {
-
-			int current = 0;
-
-			@Override
-			public boolean hasNext() {
-				return current < size();
-			}
-
-			@Override
-			public Integer next() {
-				return get(current++);
-			}
-
-			@Override
-			public void remove() {
-				throw new UnsupportedOperationException();
-			}
-		};
-	}
-
 	public void append(FeatureVector vector) {
 
 		if (features_.length < vector.size() + length_) {
@@ -100,8 +66,8 @@ public class FeatureVector implements Iterable<Integer> {
 			features_ = features;
 		}
 
-		for (int feature : vector) {
-			add(feature);
+		for (int index = 0; index < vector.size(); index++) {
+			add(vector.get(index));
 		}
 	}
 
@@ -116,7 +82,21 @@ public class FeatureVector implements Iterable<Integer> {
 		concat_ = concat;
 	}
 
-	public void setSubVector(FeatureVector sub_vector) {
-		sub_vector_ = sub_vector;
+	public FloatFeatureVector getFloatVector() {
+		if (float_vector_ != null) {
+			assert sub_vector_ == null;
+			return float_vector_;
+		}
+		
+		if (sub_vector_ != null) {
+			return sub_vector_.getFloatVector();
+		}
+		
+		return null;
 	}
+
+	public void setFloatVector(FloatFeatureVector float_vector) {
+		float_vector_ = float_vector;
+	}
+
 }

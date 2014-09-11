@@ -3,15 +3,10 @@
 
 package marmot.morph.signature;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -19,14 +14,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 
 import marmot.core.Sequence;
 import marmot.core.Token;
 import marmot.morph.Word;
 import marmot.morph.io.SentenceReader;
 import marmot.util.Counter;
+import marmot.util.FileUtils;
 import marmot.util.SymbolTable;
 
 
@@ -513,9 +507,21 @@ public class Trie implements Serializable {
 		for (Sequence sentence : new SentenceReader(trainfile)) {
 			sentences.add(sentence);
 		}
-
+		
+		return train(sentences, verbose, num_folds, K);
+	}
+	
+	public static Trie train(Collection<Sequence> sentences, boolean verbose) {
+		return train(sentences, verbose, 20, 1);
+	}
+	
+	public static Trie train(Collection<Sequence> sentences, boolean verbose, int num_folds, int K) {
 		int sentences_per_fold = sentences.size() / num_folds;
 
+		if (sentences.size() < num_folds) {
+			throw new RuntimeException("Training set is to small: |sentences| = " + sentences.size() + " num folds =" + num_folds);
+		}
+		
 		Set<String> known = new HashSet<String>();
 		Map<String, List<List<Integer>>> map = new HashMap<String, List<List<Integer>>>();
 
@@ -604,41 +610,7 @@ public class Trie implements Serializable {
 		}
 		
 		Trie trie = train(args[0], true);
-		saveToFile(args[1], trie);
+		FileUtils.saveToFile(trie, args[1]);
 	}
 
-	public static void saveToFile(String file_path, Trie trie) {
-		try {
-			ObjectOutputStream stream = new ObjectOutputStream(
-					new GZIPOutputStream(new FileOutputStream(file_path)));
-			stream.writeObject(trie);
-			stream.close();
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	public static Trie loadFromFile(String file_path) {
-		try {
-			ObjectInputStream stream = new ObjectInputStream(
-					new GZIPInputStream(new FileInputStream(file_path)));
-
-			Object object = stream.readObject();
-
-			if (object == null || !(object instanceof Trie)) {
-				stream.close();
-				throw new RuntimeException("Does not seem to be a Trie");
-			}
-			stream.close();
-			return (Trie) object;
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		} catch (ClassNotFoundException e) {
-			throw new RuntimeException(e);
-		}
-	}
 }

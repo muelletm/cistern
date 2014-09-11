@@ -3,20 +3,11 @@
 
 package marmot.core;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 
 import marmot.core.lattice.Hypothesis;
 import marmot.core.lattice.SequenceSumLattice;
@@ -25,8 +16,6 @@ import marmot.core.lattice.SumLattice;
 import marmot.core.lattice.ViterbiLattice;
 import marmot.core.lattice.ZeroOrderSumLattice;
 import marmot.core.lattice.ZeroOrderViterbiLattice;
-import marmot.util.SymbolTable;
-
 
 public class SimpleTagger implements Tagger {
 	private static final long serialVersionUID = 1L;
@@ -383,9 +372,10 @@ public class SimpleTagger implements Tagger {
 				}
 
 				/*
-				 * If training and gold sequence is not among the new candidates
+				 * During training, if gold sequence is not among the new candidates
 				 * return the lattice immediately to do an early update.
 				 */
+				
 				if (train
 						&& testForGoldCandidates(sentence, candidates, lattice) == null) {
 					return lattice;
@@ -395,22 +385,7 @@ public class SimpleTagger implements Tagger {
 					candidates = increaseOrder(candidates, level);
 				}
 
-				try {
-					addTransitions(candidates, level, current_order + 2);
-				} catch (java.lang.OutOfMemoryError e) {
-					System.err.println("Sentence: " + sentence.size());
-					System.err.format("o:%d l:%d\n", current_order, level);
-					for (List<State> states : candidates) {
-						System.err.print(" " + states.size());
-					}
-					System.err.println();
-					System.err
-							.format("Memory used: "
-									+ marmot.util.Runtime.getUsedMemory()
-									/ (1024 * 1024));
-
-					throw e;
-				}
+				addTransitions(candidates, level, current_order + 2);
 
 				lattice = new SequenceSumLattice(candidates,
 						model_.getBoundaryState(level),
@@ -425,7 +400,6 @@ public class SimpleTagger implements Tagger {
 
 		assert lattice.getCandidates().size() >= sentence.size();
 		return lattice;
-
 	}
 
 	public void activateCandiateBuffer(boolean active) {
@@ -575,12 +549,6 @@ public class SimpleTagger implements Tagger {
 
 	@Override
 	public List<List<String>> tag(Sequence sentence) {
-		for (SymbolTable<String> table : model_.getTagTables()) {
-			if (!table.isBidirectional()) {
-				throw new InvalidParameterException();
-			}
-		}
-
 		List<int[]> indexes = tag_(sentence);
 
 		List<List<String>> strings = new ArrayList<List<String>>(indexes.size());
@@ -620,7 +588,7 @@ public class SimpleTagger implements Tagger {
 
 	protected List<int[]> tag_(Sequence sequence) {
 		List<int[]> list = new ArrayList<int[]>(sequence.size());
-		SumLattice sum_lattice = this.getSumLattice(false, sequence);
+		SumLattice sum_lattice = getSumLattice(false, sequence);
 
 		List<List<State>> candidates = sum_lattice.getCandidates();
 
@@ -644,51 +612,6 @@ public class SimpleTagger implements Tagger {
 			list.add(indexes);
 		}
 		return list;
-	}
-
-	@Override
-	public void saveToFile(String filepath) {
-		try {
-			ObjectOutputStream stream = new ObjectOutputStream(
-					new GZIPOutputStream(new FileOutputStream(filepath)));
-			stream.writeObject(this);
-			stream.close();
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-
-	}
-
-	public static SimpleTagger loadFromFile(String filepath) {
-		long time = System.currentTimeMillis();
-		try {
-			ObjectInputStream stream = new ObjectInputStream(
-					new GZIPInputStream(new FileInputStream(filepath)));
-
-			Object object = stream.readObject();
-			stream.close();
-
-			if (object == null || !(object instanceof SimpleTagger)) {
-				throw new RuntimeException("Does not seem to be a Tagger");
-			}
-
-			SimpleTagger tagger = (SimpleTagger) object;
-
-			if (tagger.getModel().getOptions().getVerbose()) {
-				System.err.format("Loading model took: %ds\n",
-						(System.currentTimeMillis() - time) / 1000);
-			}
-
-			return tagger;
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		} catch (ClassNotFoundException e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 	public void setMaxLevel(int level) {

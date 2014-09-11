@@ -17,99 +17,107 @@ import java.util.Map.Entry;
 public class Counter<T> implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	Map<T,Double> storage;
-	Double totalCount;
-	Double defaultValue;
-	
-	public Set<Entry<T,Double>> entrySet(){
-		return storage.entrySet();
-	}
-	
-	public Counter(Double defaultValue, int initialCapacity){
-		storage = new HashMap<T,Double>(initialCapacity);
-		this.defaultValue = defaultValue;
-		totalCount = 0.;
+	private Map<T, Double> storage_;
+	private Double total_count_;
+	private Double default_value_;
+
+	public Set<Entry<T, Double>> entrySet() {
+		return storage_.entrySet();
 	}
 
-	public Counter(Double defaultValue){
+	public Counter(Double defaultValue, int initialCapacity) {
+		storage_ = new HashMap<T, Double>(initialCapacity);
+		this.default_value_ = defaultValue;
+		total_count_ = 0.;
+	}
+
+	public Counter(Double defaultValue) {
 		this(defaultValue, 10);
 	}
-	
-	public Counter(){
-		this(0.);	
+
+	public Counter() {
+		this(0.);
 	}
 
-	public void set(T item,Double freq){
-		if (freq != defaultValue){
-		storage.put(item, freq);
-		}else{
-			storage.remove(item);
+	public void set(T item, Double freq) {
+		if (freq != default_value_) {
+			storage_.put(item, freq);
+		} else {
+			storage_.remove(item);
 		}
 	}
-	
-	public void increment(T item,Double freq){
-		if (!storage.containsKey(item)){
-			storage.put(item, freq + defaultValue);
-		}
-		else{
-			storage.put(item, freq + storage.get(item));
-		}
-		
-		Double newFreq = storage.get(item);
-		
-		if (newFreq == defaultValue){
-			storage.remove(item);
+
+	public void increment(T item, Double freq) {
+		if (!storage_.containsKey(item)) {
+			storage_.put(item, freq + default_value_);
+		} else {
+			storage_.put(item, freq + storage_.get(item));
 		}
 
-		totalCount += freq;
-	}
-	
-	public Double count(T item){
-		if (!storage.containsKey(item)){
-			return defaultValue;
+		Double newFreq = storage_.get(item);
+
+		if (newFreq == default_value_) {
+			storage_.remove(item);
 		}
-		else{
-			return storage.get(item);
+
+		total_count_ += freq;
+	}
+
+	public Double count(T item) {
+		if (!storage_.containsKey(item)) {
+			return default_value_;
+		} else {
+			return storage_.get(item);
 		}
 	}
-	
-	public Double totalCount(){
-		return totalCount;
+
+	public Double totalCount() {
+		return total_count_;
 	}
-	
-	public int size(){
-		return storage.size();
+
+	public int size() {
+		return storage_.size();
 	}
-	
-	public List<Entry<T,Double>> byFrequency(){
-		List<Entry<T,Double>> entries = new ArrayList<Entry<T,Double>>(storage.entrySet());
-		Collections.sort(entries, new Comparator<Entry<T,Double>> () {
-			
-			public int compare(Entry<T,Double> e1, Entry<T,Double> e2) {
-				double o1 = e1.getValue();
-				double o2 = e2.getValue();
-		        return (o1>o2 ? -1 : (o1==o2 ? 0 : 1));
-		    }
-			
-		});
-		return entries;
-	}
-	
-	public String toString(){
-		return storage.toString();
+
+	public String toString() {
+		return storage_.toString();
 	}
 
 	public Collection<Double> counts() {
-		return storage.values();
+		return storage_.values();
 	}
 
 	public void clear() {
-		storage.clear();
+		storage_.clear();
 	}
 
 	public Set<T> keySet() {
-		return storage.keySet();
+		return storage_.keySet();
 	}
-	
-}
 
+	public List<Entry<T, Double>> sortedEntries() {
+		List<Entry<T, Double>> list = new ArrayList<Entry<T, Double>>(
+				storage_.entrySet());
+
+		Collections.sort(list, new Comparator<Entry<T, Double>>() {
+
+			@Override
+			public int compare(Entry<T, Double> o1, Entry<T, Double> o2) {
+				return -Double.compare(o1.getValue(), o2.getValue());
+			}
+		});
+		
+		return list;
+	}
+
+	public List<Entry<T, Double>> sortedEntries(int length) {
+		List<Entry<T, Double>> list = sortedEntries();
+
+		if (list.size() > length) {
+			list = list.subList(0, length);
+		}
+		
+		return list;	
+	}
+
+}

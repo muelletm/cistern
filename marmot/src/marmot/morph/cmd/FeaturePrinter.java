@@ -75,7 +75,9 @@ public class FeaturePrinter {
 					writer.write("|");
 					writer.write(word.getMorphTag());
 				}
-				for (int feature : vector) {
+				
+				for (int findex = 0; findex < vector.size(); findex ++) {
+					int feature = vector.get(findex);
 					writer.write(seperator);
 					writer.write(toString(feature));
 				}

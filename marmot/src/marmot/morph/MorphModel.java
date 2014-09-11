@@ -17,17 +17,15 @@ import java.util.Set;
 
 import marmot.core.Model;
 import marmot.core.Sequence;
-import marmot.core.SimpleTagger;
 import marmot.core.State;
 import marmot.core.Tagger;
 import marmot.core.Token;
 import marmot.core.Trainer;
 import marmot.core.TrainerFactory;
 import marmot.core.WeightVector;
-import marmot.morph.io.FileOptions;
-import marmot.morph.io.SentenceReader;
 import marmot.morph.signature.Trie;
 import marmot.util.Counter;
+import marmot.util.FileUtils;
 import marmot.util.Ling;
 import marmot.util.SymbolTable;
 
@@ -38,6 +36,7 @@ public class MorphModel extends Model {
 	private SymbolTable<String> shape_table_;
 	private SymbolTable<Character> char_table_;
 	private SymbolTable<String> token_feature_table_;
+	private SymbolTable<String> weighted_token_feature_table_;
 
 	private List<SymbolTable<String>> subtag_tables_;
 	private Map<String, Integer> signature_map;
@@ -96,10 +95,9 @@ public class MorphModel extends Model {
 		}
 		signature_map = new HashMap<String, Integer>();
 
-		if (tag_morph_) {
-			token_feature_table_ = new SymbolTable<String>();
-		}
-
+		token_feature_table_ = new SymbolTable<String>();
+		weighted_token_feature_table_ = new SymbolTable<String>();
+		
 		if ((shape_)) {
 
 			File file = null;
@@ -110,19 +108,18 @@ public class MorphModel extends Model {
 				if (verbose_) {
 					System.err.println("Inducing shape trie.");
 				}
-				trie_ = Trie
-						.train(options.getTrainFile(), options.getVeryVerbose());
+				trie_ = Trie.train(sentences, options.getVeryVerbose());
 				if (file != null) {
 					if (verbose_) {
 						System.err.format("Writing shape trie to: %s.\n",
 								options.getShapeTriePath());
 					}
-					Trie.saveToFile(options.getShapeTriePath(), trie_);
+					FileUtils.saveToFile(trie_, options.getShapeTriePath());
 				}
 			} else {
 				System.err.format("Loading shape trie from: %s.\n",
 						options.getShapeTriePath());
-				trie_ = Trie.loadFromFile(options.getShapeTriePath());
+				trie_ = FileUtils.loadFromFile(options.getShapeTriePath());
 			}
 		}
 
@@ -445,9 +442,11 @@ public class MorphModel extends Model {
 					word_form.charAt(index), -1, insert);
 
 			if (char_indexes[index] < 0) {
-				if (verbose_)
+				if (verbose_) {
 					System.err.format("Warning: Unknown character: %c\n",
 							word_form.charAt(index));
+				}
+					
 			}
 
 		}
@@ -480,21 +479,30 @@ public class MorphModel extends Model {
 
 		word.setWordSignature(signature);
 
-		String token_feature = word.getTokenFeature();
-		if (token_feature != null && tag_morph_ && token_feature_table_ != null) {
-			String[] fst_sub_morphs = token_feature.split("#");
-			int[] indexes = new int[fst_sub_morphs.length];
+		String[] token_features = word.getTokenFeatures();
+		if (token_features != null && token_feature_table_ != null) {
+			int[] indexes = new int[token_features.length];
 			int index = 0;
-			for (String fst_sub_morph : fst_sub_morphs) {
-				indexes[index] = token_feature_table_.toIndex(fst_sub_morph,
-						-1, insert);
-
+			for (String feature : token_features) {
+				indexes[index] = token_feature_table_.toIndex(feature, -1,
+						insert);
 				index++;
 			}
 			word.setTokenFeatureIndexes(indexes);
-			word.setTokenFeature(null);
 		}
-
+		
+		token_features = word.getWeightedTokenFeatures();
+		if (token_features != null && weighted_token_feature_table_ != null) {
+			int[] indexes = new int[token_features.length];
+			int index = 0;
+			for (String feature : token_features) {
+				indexes[index] = weighted_token_feature_table_.toIndex(feature, -1,
+						insert);
+				index++;
+			}
+			word.setWeightedTokenFeatureIndexes(indexes);
+		}
+		
 		addShape(word, insert);
 	}
 
@@ -592,44 +600,26 @@ public class MorphModel extends Model {
 		return word_table_;
 	}
 
-	public static Tagger train(MorphOptions options) {
-		long time = System.currentTimeMillis();
-		List<Sequence> train_sentences = new LinkedList<Sequence>();
-
-		SentenceReader reader = new SentenceReader(options.getTrainFile());
-		if (options.getTagMorph())
-			reader.getFileOptions().dieIfPropertyIsEmpty(
-					FileOptions.MORPH_INDEX);
-
-		for (Sequence sentence : reader) {
-			train_sentences.add(sentence);
-		}
-
+	public static Tagger train(MorphOptions options,
+			Collection<Sequence> train_sentences,
+			Collection<Sequence> test_sentences) {
+	
 		MorphModel model = new MorphModel();
 
 		model.init(options, train_sentences);
 
-		List<Sequence> test_sentences = null;
-
-		if (!options.getTestFile().isEmpty()) {
-			reader = new SentenceReader(options.getTestFile());
-			if (options.getTagMorph())
-				reader.getFileOptions().dieIfPropertyIsEmpty(
-						FileOptions.MORPH_INDEX);
-
-			test_sentences = new LinkedList<Sequence>();
-			for (Sequence sentence : reader) {
+		if (test_sentences != null) {
+			for (Sequence sentence : test_sentences) {
 				for (Token token : sentence) {
 					Word word = (Word) token;
 					model.addIndexes(word, false);
 				}
-				test_sentences.add(sentence);
 			}
 		}
 
 		WeightVector weights = new MorphWeightVector(options);
 		weights.init(model, train_sentences);
-		Tagger tagger = new SimpleTagger(model, model.getOrder(), weights);
+		Tagger tagger = new MorphTagger(model, model.getOrder(), weights);
 
 		Trainer trainer = TrainerFactory.create(options);
 
@@ -639,14 +629,6 @@ public class MorphModel extends Model {
 		}
 
 		trainer.train(tagger, train_sentences, evaluator);
-
-		if (!options.getModelFile().isEmpty())
-			tagger.saveToFile(options.getModelFile());
-
-		if (options.getVerbose())
-			System.err.format("Training took: %ds\n",
-					(System.currentTimeMillis() - time) / 1000);
-
 		return tagger;
 	}
 
@@ -685,6 +667,11 @@ public class MorphModel extends Model {
 	public SymbolTable<String> getTokenFeatureTable() {
 		return token_feature_table_;
 	}
+	
+	public SymbolTable<String> getWeightedTokenFeatureTable() {
+		return weighted_token_feature_table_;
+	}
+
 
 	@Override
 	public int[] getTagCandidates(Sequence sequence, int index, State state) {
@@ -701,4 +688,8 @@ public class MorphModel extends Model {
 		return tag_to_subtag_;
 	}
 
+	public void setVerbose(boolean verbose) {
+		verbose_ = verbose;
+	}
+	
 }

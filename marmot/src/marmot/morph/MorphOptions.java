@@ -27,9 +27,11 @@ public class MorphOptions extends Options {
 	public static final String SUBTAG_SEPERATOR = "subtag-seperator";
 	public static final String TYPE_DICT = "type-dict";
 	public static final String SPLIT_POS = "split-pos";
+	private static String FLOAT_TYPE_DICT = "type-embeddings";
 	
 	private static final Map<String, String> DEFALUT_VALUES_ = new HashMap<String, String>();
 	private static final Map<String, String> COMMENTS_ = new HashMap<String, String>();
+	
 
 	static {
 		DEFALUT_VALUES_.put(TRAIN_FILE, "");
@@ -60,10 +62,10 @@ public class MorphOptions extends Options {
 		COMMENTS_.put(SUBTAG_SEPERATOR, "Regular expression to use for splitting tags. (Has to work with Java's String.split)");
 		DEFALUT_VALUES_.put(TYPE_DICT, "");
 		COMMENTS_.put(TYPE_DICT, "Word type dictionary file (optional)");
+		DEFALUT_VALUES_.put(FLOAT_TYPE_DICT, "");
+		COMMENTS_.put(FLOAT_TYPE_DICT, "Word type embeddings file (optional)");
 	}
 
-
-	
 	public MorphOptions() {
 		super();
 		putAll(DEFALUT_VALUES_);
@@ -120,6 +122,10 @@ public class MorphOptions extends Options {
 	public String getMorphDict() {
 		return getProperty(TYPE_DICT);
 	}
+	
+	public String getFloatTypeDict() {
+		return getProperty(FLOAT_TYPE_DICT);
+	}
 
 	public boolean getSplitPos() {
 		return Boolean.parseBoolean(getProperty(SPLIT_POS));
@@ -131,4 +137,5 @@ public class MorphOptions extends Options {
 		usage(DEFALUT_VALUES_, COMMENTS_);
 		System.err.println();
 	}
+
 }

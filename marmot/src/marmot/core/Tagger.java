@@ -16,7 +16,6 @@ public interface Tagger extends Serializable {
 	int getNumLevels();
 	SumLattice getSumLattice(boolean train, Sequence sequence);
 	List<Integer> getGoldIndexes(Sequence sequence, List<List<State>> candidates);
-	void saveToFile(String modelFile);
 	WeightVector getWeightVector();
 	String setThresholds(boolean return_stats_as_string);
 }

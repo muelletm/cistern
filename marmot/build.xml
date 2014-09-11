@@ -4,25 +4,30 @@
 
   <property name="classes" value="${basedir}/classes"/>
   <property name="src" value="${basedir}/src"/>
-  <property name="jarfile" value="${basedir}/marmot-13-08-29.jar"/>
+  <property name="lib" value="${basedir}/lib"/>
+  
 
   <path id="classpath">
-    <!--<fileset file="${lib}/*.jar"/>-->
+    <fileset file="${lib}/*.jar"/>
   </path>
 
   <target name="compile" depends="clean,timestamp">
-    <mkdir dir="${classes}"/>
-
-    <javac srcdir="${src}" destdir="${classes}" debug="on" classpathref="classpath" includeAntRuntime="false" includes="**/*.java" excludes="marmot/test/**,marmot/cluster/**,marmot/lemma/**">
+    <mkdir dir="${classes}"/> 	
+    <javac compiler="javac1.7" source="1.7" target="1.7" srcdir="${src}" destdir="${classes}" debug="on" classpathref="classpath" includeAntRuntime="false" includes="**/*.java" excludes="marmot/test/**,marmot/lemma/**">
     </javac>
-
   </target>
 
   <target name="jar" depends="compile">
+  	<tstamp>
+  	     <format property="version" pattern="yyyy-MM-dd-hh" />
+  	</tstamp>
+  	
+  	<property name="jarfile" value="${basedir}/marmot-${version}.jar"/>
+  	
     <jar jarfile="${jarfile}">
       <fileset dir="${classes}" includes="**/*.class"/>
-      <fileset dir="${src}" includes="**/*.java" excludes="marmot/test/**,marmot/cluster/**,marmot/lemma/**" />
-    	<fileset dir="${basedir}" includes="LICENSE,README" />	
+      <fileset dir="${src}" includes="**/*.java" excludes="marmot/test/**" />
+    	<fileset dir="${basedir}" includes="LICENSE" />	
     </jar>
   </target>
 
@@ -35,6 +40,7 @@
     <tstamp>
       <format property="current.time" pattern="MM/dd/yyyy hh:mm:ss aa" />
     </tstamp>
+    
   <echo message="TIME: ${current.time}" />
   </target>
 

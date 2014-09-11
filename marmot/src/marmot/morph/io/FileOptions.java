@@ -5,7 +5,9 @@ package marmot.morph.io;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.zip.GZIPInputStream;
 
 public class FileOptions {
 	public static final String FORM_INDEX = "form-index";
@@ -13,7 +15,6 @@ public class FileOptions {
 	public static final String MORPH_INDEX = "morph-index";
 	public static final String LIMIT = "limit";
 	public static final String FST_MORPH_INDEX = "token-feature-index";
-	public static final String OVER_TOKENIZE = "overtokenize";
 
 	private int form_index_;
 	private int tag_index_;
@@ -22,7 +23,8 @@ public class FileOptions {
 	private String filename_;
 	private int limit_;
 	private InputStream input_stream_;
-	private boolean over_tokenize_;
+
+	// private InputStream input_stream_;
 
 	public FileOptions(String option_string) {
 		parse(option_string);
@@ -35,7 +37,6 @@ public class FileOptions {
 		limit_ = -1;
 		token_feature_index_ = -1;
 		filename_ = null;
-		over_tokenize_ = false;
 
 		String[] args = option_string.split(",");
 		for (String arg : args) {
@@ -93,8 +94,6 @@ public class FileOptions {
 										+ option_string);
 					}
 					limit_ = Integer.parseInt(value);
-				} else if (option.equalsIgnoreCase(OVER_TOKENIZE)) {
-					over_tokenize_ = Boolean.parseBoolean(value);
 				} else {
 					throw new RuntimeException("Unknown option: " + option);
 				}
@@ -103,8 +102,8 @@ public class FileOptions {
 		}
 
 		if (filename_ == null) {
-			throw new RuntimeException(
-					"No filename in option string: " + option_string);
+			throw new RuntimeException("No filename in option string: "
+					+ option_string);
 		}
 	}
 
@@ -137,19 +136,33 @@ public class FileOptions {
 	}
 
 	public InputStream getInputStream() {
-		if (input_stream_ == null) {
-			try {
-				input_stream_ = new FileInputStream(filename_);
-			} catch (FileNotFoundException e) {
-				throw new RuntimeException(e);
-			}
+		
+		if (input_stream_ != null) {
+			return input_stream_;
 		}
 
-		return input_stream_;
+		InputStream input_stream;
+
+		try {
+			
+			input_stream = new FileInputStream(filename_);
+
+			if (filename_.toLowerCase().endsWith(".gz")) {
+				input_stream = new GZIPInputStream(input_stream);
+			}
+
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
+		return input_stream;
+
 	}
 
 	public void setInputStream(InputStream input_stream) {
-		input_stream_ = input_stream;
+	 input_stream_ = input_stream;
 	}
 
 	public int getTokenFeatureIndex() {
@@ -162,10 +175,6 @@ public class FileOptions {
 					property);
 			System.exit(1);
 		}
-	}
-
-	public boolean getOverTokenizer() {
-		return over_tokenize_;
 	}
 
 }

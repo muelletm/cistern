@@ -32,15 +32,13 @@ public class RandomizationTest implements SignificanceTest {
 		List<Double> scores2 = scorer.getScores(gold, pred2);
 		List<Double> diffs = getDifferences(scores1, scores2, true);	
 		double diff = getAbsoluteDifference(diffs, false);
-		
+			
 		int total = 1048576;
 		int error = 0;
 		
 		for (int index = 0; index < total; index++) {
 			double random_diff = getAbsoluteDifference(diffs, true);
-			
-			//System.err.println(random_diff);
-			
+					
 			if (diff - random_diff < 1.e-10) {
 				error += 1;
 			}
