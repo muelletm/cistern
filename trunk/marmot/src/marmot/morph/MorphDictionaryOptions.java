@@ -204,5 +204,9 @@ public class MorphDictionaryOptions implements Serializable {
 		return dense_; 
 	}
 
+	public void setNormalize(boolean normalize) {
+		normalize_ = normalize;
+	}
+
 	
 }

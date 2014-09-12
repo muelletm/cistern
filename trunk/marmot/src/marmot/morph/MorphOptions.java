@@ -27,7 +27,8 @@ public class MorphOptions extends Options {
 	public static final String SUBTAG_SEPERATOR = "subtag-seperator";
 	public static final String TYPE_DICT = "type-dict";
 	public static final String SPLIT_POS = "split-pos";
-	private static String FLOAT_TYPE_DICT = "type-embeddings";
+	public static final String FLOAT_TYPE_DICT = "type-embeddings";
+	public static final String NORMALIZE_FORMS = "normalize-forms";
 	
 	private static final Map<String, String> DEFALUT_VALUES_ = new HashMap<String, String>();
 	private static final Map<String, String> COMMENTS_ = new HashMap<String, String>();
@@ -64,6 +65,8 @@ public class MorphOptions extends Options {
 		COMMENTS_.put(TYPE_DICT, "Word type dictionary file (optional)");
 		DEFALUT_VALUES_.put(FLOAT_TYPE_DICT, "");
 		COMMENTS_.put(FLOAT_TYPE_DICT, "Word type embeddings file (optional)");
+		DEFALUT_VALUES_.put(NORMALIZE_FORMS, "false");
+		COMMENTS_.put(NORMALIZE_FORMS, "Whether to normalize word forms before tagging.");
 	}
 
 	public MorphOptions() {
@@ -136,6 +139,10 @@ public class MorphOptions extends Options {
 		System.err.println("Morph Options:");
 		usage(DEFALUT_VALUES_, COMMENTS_);
 		System.err.println();
+	}
+
+	public boolean getNormalizeForms() {
+		return Boolean.parseBoolean(getProperty(NORMALIZE_FORMS));
 	}
 
 }
