@@ -137,6 +137,24 @@ public class PipelineTest {
 	}
 	
 	@Test
+	public void realNormalizeFormTest() {
+		MorphOptions options = new MorphOptions();
+		options.setProperty(Options.SEED, "42");
+		options.setProperty(Options.NUM_ITERATIONS, "10");
+		options.setProperty(Options.VECTOR_SIZE, "10000000");
+		options.setProperty(Options.CANDIDATES_PER_STATE, "[4, 2, 1.5, 1.25]");
+		options.setProperty(Options.PRUNE, "true");
+		options.setProperty(Options.ORDER, "3");
+		options.setProperty(Options.PENALTY, ".1");
+		options.setProperty(MorphOptions.NORMALIZE_FORMS, "true");
+		options.setProperty(MorphOptions.TRAIN_FILE,
+				"form-index=1,tag-index=4,morph-index=6,token-feature-index=7,trn.txt");
+		options.setProperty(MorphOptions.TEST_FILE,
+				"form-index=1,tag-index=4,morph-index=6,token-feature-index=7,tst.txt");
+		realTestWithOptions(options);
+	}
+	
+	@Test
 	public void realPosTest() {
 		MorphOptions options = new MorphOptions();
 		options.setProperty(Options.SEED, "42");
@@ -257,16 +275,22 @@ public class PipelineTest {
 			List<Sequence> train_sentences, List<Sequence> test_sentences,
 			double train_threshold, double test_threshold) {
 
+		StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+		
+		String caller = "None";
+		if (stack.length > 3) {
+			caller = stack[3].getMethodName();
+		}
+		
 		Tagger tagger = MorphModel.train(options, train_sentences,
 				test_sentences);
 
-		assertModelPerformanceOnTestset(tagger, train_sentences,
-				train_threshold);
-		assertModelPerformanceOnTestset(tagger, test_sentences, test_threshold);
+		assertModelPerformanceOnTestset(caller + " Train", tagger, train_sentences, train_threshold);
+		assertModelPerformanceOnTestset(caller + " Test ", tagger, test_sentences, test_threshold);
 
 	}
 
-	private void assertModelPerformanceOnTestset(Tagger tagger,
+	private void assertModelPerformanceOnTestset(String name, Tagger tagger,
 			List<Sequence> sentences, double threshold) {
 		MorphResult result = new MorphResult(tagger.getModel(), tagger.getNumLevels());
 		MorphModel model = (MorphModel) tagger.getModel();
@@ -284,7 +308,7 @@ public class PipelineTest {
 		double accuracy = (result.num_tokens - result.morph_errors) * 100.
 				/ result.num_tokens;
 
-		System.err.format("%g\n", accuracy);
+		System.err.format("%s: %g\n",name, accuracy);
 
 		if (accuracy - threshold < -1e-5) {
 			throw new AssertionFailedError(accuracy + " < " + threshold);

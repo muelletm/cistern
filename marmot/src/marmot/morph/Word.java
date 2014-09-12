@@ -236,5 +236,8 @@ public class Word implements Token {
 		return weighted_token_feature_weights_;
 	}
 
+	public void setTokenFeatures(String[] token_features) {
+		token_features_ = token_features;
+	}
 	
 }

@@ -80,6 +80,10 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 
 			MorphDictionaryOptions opt = MorphDictionaryOptions.parse(
 					options.getFloatTypeDict(), false);
+			
+			if (options.getNormalizeForms()) {
+				opt.setNormalize(true);
+			}
 
 			if (opt.getIndexes() == null) {
 				int[] indexes = { 0 };
@@ -349,8 +353,6 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 
 		int[] token_feature_indexes = token.getTokenFeatureIndexes();
 		if (token_feature_indexes != null) {
-			
-			//System.err.println("TFT: " + model_.getTokenFeatureTable().size());
 			
 			for (int token_feature_index : token_feature_indexes) {
 				if (token_feature_index >= 0) {

@@ -23,6 +23,7 @@ import marmot.core.Token;
 import marmot.core.Trainer;
 import marmot.core.TrainerFactory;
 import marmot.core.WeightVector;
+import marmot.morph.io.SentenceNormalizer;
 import marmot.morph.signature.Trie;
 import marmot.util.Counter;
 import marmot.util.FileUtils;
@@ -604,10 +605,17 @@ public class MorphModel extends Model {
 			Collection<Sequence> train_sentences,
 			Collection<Sequence> test_sentences) {
 	
+		if (options.getNormalizeForms()) {
+			train_sentences = SentenceNormalizer.normalizeSentences(train_sentences);
+			
+			if (test_sentences != null) {
+				test_sentences = SentenceNormalizer.normalizeSentences(test_sentences);	
+			}
+		}
+
 		MorphModel model = new MorphModel();
-
 		model.init(options, train_sentences);
-
+		
 		if (test_sentences != null) {
 			for (Sequence sentence : test_sentences) {
 				for (Token token : sentence) {
