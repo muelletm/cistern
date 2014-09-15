@@ -12,6 +12,10 @@ The chains have been automatically extracted using the Stanford CoreNLP tool (1)
 
 They are based on a part of English Gigaword Data (2).
 
+= Cite =
+If you use this resource, please cite the following paper:
+
+Heike Adel, Hinrich Schütze: "Using Mined Coreference Chains as a Resource for a Semantic Task", EMNLP 2014.
 
 = References =
 (1) Heeyoong Lee, Yves Peirsman, Angel Chang, Nathanael Chambers, Mihai Surdeanu and Dan Jurafsky: "Stanford's multi-pass sieve coreference resolution system at the CoNLL-2011 shared task", 15th conference on CoNLL: Shared Task, pages 28-34, 2011.
