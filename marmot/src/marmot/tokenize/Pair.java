@@ -16,7 +16,7 @@ public class Pair {
 	
 	public Pair(String untokenized, List<String> tags) {
 		untokenized_ = untokenized;
-		tags_ = new ArrayList<>();
+		tags_ = new ArrayList<>(tags);
 		setTokenized_();
 	}
 
