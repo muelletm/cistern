@@ -3,9 +3,9 @@
 
 package marmot.util;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 
 public class LevenshteinLattice {
 	private int[][] cost_lattice_;
@@ -143,17 +143,30 @@ public class LevenshteinLattice {
 		return sb.toString();
 	}
 
-	public List<List<Character>> searchOperationSequences() {
+	public List<List<Character>> searchOperationSequences(boolean remove_redundant) {
 		int input_index = input_.length();
 		int output_index = output_.length();
 
-		 List<List<Character>> lists = searchOperationSequences(input_index, output_index);
-		 
-		 for (List<Character> list : lists) {
-			 Collections.reverse(list);
-		 }
-		 
-		 return lists;
+		List<List<Character>> lists = searchOperationSequences(input_index,
+				output_index);
+
+		if (remove_redundant) {
+			ListIterator<List<Character>> iter = lists.listIterator();
+			while (iter.hasNext()) {
+				List<Character> next = iter.next();
+
+				if (redundant(next)) {
+					iter.remove();
+				}
+
+			}
+		}
+
+		return lists;
+	}
+	
+	public List<List<Character>> searchOperationSequences() {
+		return searchOperationSequences(false);
 	}
 
 	public List<List<Character>> searchOperationSequences(int input_index,
@@ -294,9 +307,9 @@ public class LevenshteinLattice {
 		String op_sequence = lattice.searchOperationSequence();
 
 		System.err.println(op_sequence);
-		
+
 		for (List<Character> op_seq : lattice.searchOperationSequences()) {
-			System.err.println(op_seq);	
+			System.err.println(op_seq);
 		}
 
 		String iob_sequence = lattice.generateIOB();
@@ -307,6 +320,31 @@ public class LevenshteinLattice {
 
 	public int getDistance() {
 		return cost_lattice_[input_.length()][output_.length()];
+	}
+
+	public boolean redundant(List<Character> seq) {
+		char last_c = 'S';
+		for (char c : seq) {
+			if (c == 'R' && last_c == 'D') {
+				// Canonical form is RD
+				return true;
+			}
+			if (c == 'R' && last_c == 'I') {
+				// Canonical form is RI
+				return true;
+			}
+			if (c == 'I' && last_c == 'D') {
+				// Canonical form is R
+				return true;
+			}
+			if (c == 'D' && last_c == 'I') {
+				// Canonical form is R
+				return true;
+			}
+
+			last_c = c;
+		}
+		return false;
 	}
 
 }
