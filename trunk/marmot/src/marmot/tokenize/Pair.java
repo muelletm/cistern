@@ -23,14 +23,46 @@ public class Pair {
 	private void setTokenized_() {
 		tokenized_ = new ArrayList<>(tags_.size());
 		
-		// TODO: Finish implementation of setTokenized!
-		// Parse the tag sequence and create the tokenized text from the untokenized string.
+		int start = 0;
+		int end = 0;
+		int ws = 0;
+
+		for(String s : tags_) {
+			if(s.equals("O")) {
+				ws++;
+			} else {
+				if(s.equals("T")) {
+					if(start!=end) {
+						tokenized_.add(untokenized_.substring(start, end));
+						end += ws;
+						start = end;
+						ws = 0;
+					}
+				}
+				end++;
+			}
+		}
 		
+		if(start!=end) {
+			tokenized_.add(untokenized_.substring(start, end));
+		}
 	}
 
 	@Override
 	public String toString() {
 		return untokenized_ + " " + tokenized_.toString() + " " + tags_.toString();
+	}
+
+	public String getUntokenized_() {
+		return untokenized_;
+	}
+
+	public List<String> getTokenized_() {
+		return tokenized_;
+	}
+
+	public List<String> getTags_() {
+		return tags_;
 	}
 	
 }
