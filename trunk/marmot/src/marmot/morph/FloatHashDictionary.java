@@ -86,19 +86,21 @@ public class FloatHashDictionary implements Serializable {
 			throw new RuntimeException("File is empty!");
 		}
 
-		int num_forms = Integer.parseInt(first_line.get(0));
-		int dim = Integer.parseInt(first_line.get(1));
-
-		System.err.format("Num words: %d, Dim: %d\n", num_forms, dim);
-		
-		for (int i=0; i< dim; i++) {
-			table_.toIndex(Integer.toString(i), true);
-		}
+		int dim = -1;
+	
 
 		while (iterator.hasNext()) {
 			List<String> line = iterator.next();
 
 			if (!line.isEmpty()) {
+				
+				if (dim < 0) {
+					dim = line.size() - 1;
+					for (int i=0; i< dim; i++) {
+						table_.toIndex(Integer.toString(i), true);
+					}			
+				}
+				
 				String form = line.get(0);
 
 				if (dim != line.size() - 1) {
