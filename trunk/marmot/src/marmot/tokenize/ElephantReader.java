@@ -1,3 +1,6 @@
+// Copyright 2014 Thomas Müller
+// This file is part of MarMoT, which is licensed under GPLv3.
+
 package marmot.tokenize;
 
 import java.io.InputStream;
@@ -36,7 +39,7 @@ public class ElephantReader {
 					
 					if (untokenized.length() > 0) {
 						// Create new sentence pair
-						pairs.add(new Pair(untokenized.toString(), tags));
+						pairs.add(Pair.fromTags(untokenized.toString(), tags));
 					}
 					
 					// Reset untokenized and tags
