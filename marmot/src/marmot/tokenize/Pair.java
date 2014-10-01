@@ -22,6 +22,11 @@ public class Pair {
 		List<String> tokenized = getTokenized(untokenized, tags);
 		return new Pair(untokenized, tokenized, tags);
 	}
+	
+	public static Pair fromTokenized(String untokenized, List<String> tokenized) {
+		List<String> tags = getTags(untokenized, tokenized);
+		return new Pair(untokenized, tokenized, tags);
+	}
 
 	private static List<String> getTokenized(String untokenized, List<String> tags) {
 		List<String> tokenized_ = new ArrayList<>(tags.size());
@@ -52,7 +57,29 @@ public class Pair {
 		
 		return tokenized_;
 	}
-
+	
+	private static List<String> getTags(String untokenized, List<String> tokenized) {
+		List<String> tags_ = new ArrayList<>(tokenized.size());
+		
+		int tmp = 0;
+		
+		for(String s : tokenized) {
+			tags_.add("T");
+			tmp++;
+			for(int i=0; i < s.length() -1; i++) {
+				tags_.add("I");
+				tmp++;
+			}
+			
+			while( (tmp<untokenized.length()) && untokenized.charAt(tmp) == ' ') {
+			    tags_.add("O");
+			    tmp++;
+			}
+		}
+		
+		return tags_;
+	}
+	
 	@Override
 	public String toString() {
 		return untokenized_ + " " + tokenized_.toString() + " " + tags_.toString();
