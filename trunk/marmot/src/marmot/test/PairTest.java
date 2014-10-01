@@ -45,4 +45,18 @@ public class PairTest {
 		
 		assertEquals(expected, actual);		
 	}
+	
+	@Test
+	public void testFromTokenized() {
+
+		String sentence = untokenized();
+		List<String> tokenized = tokenized();
+
+		Pair pair = Pair.fromTokenized(sentence, tokenized);
+
+		List<String> actual = pair.getTags();
+		List<String> expected = iob();
+
+		assertEquals(expected, actual);
+	}
 }

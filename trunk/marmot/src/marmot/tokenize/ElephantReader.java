@@ -67,7 +67,7 @@ public class ElephantReader {
 
 		String path = "/marmot/test/english.small.iob";
 		InputStream input_stream = reader.getClass().getResourceAsStream(path);
-
+		
 		System.out.println(reader.readFile(input_stream));
 	}
 
