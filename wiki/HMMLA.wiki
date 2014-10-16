@@ -1,5 +1,9 @@
 #summary HMMLA an implementation of Hidden Markov Models with Latent Annotations
 
+= Download =
+
+To get the latest binary release of HMMLA, please visit HMMLA's [http://www.cis.lmu.de/~muellets/hmmla/CURRENT CIS home page].
+
 = Introduction =
 
 HMM-LAs are HMMs that induce latent sub-tags to increase tagging accuracy. 
