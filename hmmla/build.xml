@@ -1,0 +1,38 @@
+<project name="marmot" default="jar" basedir=".">
+
+  <tstamp/>
+
+  <property name="classes" value="${basedir}/classes"/>
+  <property name="src" value="${basedir}/src"/>
+  <property name="jarfile" value="${basedir}/hmmla.jar"/>
+
+  <path id="classpath">
+  </path>
+
+  <target name="compile" depends="clean,timestamp">
+    <mkdir dir="${classes}"/> 	
+    <javac compiler="javac1.7" source="1.7" target="1.7" srcdir="${src}" destdir="${classes}" debug="on" classpathref="classpath" includeAntRuntime="false" includes="**/*.java" excludes="hmmla/test/**" >
+    </javac>
+  </target>
+
+  <target name="jar" depends="compile">
+    <jar jarfile="${jarfile}">
+      <fileset dir="${classes}" includes="**/*.class"/>
+      <fileset dir="${src}" includes="**/*.java" excludes="hmmla/test/**" />
+    	<fileset dir="${basedir}" includes="LICENSE" />	
+    </jar>
+  </target>
+
+  <target name="clean">
+    <delete dir="${classes}"/>
+    <delete file="${jarfile}"/>
+  </target>
+
+  <target name="timestamp">
+    <tstamp>
+      <format property="current.time" pattern="MM/dd/yyyy hh:mm:ss aa" />
+    </tstamp>
+  <echo message="TIME: ${current.time}" />
+  </target>
+
+</project>
