@@ -22,6 +22,7 @@ bool Verbose=true;
 bool Disambiguate=false;
 bool BothLayers=false;
 bool PrintProbs=false;
+bool FlushAfterEachString=false;
 vector<char*> Filenames;
 double Threshold=1.0;
 float MaxError=0.0;
@@ -48,6 +49,7 @@ void usage()
   cerr << "-q:  suppress status messages\n";
   cerr << "-v:  print version information\n";
   cerr << "-h:  print this message\n";
+  cerr << "-s:  prevents deadlocks, when used as an interactive subprocess. Flushes STDOUT after each string\n";
   cerr << "\nThe names of the probability files required by option -p and -% are are\nobtained by adding .prob to the transducer file names.\n\n";
   exit(1);
 }
@@ -90,6 +92,10 @@ void get_flags( int *argc, char **argv )
     else if (strcmp(argv[i],"-v") == 0) {
       printf("fst-infl2 version %s\n", SFSTVersion);
       exit(0);
+    }
+    else if (strcmp(argv[i],"-s") == 0) {
+      FlushAfterEachString = true;
+      argv[i] = NULL;
     }
     else if (i < *argc-1) {
       if (strcmp(argv[i],"-t") == 0) {
@@ -250,6 +256,8 @@ int main( int argc, char **argv )
       }
       if (analyses.size() == 0)
 	fprintf( outfile, "no result for %s\n", buffer);
+      if (FlushAfterEachString)
+        fflush(outfile);
     }
   }
   catch (const char *p) {
