@@ -24,7 +24,7 @@ SFST is a toolkit for the implementation of morphological analysers and other to
 
 === Downloads ===
 Source code of the SFST tools
-  * [http://www.cis.uni-muenchen.de/~schmid/tools/SFST/data/SFST-1.4.6h.tar.gz SFST version 1.4.6h]
+  * [http://www.cis.uni-muenchen.de/~schmid/tools/SFST/data/SFST-1.4.6i.tar.gz SFST version 1.4.6i]
 
 Precompiled morphological transducers
   * [https://code.google.com/p/cistern/wiki/SMOR SMOR], a German finite-state morphology which is based on SFST.
