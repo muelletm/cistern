@@ -27,7 +27,7 @@ java -ea -cp hmmla.jar hmmla.Trainer -train-file form-index=1,tag-index=3,esp.tr
 
 Where form-index=1 specifies that the word form can bound in the second column.
 
-= Tagger =
+= Tagging =
 
 Assuming a test file esp.test of the same format as esp.train we can annotate the file with:
 
