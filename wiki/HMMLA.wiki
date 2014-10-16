@@ -2,7 +2,7 @@
 
 = Introduction =
 
-HMM-LAs are HMMs that induce latent sub-tags to increase tagging accuracy. 
+HMM-LAs [http://aclweb.org/anthology/N/N09/N09-2054.pdf (Huang et al., 2009)] are HMMs that induce latent sub-tags to increase tagging accuracy. 
 
 This implementation can be either used as a standard HMM tagger or to refine the annotations of an existing treebank.
 
