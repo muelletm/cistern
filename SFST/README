@@ -47,7 +47,7 @@ The subdirectory data contains a simple example of an English
 morphological analyser, the source code of the German SMOR morphology
 (with just a few sample lexicon entries), and the general morphology
 XMOR which may be used as a starting point for the development of a
-new computational morphology.
+computational morphology.
 
 
 Problems with readline
@@ -94,11 +94,11 @@ Author
 
 The SFST tools have been implemented by Helmut Schmid, Institute for
 Computational Linguistics, University of Stuttgart, Germany and they
-are available under the GNU public license version 3 or higher.
+are available under the GNU public license version 2 or higher.
 
 
 Bug reports
 ===========
 
-Please send bug reports and other feedback to schmid@cis.uni-muenchen.de.
+Please send bug reports and other feedback to schmid@ims.uni-stuttgart.de.
 
