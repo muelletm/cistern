@@ -14,7 +14,7 @@ SFST is a toolkit for the implementation of morphological analysers and other to
   * an efficient C++ transducer library for the implementation of new FST tools
 
 === SFST is ===
-  * freely available under the GNU Public License
+  * freely available under the [http://www.gnu.org/copyleft/gpl.html GNU General Public License]
   * easy to learn for users who are familiar with grep, sed, or Perl.
   * efficient implementation in C++
   * supports
