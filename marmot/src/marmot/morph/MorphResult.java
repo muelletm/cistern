@@ -8,6 +8,7 @@ import java.util.Locale;
 
 import marmot.core.Model;
 import marmot.core.Result;
+import marmot.core.Tagger;
 
 
 
@@ -32,6 +33,10 @@ public class MorphResult implements Result {
 	private Model model_;
 	public long sum_lattice_time;
 
+	public MorphResult(Tagger tagger) {
+		this(tagger.getModel(), tagger.getNumLevels());
+	}
+	
 	public MorphResult(Model model, int level) {
 		rank = new int[model.getOptions().getBeamSize()];
 		oov_errors = new int[level];
@@ -138,6 +143,14 @@ public class MorphResult implements Result {
 		int correct = total - error;
 		return String.format("%d / %d = %g%%", correct, total, correct * 100.
 				/ total);
+	}
+
+	public double getTokenAccuracy() {
+		return 100. - (morph_errors * 100. / num_tokens);
+	}
+
+	public double getOovTokenAccuracy() {
+		return 100. - (morph_oov_errors * 100. / num_oovs);
 	}
 
 }

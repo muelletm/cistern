@@ -604,6 +604,10 @@ public class MorphModel extends Model {
 	public static Tagger train(MorphOptions options,
 			Collection<Sequence> train_sentences,
 			Collection<Sequence> test_sentences) {
+		
+		if (!options.getVerbose()) {
+			test_sentences = null;
+		}
 	
 		if (options.getNormalizeForms()) {
 			train_sentences = SentenceNormalizer.normalizeSentences(train_sentences);
