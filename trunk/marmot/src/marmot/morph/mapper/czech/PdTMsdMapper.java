@@ -226,6 +226,8 @@ public class PdTMsdMapper {
 		case z: // Punctuation (also used for the Sentence Boundary token)
 			msd_tag.pos_ = MsdTag.Pos.z;
 			break;
+		case x:
+			break;
 		case _:
 			break;
 		}

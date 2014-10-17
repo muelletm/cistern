@@ -5,18 +5,24 @@ package marmot.morph;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import marmot.core.Evaluator;
+import marmot.core.Options;
 import marmot.core.Sequence;
 import marmot.core.State;
 import marmot.core.Tagger;
+import marmot.core.Token;
 import marmot.core.lattice.Hypothesis;
 import marmot.core.lattice.SequenceViterbiLattice;
 import marmot.core.lattice.SumLattice;
 import marmot.core.lattice.ViterbiLattice;
 import marmot.core.lattice.ZeroOrderSumLattice;
 import marmot.core.lattice.ZeroOrderViterbiLattice;
+import marmot.morph.cmd.Trainer;
+import marmot.morph.io.SentenceReader;
+import marmot.util.Copy;
 
 
 
@@ -30,7 +36,7 @@ public class MorphEvaluator implements Evaluator {
 
 	public static MorphResult eval(Tagger tagger, Sentence sentence) {
 		MorphModel model = (MorphModel) tagger.getModel();
-		MorphResult result = new MorphResult(model, tagger.getNumLevels());
+		MorphResult result = new MorphResult(tagger);
 
 		result.num_sentences += 1;
 
@@ -161,5 +167,43 @@ public class MorphEvaluator implements Evaluator {
 		}
 
 		return rank;
+	}
+	
+	public static MorphResult eval(MorphOptions opts, int num_trials, int seed) {
+		opts = (MorphOptions) Copy.clone(opts);
+		
+		long wall_time = System.currentTimeMillis();
+		
+		MorphResult result = null;
+		
+		for (int trial = 0; trial < num_trials; trial++) {
+			
+			opts.setProperty(Options.SEED, Integer.toString(seed + trial));
+
+			Tagger tagger = Trainer.train(opts);
+			MorphModel model = (MorphModel) tagger.getModel();
+
+			List<Sequence> sentences = new LinkedList<>();
+			for (Sequence sentence : new SentenceReader(opts.getTestFile())) {
+				for (Token token : sentence) {
+					Word word = (Word) token;
+					model.addIndexes(word, false);
+				}
+				sentences.add(sentence);
+			}
+
+			MorphEvaluator e = new MorphEvaluator(sentences);
+			MorphResult current_result = e.eval(tagger);
+
+			if (result == null) {
+				result = current_result;
+			} else {
+				result.increment(current_result);	
+			}
+		}
+		
+		// Set time including training time
+		result.time = (System.currentTimeMillis() - wall_time) / num_trials;
+		return result;
 	}
 }
