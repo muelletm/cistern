@@ -20,7 +20,7 @@ import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.TrainingParameters;
 
-public class OpenlpTokenizerTrainer {
+public class OpenNlpTokenizerTrainer {
 	
 	public final static int CUTOFF = 1;
 	
@@ -51,7 +51,7 @@ public class OpenlpTokenizerTrainer {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		OpenlpTokenizerTrainer trainer = new OpenlpTokenizerTrainer();
+		OpenNlpTokenizerTrainer trainer = new OpenNlpTokenizerTrainer();
 		Tokenizer tokenizer = trainer.train("/mounts/data/proj/marmot/tokenizer/data/en/test.txt");
 		tokenizer.saveToFile("/mounts/data/proj/marmot/tokenizer/data/en/test.txt.tok");
 		
