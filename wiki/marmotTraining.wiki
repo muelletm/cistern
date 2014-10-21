@@ -111,7 +111,7 @@ General Options:
 		Default value: "0.0"
 	penalty:
 		L1 penalty parameter.
-		Default value: "0.1"
+		Default value: "0.0"
 
 Morph Options:
 	type-embeddings:
@@ -128,7 +128,7 @@ Morph Options:
 		Default value: "false"
 	shape:
 		Whether to use shape features.
-		Default value: "true"
+		Default value: "false"
 	restrict-transitions:
 		Whether to only allow POS -> MORPH transitions that have been seen during training.
 		Default value: "true"
@@ -141,6 +141,9 @@ Morph Options:
 	rare-word-max-freq:
 		Maximal frequency of a rare word.
 		Default value: "10"
+	normalize-forms:
+		Whether to normalize word forms before tagging.
+		Default value: "false"
 	train-file:
 		Input training file
 		Default value: ""
@@ -159,4 +162,5 @@ Morph Options:
 	test-file:
 		Input test file. (optional for training)
 		Default value: ""
+
 </pre>
