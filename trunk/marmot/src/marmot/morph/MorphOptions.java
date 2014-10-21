@@ -49,7 +49,7 @@ public class MorphOptions extends Options {
 		COMMENTS_.put(MODEL_FILE, "Output model file.");
 		DEFALUT_VALUES_.put(RESTRICT_TRANSITIONS, "true");
 		COMMENTS_.put(RESTRICT_TRANSITIONS, "Whether to only allow POS -> MORPH transitions that have been seen during training.");
-		DEFALUT_VALUES_.put(SHAPE, "true");
+		DEFALUT_VALUES_.put(SHAPE, "false");
 		COMMENTS_.put(SHAPE, "Whether to use shape features.");
 		DEFALUT_VALUES_.put(TAG_MORPH, "true");
 		COMMENTS_.put(TAG_MORPH, "Whether to train a morphological tagger or a POS tagger.");

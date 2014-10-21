@@ -57,7 +57,7 @@ public class Options extends java.util.Properties {
 		COMMENTS_.put(PRUNE, "Whether to use pruning.");
 		DEFALUT_VALUES_.put(NUM_ITERATIONS, "10");
 		COMMENTS_.put(NUM_ITERATIONS, "Number of training iterations.");
-		DEFALUT_VALUES_.put(PENALTY, "0.1");
+		DEFALUT_VALUES_.put(PENALTY, "0.0");
 		COMMENTS_.put(PENALTY, "L1 penalty parameter.");
 		DEFALUT_VALUES_.put(PROB_THRESHOLD, "0.01");
 		COMMENTS_
