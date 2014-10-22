@@ -37,18 +37,18 @@ public class EvalResult {
 		pos_correct_ = 0;
 		morph_correct_ = 0;
 		morph_missed_uncalled = 0;
-		correct_counter_ = new Counter<>();
-		missing_counter_ = new Counter<>();
-		uncalled_counter_ = new Counter<>();
-		value_counter_ = new Counter<>();
-		correct_not_present_counter_ = new Counter<>();
+		correct_counter_ = new Counter<String>();
+		missing_counter_ = new Counter<String>();
+		uncalled_counter_ = new Counter<String>();
+		value_counter_ = new Counter<String>();
+		correct_not_present_counter_ = new Counter<String>();
 		punct_ = punct;
 		vocab_ = vocab;
 		mdict_ = mdict;
 		if (mdict != null) {
-			map_ = new HashMap<>();
+			map_ = new HashMap<String, EvalResult>();
 		}
-		form_counter_ = new Counter<>();
+		form_counter_ = new Counter<String>();
 	}
 	
 	public void incrementCorrectNoPresentCounter(String cat) {

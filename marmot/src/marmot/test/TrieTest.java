@@ -24,7 +24,7 @@ public class TrieTest {
 
 	@Test
 	public void testSimpleDoubleInsertion() {	
-		Trie<CollectableDouble> trie = new Trie<>();
+		Trie<CollectableDouble> trie = new Trie<CollectableDouble>();
 		trie.addWord("a", new CollectableDouble(10.));
 		assertFalse(trie.isTerminal());
 		
@@ -46,7 +46,7 @@ public class TrieTest {
 	
 	@Test
 	public void testSimpleWord() {
-		Trie<CollectableDouble> trie = new Trie<>();
+		Trie<CollectableDouble> trie = new Trie<CollectableDouble>();
 		trie.addWord("ab", new CollectableDouble(10.));
 		
 		assertFalse(trie.isTerminal());
@@ -77,7 +77,7 @@ public class TrieTest {
 		Trie<CollectableSet> trie, child;
 		Map<Character, Trie<CollectableSet>> children;
 		
-		trie = new Trie<>();
+		trie = new Trie<CollectableSet>();
 		trie.addWord("abc", new CollectableSet("A"));		
 		trie.propagateContent(100);
 		
@@ -85,7 +85,7 @@ public class TrieTest {
 		assertTrue(null == children);
 		assertEquals(Collections.singleton("A"), trie.getContent().getValue());
 				
-		trie = new Trie<>();	
+		trie = new Trie<CollectableSet>();	
 		
 		trie.addWord("abc", new CollectableSet("A"));
 		trie.addWord("a", new CollectableSet("B"));
@@ -97,7 +97,7 @@ public class TrieTest {
 		child = children.get('a');
 		assertTrue(null != child);
 		assertTrue(null == child.getContent());
-		Set<String> expected_set = new HashSet<>();
+		Set<String> expected_set = new HashSet<String>();
 		expected_set.add("A");
 		expected_set.add("B");
 		assertEquals(expected_set, trie.getContent().getValue());
@@ -116,8 +116,8 @@ public class TrieTest {
 	
 	@Test
 	public void testPropagation() {
-		Trie<CollectableSet> trie = new Trie<>();
-		Set<String> expected_set = new HashSet<>();
+		Trie<CollectableSet> trie = new Trie<CollectableSet>();
+		Set<String> expected_set = new HashSet<String>();
 		CollectableSet cset;
 		
 		trie.addWord(reverse("booking"), new CollectableSet("V"));

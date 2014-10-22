@@ -52,8 +52,8 @@ public class ItTreebankConverter {
 			throw new RuntimeException(e);
 		}
 
-		amb_counter = new Counter<>();
-		amb_map = new HashMap<>();
+		amb_counter = new Counter<String>();
+		amb_map = new HashMap<String, Counter<String>>();
 	}
 
 	public void convert(String in_treebank_file, String out_treebank_file)
@@ -76,7 +76,7 @@ public class ItTreebankConverter {
 		writer.close();
 	}
 
-	static private final Set<Pos> nominals = new HashSet<>();
+	static private final Set<Pos> nominals = new HashSet<Pos>();
 	static {
 		nominals.add(Pos.p);
 		nominals.add(Pos.n);
@@ -125,9 +125,9 @@ public class ItTreebankConverter {
 	}
 
 	public void replaceUnkownPosTags(List<SyntaxTree> trees) {
-		List<Sequence> sentences = new LinkedList<>();
+		List<Sequence> sentences = new LinkedList<Sequence>();
 		for (SyntaxTree tree : trees) {
-			List<Word> words = new LinkedList<>();
+			List<Word> words = new LinkedList<Word>();
 			for (Node node : tree.getNodes()) {
 				words.add(nodeToWord(node, true));
 			}
@@ -149,10 +149,10 @@ public class ItTreebankConverter {
 	public void replaceUnkownPosTagsWithTagger(List<SyntaxTree> trees,
 			Tagger tagger) {
 
-		Counter<Pos> counter = new Counter<>();
+		Counter<Pos> counter = new Counter<Pos>();
 
 		for (SyntaxTree tree : trees) {
-			List<Word> words = new LinkedList<>();
+			List<Word> words = new LinkedList<Word>();
 			boolean contains_unkown = false;
 			for (Node node : tree.getNodes()) {
 				words.add(nodeToWord(node, false));
@@ -202,7 +202,7 @@ public class ItTreebankConverter {
 	}
 
 	private List<SyntaxTree> readInitialTrees(String in_treebank_file) {
-		List<SyntaxTree> trees = new LinkedList<>();
+		List<SyntaxTree> trees = new LinkedList<SyntaxTree>();
 
 		SyntaxTreeIterator iterator = new SyntaxTreeIterator(in_treebank_file,
 				1, 2, 4, 5, 6, 7, false);
@@ -345,7 +345,7 @@ public class ItTreebankConverter {
 	private Pos mergeWithLatMor(Set<Pos> tags, Set<Pos> candidates,
 			LdtMorphTag ldt_tag, String form, boolean found_lemma) {
 
-		Set<Pos> merged_set = new HashSet<>(candidates);
+		Set<Pos> merged_set = new HashSet<Pos>(candidates);
 		merged_set.retainAll(tags);
 
 		if (merged_set.size() == 1) {
@@ -359,7 +359,7 @@ public class ItTreebankConverter {
 	}
 
 	private void addToAmbCounter(Set<Pos> merged_set, String form) {
-		List<String> list = new LinkedList<>();
+		List<String> list = new LinkedList<String>();
 		for (Pos pos : merged_set) {
 			list.add(pos.toString());
 
@@ -378,7 +378,7 @@ public class ItTreebankConverter {
 
 		Counter<String> forms = amb_map.get(string);
 		if (forms == null) {
-			forms = new Counter<>();
+			forms = new Counter<String>();
 			amb_map.put(string, forms);
 		}
 

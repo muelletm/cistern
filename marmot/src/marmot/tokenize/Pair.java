@@ -29,7 +29,7 @@ public class Pair {
 	}
 
 	private static List<String> getTokenized(String untokenized, List<String> tags) {
-		List<String> tokenized_ = new ArrayList<>(tags.size());
+		List<String> tokenized_ = new ArrayList<String>(tags.size());
 		
 		int start = 0;
 		int end = 0;
@@ -59,7 +59,7 @@ public class Pair {
 	}
 	
 	private static List<String> getTags(String untokenized, List<String> tokenized) {
-		List<String> tags_ = new ArrayList<>(tokenized.size());
+		List<String> tags_ = new ArrayList<String>(tokenized.size());
 		
 		int tmp = 0;
 		

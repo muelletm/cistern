@@ -23,6 +23,8 @@ public class LevenshteinLattice {
 	private int replace_cost_;
 	private int insert_cost_;
 	private int delete_cost_;
+	
+	private boolean initialized_;
 
 	public LevenshteinLattice(String input, String output) {
 		this(input, output, 1, 1, 2);
@@ -35,7 +37,14 @@ public class LevenshteinLattice {
 		replace_cost_ = replace_cost;
 		insert_cost_ = insert_cost;
 		delete_cost_ = delete_cost;
-		fillLattice();
+		initialized_ = false;		
+	}
+	
+	private void init() {
+		if (! initialized_) {
+			fillLattice();
+		}
+		initialized_ = true;
 	}
 
 	protected int min(int a, int b, int c) {
@@ -68,7 +77,7 @@ public class LevenshteinLattice {
 				short diag_op = REPLACE;
 				int diag_cost = replace_cost_;
 				if (current_input == current_output) {
-					diag_cost = 0;
+					diag_cost = getCopyCost(input_index);
 					diag_op = COPY;
 				}
 
@@ -104,7 +113,12 @@ public class LevenshteinLattice {
 		}
 	}
 
+	protected int getCopyCost(int input_index) {
+		return 0;
+	}
+
 	public String searchOperationSequence() {
+		init();
 		StringBuilder sb = new StringBuilder();
 		int input_index = input_.length();
 		int output_index = output_.length();
@@ -144,6 +158,7 @@ public class LevenshteinLattice {
 	}
 
 	public List<List<Character>> searchOperationSequences(boolean remove_redundant) {
+		init();
 		int input_index = input_.length();
 		int output_index = output_.length();
 
@@ -171,9 +186,10 @@ public class LevenshteinLattice {
 
 	public List<List<Character>> searchOperationSequences(int input_index,
 			int output_index) {
+		init();
 		short op = op_lattice_[input_index][output_index];
 
-		List<List<Character>> lists = new LinkedList<>();
+		List<List<Character>> lists = new LinkedList<List<Character>>();
 
 		if ((op & START) > 0) {
 			assert op == START;
@@ -223,6 +239,7 @@ public class LevenshteinLattice {
 	}
 
 	public int getDistance() {
+		init();
 		return cost_lattice_[input_.length()][output_.length()];
 	}
 

@@ -282,7 +282,7 @@ public class EaglesTag implements MorphTag {
 		}
 	}
 
-	private final static Set<String> numbers = new HashSet<>();
+	private final static Set<String> numbers = new HashSet<String>();
 	static {
 		numbers.add("catorce");
 		numbers.add("cero");

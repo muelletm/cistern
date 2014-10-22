@@ -56,7 +56,7 @@ public class Node {
 	}
 	
 	public List<Node> getChildren() {
-		List<Node> nodes = new LinkedList<>();
+		List<Node> nodes = new LinkedList<Node>();
 		
 		for (Node node : tree_.getNodes()) {
 			if (node.getHead() == this) {

@@ -97,7 +97,7 @@ public class ItLdtMapper {
 	}
 
 	public Set<Pos> getPosCandidates(LdtMorphTag ldt_tag, ItMorphTag it_tag) {
-		Set<Pos> candidates = new HashSet<>();
+		Set<Pos> candidates = new HashSet<Pos>();
 
 		if (it_tag.case_number == CaseNumber.G) {
 			candidates.add(Pos.d);

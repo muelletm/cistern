@@ -47,7 +47,7 @@ public class MorphDictionaryOptions implements Serializable {
 			options.setDefaultOptions();
 		}
 		
-		Mutable<Integer> index = new Mutable<>(0);
+		Mutable<Integer> index = new Mutable<Integer>(0);
 		
 		while (index.get() < option_string.length()) {
 			KeyType key = readKey(index, option_string);
@@ -80,7 +80,7 @@ public class MorphDictionaryOptions implements Serializable {
 			
 			} catch (Exception e) {
 				System.err.println("Error: Couldn't parse string: "  + option_string + " because of:");
-				throw e;
+				throw new RuntimeException(e);
 			}
 			
 		}

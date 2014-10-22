@@ -18,7 +18,7 @@ public abstract class MorphDictionary implements Serializable {
 	public MorphDictionary(SymbolTable<String> table) {
 		table_ = table;
 		if (table_ == null) {
-			table_ = new SymbolTable<>(true);
+			table_ = new SymbolTable<String>(true);
 		}
 	}
 	

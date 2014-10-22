@@ -34,7 +34,7 @@ public class SentenceTextReader implements Iterable<Sequence> {
 
 			@Override
 			public Sequence next() {
-				List<Word> tokens = new LinkedList<>();
+				List<Word> tokens = new LinkedList<Word>();
 							
 				while (iterator.hasNext()) {
 					

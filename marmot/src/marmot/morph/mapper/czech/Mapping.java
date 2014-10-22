@@ -14,12 +14,12 @@ import marmot.util.LineIterator;
 
 public class Mapping {
 
-	Map<String, Map<String, Set<PdtMorphTag>>> map_ = new HashMap<>();
+	Map<String, Map<String, Set<PdtMorphTag>>> map_ = new HashMap<String, Map<String, Set<PdtMorphTag>>>();
 	
 	public void init_fst_map(String filename) {
 		LineIterator iterator = new LineIterator(filename);
 		
-		map_ = new HashMap<>();
+		map_ = new HashMap<String, Map<String, Set<PdtMorphTag>>>();
 		
 		while (iterator.hasNext()) {
 			
@@ -32,7 +32,7 @@ public class Mapping {
 					Map<String, Set<PdtMorphTag>> lemmas = map_.get(form);
 					
 					if (lemmas == null) {
-						lemmas = new HashMap<>();
+						lemmas = new HashMap<String, Set<PdtMorphTag>>();
 						map_.put(form, lemmas);
 					}
 				
@@ -41,7 +41,7 @@ public class Mapping {
 					Set<PdtMorphTag> tags = lemmas.get(lemma);
 					
 					if (tags == null) {
-						tags = new HashSet<>();
+						tags = new HashSet<PdtMorphTag>();
 						lemmas.put(lemma, tags);
 					}
 					
@@ -135,7 +135,7 @@ public class Mapping {
 			return set;
 		}
 		
-		set = new HashSet<>();
+		set = new HashSet<PdtMorphTag>();
 		
 		for (Set<PdtMorphTag> current_set : map.values()) {
 			set.addAll(current_set);

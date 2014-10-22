@@ -64,7 +64,7 @@ public class SuffixDictionary extends HashDictionary {
 		super.init(options);
 
 		LineIterator iterator = new LineIterator(options.getFilename());
-		trie_ = new Trie<>();
+		trie_ = new Trie<CollectableSet>();
 		int[] row_indexes = options.getIndexes();
 
 		SymbolTable<String> table = getTable();

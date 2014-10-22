@@ -22,14 +22,15 @@ public class ConllReader {
 
 		for (String filename : args) {
 
-			SyntaxTreeIterator iterator = new SyntaxTreeIterator(filename, 1, 2,
-					4, 6, 8, 10, false);
-			
+			SyntaxTreeIterator iterator = new SyntaxTreeIterator(filename, 1,
+					2, 4, 6, 8, 10, false);
+
 			File file = new File(filename);
 			String outfile = file.getName() + ".converted";
 			file = new File(outfile);
 			if (file.exists()) {
-				System.err.println("Error: Outfile already exists: " + file.getAbsolutePath());
+				System.err.println("Error: Outfile already exists: "
+						+ file.getAbsolutePath());
 				System.exit(1);
 			}
 
@@ -53,8 +54,7 @@ public class ConllReader {
 						node.setMorphTag(new_tag);
 
 					} catch (Exception e) {
-						System.err.println(pos + " " + feats);
-						throw e;
+						throw new RuntimeException(e + " " + pos + " " + feats);
 					}
 
 				}
@@ -73,7 +73,7 @@ public class ConllReader {
 	}
 
 	public static Map<String, Counter<String>> getDict(String ptb_file) {
-		Map<String, Counter<String>> map = new HashMap<>();
+		Map<String, Counter<String>> map = new HashMap<String, Counter<String>>();
 
 		SyntaxTreeIterator iterator = new SyntaxTreeIterator(ptb_file, 1, 2, 4,
 				6, 8, 10, false);
@@ -94,7 +94,7 @@ public class ConllReader {
 				Counter<String> counter = map.get(node.getForm());
 
 				if (counter == null) {
-					counter = new Counter<>();
+					counter = new Counter<String>();
 					map.put(node.getForm(), counter);
 				}
 

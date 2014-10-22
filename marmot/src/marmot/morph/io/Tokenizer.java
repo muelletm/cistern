@@ -60,7 +60,7 @@ public class Tokenizer {
 		if (words.size() == 0) {
 			System.err.println(sentence);
 		}
-		
+
 		assert words.size() >= sentence.size();
 		return new Sentence(words);
 	}
@@ -83,7 +83,7 @@ public class Tokenizer {
 		}
 
 		StringBuilder sb = new StringBuilder(word.getWordForm().length());
-		Mutable<Boolean> first = new Mutable<>(true);
+		Mutable<Boolean> first = new Mutable<Boolean>(true);
 
 		for (int i = 0; i < word_form.length(); i++) {
 			char c = word_form.charAt(i);
@@ -260,14 +260,11 @@ public class Tokenizer {
 		String input_format = config.getString("input-format").toLowerCase();
 		String strip_symbol = config.getString("strip-symbol");
 
-		switch (input_format) {
-		case "text":
+		if (input_format.equals("text")) {
 			iterable = new SentenceTextReader(config.getString("text-file"));
-			break;
-		case "conll":
+		} else if (input_format.equals("conll")) {
 			iterable = new SentenceReader(config.getString("text-file"));
-			break;
-		default:
+		} else {
 			System.err
 					.println("Error: input format must be text or conll! Was: "
 							+ input_format);
@@ -291,7 +288,7 @@ public class Tokenizer {
 
 		boolean open_bracket = false;
 
-		List<Word> words = new LinkedList<>();
+		List<Word> words = new LinkedList<Word>();
 
 		for (Token token : sequence) {
 			Word word = (Word) token;

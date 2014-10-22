@@ -183,7 +183,7 @@ public class MorphEvaluator implements Evaluator {
 			Tagger tagger = Trainer.train(opts);
 			MorphModel model = (MorphModel) tagger.getModel();
 
-			List<Sequence> sentences = new LinkedList<>();
+			List<Sequence> sentences = new LinkedList<Sequence>();
 			for (Sequence sentence : new SentenceReader(opts.getTestFile())) {
 				for (Token token : sentence) {
 					Word word = (Word) token;

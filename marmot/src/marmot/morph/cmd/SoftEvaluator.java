@@ -66,7 +66,7 @@ public class SoftEvaluator {
 		}
 		
 		private double fscore(Set<String> set, Set<String> set2) {
-			Set<String> intersection = new HashSet<>(set);
+			Set<String> intersection = new HashSet<String>(set);
 			intersection.retainAll(set2);
 			
 			
@@ -94,10 +94,10 @@ public class SoftEvaluator {
 		}
 		
 		private double jaccard(Set<String> set, Set<String> set2) {
-			Set<String> intersection = new HashSet<>(set);
+			Set<String> intersection = new HashSet<String>(set);
 			intersection.retainAll(set2);
 			
-			Set<String> union = new HashSet<>(set);
+			Set<String> union = new HashSet<String>(set);
 			union.addAll(set2);
 			
 			double score = intersection.size() / (double) union.size();
@@ -110,7 +110,7 @@ public class SoftEvaluator {
 		}
 
 		private Set<String> toSet(String pos, String morph) {
-			Set<String> set = new HashSet<>();
+			Set<String> set = new HashSet<String>();
 
 			set.add("POS=" + pos);
 			if (morph != null && !morph.equals("_")) {
