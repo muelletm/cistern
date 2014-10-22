@@ -5,8 +5,6 @@ package marmot.core;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.security.InvalidParameterException;
@@ -19,6 +17,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import marmot.util.FileUtils;
 import marmot.util.Mutable;
 import marmot.util.StringUtils;
 
@@ -140,11 +139,9 @@ public class Options extends java.util.Properties {
 
 	public void setPropertiesFromFile(String filename) {
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(filename));
+			BufferedReader reader = FileUtils.openFile(filename);
 			setPropertiesFromReader(reader);
 			reader.close();
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

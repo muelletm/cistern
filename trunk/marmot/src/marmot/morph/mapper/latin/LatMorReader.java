@@ -4,7 +4,6 @@
 package marmot.morph.mapper.latin;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,6 +19,7 @@ import marmot.morph.mapper.latin.LdtMorphTag.Person;
 import marmot.morph.mapper.latin.LdtMorphTag.Pos;
 import marmot.morph.mapper.latin.LdtMorphTag.Tense;
 import marmot.morph.mapper.latin.LdtMorphTag.Voice;
+import marmot.util.FileUtils;
 import marmot.util.LineIterator;
 
 public class LatMorReader {
@@ -35,7 +35,7 @@ public class LatMorReader {
 	}
 
 	public void readLatMorFile(String filename) throws IOException {
-		BufferedReader reader = new BufferedReader(new FileReader(filename));
+		BufferedReader reader = FileUtils.openFile(filename);
 
 		String line = null;
 

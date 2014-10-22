@@ -4,19 +4,13 @@
 package marmot.util;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.zip.GZIPInputStream;
-
-//import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
-
 
 public class LineIterator implements Iterator<List<String>> {
 	
@@ -24,18 +18,7 @@ public class LineIterator implements Iterator<List<String>> {
 	
 	public LineIterator(String filename){
 		try {
-			InputStream stream = new FileInputStream(filename);
-			if (filename.endsWith(".gz")) {
-				stream = new GZIPInputStream(stream);
-			} else if (filename.endsWith(".bz2")) {
-				
-				throw new RuntimeException("Unsupported ending: .bz2");
-				
-				
-				
-				//stream = new BZip2CompressorInputStream(stream);
-			}		
-			reader_ = new BufferedReader(new InputStreamReader(stream));
+			reader_ = FileUtils.openFile(filename);
 		} catch(FileNotFoundException e){
 			throw new RuntimeException(e);			
 		} catch (IOException e) {
@@ -44,7 +27,11 @@ public class LineIterator implements Iterator<List<String>> {
 	}
 	
 	public LineIterator(InputStream in) {
-		reader_ = new BufferedReader(new InputStreamReader(in));
+		try {
+			reader_ = FileUtils.openStream(in);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public boolean hasNext(){

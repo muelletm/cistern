@@ -5,7 +5,6 @@ package marmot.util;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.HashMap;
@@ -23,7 +22,7 @@ public class Mapping extends AbstractMap<String, String> {
 	private void init(String filename) {
 		map_ = new HashMap<String, String>();
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(filename));
+			BufferedReader reader = FileUtils.openFile(filename);
 			
 			while (reader.ready()) {
 				

@@ -7,8 +7,8 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -19,11 +19,7 @@ import java.util.zip.GZIPOutputStream;
 public class FileUtils {
 
 	public static BufferedReader openFile(String filename) throws IOException {
-		if (filename.toLowerCase().endsWith(".gz")) {
-			return new BufferedReader(new InputStreamReader(
-					new GZIPInputStream(new FileInputStream(filename))));
-		}
-		return new BufferedReader(new FileReader(filename));
+		return openFileReader(filename);
 	}
 
 	public static void saveToFile(Serializable object, String filepath) {
@@ -71,6 +67,23 @@ public class FileUtils {
 		} catch (ClassNotFoundException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public static BufferedReader openFileReader(String filename) throws IOException {
+		InputStream stream = openFileInputStream(filename);
+		if (filename.endsWith(".gz")) {
+			stream = new GZIPInputStream(stream);
+		}		
+		
+		return new BufferedReader(new InputStreamReader(stream, "UTF-8"));
+	}
+
+	private static InputStream openFileInputStream(String filename) throws FileNotFoundException {
+		return new FileInputStream(filename);
+	}
+
+	public static BufferedReader openStream(InputStream in) throws IOException {
+		return new BufferedReader(new InputStreamReader(in, "UTF-8"));
 	}
 
 }

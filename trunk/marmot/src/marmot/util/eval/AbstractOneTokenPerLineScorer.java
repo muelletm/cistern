@@ -5,10 +5,11 @@ package marmot.util.eval;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import marmot.util.FileUtils;
 
 public abstract class AbstractOneTokenPerLineScorer implements Scorer {
 
@@ -20,8 +21,8 @@ public abstract class AbstractOneTokenPerLineScorer implements Scorer {
 		double number_of_tokens = 0;
 		
 		try {
-			BufferedReader actual_reader = new BufferedReader(new FileReader(actual));
-			BufferedReader prediction_reader = new BufferedReader(new FileReader(prediction));
+			BufferedReader actual_reader = FileUtils.openFile(actual);
+			BufferedReader prediction_reader = FileUtils.openFile(prediction);
 			
 			while (actual_reader.ready() && prediction_reader.ready()) {
 				
