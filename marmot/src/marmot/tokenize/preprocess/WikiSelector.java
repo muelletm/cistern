@@ -1,4 +1,4 @@
-package tokenizer;
+package marmot.tokenize.preprocess;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -18,7 +18,7 @@ public class WikiSelector {
 		untokenized = new LinkedList<String>();
 		tokenized = new LinkedList<String>();
 		this.maxSentence = maxSentence;
-		reader = new WikiReader(untokenizedFile, tokenizedFile);
+		reader = new WikiReader(untokenizedFile, tokenizedFile, 10000);
 	}
 	
 	public void selectSentence() {

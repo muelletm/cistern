@@ -50,11 +50,4 @@ public class OpenNlpTokenizerTrainer {
 		return new OpenNlpTokenizer(model);		
 	}
 	
-	public static void main(String[] args) throws IOException {
-		OpenNlpTokenizerTrainer trainer = new OpenNlpTokenizerTrainer();
-		Tokenizer tokenizer = trainer.train("/mounts/data/proj/marmot/tokenizer/data/en/test.txt");
-		tokenizer.saveToFile("/mounts/data/proj/marmot/tokenizer/data/en/test.txt.tok");
-		
-		System.out.println(tokenizer.tokenize("Shouldn't this work, now?"));
-	}
 }
