@@ -14,7 +14,7 @@ public class SyntaxTree {
 	private List<Node> nodes_;
 
 	public SyntaxTree() {
-		nodes_ = new ArrayList<>();
+		nodes_ = new ArrayList<Node>();
 	}
 	
 	public void addNode(Node node) {

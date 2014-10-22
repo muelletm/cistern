@@ -119,9 +119,9 @@ public class Evaluator {
 
 		LineIterator iterator = new LineIterator(testfile);
 
-		List<EvalToken> tokens = new LinkedList<>();
+		List<EvalToken> tokens = new LinkedList<EvalToken>();
 
-		Set<String> cats = new HashSet<>();
+		Set<String> cats = new HashSet<String>();
 
 		while (iterator.hasNext()) {
 			List<String> line = iterator.next();
@@ -159,7 +159,7 @@ public class Evaluator {
 	}
 
 	private void readVocab(String trainfile) {
-		vocab_ = new Counter<>();
+		vocab_ = new Counter<String>();
 
 		SentenceReader reader = new SentenceReader(trainfile);
 		for (Sequence sequence : reader) {
@@ -180,8 +180,8 @@ public class Evaluator {
 
 	public EvalResult eval(MorphTagger tagger, String filename, int rareness,
 			boolean punct) {
-		List<EvalToken> tokens = new LinkedList<>();
-		Set<String> cats = new HashSet<>();
+		List<EvalToken> tokens = new LinkedList<EvalToken>();
+		Set<String> cats = new HashSet<String>();
 		
 		for (Sequence sequence : new SentenceReader(filename)) {
 			List<List<String>> tags = tagger.tag(sequence);

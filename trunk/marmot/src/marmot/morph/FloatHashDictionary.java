@@ -29,8 +29,8 @@ public class FloatHashDictionary implements Serializable {
 
 			if (!line.isEmpty()) {
 				String form = line.get(0);
-				List<Integer> indexes = new LinkedList<>();
-				List<Double> values = new LinkedList<>();
+				List<Integer> indexes = new LinkedList<Integer>();
+				List<Double> values = new LinkedList<Double>();
 
 				for (int i = 1; i < line.size(); i++) {
 
@@ -130,8 +130,8 @@ public class FloatHashDictionary implements Serializable {
 
 		options_ = options;
 		LineIterator iterator = new LineIterator(options.getFilename());
-		table_ = new SymbolTable<>();
-		index_map_ = new HashMap<>();
+		table_ = new SymbolTable<String>();
+		index_map_ = new HashMap<String, FloatFeatureVector>();
 
 		if (options_.getDense()) {
 			readDenseVector(iterator);

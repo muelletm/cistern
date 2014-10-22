@@ -31,7 +31,7 @@ public class EvalToken {
 	}
 
 	public static Map<String, String> splitFeats(String feats, Set<String> cats) {
-		Map<String, String> map = new HashMap<>();
+		Map<String, String> map = new HashMap<String, String>();
 
 		if (feats.equals("_")) {
 			return map;
@@ -58,7 +58,7 @@ public class EvalToken {
 	}
 
 	private void setCommonCats() {
-		common_cats_ = new HashSet<>(gold_feats_.keySet());
+		common_cats_ = new HashSet<String>(gold_feats_.keySet());
 		common_cats_.retainAll(pred_feats_.keySet());
 	}
 
@@ -79,7 +79,7 @@ public class EvalToken {
 
 	public void update(EvalResult result) {
 
-		Set<String> not_present = new HashSet<>(cats_);
+		Set<String> not_present = new HashSet<String>(cats_);
 		not_present.removeAll(gold_feats_.keySet());
 		not_present.removeAll(pred_feats_.keySet());
 
@@ -100,14 +100,14 @@ public class EvalToken {
 			}
 		}
 
-		Set<String> uncalled = new HashSet<>(pred_feats_.keySet());
+		Set<String> uncalled = new HashSet<String>(pred_feats_.keySet());
 		uncalled.removeAll(common_cats_);
 
 		for (String cat : uncalled) {
 			result.incrementUncalledCounter(cat);
 		}
 
-		Set<String> missed = new HashSet<>(gold_feats_.keySet());
+		Set<String> missed = new HashSet<String>(gold_feats_.keySet());
 		missed.removeAll(common_cats_);
 
 		for (String cat : missed) {

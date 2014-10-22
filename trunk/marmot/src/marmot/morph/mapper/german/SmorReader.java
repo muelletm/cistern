@@ -50,8 +50,8 @@ public class SmorReader {
 		int candidates = 0;
 		int covered = 0;
 
-		Counter<String> candidate_counter = new Counter<>();
-		Counter<String> total_counter = new Counter<>();
+		Counter<String> candidate_counter = new Counter<String>();
+		Counter<String> total_counter = new Counter<String>();
 
 		while (iterator.hasNext()) {
 			SyntaxTree tree = iterator.next();
@@ -163,7 +163,7 @@ public class SmorReader {
 
 	private static Set<SttsTag> mergeSets(Set<SttsTag> pos_set,
 			Set<SttsTag> form_set) {
-		Set<SttsTag> set = new HashSet<>();
+		Set<SttsTag> set = new HashSet<SttsTag>();
 
 		for (SttsTag tag : pos_set) {
 
@@ -196,7 +196,7 @@ public class SmorReader {
 	}
 
 	private Map<String, Set<SttsTag>> readPosFile(String string) {
-		Map<String, Set<SttsTag>> map = new HashMap<>();
+		Map<String, Set<SttsTag>> map = new HashMap<String, Set<SttsTag>>();
 
 		SyntaxTreeIterator iterator = new SyntaxTreeIterator(string, 1, 2, 4,
 				6, 8, 10, false);
@@ -209,7 +209,7 @@ public class SmorReader {
 				Set<SttsTag> set = map.get(node.getPos());
 
 				if (set == null) {
-					set = new HashSet<>();
+					set = new HashSet<SttsTag>();
 					map.put(node.getPos(), set);
 				}
 
@@ -315,7 +315,7 @@ public class SmorReader {
 	}
 
 	public Map<String, Set<SttsTag>> readFile(String filename) {
-		Map<String, Set<SttsTag>> dict = new HashMap<>();
+		Map<String, Set<SttsTag>> dict = new HashMap<String, Set<SttsTag>>();
 
 		LineIterator iterator = new LineIterator(filename);
 

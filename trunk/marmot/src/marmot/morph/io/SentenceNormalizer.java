@@ -19,7 +19,7 @@ public class SentenceNormalizer {
 
 	public static Sequence normalizeSentence(Sequence sentence) {
 
-		List<Word> words = new ArrayList<>(sentence.size());
+		List<Word> words = new ArrayList<Word>(sentence.size());
 
 		for (Token token : sentence) {
 			Word word = (Word) token;
@@ -56,7 +56,7 @@ public class SentenceNormalizer {
 	public static Collection<Sequence> normalizeSentences(
 			Collection<Sequence> sentences) {
 
-		List<Sequence> list = new ArrayList<>(sentences.size());
+		List<Sequence> list = new ArrayList<Sequence>(sentences.size());
 
 		for (Sequence sequence : sentences) {
 			list.add(normalizeSentence(sequence));

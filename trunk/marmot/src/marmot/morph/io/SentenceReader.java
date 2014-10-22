@@ -87,15 +87,15 @@ public class SentenceReader implements Iterable<Sequence> {
 					}
 
 					List<String> token_feature_list = null;
-					List<String> weighted_token_feature_list = new LinkedList<>();
-					List<Double> weighted_token_feature_weight_list = new LinkedList<>();
+					List<String> weighted_token_feature_list = new LinkedList<String>();
+					List<Double> weighted_token_feature_weight_list = new LinkedList<Double>();
 
 					if (token_feature_index >= 0 && token_feature_index < row.size()) {
 						String[] token_features = row.get(token_feature_index)
 								.split("#");
 
-						token_feature_list = new LinkedList<>();
-						weighted_token_feature_list = new LinkedList<>();
+						token_feature_list = new LinkedList<String>();
+						weighted_token_feature_list = new LinkedList<String>();
 
 						for (String token_feature : token_features) {
 							int colon_index = token_feature.indexOf(':');

@@ -18,9 +18,9 @@ public class ElephantReader {
 		LineIterator iterator = new LineIterator(istream);
 
 		StringBuilder untokenized = new StringBuilder();
-		List<String> tags = new LinkedList<>();
+		List<String> tags = new LinkedList<String>();
 
-		List<Pair> pairs = new LinkedList<>();
+		List<Pair> pairs = new LinkedList<Pair>();
 
 		while (iterator.hasNext()) {
 
@@ -44,7 +44,7 @@ public class ElephantReader {
 					
 					// Reset untokenized and tags
 					untokenized.setLength(0);
-					tags = new LinkedList<>();			
+					tags = new LinkedList<String>();			
 					
 					// Change tag to beginning of token
 					tag = "T";

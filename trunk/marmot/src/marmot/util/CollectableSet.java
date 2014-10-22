@@ -14,11 +14,11 @@ public class CollectableSet implements Collectable {
 	private Set<Object> set_;
 	
 	public CollectableSet(Set<?> set) {
-		set_ = new HashSet<>(set);
+		set_ = new HashSet<Object>(set);
 	}
 	
 	public CollectableSet(Object object) {
-		set_ = new HashSet<>();
+		set_ = new HashSet<Object>();
 		set_.add(object);
 	}
 	

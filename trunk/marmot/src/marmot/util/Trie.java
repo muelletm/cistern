@@ -41,7 +41,7 @@ public class Trie<E extends Collectable> implements Serializable {
 
 		Trie<E> trie = children_.get(c);
 		if (trie == null) {
-			trie = new Trie<>();
+			trie = new Trie<E>();
 			children_.put(c, trie);
 		}
 

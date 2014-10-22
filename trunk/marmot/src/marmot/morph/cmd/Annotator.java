@@ -87,7 +87,7 @@ public class Annotator {
 			
 			} catch (OutOfMemoryError e) {
 				
-				tags = new ArrayList<>(sentence.size());
+				tags = new ArrayList<List<String>>(sentence.size());
 				
 				List<String> tag = Collections.singletonList("_");
 				

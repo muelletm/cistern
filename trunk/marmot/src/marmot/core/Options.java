@@ -298,7 +298,7 @@ public class Options extends java.util.Properties {
 
 	public double[] getCandidatesPerState() {
 		double[] array = StringUtils
-				.parseDoubleArray(getProperty(CANDIDATES_PER_STATE), new Mutable<>(0));
+				.parseDoubleArray(getProperty(CANDIDATES_PER_STATE), new Mutable<Integer>(0));
 
 		for (double element : array) {
 

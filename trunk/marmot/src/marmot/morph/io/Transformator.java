@@ -26,8 +26,8 @@ import com.martiansoftware.jsap.JSAPResult;
 
 public class Transformator {
 
-	private final static Set<String> puncts = new HashSet<>();
-	private static final List<String> cats_ = new LinkedList<>();
+	private final static Set<String> puncts = new HashSet<String>();
+	private static final List<String> cats_ = new LinkedList<String>();
 	static {
 		puncts.add(",");
 

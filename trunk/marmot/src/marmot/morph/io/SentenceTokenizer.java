@@ -49,7 +49,7 @@ public class SentenceTokenizer {
 
 	public static void main(String[] args) throws IOException {
 
-		List<Sequence> sentences = new LinkedList<>();
+		List<Sequence> sentences = new LinkedList<Sequence>();
 
 		for (Sequence sentence : new SentenceReader(args[0])) {
 			sentences.add(sentence);

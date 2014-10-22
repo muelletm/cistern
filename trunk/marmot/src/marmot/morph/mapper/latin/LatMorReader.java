@@ -81,7 +81,7 @@ public class LatMorReader {
 
 				String form = LatMorNormalizer.normalize(line.get(0));
 				
-				Set<LdtMorphTag> tags = new HashSet<>();
+				Set<LdtMorphTag> tags = new HashSet<LdtMorphTag>();
 				
 				for (String tag_string : line.subList(2, line.size())) {
 					LdtMorphTag tag = new LdtMorphTag();
@@ -420,14 +420,14 @@ public class LatMorReader {
 
 	Set<Pos> getPosCandidates(String form, String lemma) {
 		Map<String, Set<LdtMorphTag>> lemmas = dict_.get(form);
-		Set<Pos> tags = new HashSet<>();
+		Set<Pos> tags = new HashSet<Pos>();
 
 		if (lemmas != null) {
 			Set<LdtMorphTag> ldt_tags;
 			if (lemma != null) {
 				ldt_tags = lemmas.get(lemma);
 			} else {
-				ldt_tags = new HashSet<>();
+				ldt_tags = new HashSet<LdtMorphTag>();
 				for (Set<LdtMorphTag> ldt_tag_set : lemmas.values()) {
 					ldt_tags.addAll(ldt_tag_set);
 				}
@@ -454,7 +454,7 @@ public class LatMorReader {
 
 				String form = LatMorNormalizer.normalize(line.get(1));
 				
-				Set<LdtMorphTag> tags = new HashSet<>();
+				Set<LdtMorphTag> tags = new HashSet<LdtMorphTag>();
 				
 				for (String tag_string : line.subList(3, line.size())) {
 					LdtMorphTag tag = new LdtMorphTag();

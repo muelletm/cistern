@@ -32,7 +32,7 @@ public class BrandoliniRules {
 	static Set<String> nouns;
 	
 	{
-		nouns = new HashSet<>();
+		nouns = new HashSet<String>();
 		nouns.add("aristoteles");
 		nouns.add("boetius");
 		nouns.add("plato");
@@ -40,7 +40,7 @@ public class BrandoliniRules {
 		nouns.add("dionysius");
 		nouns.add("avicenna");
 
-		pronouns = new HashSet<>();
+		pronouns = new HashSet<String>();
 		pronouns.add("alterius");
 		pronouns.add("unumquodque");
 		pronouns.add("quicquid");
@@ -54,7 +54,7 @@ public class BrandoliniRules {
 		pronouns.add("cuilibet");
 		pronouns.add("unaquaeque");
 
-		f11_nouns = new HashSet<>();
+		f11_nouns = new HashSet<String>();
 		f11_nouns.add("anima");
 		f11_nouns.add("animabus");
 		f11_nouns.add("animae");
@@ -77,7 +77,7 @@ public class BrandoliniRules {
 		f11_nouns.add("viribus");
 		f11_nouns.add("vis");
 
-		f11_pronouns = new HashSet<>();
+		f11_pronouns = new HashSet<String>();
 		f11_pronouns.add("aliqua");
 		f11_pronouns.add("aliquid");
 		f11_pronouns.add("aliquis");
@@ -107,7 +107,7 @@ public class BrandoliniRules {
 		f11_pronouns.add("vos");
 
 		// Alle zu Pronomen
-		f11_adjectives = new HashSet<>();
+		f11_adjectives = new HashSet<String>();
 		f11_adjectives.add("aliqui");
 		f11_adjectives.add("aliquod");
 		f11_adjectives.add("ambo");
@@ -135,7 +135,7 @@ public class BrandoliniRules {
 		f11_adjectives.add("toto");
 		f11_adjectives.add("totum");
 
-		f11_numbers = new HashSet<>();
+		f11_numbers = new HashSet<String>();
 		f11_numbers.add("duabus");
 		f11_numbers.add("duae");
 		f11_numbers.add("duas");
@@ -152,11 +152,11 @@ public class BrandoliniRules {
 		f11_numbers.add("unus");
 		f11_numbers.add("una");
 
-		f11_adverbs = new HashSet<>();
+		f11_adverbs = new HashSet<String>();
 		f11_adverbs.add("aliter");
 		f11_adverbs.add("hinc");
 
-		o4_conj = new HashSet<>();
+		o4_conj = new HashSet<String>();
 		o4_conj.add("ac");
 		o4_conj.add("aut");
 		o4_conj.add("autem");
@@ -183,7 +183,7 @@ public class BrandoliniRules {
 		o4_conj.add("quando");
 		o4_conj.add("vero");
 		
-		o4_adverb = new HashSet<>();
+		o4_adverb = new HashSet<String>();
 		o4_adverb.add("adhuc");
 		//o4_adverb.add("alias");
 		o4_adverb.add("deinde");
@@ -209,14 +209,14 @@ public class BrandoliniRules {
 		o4_adverb.add("usque");
 		o4_adverb.add("utpote");
 		
-		o4_conj_deprels = new HashSet<>();
+		o4_conj_deprels = new HashSet<String>();
 		o4_conj_deprels.add("auxc");
 		o4_conj_deprels.add("coord");
 		o4_conj_deprels.add("xseg");
 		o4_conj_deprels.add("apos");
 		o4_conj_deprels.add("auxy");
 		
-		o4_adverb_deprels = new HashSet<>();
+		o4_adverb_deprels = new HashSet<String>();
 		o4_adverb_deprels.add("auxz");
 		o4_adverb_deprels.add("adv");
 		o4_adverb_deprels.add("atr");
@@ -232,7 +232,7 @@ public class BrandoliniRules {
 		o4_adverb.add("quamvis");
 		o4_adverb.add("tanto");
 		
-		pronoun_lemmas = new HashSet<>();
+		pronoun_lemmas = new HashSet<String>();
 		pronoun_lemmas.add("nullus");
 		pronoun_lemmas.add("ullus");
 		pronoun_lemmas.add("totus");
@@ -251,7 +251,7 @@ public class BrandoliniRules {
 			simple_deprel = simple_deprel.substring(0, index);	
 		}
 		
-		Set<Pos> candidates = new HashSet<>();
+		Set<Pos> candidates = new HashSet<Pos>();
 
 		switch (it_tag.flexional_type_) {
 
