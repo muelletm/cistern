@@ -95,7 +95,7 @@ public class Options extends java.util.Properties {
 						"Which trainer to use. (There is also a perceptron trainer but don't use it.)");
 		DEFALUT_VALUES_.put(AVERAGING, "true");
 		COMMENTS_.put(AVERAGING, "Whether to use averaging. Perceptron only!");
-		DEFALUT_VALUES_.put(SEED, "0");
+		DEFALUT_VALUES_.put(SEED, "42");
 		COMMENTS_.put(SEED, "Random seed to use for shuffling. 0 for nondeterministic seed");
 
 
