@@ -4,7 +4,6 @@
 package marmot.morph.mapper.latin;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,6 +22,7 @@ import marmot.morph.mapper.latin.LdtMorphTag.Person;
 import marmot.morph.mapper.latin.LdtMorphTag.Pos;
 import marmot.morph.mapper.latin.LdtMorphTag.Tense;
 import marmot.morph.mapper.latin.LdtMorphTag.Voice;
+import marmot.util.FileUtils;
 
 public class ItLdtMapper {
 
@@ -325,9 +325,7 @@ public class ItLdtMapper {
 	}
 
 	public static void main(String[] args) throws IOException {
-		BufferedReader reader = new BufferedReader(
-				new FileReader(
-						"/mount/projekte/sfb-732/d4/users/muellets/treebanks/latin/ldt-1.5/tagwords.txt"));
+		BufferedReader reader = FileUtils.openFile("/mount/projekte/sfb-732/d4/users/muellets/treebanks/latin/ldt-1.5/tagwords.txt");
 
 		Map<String, Set<String>> ldt_word_map = new HashMap<String, Set<String>>();
 		Map<String, Integer> ldt_tag_vocab = new HashMap<String, Integer>();
@@ -365,9 +363,7 @@ public class ItLdtMapper {
 		}
 		reader.close();
 
-		reader = new BufferedReader(
-				new FileReader(
-						"/mount/projekte/sfb-732/d4/users/muellets/treebanks/latin/ittb/tagwords.txt"));
+		reader = FileUtils.openFile("/mount/projekte/sfb-732/d4/users/muellets/treebanks/latin/ittb/tagwords.txt");
 
 		ItLdtMapper mapper = new ItLdtMapper();
 
