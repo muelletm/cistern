@@ -1,0 +1,16 @@
+[
+{
+ "lang" : "de",
+ "source-url" : "http://www.ims.uni-stuttgart.de/forschung/ressourcen/korpora/tiger.en.html",
+ "source" : "TIGER Treebank 2.2",
+ "cis-path" : "../src/marmot/test/trn.txt",
+ "marmot-indexes" : "form-index=0,tag-index=4,morph-index=6"
+},
+{
+ "lang" : "la",
+ "source-url" : "http://www.hf.uio.no/ifikk/english/research/projects/proiel/",
+ "source" : "PROIEL",
+ "cis-path" : "../src/marmot/test/trn.txt",
+ "marmot-indexes" : "form-index=0,tag-index=4,morph-index=6"
+}
+]
