@@ -5,6 +5,8 @@ import json
 import os
 import subprocess
 import sys
+import threading
+import time
 
 MARMOT_DIR = ".."
 
@@ -31,6 +33,7 @@ def train(data, jarfile):
                       -model-file %(model)s
           """ % { 'jar' : jarfile, 'train' : trainfile, 'model' : modelfile }
 
+    print >> sys.stderr, 'Training %s.' % lang
     subprocess.check_call(cmd_string.replace('\n',' '), shell=True)
     assert os.path.exists(modelfile)
 
@@ -44,13 +47,32 @@ def get_jarfile(dirname):
     jars.sort()
     return jars[-1]
 
+num_workers = 5
+
 if __name__ == '__main__':
 
     jarfile = get_jarfile(MARMOT_DIR)
 
+    threads = []
     with open('data.json') as f:
         for lang_data in json.load(f):
             print lang_data['lang']
             stats(lang_data, jarfile)
-            #train(lang_data, jarfile)
             print
+
+            t = threading.Thread(target=train, args=(lang_data, jarfile))
+            threads.append(t)
+
+    while threads:
+        current_threads = []
+
+        for i in range(num_workers):
+            if threads:
+                t = threads.pop()
+                t.start()
+                time.sleep(1)
+                current_threads.append(t)
+
+        for t in current_threads:
+            t.join()
+        
