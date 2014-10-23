@@ -13,8 +13,6 @@ import marmot.morph.MorphOptions;
 import marmot.morph.Word;
 import marmot.morph.io.SentenceReader;
 
-
-
 public class Stats {
 
 	public static void main(String[] args) {
@@ -31,34 +29,39 @@ public class Stats {
 		MorphModel model = new MorphModel();
 		model.init(options, train_sentences);
 
+		System.out.println("Train sentences: " + train_sentences.size());
+		System.out.println("Train tokens: " + train_tokens);
+
+		System.out.println("Pos tags: "
+				+ (model.getTagTables().get(0).size() - 1));
+		System.out.println("Morph tags: "
+				+ (model.getTagTables().get(1).size() - 1));
+
+		boolean has_test_file = options.getTestFile().length() > 0;
 		
-		int test_tokens = 0;
-		int oov_test_tokens = 0;
-		List<Sequence> test_sentences = new LinkedList<Sequence>();
-		for (Sequence sequence : new SentenceReader(options.getTestFile())) {
-			test_sentences.add(sequence);
-			
-			for (Token token : sequence) {
-				Word word = (Word) token;
-				model.addIndexes(word, false);
-				if (word.getWordFormIndex() < 0) {
-					oov_test_tokens += 1;
+		if (has_test_file) {
+			int test_tokens = 0;
+			int oov_test_tokens = 0;
+			List<Sequence> test_sentences = new LinkedList<Sequence>();
+			for (Sequence sequence : new SentenceReader(options.getTestFile())) {
+				test_sentences.add(sequence);
+
+				for (Token token : sequence) {
+					Word word = (Word) token;
+					model.addIndexes(word, false);
+					if (word.getWordFormIndex() < 0) {
+						oov_test_tokens += 1;
+					}
 				}
+
+				test_tokens += sequence.size();
 			}
-			
-			test_tokens += sequence.size();
+
+			System.out.println("OOV rate: " + (oov_test_tokens * 100.)
+					/ test_tokens);
+
 		}
 
-		
-		
-		System.out.println("train sentences: " + train_sentences.size());
-		System.out.println("train tokens: " + train_tokens);
-		System.out.println("oov rate: " + (oov_test_tokens * 100.)/ test_tokens);
-		System.out.println("num pos tags: " + (model.getTagTables().get(0).size() - 1));
-		System.out.println("num morph tags: " + (model.getTagTables().get(1).size() - 1));
-
-		System.out.println(model.getTagTables().get(0));
-		
 	}
 
 }

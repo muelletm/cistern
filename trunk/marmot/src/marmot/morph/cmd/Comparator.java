@@ -9,6 +9,7 @@ import marmot.core.Options;
 import marmot.morph.MorphEvaluator;
 import marmot.morph.MorphOptions;
 import marmot.morph.MorphResult;
+import marmot.morph.io.FileOptions;
 import marmot.util.LineIterator;
 
 
@@ -23,6 +24,12 @@ public class Comparator {
 		opts.setProperty(MorphOptions.TRAIN_FILE, trainfile);
 		opts.setProperty(MorphOptions.TEST_FILE, devfile);
 		opts.setProperty(MorphOptions.SHAPE, "false");
+		
+		FileOptions fopts = new FileOptions(trainfile);
+		if (fopts.getMorphIndex() == -1) {
+			opts.setProperty(MorphOptions.TAG_MORPH, "false");
+		}
+		
 		return opts;
 	}
 
@@ -51,9 +58,10 @@ public class Comparator {
 				Comparator c = new Comparator();
 
 				c.run_baseline(trainfile, devfile);
-				c.run_penalty(trainfile, devfile);
-				c.run_shape(trainfile, devfile);
-				c.run_iters(trainfile, devfile);
+				c.run_normalizer(trainfile, devfile);
+				//c.run_penalty(trainfile, devfile);
+				//c.run_shape(trainfile, devfile);
+				//c.run_iters(trainfile, devfile);
 			}			
 		}
 	}
@@ -64,6 +72,13 @@ public class Comparator {
 		run("Iters", opts);		
 	}
 
+	private void run_normalizer(String trainfile, String devfile) {
+		MorphOptions opts = getDefaultOptions(trainfile, devfile);
+		opts.setProperty(MorphOptions.NORMALIZE_FORMS, "true");
+		run("Normalize", opts);
+
+	}
+	
 	private void run_penalty(String trainfile, String devfile) {
 		MorphOptions opts = getDefaultOptions(trainfile, devfile);
 		opts.setProperty(MorphOptions.PENALTY, "0.1");
