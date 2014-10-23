@@ -19,6 +19,11 @@ public class IulaConverter {
 		SyntaxTreeIterator iterator = new SyntaxTreeIterator(args[0], 1, 2, 4,
 				5, 6, 7, false);
 		BufferedWriter writer = new BufferedWriter(new FileWriter(args[1]));
+		boolean normalize = true;
+		if (args.length > 2) {
+			normalize = Boolean.parseBoolean(args[2]);
+		}
+		
 		IulaConverter c = new IulaConverter();
 
 		while (iterator.hasNext()) {
@@ -30,8 +35,10 @@ public class IulaConverter {
 				node.setMorphTag(tag);
 			}
 
-			for (Node node : tree.getNodes()) {
-				((EaglesTag) node.getMorphTag()).normalize(node, true);
+			if (normalize) {
+				for (Node node : tree.getNodes()) {
+					((EaglesTag) node.getMorphTag()).normalize(node, true);
+				}
 			}
 
 			tree.write(writer);

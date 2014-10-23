@@ -3,14 +3,58 @@
  "lang" : "de",
  "source-url" : "http://www.ims.uni-stuttgart.de/forschung/ressourcen/korpora/tiger.en.html",
  "source" : "TIGER Treebank 2.2",
- "cis-path" : "../src/marmot/test/trn.txt",
+ "cis-path" : "/mounts/data/proj/marmot/treebanks/tiger/tiger-2.2.conll09",
  "marmot-indexes" : "form-index=0,tag-index=4,morph-index=6"
 },
 {
  "lang" : "la",
  "source-url" : "http://www.hf.uio.no/ifikk/english/research/projects/proiel/",
  "source" : "PROIEL",
- "cis-path" : "../src/marmot/test/trn.txt",
- "marmot-indexes" : "form-index=0,tag-index=4,morph-index=6"
+ "cis-path" : "/mounts/data/proj/marmot/treebanks/latin/proiel/proiel.conll",
+ "marmot-indexes" : "form-index=1,tag-index=4,morph-index=5"
+},
+{
+ "lang" : "cs",
+ "source-url" : "http://ufal.mff.cuni.cz/conll2009-st/task-description.html",
+ "source" : "CONLL 2009 / PDT",
+ "cis-path" : "/mounts/data/proj/marmot/treebanks/conll09/cze/cs.txt",
+ "comment" : "Deleted Sem features. Moved SubPOS to POS column.",
+ "marmot-indexes" : "form-index=1,tag-index=2,morph-index=3"
+},
+{
+ "lang" : "ca",
+ "source-url" : "http://ufal.mff.cuni.cz/conll2009-st/task-description.html",
+ "source" : "CONLL 2009",
+ "cis-path" : "/mounts/data/proj/marmot/treebanks/conll09/cat/ca.txt",
+ "marmot-indexes" : "form-index=1,tag-index=4,morph-index=6"
+},
+{
+ "lang" : "es",
+ "source-url" : "http://www.iula.upf.edu/recurs01_tbk_uk.htm",
+ "source" : "IULA",
+ "cis-path" : "/mounts/data/proj/marmot/treebanks/IULA_Spanish_LSP_Treebank/iula.txt",
+ "comment" : "Converted from EAGLE tags to human-readable format.",
+ "marmot-indexes" : "form-index=1,tag-index=4,morph-index=5"
+},
+{
+ "lang" : "da",
+ "source-url" : "http://ilk.uvt.nl/conll/free_data.html",
+ "source" : "CONLL 2006 / DDT",
+ "cis-path" : "/mounts/data/proj/marmot/treebanks/conll_2006/conll06/da.txt",
+ "marmot-indexes" : "form-index=1,tag-index=4,morph-index=5"
+},
+{
+ "lang" : "pt",
+ "source-url" : "http://ilk.uvt.nl/conll/free_data.html",
+ "source" : "CONLL 2006 / Floresta sintactica",
+ "cis-path" : "/mounts/data/proj/marmot/treebanks/conll_2006/conll06/pt.txt",
+ "marmot-indexes" : "form-index=1,tag-index=4,morph-index=5"
+},
+{
+ "lang" : "pl",
+ "source-url" : "http://zil.ipipan.waw.pl/Sk%C5%82adnica",
+ "source" : "Składnica",
+ "cis-path" : "/mounts/data/proj/marmot/treebanks/skladnica/Składnica-zależnościowa-0.5.conll",
+ "marmot-indexes" : "form-index=1,tag-index=4,morph-index=5"
 }
 ]
