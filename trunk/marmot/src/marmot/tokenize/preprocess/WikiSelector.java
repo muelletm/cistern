@@ -6,17 +6,23 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.ListIterator;
+
+import marmot.tokenize.openlp.OpenNlpScript;
 import marmot.util.LevenshteinLattice;
 
 public class WikiSelector {
 	private LinkedList<String> untokenized;
 	private LinkedList<String> tokenized;
+	private LinkedList<String> nlpFormat;
+	private String lang;
 	private int maxSentence;
 	private WikiReader reader;
 	
-	WikiSelector(String untokenizedFile, String tokenizedFile, int maxSentence) {
+	WikiSelector(String untokenizedFile, String tokenizedFile, String lang, int maxSentence) {
 		untokenized = new LinkedList<String>();
 		tokenized = new LinkedList<String>();
+		nlpFormat = new LinkedList<String>();
+		this.lang = lang;
 		this.maxSentence = maxSentence;
 		reader = new WikiReader(untokenizedFile, tokenizedFile, 10000);
 	}
@@ -33,11 +39,13 @@ public class WikiSelector {
 		for(int i=0; i<maxSentence; i++) {
 			unTok = unTokIt.next();
 			tok = tokIt.next();
+			//TODO: check for tok unTok inconsistencies
 			int score = new LevenshteinLattice(unTok, tok).getDistance();
 			
 			if(score > 12) {
 				untokenized.push(unTok);
 				tokenized.push(tok);
+				nlpFormat.push(OpenNlpScript.transform(tok, unTok)); 
 			}
 //			sum += score;
 //			scores[i] = score;
@@ -57,8 +65,9 @@ public class WikiSelector {
 //		System.out.println("Standard deviation: "+stdDevi);
 		
 		try {
-			writeFile("data/text/unTokCorpus.txt", untokenized);
-			writeFile("data/text/tokCorpus.txt", tokenized);
+			writeFile("./data/text/" + lang + "_unTokCorpus.train", untokenized);
+			writeFile("./data/text/" + lang + "_tokCorpus.train", tokenized);
+			writeFile("./data/text/" + lang + "_nlpFormatCorpus.train", nlpFormat);
 //			writeFiles("./data/text/unTokCorpus.ser", untokenized);
 //			writeFiles("./data/text/tokCorpus.ser", tokenized);
 		} catch (IOException e) {
