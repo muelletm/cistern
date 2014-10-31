@@ -2,14 +2,17 @@ package marmot.tokenize.preprocess;
 
 import java.io.IOException;
 
+import marmot.tokenize.preprocess.WikiSelector;
 import marmot.tokenize.Tokenizer;
 import marmot.tokenize.openlp.OpenNlpTokenizerTrainer;
 
 public class Main {
 
 	public static void main(String[] args) throws IOException {
-		WikiSelector selector = new WikiSelector("data/en/sbd_full.txt.bz2",
-				"data/en/tok_full.txt.bz2", 1000); //max number of sentences we want
+		String unTokFile = "./data/en/sbd_full.txt.bz2";
+		String tokFile   = "./data/en/tok_full.txt.bz2";
+		String lang = "en";
+		WikiSelector selector = new WikiSelector(unTokFile, tokFile, lang, 10000);
 		selector.selectSentence();
 
 		
