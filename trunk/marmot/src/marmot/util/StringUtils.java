@@ -4,6 +4,7 @@
 package marmot.util;
 
 import java.security.InvalidParameterException;
+import java.util.List;
 
 public class StringUtils {
 
@@ -74,6 +75,14 @@ public class StringUtils {
 				}
 
 			}
+		}
+		return sb.toString();
+	}
+
+	public static String join(List<String> segments) {
+		StringBuilder sb = new StringBuilder();
+		for (String segment : segments) {
+			sb.append(segment);
 		}
 		return sb.toString();
 	}
