@@ -17,22 +17,23 @@ import marmot.core.Sequence;
 import marmot.core.Token;
 import marmot.morph.MorphEvaluator;
 import marmot.morph.MorphModel;
+import marmot.morph.MorphResult;
 import marmot.morph.MorphTagger;
 import marmot.morph.Word;
 import marmot.morph.io.SentenceReader;
 import marmot.util.FileUtils;
 
 public class Test {
-		
+
 	public static void main(String[] args) throws JSAPException {
 		FlaggedOption opt;
 		JSAP jsap = new JSAP();
 
-		opt = new FlaggedOption("file").setRequired(true).setLongFlag(
-				"file");
+		opt = new FlaggedOption("file").setRequired(true).setLongFlag("file");
 		jsap.registerParameter(opt);
 
-		opt = new FlaggedOption("model-file").setRequired(true).setLongFlag("model-file");
+		opt = new FlaggedOption("model-file").setRequired(true).setLongFlag(
+				"model-file");
 		jsap.registerParameter(opt);
 
 		JSAPResult config = jsap.parse(args);
@@ -49,21 +50,36 @@ public class Test {
 			System.exit(1);
 		}
 
+		MorphResult result = null;
 
-		MorphTagger tagger = FileUtils.loadFromFile(config.getString("model-file"));	
-		MorphModel model = (MorphModel) tagger.getModel();
-		model.setVerbose(false);
-		
-		List<Sequence> test_sentences = new LinkedList<Sequence>();
-		for (Sequence sequence : new SentenceReader(config.getString("file"))) {
-			for (Token token : sequence) {
-				Word word  = (Word) token;
-				model.addIndexes(word, false);
+		for (String modelfile : config.getString("model-file").split(",")) {
+
+			MorphTagger tagger = FileUtils.loadFromFile(modelfile);
+			MorphModel model = (MorphModel) tagger.getModel();
+			model.setVerbose(false);
+
+			List<Sequence> test_sentences = new LinkedList<Sequence>();
+			for (Sequence sequence : new SentenceReader(
+					config.getString("file"))) {
+				for (Token token : sequence) {
+					Word word = (Word) token;
+					model.addIndexes(word, false);
+				}
+				test_sentences.add(sequence);
 			}
-			test_sentences.add(sequence);
+
+			Evaluator evaluator = new MorphEvaluator(test_sentences);
+
+			MorphResult current_result = (MorphResult) evaluator.eval(tagger);
+
+			if (result == null) {
+				result = current_result;
+			} else {
+				result.increment(current_result);
+			}
+			
 		}
-		
-		Evaluator evaluator = new MorphEvaluator(test_sentences);
-		System.out.print(evaluator.eval(tagger));
+
+		System.out.print(result);
 	}
 }
