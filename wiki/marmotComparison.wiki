@@ -17,4 +17,4 @@ The following table shows accuracies for MarMoT and the model proposed by Silfve
 
 == References ==
 
- * Miikka Silfverberg; Teemu Ruokolainen; Krister Lindén; Mikko Kurimo. [http://aclweb.org/anthology/P/P14/P14-2043.pdf _Part-of-Speech Tagging using Conditional Random Fields: Exploiting Sub-Label Dependencies for Improved Accuracy_]. ACL. 2014
+ * Miikka Silfverberg; Teemu Ruokolainen; Krister Lindén; Mikko Kurimo. [http://aclweb.org/anthology/P/P14/P14-2043.pdf Part-of-Speech Tagging using Conditional Random Fields: Exploiting Sub-Label Dependencies for Improved Accuracy]. ACL. 2014
