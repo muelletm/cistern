@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 import marmot.util.LevenshteinLattice;
 import marmot.util.StringUtils;
 
-public class OpenNlpScript {
+public class Transformator {
 
 	private static Pattern mark = Pattern.compile("\\p{Punct}",
 			Pattern.CASE_INSENSITIVE);
@@ -46,7 +46,7 @@ public class OpenNlpScript {
 
 	public static final String SPLIT = "<SPLIT>";
 
-	public static String transform_levensthein(String tok, String untok) {
+	public static String transformLevenshtein(String tok, String untok) {
 
 		// Set the cost for Replace higher then Insert + Delete so we don't have
 		// to deal with it
