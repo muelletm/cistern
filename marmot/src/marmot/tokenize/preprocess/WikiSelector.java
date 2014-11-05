@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
-import marmot.tokenize.openlp.OpenNlpScript;
+import marmot.tokenize.openlp.Transformator;
 import marmot.util.LevenshteinLattice;
 
 public class WikiSelector {
@@ -45,7 +45,7 @@ public class WikiSelector {
 			if(score > 12) {
 				untokenized.push(unTok);
 				tokenized.push(tok);
-				nlpFormat.push(OpenNlpScript.transform(tok, unTok)); 
+				nlpFormat.push(Transformator.transform(tok, unTok)); 
 			}
 //			sum += score;
 //			scores[i] = score;
