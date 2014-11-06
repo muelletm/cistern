@@ -8,21 +8,21 @@ import java.util.List;
 import java.util.ListIterator;
 
 public class LevenshteinLattice {
-	private int[][] cost_lattice_;
-	private short[][] op_lattice_;
+	protected int[][] cost_lattice_;
+	protected short[][] op_lattice_;
 
-	private final static short START = 1;
-	private final static short INSERT = 2;
-	private final static short DELETE = 4;
-	private final static short COPY = 8;
-	private final static short REPLACE = 16;
+	protected final static short START = 1;
+	protected final static short INSERT = 2;
+	protected final static short DELETE = 4;
+	protected final static short COPY = 8;
+	protected final static short REPLACE = 16;
 
-	private String input_;
-	private String output_;
+	protected String input_;
+	protected String output_;
 
-	private int replace_cost_;
-	private int insert_cost_;
-	private int delete_cost_;
+	protected int replace_cost_;
+	protected int insert_cost_;
+	protected int delete_cost_;
 	
 	private boolean initialized_;
 
@@ -40,7 +40,7 @@ public class LevenshteinLattice {
 		initialized_ = false;		
 	}
 	
-	private void init() {
+	protected void init() {
 		if (! initialized_) {
 			fillLattice();
 		}
@@ -60,12 +60,12 @@ public class LevenshteinLattice {
 		op_lattice_[0][0] = START;
 
 		for (int input_index = 1; input_index <= input_length; input_index++) {
-			cost_lattice_[input_index][0] = input_index;
+			cost_lattice_[input_index][0] = delete_cost_ * input_index;
 			op_lattice_[input_index][0] = DELETE;
 		}
 
 		for (int output_index = 1; output_index <= output_length; output_index++) {
-			cost_lattice_[0][output_index] = output_index;
+			cost_lattice_[0][output_index] = insert_cost_ * output_index;
 			op_lattice_[0][output_index] = INSERT;
 		}
 
@@ -74,11 +74,14 @@ public class LevenshteinLattice {
 			for (int output_index = 1; output_index <= output_length; output_index++) {
 				char current_output = output_.charAt(output_index - 1);
 
-				short diag_op = REPLACE;
-				int diag_cost = replace_cost_;
+				short diag_op;
+				int diag_cost;
 				if (current_input == current_output) {
-					diag_cost = getCopyCost(input_index);
 					diag_op = COPY;
+					diag_cost = getCopyCost(input_index);
+				} else {
+					diag_op = REPLACE;
+					diag_cost = getReplaceCost(current_input, current_output);	
 				}
 
 				int minimal_diag_cost = cost_lattice_[(input_index - 1)][(output_index - 1)]
@@ -108,13 +111,16 @@ public class LevenshteinLattice {
 				}
 
 				op_lattice_[input_index][output_index] = minimal_cost_op;
-
 			}
 		}
 	}
 
 	protected int getCopyCost(int input_index) {
 		return 0;
+	}
+	
+	protected int getReplaceCost(char input, char output) {
+		return replace_cost_;
 	}
 
 	public String searchOperationSequence() {
@@ -230,7 +236,7 @@ public class LevenshteinLattice {
 		return lists;
 	}
 
-	private List<List<Character>> appendToList(List<List<Character>> lists,
+	protected List<List<Character>> appendToList(List<List<Character>> lists,
 			char c) {
 		for (List<Character> list : lists) {
 			list.add(c);

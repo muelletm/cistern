@@ -1,23 +1,13 @@
 package marmot.test;
 
 import static org.junit.Assert.*;
+
 import marmot.tokenize.openlp.Transformator;
 
 import org.junit.Test;
 
-public class OpenNlpScriptTest {
+public class TransformatorTest {
 
-	public void exampleAlignTest() {
-		String tok, untok, actual, expected;
-		
-		tok = "A -LRB- B";
-		untok = "A (B";
-		int [] expected_tok = {0, 1, 2, 3, 4, 5, 6, 7, 8};
-		int [] expected_untok = {0, 1, 2, 2, 2, 2, 2, -1, 3};
-
-	}
-	
-	
 	@Test
 	public void quoteTest() {
 		String tok, untok, actual, expected;
