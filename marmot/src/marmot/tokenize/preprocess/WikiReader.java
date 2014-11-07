@@ -1,67 +1,161 @@
 package marmot.tokenize.preprocess;
 
-import java.io.File;
+import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Scanner;
-import java.util.regex.Pattern;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.apache.commons.compress.compressors.bzip2.*;
 
-public class WikiReader {
-	
-	private LinkedList<String> untokenized;
-	private LinkedList<String> tokenized;
-	private int maxSentences;
-	
-	WikiReader(String untokenizedFile, String tokenizedFile, int maxSentences) {
-		untokenized = new LinkedList<String>();
-		tokenized = new LinkedList<String>();
-		this.maxSentences = maxSentences*10;
-		
+public class WikiReader implements Iterator<Pair> {
+
+	private Pair pair_;
+	private InternalReader untokenized_;
+	private InternalReader tokenized_;
+	private boolean expand_;
+
+	public WikiReader(InternalReader untokenized, InternalReader tokenized, boolean expand) {
+		untokenized_ = untokenized;
+		tokenized_ = tokenized;
+		expand_ = expand;
+	}
+
+	public WikiReader(String untokenized_file, String tokenized_file, boolean expand) {
+		this(openFile(untokenized_file), openFile(tokenized_file), expand);
+	}
+
+	public static InternalReader openFile(String file) {
 		try {
-			readFile(untokenizedFile, false);
-			readFile(tokenizedFile, true);
+			return new BufferedReaderWrapper(new BufferedReader(
+					new InputStreamReader(new BZip2CompressorInputStream(
+							new FileInputStream(file)), "UTF-8")));
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
 		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		if(untokenized.size() == tokenized.size()) {
-			System.out.println("Successfully read and compared files.");
-		} else {
-			System.err.println("Files not same size!");
+			throw new RuntimeException(e);
 		}
 	}
-	
-	private void readFile(String filename, Boolean isTokenized) throws IOException {
-		File file = new File(filename);
-		BZip2CompressorInputStream bzip = new BZip2CompressorInputStream(new FileInputStream(file));
-		Scanner scanner = new Scanner(bzip);
-		scanner.useDelimiter(Pattern.compile("\\n"));
+
+	@Override
+	public boolean hasNext() {
+		readNext();
+		return pair_ != null;
+	}
+
+	protected String readNonEmptyLine(InternalReader reader) {
+		String line = reader.readLine();
+
+		if (line == null) {
+			throw new NoSuchElementException();
+		}
 		
-		String sentence;
-		int count = 0;
-		while(scanner.hasNext() && count<maxSentences) {
-			sentence = scanner.next();
-			//if(sentence.length() == 0) continue;
-			if(isTokenized == false) {
-				untokenized.push(sentence);
-			} else {
-				tokenized.push(sentence);
+		line = line.trim();
+
+		while (line.isEmpty()) {
+			line = reader.readLine();
+
+			if (line == null) {
+				throw new NoSuchElementException();
 			}
 			
-			count++;
+			line = line.trim();
+
 		}
-		scanner.close();
+		return line;
+	}
+
+	public void readNext() {
+		if (pair_ != null) {
+			return;
+		}
+
+		try {
+		
+		String tokenized = readNonEmptyLine(tokenized_);
+		String untokenized = readNonEmptyLine(untokenized_);
+
+		pair_ = new Pair(tokenized, untokenized);
+
+		if (expand_)
+			expandPair();
+		
+		} catch (NoSuchElementException e) {
+			
+		}
+		
 
 	}
-	
-	public LinkedList<String> getUntokenized() {
-		return untokenized;
+
+	protected void expandPair() {
+		Pair pair;
+		boolean expanded = false;
+
+		// expand left:
+		
+		try {
+
+		tokenized_.mark();
+		pair = new Pair(pair_.tokenized + readNonEmptyLine(tokenized_),
+				pair_.untokenized);
+
+		if (pair.score < pair_.score) {
+			pair_ = pair;
+			expanded = true;
+		} else {
+			tokenized_.reset();
+		}
+		
+		
+		} catch (NoSuchElementException e) {
+			
+		}
+
+		// expand right:
+
+		untokenized_.mark();
+		pair = new Pair(pair_.tokenized, pair_.untokenized
+				+ readNonEmptyLine(untokenized_));
+
+		if (pair.score < pair_.score) {
+			pair_ = pair;
+			expanded = true;
+		} else {
+			untokenized_.reset();
+		}
+
+		if (expanded) {
+			expandPair();
+		}
 	}
-	
-	public LinkedList<String> getTokenized() {
-		return tokenized;
+
+	@Override
+	public Pair next() {
+		readNext();
+
+		if (pair_ == null) {
+			throw new NoSuchElementException();
+		}
+
+		Pair pair = pair_;
+		pair_ = null;
+		return pair;
+	}
+
+	@Override
+	public void remove() {
+		throw new UnsupportedOperationException();
+	}
+
+	public List<Pair> readAll() {
+		List<Pair> pairs = new LinkedList<>();
+		while (hasNext()) {
+			pairs.add(next());
+		}
+		return pairs;
 	}
 }
