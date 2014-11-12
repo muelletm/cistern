@@ -28,7 +28,7 @@ public class SentenceNormalizer {
 
 			
 			
-			if (type != null) {
+			if (type != null && type != CapType.lower) {
 				
 				
 				//System.err.println(type);

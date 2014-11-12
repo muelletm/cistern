@@ -15,7 +15,7 @@ import marmot.util.LineIterator;
 
 public class Comparator {
 
-	public static final int num_trials_ = 5;
+	public static final int num_trials_ = 2;
 	public static final int seed_ = 1000;
 
 	private MorphOptions getDefaultOptions(String trainfile, String devfile) {
@@ -24,6 +24,7 @@ public class Comparator {
 		opts.setProperty(MorphOptions.TRAIN_FILE, trainfile);
 		opts.setProperty(MorphOptions.TEST_FILE, devfile);
 		opts.setProperty(MorphOptions.SHAPE, "false");
+		opts.setProperty(MorphOptions.NUM_ITERATIONS, "2");
 		
 		FileOptions fopts = new FileOptions(trainfile);
 		if (fopts.getMorphIndex() == -1) {

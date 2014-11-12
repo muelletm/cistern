@@ -21,6 +21,7 @@ import marmot.core.lattice.ViterbiLattice;
 import marmot.core.lattice.ZeroOrderSumLattice;
 import marmot.core.lattice.ZeroOrderViterbiLattice;
 import marmot.morph.cmd.Trainer;
+import marmot.morph.io.SentenceNormalizer;
 import marmot.morph.io.SentenceReader;
 import marmot.util.Copy;
 
@@ -38,6 +39,15 @@ public class MorphEvaluator implements Evaluator {
 		MorphModel model = (MorphModel) tagger.getModel();
 		MorphResult result = new MorphResult(tagger);
 
+		if (((MorphOptions)model.getOptions()).getNormalizeForms()) {
+			sentence = (Sentence) SentenceNormalizer.normalizeSentence(sentence);
+		}
+		
+		for (Token token : sentence) {
+			Word word = (Word) token;
+			model.addIndexes(word, false);
+		}		
+		
 		result.num_sentences += 1;
 
 		long time = System.currentTimeMillis();
@@ -181,14 +191,9 @@ public class MorphEvaluator implements Evaluator {
 			opts.setProperty(Options.SEED, Integer.toString(seed + trial));
 
 			Tagger tagger = Trainer.train(opts);
-			MorphModel model = (MorphModel) tagger.getModel();
-
+			
 			List<Sequence> sentences = new LinkedList<Sequence>();
 			for (Sequence sentence : new SentenceReader(opts.getTestFile())) {
-				for (Token token : sentence) {
-					Word word = (Word) token;
-					model.addIndexes(word, false);
-				}
 				sentences.add(sentence);
 			}
 
