@@ -46,7 +46,7 @@ public class LevenshteinAligner implements Aligner {
 
 				state.input_index = input_index + input_diff;
 				state.output_index = output_index + output_diff;
-				state.current_path = new LinkedList<>(current_path);
+				state.current_path = new LinkedList<Character>(current_path);
 				state.current_path.add(op);
 
 				return state;
@@ -61,9 +61,9 @@ public class LevenshteinAligner implements Aligner {
 			State state = new State();
 			state.input_index = input_.length();
 			state.output_index = output_.length();
-			state.current_path = new LinkedList<>();
+			state.current_path = new LinkedList<Character>();
 
-			List<State> states = new LinkedList<>();
+			List<State> states = new LinkedList<State>();
 			states.add(state);
 
 			List<Character> seq = searchOperationSequence(states);
@@ -170,7 +170,7 @@ public class LevenshteinAligner implements Aligner {
 			return null;
 		}
 
-		List<Pair> pairs = new LinkedList<>();
+		List<Pair> pairs = new LinkedList<Pair>();
 
 		int input_index = 0;
 		int output_index = 0;

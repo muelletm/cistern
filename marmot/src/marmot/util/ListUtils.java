@@ -7,7 +7,7 @@ import java.util.List;
 public class ListUtils {
 
 	public static <T> List<T> complement(List<List<T>> items, int i) {
-		List<T> complement = new LinkedList<>();
+		List<T> complement = new LinkedList<T>();
 		for (int j = 0; j < items.size(); j++) {
 			if (i != j) {
 				complement.addAll(items.get(j));

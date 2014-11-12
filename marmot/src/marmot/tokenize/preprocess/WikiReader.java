@@ -152,7 +152,7 @@ public class WikiReader implements Iterator<Pair> {
 	}
 
 	public List<Pair> readAll() {
-		List<Pair> pairs = new LinkedList<>();
+		List<Pair> pairs = new LinkedList<Pair>();
 		while (hasNext()) {
 			pairs.add(next());
 		}
