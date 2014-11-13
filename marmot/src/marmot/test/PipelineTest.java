@@ -3,6 +3,8 @@
 
 package marmot.test;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,6 +29,7 @@ import marmot.morph.Sentence;
 import marmot.morph.Word;
 import marmot.morph.io.FileOptions;
 import marmot.morph.io.SentenceReader;
+import marmot.util.FileUtils;
 
 public class PipelineTest {
 
@@ -287,6 +290,21 @@ public class PipelineTest {
 
 		assertModelPerformanceOnTestset(caller + " Train", tagger, train_sentences, train_threshold);
 		assertModelPerformanceOnTestset(caller + " Test ", tagger, test_sentences, test_threshold);
+		
+		File tempfile;
+		try {
+			tempfile = File.createTempFile("tagger", ".marmot");
+			tempfile.deleteOnExit();
+			FileUtils.saveToFile(tagger, tempfile);
+			Tagger loaded_tagger = FileUtils.loadFromFile(tempfile);
+			assertModelPerformanceOnTestset(caller + " Test (reload) ", loaded_tagger, test_sentences, test_threshold);
+			
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		
+		
+		
 
 	}
 

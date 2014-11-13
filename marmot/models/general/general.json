@@ -56,5 +56,5 @@
  "source" : "Składnica",
  "cis-path" : "/mounts/data/proj/marmot/treebanks/skladnica/Składnica-zależnościowa-0.5.conll",
  "marmot-indexes" : "form-index=1,tag-index=4,morph-index=5"
-}
+},
 ]

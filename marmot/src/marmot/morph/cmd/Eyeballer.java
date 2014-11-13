@@ -14,7 +14,6 @@ import java.util.List;
 import marmot.core.SimpleTagger;
 import marmot.core.Token;
 import marmot.morph.MorphModel;
-import marmot.morph.MorphOptions;
 import marmot.morph.Sentence;
 import marmot.morph.Word;
 import marmot.util.FileUtils;
@@ -23,10 +22,6 @@ import marmot.util.FileUtils;
 public class Eyeballer {
 
 	public static void main(String[] args) throws IOException {
-		MorphOptions options = new MorphOptions();
-		options.setPropertiesFromStrings(args);		
-		options.dieIfPropertyIsEmpty(MorphOptions.MODEL_FILE);
-		
 		SimpleTagger tagger = FileUtils.loadFromFile(args[0]); 
 		MorphModel model = (MorphModel) tagger.getModel();
 	
@@ -55,7 +50,7 @@ public class Eyeballer {
 					model.addIndexes(word, false);
 				}
 				
-				tagger.activateCandiateBuffer(true);		
+				//tagger.activateCandiateBuffer(true);		
 				
 				List<List<String>> tags = tagger.tag(sentence);
 				
@@ -63,8 +58,8 @@ public class Eyeballer {
 					System.err.println(tag);
 				}
 				
-				tagger.printCandidateBuffer(10);
-				tagger.activateCandiateBuffer(false);
+				//tagger.printCandidateBuffer(10);
+				//tagger.activateCandiateBuffer(false);
 				
 				//System.err.println();
 				
