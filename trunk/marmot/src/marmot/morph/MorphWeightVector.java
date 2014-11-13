@@ -34,6 +34,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 	private double linear_penalty_;
 
 	private double[] weights_;
+	private double[] float_weights_;
 
 	private boolean extend_feature_set_;
 	private MorphModel model_;
@@ -59,7 +60,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 	private MorphDictionary mdict_;
 	private FloatHashDictionary fdict_;
 	private int mdict_bits_;
-	private double[] float_weights_;
+
 	// private double[] accumulated_float_penalty_;
 	private static final boolean use_bigrams_ = true;
 	private static final boolean use_state_features_ = true;
@@ -809,4 +810,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 		return mdict_;
 	}
 
+	public SymbolTable<Feature> getFeatureTable() {
+		return feature_table_;
+	}
 }

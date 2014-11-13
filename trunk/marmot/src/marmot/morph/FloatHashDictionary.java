@@ -76,18 +76,7 @@ public class FloatHashDictionary implements Serializable {
 
 	public void readDenseVector(LineIterator iterator) {
 
-		if (!iterator.hasNext()) {
-			throw new RuntimeException("File is empty!");
-		}
-
-		List<String> first_line = iterator.next();
-
-		if (first_line.size() != 2) {
-			throw new RuntimeException("File is empty!");
-		}
-
 		int dim = -1;
-	
 
 		while (iterator.hasNext()) {
 			List<String> line = iterator.next();
@@ -138,8 +127,6 @@ public class FloatHashDictionary implements Serializable {
 		} else {
 			readSparseVector(iterator);
 
-			int dense = 0;
-
 			for (Map.Entry<String, FloatFeatureVector> entry : index_map_
 					.entrySet()) {
 
@@ -151,27 +138,17 @@ public class FloatHashDictionary implements Serializable {
 					if (table_.size() == vec.getWeights().length) {
 						entry.setValue(new DenseArrayFloatFeatureVector(vec
 								.getWeights()));
-						dense++;
 					} else {
-
 						double[] weights = new double[table_.size()];
 						for (int index = 0; index < vec.getWeights().length; index++) {
 							weights[vec.getFeatures()[index]] = vec
 									.getWeights()[index];
 						}
-
-						// vec.setDim(table_.size());
 					}
 
 				}
-
 			}
-
-			System.err.format("Dense rate: %d / %d = %g\n", dense,
-					index_map_.size(), dense * 100. / index_map_.size());
 		}
-
-		System.err.println(table_);
 	}
 
 	public FloatFeatureVector getVector(String form) {

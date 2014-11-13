@@ -18,6 +18,7 @@ public class Copy {
 		try {
 			oos = new ObjectOutputStream(baos);
 			oos.writeObject(object);
+			oos.close();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
