@@ -609,14 +609,12 @@ public class MorphModel extends Model {
 			test_sentences = null;
 		}
 	
-		if (options.getNormalizeForms()) {
-			train_sentences = SentenceNormalizer.normalizeSentences(train_sentences);
+		train_sentences = SentenceNormalizer.normalizeSentences(train_sentences, options.getNormalizeForms());
 			
-			if (test_sentences != null) {
-				test_sentences = SentenceNormalizer.normalizeSentences(test_sentences);	
-			}
+		if (test_sentences != null) {
+			test_sentences = SentenceNormalizer.normalizeSentences(test_sentences, options.getNormalizeForms());	
 		}
-
+		
 		MorphModel model = new MorphModel();
 		model.init(options, train_sentences);
 		

@@ -4,11 +4,18 @@
 package marmot.util;
 
 import java.security.InvalidParameterException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class StringUtils {
 
-	public static double[] parseDoubleArray(String array_string, Mutable<Integer> start_index) {
+	public enum Mode {
+		none, bracket, lower, umlaut,
+	}
+
+	public static double[] parseDoubleArray(String array_string,
+			Mutable<Integer> start_index) {
 		String[] element_strings = parseArray(array_string, start_index);
 
 		double[] array = new double[element_strings.length];
@@ -21,60 +28,91 @@ public class StringUtils {
 		return array;
 	}
 
-	public static String[] parseArray(String array_string, Mutable<Integer> index) {
+	public static String[] parseArray(String array_string,
+			Mutable<Integer> index) {
 		int start_index = array_string.indexOf('[', index.get());
 		int end_index = array_string.indexOf(']', start_index);
-		
+
 		if (start_index == -1 || end_index == -1) {
-			throw new InvalidParameterException("Not an array: " + array_string);			
+			throw new InvalidParameterException("Not an array: " + array_string);
 		}
-		
+
 		array_string = array_string.substring(start_index + 1, end_index);
 		index.set(end_index + 1);
-		
+
 		if (array_string.length() == 0) {
 			return new String[0];
 		}
-		
+
 		return array_string.split(",");
 	}
 
 	public static String reverse(String form) {
 		return new StringBuilder(form).reverse().toString();
 	}
+
+	static final Map<String, Character> BRACKET_MAP = new HashMap<String, Character>();
+	static {
+		BRACKET_MAP.put("-LRB-", '(');
+		BRACKET_MAP.put("-RRB-", ')');
+		BRACKET_MAP.put("-LCB-", '{');
+		BRACKET_MAP.put("-RCB-", '}');
+		BRACKET_MAP.put("-LSB-", '[');
+		BRACKET_MAP.put("-RSB-", ']');
+	}
 	
-	public static String normalize(String word, boolean replace_umlaut) {
+	public static String normalize(String word, Mode mode) {
+		if (mode == Mode.none) {
+			return word;
+		}
+
 		StringBuilder sb = new StringBuilder(word.length());
-		for (int index = 0; index < word.length(); index++) {
-			char c = Character.toLowerCase(word.charAt(index));
-			if (Character.isDigit(c)) {
-				sb.append('0');
-			} else {
+		int index = 0;
+		while (index < word.length()) {
+			char c = word.charAt(index);
 
-				if (replace_umlaut) {
+			if (c == '-' && index + 4 < word.length()) {
+				String bracket_string = word.substring(index, index + 5);
+				Character bracket_char = BRACKET_MAP.get(bracket_string);
+				if (bracket_char != null) {
+					c = bracket_char;
+					index += 4;
+				}
+			}
+			
+			if (mode == Mode.lower || mode == Mode.umlaut) {
+				c = Character.toLowerCase(c);
 
-					switch (c) {
-					case 'ß':
-						sb.append("ss");
-						break;
-					case 'ö':
-						sb.append("oe");
-						break;
-					case 'ü':
-						sb.append("ue");
-						break;
-					case 'ä':
-						sb.append("ae");
-						break;
-					default:
-						sb.append(c);
-					}
-
-				} else {
-					sb.append(c);
+				if (Character.isDigit(c)) {
+					c = '0';
 				}
 
 			}
+			
+			if (mode == Mode.umlaut) {
+
+				switch (c) {
+				case 'ß':
+					sb.append("ss");
+					break;
+				case 'ö':
+					sb.append("oe");
+					break;
+				case 'ü':
+					sb.append("ue");
+					break;
+				case 'ä':
+					sb.append("ae");
+					break;
+				default:
+					sb.append(c);
+
+				}
+			} else {
+				sb.append(c);
+			}
+
+			index++;
 		}
 		return sb.toString();
 	}

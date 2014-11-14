@@ -9,6 +9,7 @@ import marmot.morph.EvalResult;
 import marmot.morph.MorphModel;
 import marmot.morph.MorphTagger;
 import marmot.util.FileUtils;
+import marmot.util.StringUtils.Mode;
 
 import com.martiansoftware.jsap.FlaggedOption;
 import com.martiansoftware.jsap.JSAP;
@@ -48,8 +49,8 @@ public class ModelEvaluator {
 		jsap.registerParameter(opt);
 
 		opt = new FlaggedOption("normalize").setRequired(false)
-				.setLongFlag("normalize").setStringParser(JSAP.BOOLEAN_PARSER)
-				.setDefault("false");
+				.setLongFlag("normalize").setStringParser(JSAP.STRING_PARSER)
+				.setDefault("none");
 		jsap.registerParameter(opt);
 
 		opt = new FlaggedOption("verbose").setRequired(false)
@@ -78,7 +79,7 @@ public class ModelEvaluator {
 		((MorphModel) tagger.getModel()).setVerbose(false);
 
 		Evaluator eval = new Evaluator(config.getString("train-file"),
-				config.getBoolean("normalize"), config.getString("mdict"));
+				Mode.valueOf(config.getString("normalize")), config.getString("mdict"));
 
 		for (String test_file : test_files) {
 			EvalResult result = eval.eval(tagger, test_file,

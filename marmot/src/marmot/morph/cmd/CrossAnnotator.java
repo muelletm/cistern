@@ -7,7 +7,6 @@ import java.io.Writer;
 import java.util.LinkedList;
 import java.util.List;
 
-import marmot.core.Options;
 import marmot.core.Sequence;
 import marmot.core.Tagger;
 import marmot.morph.MorphEvaluator;
@@ -15,26 +14,16 @@ import marmot.morph.MorphModel;
 import marmot.morph.MorphOptions;
 import marmot.morph.MorphResult;
 import marmot.morph.io.SentenceReader;
+import marmot.util.FakeWriter;
 import marmot.util.ListUtils;
 
 public class CrossAnnotator {
 
 	public static void main(String[] args) throws IOException {
-
-		String path = "/home/muellets/Downloads/data";
-
-		int num_chunks = 2;
-		String infile = String.format(
-				"form-index=1,tag-index=4,morph-index=6,%s/tiger-2.2.sml.conll09",
-				path);
-		String outfile = String.format("%s/tiger-2.2.sml.marmot.conll09", path);
-
 		MorphOptions options = new MorphOptions();
-		options.setProperty(Options.VERBOSE, "true");
-		options.setProperty(MorphOptions.NUM_ITERATIONS, "1");
-		
-		annotate(options, infile, outfile, num_chunks);
-
+		options.setPropertiesFromStrings(args);
+		options.dieIfPropertyIsEmpty(MorphOptions.TRAIN_FILE);	
+		annotate(options, options.getTrainFile(), options.getPredFile() , options.getNumChunks());
 	}
 
 	public static void annotate(MorphOptions options, String infile,
@@ -45,7 +34,14 @@ public class CrossAnnotator {
 			sequences.add(sequence);
 		}
 
-		Writer writer = new BufferedWriter(new FileWriter(outfile));
+		Writer writer = null;
+		
+		if (outfile == null) {
+			writer = new FakeWriter();
+		} else {
+			writer = new BufferedWriter(new FileWriter(outfile));	
+		}
+		
 		annotate(options, sequences, num_chunks, writer);
 		writer.close();
 
@@ -87,7 +83,7 @@ public class CrossAnnotator {
 			if (result != null) {
 				System.err.println();
 				System.err.println();
-				System.err.println("Overall result:");
+				System.err.println("Overall results:");
 				System.err.println(result);
 			}
 

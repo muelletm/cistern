@@ -75,7 +75,7 @@ public class Comparator {
 
 	private void run_normalizer(String trainfile, String devfile) {
 		MorphOptions opts = getDefaultOptions(trainfile, devfile);
-		opts.setProperty(MorphOptions.NORMALIZE_FORMS, "true");
+		opts.setProperty(MorphOptions.FORM_NORMALIZATION, "true");
 		run("Normalize", opts);
 
 	}

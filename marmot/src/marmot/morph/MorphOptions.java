@@ -7,8 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import marmot.core.Options;
-
-
+import marmot.util.StringUtils.Mode;
 
 public class MorphOptions extends Options {
 	private static final long serialVersionUID = 1L;
@@ -28,7 +27,8 @@ public class MorphOptions extends Options {
 	public static final String TYPE_DICT = "type-dict";
 	public static final String SPLIT_POS = "split-pos";
 	public static final String FLOAT_TYPE_DICT = "type-embeddings";
-	public static final String NORMALIZE_FORMS = "normalize-forms";
+	public static final String FORM_NORMALIZATION = "form-normalization";
+	public static final String NUM_CHUNKS = "num-chunks";
 	
 	private static final Map<String, String> DEFALUT_VALUES_ = new HashMap<String, String>();
 	private static final Map<String, String> COMMENTS_ = new HashMap<String, String>();
@@ -65,8 +65,10 @@ public class MorphOptions extends Options {
 		COMMENTS_.put(TYPE_DICT, "Word type dictionary file (optional)");
 		DEFALUT_VALUES_.put(FLOAT_TYPE_DICT, "");
 		COMMENTS_.put(FLOAT_TYPE_DICT, "Word type embeddings file (optional)");
-		DEFALUT_VALUES_.put(NORMALIZE_FORMS, "false");
-		COMMENTS_.put(NORMALIZE_FORMS, "Whether to normalize word forms before tagging.");
+		DEFALUT_VALUES_.put(FORM_NORMALIZATION, "none");
+		COMMENTS_.put(FORM_NORMALIZATION, "Whether to normalize word forms before tagging.");
+		DEFALUT_VALUES_.put(NUM_CHUNKS, "5");
+		COMMENTS_.put(NUM_CHUNKS, "Number of chunks. CrossAnnotator only.");
 	}
 
 	public MorphOptions() {
@@ -141,8 +143,12 @@ public class MorphOptions extends Options {
 		System.err.println();
 	}
 
-	public boolean getNormalizeForms() {
-		return Boolean.parseBoolean(getProperty(NORMALIZE_FORMS));
+	public Mode getNormalizeForms() {
+		return Mode.valueOf(getProperty(FORM_NORMALIZATION));
+	}
+
+	public int getNumChunks() {
+		return Integer.parseInt(getProperty(NUM_CHUNKS));
 	}
 
 }

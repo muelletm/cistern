@@ -42,8 +42,7 @@ public class HashDictionary extends MorphDictionary {
 			if (!line.isEmpty()) {
 				String form = line.get(0);
 
-				if (options.getNormalize())
-					form = StringUtils.normalize(form, true);
+				form = StringUtils.normalize(form, options.getNormalize());
 
 				Set<Integer> indexes = map.get(form);
 
@@ -82,8 +81,7 @@ public class HashDictionary extends MorphDictionary {
 
 	@Override
 	public int[] getIndexes(String form) {
-		if (getOptions().getNormalize())
-			form = StringUtils.normalize(form, true);
+		form = StringUtils.normalize(form, getOptions().getNormalize());
 		return index_map_.get(form);
 	}
 

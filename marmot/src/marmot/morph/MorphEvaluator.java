@@ -39,10 +39,8 @@ public class MorphEvaluator implements Evaluator {
 		MorphModel model = (MorphModel) tagger.getModel();
 		MorphResult result = new MorphResult(tagger);
 
-		if (((MorphOptions)model.getOptions()).getNormalizeForms()) {
-			sentence = (Sentence) SentenceNormalizer.normalizeSentence(sentence);
-		}
-		
+		sentence = (Sentence) SentenceNormalizer.normalizeSentence(sentence, ((MorphOptions)model.getOptions()).getNormalizeForms());
+			
 		for (Token token : sentence) {
 			Word word = (Word) token;
 			model.addIndexes(word, false);

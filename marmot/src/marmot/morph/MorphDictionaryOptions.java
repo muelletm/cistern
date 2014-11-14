@@ -6,6 +6,7 @@ package marmot.morph;
 import java.io.Serializable;
 import java.util.Arrays;
 
+import marmot.util.StringUtils.Mode;
 import marmot.util.Mutable;
 import marmot.util.StringUtils;
 
@@ -14,7 +15,7 @@ public class MorphDictionaryOptions implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	public enum KeyType {
-		normalize,
+		norm,
 		filename,
 		indexes,
 		type,
@@ -30,7 +31,7 @@ public class MorphDictionaryOptions implements Serializable {
 	
 	private String filename_;
 	private int[] indexes_;
-	private boolean normalize_;
+	private Mode norm_;
 	private DictionaryType type_;
 	private boolean reverse_;
 	private int limit_;
@@ -64,8 +65,8 @@ public class MorphDictionaryOptions implements Serializable {
 			case indexes:
 				options.indexes_ = readArrayValue(index, option_string);
 				break;
-			case normalize:
-				options.normalize_ = readBooleanValue(index, option_string);
+			case norm:
+				options.norm_ = readModeValue(index, option_string);
 				break;
 			case limit:
 				options.limit_ = readIntValue(index, option_string);
@@ -89,6 +90,12 @@ public class MorphDictionaryOptions implements Serializable {
 		return options;
 	}
 
+	private static Mode readModeValue(Mutable<Integer> index,
+			String option_string) {
+		String type = readStringValue(index, option_string);
+		return Mode.valueOf(type);
+	}
+
 	private static int readIntValue(Mutable<Integer> index, String option_string) {
 		String type = readStringValue(index, option_string);
 		return Integer.valueOf(type);
@@ -97,7 +104,7 @@ public class MorphDictionaryOptions implements Serializable {
 	private void setDefaultOptions() {
 		int[] indexes = {2,3};
 		indexes_ = indexes;
-		normalize_ = false;
+		norm_ = Mode.none;
 		type_ = DictionaryType.hash;
 		reverse_ = true;
 		dense_ = false;
@@ -176,8 +183,8 @@ public class MorphDictionaryOptions implements Serializable {
 		return filename_;
 	}
 
-	public boolean getNormalize() {
-		return normalize_;
+	public Mode getNormalize() {
+		return norm_;
 	}
 
 	public int[] getIndexes() {
@@ -204,8 +211,8 @@ public class MorphDictionaryOptions implements Serializable {
 		return dense_; 
 	}
 
-	public void setNormalize(boolean normalize) {
-		normalize_ = normalize;
+	public void setNormalize(Mode mode) {
+		norm_ = mode;
 	}
 
 	
