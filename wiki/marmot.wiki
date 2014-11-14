@@ -1,7 +1,7 @@
 #summary MarMoT - MarMoT Morphological Tagger
 #labels CRF,POS,NLP,Morphology,HMM,Tagger
 
-[http://cistern.lmu.de/marmot/marmot.png]
+[http://cistern.cis.lmu.de/marmot/marmot.png]
 
 = Introduction =
 
