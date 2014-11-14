@@ -36,7 +36,7 @@ public class CrossAnnotator {
 
 		Writer writer = null;
 		
-		if (outfile == null) {
+		if (outfile == null || outfile.isEmpty()) {
 			writer = new FakeWriter();
 		} else {
 			writer = new BufferedWriter(new FileWriter(outfile));	
