@@ -26,19 +26,20 @@ import marmot.morph.io.SentenceReader;
 import marmot.util.Counter;
 import marmot.util.LineIterator;
 import marmot.util.StringUtils;
+import marmot.util.StringUtils.Mode;
 
 public class Evaluator {
 
 	private Counter<String> vocab_;
 	private HashDictionary mdict_;
-	private boolean normalize_;
+	private Mode normalize_;
 
-	public Evaluator(String trainfile, boolean normalize) {
+	public Evaluator(String trainfile, Mode normalize) {
 		this(trainfile, normalize , null);
 	}
 
 	
-	public Evaluator(String trainfile, boolean normalize, String mdict) {
+	public Evaluator(String trainfile, Mode normalize, String mdict) {
 		normalize_ = normalize;
 		
 		if (trainfile != null) {
@@ -84,8 +85,8 @@ public class Evaluator {
 		jsap.registerParameter(opt);
 
 		opt = new FlaggedOption("normalize").setRequired(false)
-				.setLongFlag("normalize").setStringParser(JSAP.BOOLEAN_PARSER)
-				.setDefault("false");
+				.setLongFlag("normalize").setStringParser(JSAP.STRING_PARSER)
+				.setDefault("none");
 		jsap.registerParameter(opt);
 		
 		opt = new FlaggedOption("verbose").setRequired(false)
@@ -107,7 +108,7 @@ public class Evaluator {
 			System.exit(1);
 		}
 
-		Evaluator eval = new Evaluator(config.getString("train-file"), config.getBoolean("normalize"), config.getString("mdict"));
+		Evaluator eval = new Evaluator(config.getString("train-file"), Mode.valueOf(config.getString("normalize")), config.getString("mdict"));
 
 		EvalResult result = eval.eval(config.getString("test-file"), config.getInt("rareness"),
 				config.getBoolean("punct"));
@@ -135,9 +136,7 @@ public class Evaluator {
 				String gfeats = line.get(6);
 				String pfeats = line.get(7);
 
-				if (normalize_) {
-					form = StringUtils.normalize(form, false);
-				}
+				form = StringUtils.normalize(form, normalize_);
 				
 				EvalToken token = new EvalToken(form, gpos, ppos, gfeats,
 						pfeats, cats);
@@ -167,9 +166,7 @@ public class Evaluator {
 				Word word = (Word) token;
 				
 				String form = word.getWordForm();
-				if (normalize_) {
-					form = StringUtils.normalize(form, false);
-				}
+				form = StringUtils.normalize(form, normalize_);
 				
 				vocab_.increment(form, 1.0);
 			}
@@ -198,9 +195,7 @@ public class Evaluator {
 				}
 				
 				String form = word.getWordForm();
-				if (normalize_) {
-					form = StringUtils.normalize(form, false);
-				}
+				form = StringUtils.normalize(form, normalize_);
 				
 				EvalToken eval_token = new EvalToken(form, word.getPosTag(), ppos, word.getMorphTag(),
 						pfeats, cats);

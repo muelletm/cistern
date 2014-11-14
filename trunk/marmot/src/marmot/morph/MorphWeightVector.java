@@ -18,6 +18,7 @@ import marmot.core.Token;
 import marmot.core.WeightVector;
 import marmot.core.ZeroFloatFeatureVector;
 import marmot.util.Encoder;
+import marmot.util.StringUtils.Mode;
 import marmot.util.SymbolTable;
 
 public class MorphWeightVector implements WeightVector, FloatWeights {
@@ -82,8 +83,8 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 			MorphDictionaryOptions opt = MorphDictionaryOptions.parse(
 					options.getFloatTypeDict(), false);
 			
-			if (options.getNormalizeForms()) {
-				opt.setNormalize(true);
+			if (opt.getNormalize() == Mode.none) {
+				opt.setNormalize(options.getNormalizeForms());
 			}
 
 			if (opt.getIndexes() == null) {

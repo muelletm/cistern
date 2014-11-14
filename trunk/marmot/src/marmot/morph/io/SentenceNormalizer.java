@@ -14,11 +14,23 @@ import marmot.morph.Word;
 import marmot.util.CapStats;
 import marmot.util.CapStats.CapType;
 import marmot.util.StringUtils;
+import marmot.util.StringUtils.Mode;
 
 public class SentenceNormalizer {
+	
+//	public enum Mode {
+//		none,
+//		bracket,
+//		lower,
+//		umlaut
+//	}
 
-	public static Sequence normalizeSentence(Sequence sentence) {
+	public static Sequence normalizeSentence(Sequence sentence, Mode mode) {
 
+		if (mode == Mode.none) {
+			return sentence;
+		}
+		
 		List<Word> words = new ArrayList<Word>(sentence.size());
 
 		for (Token token : sentence) {
@@ -26,13 +38,7 @@ public class SentenceNormalizer {
 			String form = word.getWordForm();
 			CapType type = CapStats.getCapType(form);
 
-			
-			
-			if (type != null && type != CapType.lower) {
-				
-				
-				//System.err.println(type);
-			
+			if (type != null && type != CapType.lower && Mode.bracket != mode) {
 				String[] features = word.getTokenFeatures();
 				String[] new_features;
 				if (features == null) {
@@ -46,7 +52,7 @@ public class SentenceNormalizer {
 				word.setTokenFeatures(new_features);
 			}
 
-			word.setWordForm(StringUtils.normalize(form, true));
+			word.setWordForm(StringUtils.normalize(form, mode));
 			words.add(word);
 		}
 
@@ -54,12 +60,12 @@ public class SentenceNormalizer {
 	}
 
 	public static Collection<Sequence> normalizeSentences(
-			Collection<Sequence> sentences) {
+			Collection<Sequence> sentences, Mode mode) {
 
 		List<Sequence> list = new ArrayList<Sequence>(sentences.size());
 
 		for (Sequence sequence : sentences) {
-			list.add(normalizeSentence(sequence));
+			list.add(normalizeSentence(sequence, mode));
 		}
 
 		return list;

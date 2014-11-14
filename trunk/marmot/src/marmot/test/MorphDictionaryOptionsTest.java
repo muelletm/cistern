@@ -9,6 +9,7 @@ import java.util.Arrays;
 
 import marmot.morph.MorphDictionaryOptions;
 import marmot.morph.MorphDictionaryOptions.DictionaryType;
+import marmot.util.StringUtils.Mode;
 
 import org.junit.Test;
 
@@ -75,25 +76,25 @@ public class MorphDictionaryOptionsTest {
 		
 		int[] indexes = {1,2,3};
 				
-		option_string = "normalize=true,type=suffix,indexes=[3,1,2],/bla/bla";
+		option_string = "norm=none,type=suffix,indexes=[3,1,2],/bla/bla";
 		options = MorphDictionaryOptions.parse(option_string);
 		assertEquals(options.getFilename(), "/bla/bla");
 		assertTrue(Arrays.equals(options.getIndexes(), indexes));
-		assertTrue(options.getNormalize());
+		assertEquals(options.getNormalize(), Mode.none);
 		assertEquals(options.getDictType(), DictionaryType.suffix);
 		
-		option_string = "type=suffix,normalize=true,/bla/bla,indexes=[3,1,2]";
+		option_string = "type=suffix,norm=lower,/bla/bla,indexes=[3,1,2]";
 		options = MorphDictionaryOptions.parse(option_string);
 		assertEquals(options.getFilename(), "/bla/bla");
 		assertTrue(Arrays.equals(options.getIndexes(), indexes));
-		assertTrue(options.getNormalize());
+		assertEquals(options.getNormalize(), Mode.lower);
 		assertEquals(options.getDictType(), DictionaryType.suffix);
 		
-		option_string = "/bla/bla,indexes=[3,1,2],normalize=true,type=suffix";
+		option_string = "/bla/bla,indexes=[3,1,2],norm=umlaut,type=suffix";
 		options = MorphDictionaryOptions.parse(option_string);
 		assertEquals(options.getFilename(), "/bla/bla");
 		assertTrue(Arrays.equals(options.getIndexes(), indexes));
-		assertTrue(options.getNormalize());
+		assertEquals(options.getNormalize(), Mode.umlaut);
 		assertEquals(options.getDictType(), DictionaryType.suffix);
 		
 	}

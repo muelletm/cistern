@@ -11,22 +11,21 @@ import marmot.core.SimpleTagger;
 import marmot.core.Token;
 import marmot.core.WeightVector;
 import marmot.morph.io.SentenceNormalizer;
+import marmot.util.StringUtils.Mode;
 
 public class MorphTagger extends SimpleTagger {
 
 	private static final long serialVersionUID = 1L;
-	private boolean normalize_forms_;
+	private Mode norm_mode_;
 
 	public MorphTagger(Model model, int order, WeightVector weight_vector) {
 		super(model, order, weight_vector);
-		normalize_forms_ = ((MorphOptions) model.getOptions()).getNormalizeForms();
+		norm_mode_ = ((MorphOptions) model.getOptions()).getNormalizeForms();
 	}
 
 	@Override
 	public List<List<String>> tag(Sequence sequence) {
-		if (normalize_forms_) {
-			sequence = SentenceNormalizer.normalizeSentence(sequence);
-		}
+		sequence = SentenceNormalizer.normalizeSentence(sequence, norm_mode_);
 
 		MorphModel model = (MorphModel) getModel();
 		for (Token token : sequence) {

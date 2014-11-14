@@ -31,9 +31,7 @@ public class SuffixDictionary extends HashDictionary {
 
 		if (indexes == null) {
 			
-			if (getOptions().getNormalize()) {
-				word_form = StringUtils.normalize(word_form, true);
-			}
+			word_form = StringUtils.normalize(word_form, getOptions().getNormalize());
 			
 			if (getOptions().getReverse()) {
 				word_form = StringUtils.reverse(word_form);
@@ -75,8 +73,7 @@ public class SuffixDictionary extends HashDictionary {
 			if (!line.isEmpty()) {
 				String form = line.get(0);
 
-				if (options.getNormalize())
-					form = StringUtils.normalize(form, true);
+				form = StringUtils.normalize(form, options.getNormalize());
 				
 				if (options.getReverse()) {
 					form = StringUtils.reverse(form);

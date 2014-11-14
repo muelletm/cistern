@@ -149,7 +149,7 @@ public class PipelineTest {
 		options.setProperty(Options.PRUNE, "true");
 		options.setProperty(Options.ORDER, "3");
 		options.setProperty(Options.PENALTY, ".1");
-		options.setProperty(MorphOptions.NORMALIZE_FORMS, "true");
+		options.setProperty(MorphOptions.FORM_NORMALIZATION, "lower");
 		options.setProperty(MorphOptions.TRAIN_FILE,
 				"form-index=1,tag-index=4,morph-index=6,token-feature-index=7,trn.txt");
 		options.setProperty(MorphOptions.TEST_FILE,
@@ -167,11 +167,11 @@ public class PipelineTest {
 		options.setProperty(Options.PRUNE, "true");
 		options.setProperty(Options.ORDER, "3");
 		options.setProperty(Options.PENALTY, ".1");
-		options.setProperty(MorphOptions.TAG_MORPH, "false");
 		options.setProperty(MorphOptions.TRAIN_FILE,
-				"form-index=1,tag-index=4,morph-index=6,trn.txt");
+				"form-index=1,tag-index=4,trn.txt");
 		options.setProperty(MorphOptions.TEST_FILE,
-				"form-index=1,tag-index=4,morph-index=6,tst.txt");
+				"form-index=1,tag-index=4,tst.txt");
+		options.setProperty(MorphOptions.TAG_MORPH, "false");
 		realTestWithOptions(options);
 	}
 

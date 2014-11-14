@@ -15,6 +15,7 @@ import java.util.Set;
 
 import marmot.util.CapStats;
 import marmot.util.CapStats.CapType;
+import marmot.util.StringUtils.Mode;
 import marmot.morph.EvalToken;
 import marmot.util.LineIterator;
 import marmot.util.StringUtils;
@@ -66,8 +67,8 @@ public class Transformator {
 		jsap.registerParameter(opt);
 
 		opt = new FlaggedOption("normalize").setRequired(false)
-				.setLongFlag("normalize").setStringParser(JSAP.BOOLEAN_PARSER)
-				.setDefault("false");
+				.setLongFlag("normalize").setStringParser(JSAP.STRING_PARSER)
+				.setDefault("none");
 		jsap.registerParameter(opt);
 
 		opt = new FlaggedOption("add-cap-tags").setRequired(false)
@@ -120,9 +121,7 @@ public class Transformator {
 					tokens.set(opts.getFormIndex(), form.toLowerCase());
 				}
 
-				if (config.getBoolean("normalize")) {
-					tokens.set(opts.getFormIndex(), StringUtils.normalize(form, true));
-				}
+				tokens.set(opts.getFormIndex(), StringUtils.normalize(form, Mode.valueOf(config.getString("normalize"))));
 
 				if (config.getBoolean("move-subpos") && opts.getTagIndex() > -1
 						&& opts.getMorphIndex() > -1) {
