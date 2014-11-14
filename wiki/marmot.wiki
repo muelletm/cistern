@@ -1,7 +1,7 @@
 #summary MarMoT - MarMoT Morphological Tagger
 #labels CRF,POS,NLP,Morphology,HMM,Tagger
 
-[http://www.cis.lmu.de/~muellets/marmot/marmot.png]
+[http://cistern.lmu.de/marmot/marmot.png]
 
 = Introduction =
 
@@ -9,7 +9,7 @@ MarMoT is a generic [http://en.wikipedia.org/wiki/Conditional_random_field Condi
 
 = Download =
 
-To get the latest binary release of MarMoT, please visit MarMoT's [http://www.cis.lmu.de/~muellets/marmot/CURRENT CIS home page].
+To get the latest binary release of MarMoT, please visit MarMoT's [http://cistern.cis.lmu.de/marmot/CURRENT CIS home page].
 
 
 = Quickstart =
