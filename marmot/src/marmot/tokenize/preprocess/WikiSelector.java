@@ -1,8 +1,14 @@
 package marmot.tokenize.preprocess;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
+
+import marmot.tokenize.openlp.Aligner;
+import marmot.tokenize.openlp.LevenshteinAligner;
 
 public class WikiSelector {
 	private int num_sentences_;
@@ -54,17 +60,62 @@ public class WikiSelector {
 		System.err.format("Selected %d sentences.\n", num_selected_sentences);
 	}
 
+	//Method to read selected files and print them together with the aligner results
+	public void testAligner(int num_sentences, String lang) throws IOException {
+		
+		// reading data into string arrays
+		String[] tokenized = new String[num_sentences];
+		String[] untokenized = new String[num_sentences];
+		
+	    BufferedReader br_tok = new BufferedReader(new FileReader(
+	    		"/home/muellets/Desktop/tokenizer_data_sml/"+lang+"/tok_selected.txt"));
+	    BufferedReader br_untok = new BufferedReader(new FileReader(
+	    		"/home/muellets/Desktop/tokenizer_data_sml/"+lang+"/sbd_selected.txt"));
+	    
+	    for(int i=0; i<num_sentences; i++) {
+	    	tokenized[i] = br_tok.readLine();
+	    	if(lang.equals("es") && tokenized[i].contains("_")) {
+	    		//System.out.println(tokenized[i]);
+	    		tokenized[i] = tokenized[i].replace("_", " ");
+	    		
+	    	}
+	    	
+	    	untokenized[i] = br_untok.readLine();
+	    }
+	    
+	    br_tok.close();
+	    br_untok.close();
+	    
+	    // feeding pairs of a sentence to an aligner
+		Aligner a = new LevenshteinAligner();
+	    for(int i=0; i<num_sentences; i++) {	    	
+	    	Viewer v = new Viewer(tokenized[i], untokenized[i], a.align(tokenized[i], untokenized[i]));
+	    	List<String> view = v.getView();
+	    	if(view == null) {
+	    		System.err.println("No alignment done!");
+	    		System.err.println(tokenized[i]);
+	    		System.err.println(untokenized[i]+"\n");
+	    		continue;
+	    	}
+	    	for(String str : view) {
+	    		System.out.println(str);
+	    	}
+	    	System.out.println();
+	    }
+	    System.out.println("Success\n\n\n");
+	    
+	}
+	
 	public static void main(String[] args) throws IOException {
 
 		String[] langs = { "de", "en", "es" };
 
 		for (String lang : langs) {
-
 			String path = "/home/muellets/Desktop/tokenizer_data_sml/" + lang;
 
 			String untok_file = path + "/sbd_full.txt.bz2";
 			String tok_file = path + "/tok_full.txt.bz2";
-			int num_sentences = -1;
+			int num_sentences = 1000;
 			String untok_outfile = path + "/sbd_selected.txt";
 			String tok_outfile = path + "/tok_selected.txt";
 
@@ -72,6 +123,8 @@ public class WikiSelector {
 					lang, num_sentences);
 
 			selector.select(untok_outfile, tok_outfile);
+			
+			selector.testAligner(20, lang);
 
 		}
 
