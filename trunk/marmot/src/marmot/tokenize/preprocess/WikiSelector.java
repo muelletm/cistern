@@ -68,9 +68,11 @@ public class WikiSelector {
 		String[] untokenized = new String[num_sentences];
 		
 	    BufferedReader br_tok = new BufferedReader(new FileReader(
-	    		"/home/muellets/Desktop/tokenizer_data_sml/"+lang+"/tok_selected.txt"));
+	    		//"/home/muellets/Desktop/tokenizer_data_sml/"+lang+"/tok_selected.txt"));
+	    		"data/"+lang+"/tok_selected.txt"));
 	    BufferedReader br_untok = new BufferedReader(new FileReader(
-	    		"/home/muellets/Desktop/tokenizer_data_sml/"+lang+"/sbd_selected.txt"));
+	    		//"/home/muellets/Desktop/tokenizer_data_sml/"+lang+"/sbd_selected.txt"));
+	    		"data/"+lang+"/sbd_selected.txt"));
 	    
 	    for(int i=0; i<num_sentences; i++) {
 	    	tokenized[i] = br_tok.readLine();
@@ -111,8 +113,9 @@ public class WikiSelector {
 		String[] langs = { "de", "en", "es" };
 
 		for (String lang : langs) {
-			String path = "/home/muellets/Desktop/tokenizer_data_sml/" + lang;
-
+			//String path = "/home/muellets/Desktop/tokenizer_data_sml/" + lang;
+			String path = "data/" + lang;
+			
 			String untok_file = path + "/sbd_full.txt.bz2";
 			String tok_file = path + "/tok_full.txt.bz2";
 			int num_sentences = 1000;
