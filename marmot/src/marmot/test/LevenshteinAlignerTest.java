@@ -189,4 +189,26 @@ public class LevenshteinAlignerTest {
 		expected.add(new Pair(2, 6));
 		bothWayTest(tok, untok, expected);
 	}
+	
+	@Test
+	public void realSentenceTest() {
+		//timeout is to expected
+		String tok, untok;
+		
+		tok = "En el siglo VI Fz a . Fz C. el imperio neobabilónico o caldeo se convertía en el imperio más poderoso de la antigüedad , sustituyendo a el poderío asirio .";
+		untok = "En el siglo VI a. C. el imperio neobabilónico o caldeo se convertía en el imperio más poderoso de la antigüedad, sustituyendo al poderío asirio.";
+		expectTimeout(tok, untok);
+		
+		tok = "El rey Nabucodonosor II se constituyó a sí mismo , en el soberano más poderoso de la antigüedad antes de la aparición de el imperio aqueménida y de el aplastante éxito de Alejandro Magno sobre éste .";
+		untok = "El rey Nabucodonosor II se constituyó a sí mismo, en el soberano más poderoso de la antigüedad antes de la aparición del imperio aqueménida y del aplastante éxito de Alejandro Magno sobre éste.";
+		expectTimeout(tok, untok);
+		
+		tok = "Für die Landesstraßen im Gebiet des Landschaftsverbandes Rheinland sind die Bezeichnungen von L 1 bis L 499 vergeben bzw.";
+		untok = "Für die Landesstraßen im Gebiet des Landschaftsverbandes Rheinland sind die Bezeichnungen von L 1 bis L 499 vergeben bzw.";
+		expectTimeout(tok, untok);
+		
+		tok = "vorgesehen , für diejenigen im Gebiet des Landschaftsverbandes Westfalen-Lippe die Bezeichnungen von L 501 bis L 999 .";
+		untok = "vorgesehen, für diejenigen im Gebiet des Landschaftsverbandes Westfalen-Lippe die Bezeichnungen von L 501 bis L 999.";
+		expectTimeout(tok, untok);
+	}
 }
