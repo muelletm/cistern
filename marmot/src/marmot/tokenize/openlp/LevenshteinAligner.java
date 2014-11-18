@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import marmot.util.LevenshteinLattice;
+import marmot.util.StringUtils;
 
 public class LevenshteinAligner implements Aligner {
 
@@ -17,7 +18,17 @@ public class LevenshteinAligner implements Aligner {
 		timeout_ = timeout;
 	}
 	
+	private static final String TIMEOUT_STRING = "<TIMEOUT>";
+	private static final List<Character> TIMEOUT_LIST = new LinkedList<Character>();
+	static {
+		for (int i=TIMEOUT_STRING.length()- 1; i>=0; i--) {
+			TIMEOUT_LIST.add(TIMEOUT_STRING.charAt(i));
+		}
+	}
+	
 	class SpecialLevenshteinLattice extends LevenshteinLattice {
+		
+		
 		private long timeout_;
 		
 		public SpecialLevenshteinLattice(String input, String output, long timeout) {
@@ -83,6 +94,9 @@ public class LevenshteinAligner implements Aligner {
 
 		private List<Character> searchOperationSequence(List<State> states) {
 
+			System.err.println(input_);
+			System.err.println(output_);
+			
 			long time = System.currentTimeMillis();
 			
 			while (!states.isEmpty()) {
@@ -90,7 +104,7 @@ public class LevenshteinAligner implements Aligner {
 				
 				long current_time = System.currentTimeMillis();
 				if (current_time - time > timeout_) {
-					return null;
+					return TIMEOUT_LIST;
 				}
 
 				short op = op_lattice_[state.input_index][state.output_index];
@@ -160,14 +174,22 @@ public class LevenshteinAligner implements Aligner {
 	}
 
 	@Override
-	public List<Pair> align(String input, String output) {
+	public Result align(String input, String output) {
 
+		input = StringUtils.clean(input);
+		output = StringUtils.clean(output);
+		
 		SpecialLevenshteinLattice lattice = new SpecialLevenshteinLattice(
 				input, output, timeout_);
 
 		String operations = lattice.searchOperationSequence();
+		
 		if (operations == null) {
-			return null;
+			return new Result(ResultType.NoAlignmentFound);
+		}
+		
+		if (operations.equals(TIMEOUT_STRING)) {
+			return new Result(ResultType.Timeout);
 		}
 
 		List<Pair> pairs = new LinkedList<Pair>();
@@ -213,7 +235,7 @@ public class LevenshteinAligner implements Aligner {
 			}
 		}
 
-		return pairs;
+		return new Result(ResultType.Standard, pairs);
 	}
 
 }
