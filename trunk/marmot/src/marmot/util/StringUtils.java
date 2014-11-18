@@ -125,4 +125,17 @@ public class StringUtils {
 		return sb.toString();
 	}
 
+	public static String clean(String input) {
+		StringBuilder sb = new StringBuilder();
+		for (int i=0; i<input.length(); i++) {
+			char c = input.charAt(i);
+			if (Character.isWhitespace(c) || c == 160) {
+				c = ' ';
+			} 
+			sb.append(c);
+		}
+		
+		return sb.toString();
+	}
+
 }

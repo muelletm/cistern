@@ -6,6 +6,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import marmot.tokenize.openlp.Aligner;
+import marmot.tokenize.openlp.Aligner.Result;
+import marmot.tokenize.openlp.Aligner.ResultType;
 import marmot.tokenize.openlp.LevenshteinAligner;
 import marmot.tokenize.openlp.Aligner.Pair;
 
@@ -13,12 +15,12 @@ import org.junit.Test;
 
 public class LevenshteinAlignerTest {
 
-	public void bothWayTest(String tok, String untok, List<Pair> expected) {
-		List<Pair> actual;
+	public void bothWayTest(String tok, String untok, List<Pair> expected, long time) {
+		Result actual;
 		Aligner a = new LevenshteinAligner();
 		
 		actual = a.align(untok, tok);
-		assertEquals(expected, actual);
+		assertEquals(expected, actual.pairs);
 		
 		// Reverse problem
 		List<Pair> expected_reversed = new LinkedList<Pair>();
@@ -26,7 +28,11 @@ public class LevenshteinAlignerTest {
 			expected_reversed.add(new Pair(pair.b, pair.a));
 		}
 		actual = a.align(tok, untok);
-		assertEquals(expected_reversed, actual);
+		assertEquals(expected_reversed, actual.pairs);
+	}
+	
+	public void bothWayTest(String tok, String untok, List<Pair> expected) {
+		bothWayTest(tok, untok, expected, 1000);
 	}
 	
 	@Test
@@ -146,14 +152,25 @@ public class LevenshteinAlignerTest {
 		String tok, untok;
 		tok = "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --";
 		untok = "(((((((((((((((())))))))))))))))";
-		expectTimeout(tok, untok);
+		expectTimeout(tok, untok, 1000);
 	}
 	
-	private void expectTimeout(String tok, String untok) {
-		List<Pair> actual;
-		Aligner a = new LevenshteinAligner(1000);
-		actual = a.align(untok, tok);
-		assertEquals(null, actual);
+	private void expectTimeout(String tok, String untok, long time) {
+		expectNoAlign(tok, untok, ResultType.Timeout, time);
+	}
+	
+	private void expectNoAlign(String tok, String untok) {
+		expectNoAlign(tok, untok, ResultType.NoAlignmentFound, 1000);
+	}
+	
+	private void expectNoAlign(String tok, String untok, ResultType type, long time) {
+		Aligner a = new LevenshteinAligner(time);
+		Result actual = a.align(untok, tok);
+		
+		System.err.println(actual);
+		
+		assertEquals(null, actual.pairs);
+		assertEquals(type, actual.result_type);
 	}
 
 	@Test
@@ -194,21 +211,62 @@ public class LevenshteinAlignerTest {
 	public void realSentenceTest() {
 		//timeout is to expected
 		String tok, untok;
+		List<Pair> expected = new LinkedList<>();
 		
-		tok = "En el siglo VI Fz a . Fz C. el imperio neobabilónico o caldeo se convertía en el imperio más poderoso de la antigüedad , sustituyendo a el poderío asirio .";
-		untok = "En el siglo VI a. C. el imperio neobabilónico o caldeo se convertía en el imperio más poderoso de la antigüedad, sustituyendo al poderío asirio.";
-		expectTimeout(tok, untok);
+		tok = "VI Fz Fz C.";
+		untok = "VI C.";
+		expectNoAlign(tok, untok);
 		
-		tok = "El rey Nabucodonosor II se constituyó a sí mismo , en el soberano más poderoso de la antigüedad antes de la aparición de el imperio aqueménida y de el aplastante éxito de Alejandro Magno sobre éste .";
-		untok = "El rey Nabucodonosor II se constituyó a sí mismo, en el soberano más poderoso de la antigüedad antes de la aparición del imperio aqueménida y del aplastante éxito de Alejandro Magno sobre éste.";
-		expectTimeout(tok, untok);
+		tok = "dá me lo";
+		untok = "dámelo";
+		expected.clear();
+		expected.add(new Pair(0,0));
+		expected.add(new Pair(1,1));
+		expected.add(new Pair(-1,2));
+		expected.add(new Pair(2,3));
+		expected.add(new Pair(3,4));
+		expected.add(new Pair(-1,5));
+		expected.add(new Pair(4,6));
+		expected.add(new Pair(5,7));
+		bothWayTest(tok, untok, expected);
+
+		tok = "de el";
+		untok = "deL";
+		expected.clear();
+		expected.add(new Pair(0,0));
+		expected.add(new Pair(1,1));
+		expected.add(new Pair(-1,2));
+		expected.add(new Pair(2,3));
+		expected.add(new Pair(2,4));
+		bothWayTest(tok, untok, expected);
 		
-		tok = "Für die Landesstraßen im Gebiet des Landschaftsverbandes Rheinland sind die Bezeichnungen von L 1 bis L 499 vergeben bzw.";
-		untok = "Für die Landesstraßen im Gebiet des Landschaftsverbandes Rheinland sind die Bezeichnungen von L 1 bis L 499 vergeben bzw.";
-		expectTimeout(tok, untok);
 		
+		tok = "de el";
+		untok = "del";
+		expectNoAlign(tok, untok);
+		
+		// untok contains a weird space character (char value 160 instead of 32)
+		tok = "L 1 bis L 499";
+		untok = "L 1 bis L 499";
+		expected.clear();
+		for (int i=0; i<tok.length(); i++) {
+			expected.add(new Pair(i,i));
+		}
+		bothWayTest(tok, untok, expected);
+		
+		// untok contains a weird space character (char value 160 instead of 32)
 		tok = "vorgesehen , für diejenigen im Gebiet des Landschaftsverbandes Westfalen-Lippe die Bezeichnungen von L 501 bis L 999 .";
 		untok = "vorgesehen, für diejenigen im Gebiet des Landschaftsverbandes Westfalen-Lippe die Bezeichnungen von L 501 bis L 999.";
-		expectTimeout(tok, untok);
+		expected.clear();
+		for (int i=0; i< 10; i++) {
+			expected.add(new Pair(i,i));
+		}
+		expected.add(new Pair(-1, 10));
+		for (int i=10; i< untok.length() - 1; i++) {
+			expected.add(new Pair(i,i + 1));
+		}		
+		expected.add(new Pair(-1, untok.length()));
+		expected.add(new Pair(untok.length() - 1, untok.length() + 1));
+		bothWayTest(tok, untok, expected);
 	}
 }

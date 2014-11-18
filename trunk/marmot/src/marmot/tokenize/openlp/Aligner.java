@@ -4,7 +4,30 @@ import java.util.List;
 
 public interface Aligner {
 
-	class Pair {
+	public enum ResultType {
+		Timeout,
+		NoAlignmentFound,
+		Standard
+	}
+	
+	public class Result {
+		public Result(ResultType result_type) {
+			this(result_type, null);
+		}
+		public Result(ResultType result_type, List<Pair> pairs) {
+			this.result_type = result_type;
+			this.pairs = pairs;
+		}
+		public ResultType result_type;
+		public List<Pair> pairs;
+		
+		@Override
+		public String toString() {
+			return String.format("(%s, %s)", result_type, pairs);
+		}	
+	}
+	
+	public class Pair {
 		public int a;
 		public int b;
 		
@@ -31,5 +54,5 @@ public interface Aligner {
 				
 	}
 	
-	List<Pair> align(String a, String b);
+	Result align(String a, String b);
 }

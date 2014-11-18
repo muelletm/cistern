@@ -4,32 +4,35 @@ import java.util.LinkedList;
 import java.util.List;
 
 import marmot.tokenize.openlp.Aligner.Pair;
+import marmot.tokenize.openlp.Aligner.Result;
 
 public class Viewer {
-	private List<Pair> pairs_;
+	private Result result_;
 	private String tokenized_;
 	private String untokenized_;
 	
-	public Viewer(String tokenized, String untokenized, List<Pair> pairs) {
-		pairs_ = pairs;
+	public Viewer(String tokenized, String untokenized, Result result) {
+		result_ = result;
 		tokenized_ = tokenized;
 		untokenized_ = untokenized;		
 	}
 	
 	public List<String> getView() {
-		if(pairs_ == null) return null;
+		List<Pair> pairs = result_.pairs;
+		
+		if(pairs == null) return null;
 		
 		String tokenized = "|" + tokenized_.charAt(0);
-		String untokenized = pairs_.get(0).b == 0 ? "|" + untokenized_.charAt(0) : "|\\";
+		String untokenized = pairs.get(0).b == 0 ? "|" + untokenized_.charAt(0) : "|\\";
 		
 		String tok_nums = "|0";
-		String untok_nums = "|"+pairs_.get(0).b;
+		String untok_nums = "|"+pairs.get(0).b;
 		
-		int prev = pairs_.get(0).b;
+		int prev = pairs.get(0).b;
 		
-		for(int i=1; i<pairs_.size(); i++) {
-			int a = pairs_.get(i).a;
-			int b = pairs_.get(i).b;
+		for(int i=1; i<pairs.size(); i++) {
+			int a = pairs.get(i).a;
+			int b = pairs.get(i).b;
 			
 			String num_spaces_a = spaceDiff(b, a);
 			String num_spaces_b = spaceDiff(a, b);
