@@ -4,6 +4,7 @@
 package marmot.util;
 
 import java.security.InvalidParameterException;
+import java.text.Normalizer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +61,7 @@ public class StringUtils {
 		BRACKET_MAP.put("-LSB-", '[');
 		BRACKET_MAP.put("-RSB-", ']');
 	}
-	
+
 	public static String normalize(String word, Mode mode) {
 		if (mode == Mode.none) {
 			return word;
@@ -79,7 +80,7 @@ public class StringUtils {
 					index += 4;
 				}
 			}
-			
+
 			if (mode == Mode.lower || mode == Mode.umlaut) {
 				c = Character.toLowerCase(c);
 
@@ -88,7 +89,7 @@ public class StringUtils {
 				}
 
 			}
-			
+
 			if (mode == Mode.umlaut) {
 
 				switch (c) {
@@ -127,15 +128,65 @@ public class StringUtils {
 
 	public static String clean(String input) {
 		StringBuilder sb = new StringBuilder();
-		for (int i=0; i<input.length(); i++) {
+		for (int i = 0; i < input.length(); i++) {
 			char c = input.charAt(i);
 			if (Character.isWhitespace(c) || c == 160) {
 				c = ' ';
-			} 
+			}
 			sb.append(c);
 		}
-		
+
 		return sb.toString();
+	}
+
+	public static boolean containsUpperCase(String word) {
+		for (int i = 0; i < word.length(); i++) {
+			if (Character.isUpperCase(word.charAt(i)))
+				return true;
+		}
+		return false;
+	}
+
+	public static boolean containsLowerCase(String word) {
+		for (int i = 0; i < word.length(); i++) {
+			if (Character.isLowerCase(word.charAt(i)))
+				return true;
+		}
+		return false;
+	}
+
+	public static boolean containsDigit(String word) {
+		for (int i = 0; i < word.length(); i++) {
+			if (Character.isDigit(word.charAt(i)))
+				return true;
+		}
+		return false;
+	}
+
+	public static boolean containsHyphon(String word) {
+		for (int i = 0; i < word.length(); i++) {
+			if (word.charAt(i) == '-')
+				return true;
+		}
+		return false;
+	}
+
+	public static boolean containsSpecial(String word) {
+		for (int i = 0; i < word.length(); i++) {
+			char c = word.charAt(i);
+			if (isSpecial(c))
+				return true;
+		}
+		return false;
+	}
+
+	private static boolean isSpecial(char c) {
+		return !(Character.isLetter(c) || Character.isDigit(c));
+	}
+
+	public static String asciify(String form) {
+		return Normalizer.normalize(form, Normalizer.Form.NFD).replaceAll(
+				"[^\\p{ASCII}]", "");
 	}
 
 }

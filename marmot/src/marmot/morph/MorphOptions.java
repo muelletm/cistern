@@ -29,6 +29,7 @@ public class MorphOptions extends Options {
 	public static final String FLOAT_TYPE_DICT = "type-embeddings";
 	public static final String FORM_NORMALIZATION = "form-normalization";
 	public static final String NUM_CHUNKS = "num-chunks";
+	public static final String SPECIAL_SIGNATURE = "special-signature";
 	
 	private static final Map<String, String> DEFALUT_VALUES_ = new HashMap<String, String>();
 	private static final Map<String, String> COMMENTS_ = new HashMap<String, String>();
@@ -69,7 +70,11 @@ public class MorphOptions extends Options {
 		COMMENTS_.put(FORM_NORMALIZATION, "Whether to normalize word forms before tagging.");
 		DEFALUT_VALUES_.put(NUM_CHUNKS, "5");
 		COMMENTS_.put(NUM_CHUNKS, "Number of chunks. CrossAnnotator only.");
+		DEFALUT_VALUES_.put(SPECIAL_SIGNATURE, "false");
+		COMMENTS_.put(SPECIAL_SIGNATURE, "Whether to mark if a word contains a special character in the word signature.");
 	}
+
+	
 
 	public MorphOptions() {
 		super();
@@ -149,6 +154,10 @@ public class MorphOptions extends Options {
 
 	public int getNumChunks() {
 		return Integer.parseInt(getProperty(NUM_CHUNKS));
+	}
+
+	public boolean getSpecialSignature() {
+		return Boolean.valueOf(getProperty(SPECIAL_SIGNATURE));
 	}
 
 }

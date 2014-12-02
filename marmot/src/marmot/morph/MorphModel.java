@@ -23,11 +23,11 @@ import marmot.core.Token;
 import marmot.core.Trainer;
 import marmot.core.TrainerFactory;
 import marmot.core.WeightVector;
-import marmot.morph.io.SentenceNormalizer;
 import marmot.morph.signature.Trie;
 import marmot.util.Counter;
 import marmot.util.FileUtils;
-import marmot.util.Ling;
+import marmot.util.StringUtils;
+import marmot.util.StringUtils.Mode;
 import marmot.util.SymbolTable;
 
 public class MorphModel extends Model {
@@ -40,7 +40,7 @@ public class MorphModel extends Model {
 	private SymbolTable<String> weighted_token_feature_table_;
 
 	private List<SymbolTable<String>> subtag_tables_;
-	private Map<String, Integer> signature_map;
+	private transient Map<String, Integer> signature_cache;
 
 	private int[] vocab_;
 	private int[][] tag_classes_;
@@ -61,6 +61,8 @@ public class MorphModel extends Model {
 	private boolean split_pos_;
 	private String subtag_seperator_;
 
+	private Mode normalize_forms_;
+
 	public void init(MorphOptions options, Collection<Sequence> sentences) {
 		verbose_ = options.getVerbose();
 		rare_word_max_freq_ = options.getRareWordMaxFreq();
@@ -72,6 +74,8 @@ public class MorphModel extends Model {
 		split_pos_ = options.getSplitPos();
 		split_morphs_ = options.getSplitMorphs();
 		subtag_seperator_ = options.getSubTagSeperator();
+		normalize_forms_ = options.getNormalizeForms();
+		special_signature_ = options.getSpecialSignature();
 
 		init(options, extractCategories(sentences));
 
@@ -94,11 +98,11 @@ public class MorphModel extends Model {
 		if (shape_) {
 			shape_table_ = new SymbolTable<String>();
 		}
-		signature_map = new HashMap<String, Integer>();
+		signature_cache = new HashMap<String, Integer>();
 
 		token_feature_table_ = new SymbolTable<String>();
 		weighted_token_feature_table_ = new SymbolTable<String>();
-		
+
 		if ((shape_)) {
 
 			File file = null;
@@ -144,7 +148,7 @@ public class MorphModel extends Model {
 		for (Sequence sentence : sentences) {
 			for (Token token : sentence) {
 				Word word = (Word) token;
-				addShape(word, true);
+				addShape(word, word.getWordForm(), true);
 			}
 		}
 	}
@@ -275,10 +279,8 @@ public class MorphModel extends Model {
 						int biindex = getBiIndex(word_index, level, tag);
 						observed_set.add(biindex);
 					}
-
 				}
 			}
-
 		}
 
 		return observed_sets;
@@ -429,58 +431,75 @@ public class MorphModel extends Model {
 		return catgegory_table;
 	}
 
-	public void addIndexes(Word word, boolean insert) {
-		String word_form = word.getWordForm();
+	private transient Set<Character> unseen_char_set_;
 
-		int word_index = word_table_.toIndex(word_form, -1, insert);
-		word.setWordIndex(word_index);
+	private boolean special_signature_;
 
-		word.setTagIndexes(getTagIndexes(word, -1, insert));
+	private void addCharIndexes(Word word, String form, boolean insert) {
+		short[] char_indexes = new short[form.length()];
+		for (int index = 0; index < form.length(); index++) {
+			char c = form.charAt(index);
 
-		short[] char_indexes = new short[word_form.length()];
-		for (int index = 0; index < word_form.length(); index++) {
-			char_indexes[index] = (short) char_table_.toIndex(
-					word_form.charAt(index), -1, insert);
+			char_indexes[index] = (short) char_table_.toIndex(c, -1, insert);
 
 			if (char_indexes[index] < 0) {
 				if (verbose_) {
-					System.err.format("Warning: Unknown character: %c\n",
-							word_form.charAt(index));
-				}
-					
-			}
 
+					if (unseen_char_set_ == null) {
+						unseen_char_set_ = new HashSet<>();
+					}
+
+					if (!unseen_char_set_.contains(c)) {
+						System.err
+								.format("Warning: Unknown character: %c\n", c);
+						unseen_char_set_.add(c);
+					}
+				}
+			}
 		}
 		word.setCharIndexes(char_indexes);
+	}
 
-		Integer signature = signature_map.get(word_form);
+	private void addSignature(Word word, String form, boolean insert) {
+		if (signature_cache == null) {
+			signature_cache = new HashMap<String, Integer>();
+		}
+		
+		Integer signature = signature_cache.get(form);
 		if (signature == null) {
 			signature = 0;
-			if (Ling.containsDigit(word_form)) {
+			
+			if (special_signature_) {
+				if (StringUtils.containsSpecial(form)) {
+					signature += 1;
+				}
+				signature *= 2;
+			}
+			
+			if (StringUtils.containsDigit(form)) {
 				signature += 1;
 			}
 			signature *= 2;
-			if (Ling.containsHyphon(word_form)) {
+			if (StringUtils.containsHyphon(form)) {
 				signature += 1;
 			}
 			signature *= 2;
-			if (Ling.containsUpperCase(word_form)) {
+			if (StringUtils.containsUpperCase(form)) {
 				signature += 1;
 			}
 			signature *= 2;
-			if (Ling.containsLowerCase(word_form)) {
+			if (StringUtils.containsLowerCase(form)) {
 				signature += 1;
 			}
-			assert signature >= 0 && signature <= 32 - 1;
 
-			if (insert) {
-				signature_map.put(word_form, signature);
-			}
+			signature_cache.put(form, signature);
 		}
 
 		word.setWordSignature(signature);
+	}
 
-		String[] token_features = word.getTokenFeatures();
+	private void addTokenFeatures(Word word, Word in_word, boolean insert) {
+		String[] token_features = in_word.getTokenFeatures();
 		if (token_features != null && token_feature_table_ != null) {
 			int[] indexes = new int[token_features.length];
 			int index = 0;
@@ -491,20 +510,35 @@ public class MorphModel extends Model {
 			}
 			word.setTokenFeatureIndexes(indexes);
 		}
-		
+
 		token_features = word.getWeightedTokenFeatures();
 		if (token_features != null && weighted_token_feature_table_ != null) {
 			int[] indexes = new int[token_features.length];
 			int index = 0;
 			for (String feature : token_features) {
-				indexes[index] = weighted_token_feature_table_.toIndex(feature, -1,
-						insert);
+				indexes[index] = weighted_token_feature_table_.toIndex(feature,
+						-1, insert);
 				index++;
 			}
 			word.setWeightedTokenFeatureIndexes(indexes);
 		}
-		
-		addShape(word, insert);
+
+	}
+
+	public void addIndexes(Word word, boolean insert) {
+		String word_form = word.getWordForm();
+
+		addTagIndexes(word, -1, insert);
+
+		addSignature(word, word_form, insert);
+		addTokenFeatures(word, word, insert);
+		addShape(word, word_form, insert);
+
+		String normalized_form = StringUtils.normalize(word_form,
+				normalize_forms_);
+		int word_index = word_table_.toIndex(normalized_form, -1, insert);
+		word.setWordIndex(word_index);
+		addCharIndexes(word, normalized_form, insert);
 	}
 
 	private int[] getSubTags(String morph, int level, boolean insert, int offset) {
@@ -555,7 +589,7 @@ public class MorphModel extends Model {
 		return array;
 	}
 
-	private int[] getTagIndexes(Word word, int head, boolean insert) {
+	private void addTagIndexes(Word word, int head, boolean insert) {
 		List<SymbolTable<String>> tag_tables = getTagTables();
 		String pos_tag = word.getPosTag();
 		String morph = word.getMorphTag();
@@ -567,10 +601,10 @@ public class MorphModel extends Model {
 			tag_indexes[1] = tag_tables.get(1).toIndex(morph, -1, insert);
 		}
 
-		return tag_indexes;
+		word.setTagIndexes(tag_indexes);
 	}
 
-	private void addShape(Word word, boolean insert) {
+	private void addShape(Word word, String form, boolean insert) {
 		if (shape_) {
 			int word_index = word.getWordFormIndex();
 
@@ -581,8 +615,7 @@ public class MorphModel extends Model {
 			if (isRare(word_index)) {
 				int shape_index = -1;
 				if (trie_ != null) {
-					String shape = Integer.toString(trie_.classify(word
-							.getWordForm()));
+					String shape = Integer.toString(trie_.classify(form));
 					shape_index = shape_table_.toIndex(shape, -1, insert);
 				}
 				word.setWordShapeIndex(shape_index);
@@ -604,20 +637,14 @@ public class MorphModel extends Model {
 	public static Tagger train(MorphOptions options,
 			Collection<Sequence> train_sentences,
 			Collection<Sequence> test_sentences) {
-		
+
 		if (!options.getVerbose()) {
 			test_sentences = null;
 		}
-	
-		train_sentences = SentenceNormalizer.normalizeSentences(train_sentences, options.getNormalizeForms());
-			
-		if (test_sentences != null) {
-			test_sentences = SentenceNormalizer.normalizeSentences(test_sentences, options.getNormalizeForms());	
-		}
-		
+
 		MorphModel model = new MorphModel();
 		model.init(options, train_sentences);
-		
+
 		if (test_sentences != null) {
 			for (Sequence sentence : test_sentences) {
 				for (Token token : sentence) {
@@ -677,11 +704,10 @@ public class MorphModel extends Model {
 	public SymbolTable<String> getTokenFeatureTable() {
 		return token_feature_table_;
 	}
-	
+
 	public SymbolTable<String> getWeightedTokenFeatureTable() {
 		return weighted_token_feature_table_;
 	}
-
 
 	@Override
 	public int[] getTagCandidates(Sequence sequence, int index, State state) {
@@ -701,5 +727,9 @@ public class MorphModel extends Model {
 	public void setVerbose(boolean verbose) {
 		verbose_ = verbose;
 	}
-	
+
+	public int getMaxSignature() {
+		return (special_signature_) ? 64 : 32; 
+	}
+
 }
