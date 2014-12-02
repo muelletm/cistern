@@ -46,7 +46,7 @@ def replaceArabicMorphTag(tag):
     return tag
 
 BASQUE_REMOVE = ['ENT', 'HIT', 'IZAUR', 'BIZ', 'KLM', 'MAI', 'MTKAT', 'MUG', 'MW', 'NEUR', 'NMG', 'PER', 'PLU', 'ZENB' ]
-FRENCH_REMOVE = ['MWEHEAD', ]
+FRENCH_REMOVE = ['MWEHEAD', 'PRED']
 
 def removeKeyValuePair(kv, remove_set):
     kv = kv.upper()
@@ -90,6 +90,17 @@ def main(spmrl_dir):
 
                         if tokens:
 
+                            cpos = tokens[3]
+                            fpos = tokens[4]
+
+                            if lang_code != 'ko':
+                                pos = cpos + '|' + fpos
+                            else:
+                                pos = cpos.replace('+','|')
+
+                            tokens[3] = '_'
+                            tokens[4] = pos
+
                             if lang_code == 'ar':
                                 tokens[5] = replaceArabicMorphTag(tokens[5])
                             elif lang_code ==  'eu':
@@ -101,15 +112,12 @@ def main(spmrl_dir):
 
                         f_out.write('\n')
 
-        lang_indexes = 'form-index=1,tag-index=4,morph-index=5'
-        if lang_code == 'ko':
-            lang_indexes = 'form-index=1,tag-index=3,morph-index=5'            
-
         lang_dict = ({ "lang" : lang_code,
                        "source-url" : "http://dokufarm.phil.hhu.de/spmrl2013/doku.php",
                        "source" : LANG_SRC[lang_code],
                        "cis-path" : output_file,
-                        "marmot-indexes" : lang_indexes})
+                       "marmot-indexes" : 'form-index=1,tag-index=4,morph-index=5',
+                       "options" : '--split-pos true --form-normalization lower' })
 
         if lang_code == 'ar':
             lang_dict['comment'] = 'Extracted atbpos value. Replaced ., _, :, - and + with |'

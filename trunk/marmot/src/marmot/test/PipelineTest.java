@@ -30,6 +30,7 @@ import marmot.morph.Word;
 import marmot.morph.io.FileOptions;
 import marmot.morph.io.SentenceReader;
 import marmot.util.FileUtils;
+import marmot.util.StringUtils.Mode;
 
 public class PipelineTest {
 
@@ -149,11 +150,29 @@ public class PipelineTest {
 		options.setProperty(Options.PRUNE, "true");
 		options.setProperty(Options.ORDER, "3");
 		options.setProperty(Options.PENALTY, ".1");
-		options.setProperty(MorphOptions.FORM_NORMALIZATION, "lower");
+		options.setProperty(MorphOptions.FORM_NORMALIZATION, Mode.lower.toString());
 		options.setProperty(MorphOptions.TRAIN_FILE,
-				"form-index=1,tag-index=4,morph-index=6,token-feature-index=7,trn.txt");
+				"form-index=1,tag-index=4,morph-index=6,trn.txt");
 		options.setProperty(MorphOptions.TEST_FILE,
-				"form-index=1,tag-index=4,morph-index=6,token-feature-index=7,tst.txt");
+				"form-index=1,tag-index=4,morph-index=6,tst.txt");
+		realTestWithOptions(options);
+	}
+	
+	@Test
+	public void realSpecialSignatureTest() {
+		MorphOptions options = new MorphOptions();
+		options.setProperty(Options.SEED, "42");
+		options.setProperty(Options.NUM_ITERATIONS, "10");
+		options.setProperty(Options.VECTOR_SIZE, "10000000");
+		options.setProperty(Options.CANDIDATES_PER_STATE, "[4, 2, 1.5, 1.25]");
+		options.setProperty(Options.PRUNE, "true");
+		options.setProperty(Options.ORDER, "3");
+		options.setProperty(Options.PENALTY, ".1");
+		options.setProperty(MorphOptions.SPECIAL_SIGNATURE, "true");
+		options.setProperty(MorphOptions.TRAIN_FILE,
+				"form-index=1,tag-index=4,morph-index=6,trn.txt");
+		options.setProperty(MorphOptions.TEST_FILE,
+				"form-index=1,tag-index=4,morph-index=6,tst.txt");
 		realTestWithOptions(options);
 	}
 	

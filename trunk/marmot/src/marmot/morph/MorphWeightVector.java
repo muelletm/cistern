@@ -18,7 +18,6 @@ import marmot.core.Token;
 import marmot.core.WeightVector;
 import marmot.core.ZeroFloatFeatureVector;
 import marmot.util.Encoder;
-import marmot.util.StringUtils.Mode;
 import marmot.util.SymbolTable;
 
 public class MorphWeightVector implements WeightVector, FloatWeights {
@@ -43,6 +42,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 
 	private int simple_sub_morph_start_index_;
 
+	private int signature_bits_;
 	private int word_bits_;
 	private int[] tag_bits_;
 	private int state_feature_bits_;
@@ -83,10 +83,6 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 			MorphDictionaryOptions opt = MorphDictionaryOptions.parse(
 					options.getFloatTypeDict(), false);
 			
-			if (opt.getNormalize() == Mode.none) {
-				opt.setNormalize(options.getNormalizeForms());
-			}
-
 			if (opt.getIndexes() == null) {
 				int[] indexes = { 0 };
 				opt.setIndexes(indexes);
@@ -302,7 +298,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 				encoder_.append(0, order_bits_);
 				encoder_.append(0, level_bits_);
 				encoder_.append(fc, state_feature_bits_);
-				encoder_.append(signature, 4);
+				encoder_.append(signature, signature_bits_);
 				features.add(getFeatureIndex(encoder_
 						.getFeature(extend_feature_set_)));
 				encoder_.reset();
@@ -628,7 +624,9 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 			shape_bits_ = Encoder.bitsNeeded(model_.getNumShapes());
 		order_bits_ = Encoder.bitsNeeded(model.getOrder());
 		level_bits_ = Encoder.bitsNeeded(max_level);
-
+		signature_bits_ = Encoder.bitsNeeded(model_.getMaxSignature());
+		
+		
 		token_feature_bits_ = Encoder.bitsNeeded(model_.getTokenFeatureTable()
 				.size());
 		

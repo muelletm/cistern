@@ -20,16 +20,33 @@ def stats(data, jarfile):
 
     subprocess.check_call(cmd_string.replace('\n',' '), shell=True)
 
+def eval(data, jarfile, dirname):
+
+    lang = data['lang']
+    trainfile = '%s,%s' % (data['marmot-indexes'], data['cis-path'])
+    options = data.get('options', '')
+    logfile = '%s.log' % lang
+
+    cmd_string = """ java -Xmx4g -cp %(jar)s marmot.morph.cmd.CrossAnnotator
+                      -train-file %(train)s 
+                      -verbose true
+                      %(options)s > %(logfile)s 2>&1
+          """ % { 'jar' : jarfile, 'train' : trainfile, 'options' : options, 'logfile' : logfile }
+
+    subprocess.check_call(cmd_string.replace('\n',' '), shell=True)
+
 def train(data, jarfile, dirname):
 
     lang = data['lang']
     modelfile = os.path.join(dirname, '%s.marmot' % lang)
     trainfile = '%s,%s' % (data['marmot-indexes'], data['cis-path'])
+    options = data.get('options', '')
 
     cmd_string = """ java -Xmx4g -cp %(jar)s marmot.morph.cmd.Trainer 
                       -train-file %(train)s 
                       -model-file %(model)s
-          """ % { 'jar' : jarfile, 'train' : trainfile, 'model' : modelfile }
+                      %(options)s
+          """ % { 'jar' : jarfile, 'train' : trainfile, 'model' : modelfile, 'options' : options }
 
     print >> sys.stderr, 'Training %s.' % lang
     sys.stdout.flush()
@@ -76,11 +93,11 @@ def main(args):
         for lang_data in json.load(f):
             print lang_data['lang']
             sys.stdout.flush()
-            stats(lang_data, jarfile)
+            #stats(lang_data, jarfile)
             print
             sys.stdout.flush()
 
-            t = threading.Thread(target=train, args=(lang_data, jarfile, dirname))
+            t = threading.Thread(target=eval, args=(lang_data, jarfile, dirname))
             threads.append(t)
 
     while threads:

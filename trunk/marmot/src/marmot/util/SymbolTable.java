@@ -157,4 +157,8 @@ public class SymbolTable<T> implements Serializable {
 		toIndex(symbol, true);
 	}
 
+	public Set<T> keySet() {
+		return toIndex.keySet();
+	}
+
 }
