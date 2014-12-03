@@ -23,6 +23,7 @@ import marmot.core.Token;
 import marmot.core.Trainer;
 import marmot.core.TrainerFactory;
 import marmot.core.WeightVector;
+import marmot.morph.analyzer.Analyzer;
 import marmot.morph.signature.Trie;
 import marmot.util.Counter;
 import marmot.util.FileUtils;
@@ -62,6 +63,8 @@ public class MorphModel extends Model {
 	private String subtag_seperator_;
 
 	private Mode normalize_forms_;
+	
+	private Analyzer analyzer_;
 
 	public void init(MorphOptions options, Collection<Sequence> sentences) {
 		verbose_ = options.getVerbose();
@@ -103,6 +106,11 @@ public class MorphModel extends Model {
 		token_feature_table_ = new SymbolTable<String>();
 		weighted_token_feature_table_ = new SymbolTable<String>();
 
+		String internal_analyzer = options.getInternalAnalyzer();
+		if (internal_analyzer != null) {
+			analyzer_ = Analyzer.create(internal_analyzer); 
+		}
+		
 		if ((shape_)) {
 
 			File file = null;
@@ -446,7 +454,7 @@ public class MorphModel extends Model {
 				if (verbose_) {
 
 					if (unseen_char_set_ == null) {
-						unseen_char_set_ = new HashSet<>();
+						unseen_char_set_ = new HashSet<Character>();
 					}
 
 					if (!unseen_char_set_.contains(c)) {
@@ -500,16 +508,45 @@ public class MorphModel extends Model {
 
 	private void addTokenFeatures(Word word, Word in_word, boolean insert) {
 		String[] token_features = in_word.getTokenFeatures();
-		if (token_features != null && token_feature_table_ != null) {
-			int[] indexes = new int[token_features.length];
+		
+		List<String> readings = null;
+		if (analyzer_ != null) {
+			readings = analyzer_.analyze(in_word.getWordForm());
+		}
+		
+		int indexes_length = 0;
+		
+		if (token_features != null) {
+			indexes_length += token_features.length;
+		}
+		
+		if (readings != null) {
+			indexes_length += readings.size();
+		}
+		
+		if (indexes_length > 0) {
+			int[] indexes = new int[indexes_length];
 			int index = 0;
-			for (String feature : token_features) {
-				indexes[index] = token_feature_table_.toIndex(feature, -1,
-						insert);
-				index++;
+			
+			if (token_features != null) {
+				for (String feature : token_features) {
+					indexes[index] = token_feature_table_.toIndex(feature, -1,
+							insert);
+					index++;
+				}	
 			}
+			
+			if (readings != null) {
+				for (String feature : readings) {
+					indexes[index] = token_feature_table_.toIndex(feature, -1,
+							insert);
+					index++;
+				}	
+			}
+			
 			word.setTokenFeatureIndexes(indexes);
 		}
+		
 
 		token_features = word.getWeightedTokenFeatures();
 		if (token_features != null && weighted_token_feature_table_ != null) {
