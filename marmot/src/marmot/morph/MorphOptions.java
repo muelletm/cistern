@@ -30,6 +30,7 @@ public class MorphOptions extends Options {
 	public static final String FORM_NORMALIZATION = "form-normalization";
 	public static final String NUM_CHUNKS = "num-chunks";
 	public static final String SPECIAL_SIGNATURE = "special-signature";
+	public static final String INTERNAL_ANALYZER = "internal-analyzer";
 	
 	private static final Map<String, String> DEFALUT_VALUES_ = new HashMap<String, String>();
 	private static final Map<String, String> COMMENTS_ = new HashMap<String, String>();
@@ -72,6 +73,8 @@ public class MorphOptions extends Options {
 		COMMENTS_.put(NUM_CHUNKS, "Number of chunks. CrossAnnotator only.");
 		DEFALUT_VALUES_.put(SPECIAL_SIGNATURE, "false");
 		COMMENTS_.put(SPECIAL_SIGNATURE, "Whether to mark if a word contains a special character in the word signature.");
+		DEFALUT_VALUES_.put(INTERNAL_ANALYZER, "");
+		COMMENTS_.put(INTERNAL_ANALYZER, "Use an internal morphological analyzer. Currently supported: 'ar' for AraMorph (Arabic)");
 	}
 
 	
@@ -158,6 +161,16 @@ public class MorphOptions extends Options {
 
 	public boolean getSpecialSignature() {
 		return Boolean.valueOf(getProperty(SPECIAL_SIGNATURE));
+	}
+	
+	public String getInternalAnalyzer() {
+		String prop = getProperty(INTERNAL_ANALYZER);
+		
+		if (prop.isEmpty()) {
+			return null;
+		}
+		
+		return prop;
 	}
 
 }

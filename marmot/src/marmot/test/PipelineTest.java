@@ -246,6 +246,37 @@ public class PipelineTest {
 				"form-index=1,tag-index=4,morph-index=6,token-feature-index=7,test_fst.txt");
 		realTestWithOptions(options);
 	}
+	
+	@Test
+	public void realAramorphBaselineTest() {
+		MorphOptions options = new MorphOptions();
+		options.setProperty(Options.SEED, "0");
+		options.setProperty(Options.NUM_ITERATIONS, "10");
+		options.setProperty(Options.VECTOR_SIZE, "10000000");
+		options.setProperty(Options.CANDIDATES_PER_STATE, "[4, 2, 1.5, 1.25]");
+		options.setProperty(Options.PRUNE, "true");
+		options.setProperty(Options.ORDER, "3");
+		options.setProperty(Options.PENALTY, ".1");
+		options.setProperty(MorphOptions.TRAIN_FILE,
+				"form-index=1,tag-index=4,morph-index=6,trn.aramorph.txt");
+		options.setProperty(MorphOptions.TEST_FILE,
+				"form-index=1,tag-index=4,morph-index=6,tst.aramorph.txt");
+		//realTestWithOptions(options);
+		
+		options.setProperty(MorphOptions.TRAIN_FILE,
+				"form-index=1,tag-index=4,morph-index=6,token-feature-index=7,trn.aramorph.txt");
+		options.setProperty(MorphOptions.TEST_FILE,
+				"form-index=1,tag-index=4,morph-index=6,token-feature-index=7,tst.aramorph.txt");
+		//realTestWithOptions(options);
+
+		options.setProperty(MorphOptions.INTERNAL_ANALYZER, "ar");
+		options.setProperty(MorphOptions.TRAIN_FILE,
+				"form-index=1,tag-index=4,morph-index=6,trn.aramorph.txt");
+		options.setProperty(MorphOptions.TEST_FILE,
+				"form-index=1,tag-index=4,morph-index=6,tst.aramorph.txt");
+		realTestWithOptions(options);
+	}
+
 
 	@Test
 	public void realFstMaxLevelTest() {
