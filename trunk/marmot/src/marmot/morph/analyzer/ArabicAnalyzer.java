@@ -2,7 +2,6 @@ package marmot.morph.analyzer;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -13,11 +12,9 @@ public class ArabicAnalyzer extends Analyzer {
 
 	private static final long serialVersionUID = 1L;
 	transient private AraMorph aramorph_;
-	private boolean romanize_;
 	private boolean subfeatures_;
 	
-	public ArabicAnalyzer(boolean romanize, boolean subfeatures) {
-		romanize_ = romanize;
+	public ArabicAnalyzer(boolean subfeatures) {
 		aramorph_ = null;
 		subfeatures_ = subfeatures;
 	}
@@ -28,62 +25,23 @@ public class ArabicAnalyzer extends Analyzer {
 			aramorph_ = new AraMorph();
 		}
 		
-		if (!romanize_) {
-			form = AraMorph.arabizeWord(form);
-		}
-
 		Set<Solution> solutions = aramorph_.analyzeToken(form);
 
 		if (solutions == null || solutions.isEmpty()) {
 			return null;
 		}
 
-		List<String> feats = new LinkedList<String>();
 		StringBuilder sb = new StringBuilder();
 
 		Set<String> set = new HashSet<String>();
 		
 		for (Solution solution : solutions) {
-			feats.clear();
 			sb.setLength(0);
 
-			if (solution.getPrefixesLongPOS() != null) {
-				for (String feat : solution.getPrefixesLongPOS())
-					feats.add(feat);
-			} else {
-				feats.add("NoPrefixLongPOS");
-			}
-
-			if (solution.getStemLongPOS() != null) {
-				feats.add(solution.getStemLongPOS());
-			} else {
-				feats.add("NoStemLongPos");
-			}
+			List<String> feats = solution.getFeatures();
 			
-
-			if (solution.getSuffixesLongPOS() != null) {
-				for (String feat : solution.getSuffixesLongPOS())
-					feats.add(feat);
-			}else {
-				feats.add("NoSuffixLongPOS");
-			}
-
 			for (String feat : feats) {
 				
-				int index;
-				
-				// Process features such as mutamar~id NOUN.
-				index = feat.lastIndexOf('\t');
-				if (index >= 0) {
-					feat = feat.substring(index + 1);
-				}
-
-				// Process features such as NSuff-iyna.			
-				index = feat.indexOf("-");
-				if (index >= 0) {
-					feat = feat.substring(0, index);
-				}
-
 				if (!feat.isEmpty()) {
 					if (sb.length() > 0) {
 						sb.append('|');
