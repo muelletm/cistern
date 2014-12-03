@@ -89,7 +89,7 @@ public class WikiSelector {
 	    br_untok.close();
 	    
 	    // feeding pairs of a sentence to an aligner
-		Aligner a = new LevenshteinAligner();
+		Aligner a = new LevenshteinAligner(lang);
 	    for(int i=0; i<num_sentences; i++) {	    	
 	    	Viewer v = new Viewer(tokenized[i], untokenized[i], a.align(tokenized[i], untokenized[i]));
 	    	List<String> view = v.getView();
