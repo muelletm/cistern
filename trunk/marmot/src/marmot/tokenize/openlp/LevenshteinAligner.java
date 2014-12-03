@@ -5,22 +5,17 @@ import java.util.List;
 
 import marmot.util.LevenshteinLattice;
 import marmot.util.StringUtils;
-import marmot.tokenize.preprocess.LanguageNormalizer;
 
 public class LevenshteinAligner implements Aligner {
 
 	private long timeout_ = 1000;
-	private LanguageNormalizer norm_; // instance of normalizer-class
-	private String lang_; 			  // language in which this aligner works
 	
-	public LevenshteinAligner(String lang) { // adding language identifier
-		this(1000, lang);
+	public LevenshteinAligner() {
+		this(1000);
 	}
 	
-	public LevenshteinAligner(long timeout, String lang) { // adding language identifier
+	public LevenshteinAligner(long timeout) {
 		timeout_ = timeout;
-		norm_ = new LanguageNormalizer(); // initializing normalizer-class
-		lang_ = lang;					  // assigning language identifier	
 	}
 	
 	private static final String TIMEOUT_STRING = "<TIMEOUT>";
@@ -180,7 +175,6 @@ public class LevenshteinAligner implements Aligner {
 
 	@Override
 	public Result align(String input, String output) {
-		input = norm_.normalize(input, lang_); // normalizing tokenized input before alignment
 		input = StringUtils.clean(input);
 		output = StringUtils.clean(output);
 		
@@ -239,7 +233,6 @@ public class LevenshteinAligner implements Aligner {
 				break;
 			}
 		}
-
 		return new Result(ResultType.Standard, pairs);
 	}
 
