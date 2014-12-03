@@ -11,7 +11,7 @@ public abstract class Analyzer implements Serializable {
 	
 	public static Analyzer create(String lang) {
 		if (lang.equals("ar")) {
-			return new ArabicAnalyzer(true, true);
+			return new ArabicAnalyzer(true);
 		}
 		throw new RuntimeException("Unknown language: " + lang);
 	}

@@ -250,7 +250,7 @@ public class PipelineTest {
 	@Test
 	public void realAramorphBaselineTest() {
 		MorphOptions options = new MorphOptions();
-		options.setProperty(Options.SEED, "0");
+		options.setProperty(Options.SEED, "42");
 		options.setProperty(Options.NUM_ITERATIONS, "10");
 		options.setProperty(Options.VECTOR_SIZE, "10000000");
 		options.setProperty(Options.CANDIDATES_PER_STATE, "[4, 2, 1.5, 1.25]");
