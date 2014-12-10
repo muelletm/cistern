@@ -7,12 +7,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
+import opennlp.tools.formats.Conll02NameSampleStream.LANGUAGE;
 import marmot.tokenize.openlp.Aligner;
 import marmot.tokenize.openlp.LevenshteinAligner;
+import marmot.tokenize.openlp.SplitRules;
 
 public class WikiSelector {
 	private int num_sentences_;
 	private WikiReader reader;
+	private SplitRules split_rules;
 
 	public WikiSelector(String untokenizedFile, String tokenizedFile,
 			String lang, int max_sentences) {
@@ -24,6 +27,7 @@ public class WikiSelector {
 		}
 
 		reader = new WikiReader(untokenizedFile, tokenizedFile, expand);
+		split_rules = new SplitRules();
 	}
 
 	public void select(String untok, String tok) throws IOException {
@@ -75,14 +79,18 @@ public class WikiSelector {
 	    		"data/"+lang+"/sbd_selected.txt"));
 	    
 	    for(int i=0; i<num_sentences; i++) {
-	    	tokenized[i] = br_tok.readLine();
-	    	if(lang.equals("es") && tokenized[i].contains("_")) {
+	    	//tokenized[i] = br_tok.readLine();
+	    	String tmp = br_tok.readLine(); 
+	    	if(lang.equals("es") && tmp.contains("_")) {
 	    		//System.out.println(tokenized[i]);
-	    		tokenized[i] = tokenized[i].replace("_", " ");
-	    		
+	    		//tokenized[i] = tokenized[i].replace("_", " ");
+	    		tmp = tmp.replace("_", " ");
 	    	}
 	    	
-	    	untokenized[i] = br_untok.readLine();
+	    	//untokenized[i] = br_untok.readLine();
+	    	String[] line = split_rules.applyRules(br_untok.readLine(), tmp);
+	    	untokenized[i] = line[0];
+	    	tokenized[i] = line[1];
 	    }	    
 
 	    br_tok.close();
