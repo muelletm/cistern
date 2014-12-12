@@ -10,7 +10,7 @@ import java.util.List;
 
 
 public class SyntaxTree {
-	private static final char SEPERATOR = '\t';
+	private static final char SEPARATOR = '\t';
 	private List<Node> nodes_;
 
 	public SyntaxTree() {
@@ -30,21 +30,21 @@ public class SyntaxTree {
 		
 		for (Node node : nodes_) {
 			writer.write(Integer.toString(index));
-			writer.write(SEPERATOR);
+			writer.write(SEPARATOR);
 			writer.write(node.getForm());
-			writer.write(SEPERATOR);
+			writer.write(SEPARATOR);
 			writer.write(node.getLemma());
-			writer.write(SEPERATOR);
+			writer.write(SEPARATOR);
 			assert !node.getMorphTag().toPosString().isEmpty();
 			writer.write(node.getMorphTag().toPosString());
-			writer.write(SEPERATOR);
+			writer.write(SEPARATOR);
 			writer.write(node.getMorphTag().toPosString());
-			writer.write(SEPERATOR);
+			writer.write(SEPARATOR);
 			assert !node.getMorphTag().toHumanMorphString().isEmpty();
 			writer.write(node.getMorphTag().toHumanMorphString());
-			writer.write(SEPERATOR);
+			writer.write(SEPARATOR);
 			writer.write(Integer.toString(node.getHeadIndex()));
-			writer.write(SEPERATOR);
+			writer.write(SEPARATOR);
 			writer.write(node.getDeprel());
 			writer.write('\n');
 			index ++;

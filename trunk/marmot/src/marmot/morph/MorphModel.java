@@ -60,7 +60,7 @@ public class MorphModel extends Model {
 
 	private boolean split_morphs_;
 	private boolean split_pos_;
-	private String subtag_seperator_;
+	private String subtag_separator_;
 
 	private Mode normalize_forms_;
 	
@@ -76,7 +76,7 @@ public class MorphModel extends Model {
 		tag_morph_ = options.getTagMorph();
 		split_pos_ = options.getSplitPos();
 		split_morphs_ = options.getSplitMorphs();
-		subtag_seperator_ = options.getSubTagSeperator();
+		subtag_separator_ = options.getSubTagSeparator();
 		normalize_forms_ = options.getNormalizeForms();
 		special_signature_ = options.getSpecialSignature();
 
@@ -597,7 +597,7 @@ public class MorphModel extends Model {
 			return null;
 		}
 
-		String[] sub_tags = morph.split(subtag_seperator_);
+		String[] sub_tags = morph.split(subtag_separator_);
 
 		if (sub_tags.length == 1) {
 			return null;
@@ -767,6 +767,11 @@ public class MorphModel extends Model {
 
 	public int getMaxSignature() {
 		return (special_signature_) ? 64 : 32; 
+	}
+
+	public static Tagger train(MorphOptions options,
+			List<Sequence> train_sequences) {
+		return train(options, train_sequences, null);
 	}
 
 }

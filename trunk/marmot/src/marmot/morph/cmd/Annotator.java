@@ -24,7 +24,7 @@ import marmot.util.FileUtils;
 
 public class Annotator {
 	
-	private static final char SEPERATOR_ = '\t';
+	private static final char SEPARATOR_ = '\t';
 	private static final String EMPTY_ = "_";
 	
 	public static void main(String[] args) {
@@ -108,47 +108,27 @@ public class Annotator {
 			Word word = sentence.getWord(i);
 			
 			writer.append(Integer.toString(i + 1));
-			writer.append(SEPERATOR_);
+			writer.append(SEPARATOR_);
 			writer.append(word.getWordForm());
 			
 			// Lemma
-			writer.append(SEPERATOR_);
+			writer.append(SEPARATOR_);
 			writer.append(EMPTY_);
-			writer.append(SEPERATOR_);
+			writer.append(SEPARATOR_);
 			writer.append(EMPTY_);
 			
 			// Pos
-			writer.append(SEPERATOR_);
+			writer.append(SEPARATOR_);
 			writer.append((word.getPosTag() != null ) ? word.getPosTag() : EMPTY_ );
-			writer.append(SEPERATOR_);
+			writer.append(SEPARATOR_);
 			writer.append(tags.get(i).get(0));
 			
 			// Feat
-			writer.append(SEPERATOR_);
+			writer.append(SEPARATOR_);
 			writer.append((word.getMorphTag() != null ) ? word.getMorphTag() : EMPTY_);
-			writer.append(SEPERATOR_);
+			writer.append(SEPARATOR_);
 			writer.append((tags.get(i).size() > 1) ? tags.get(i).get(1) : EMPTY_);
 
-//			// Head
-//			writer.append(SEPERATOR_);
-//			writer.append(EMPTY_);
-//			writer.append(SEPERATOR_);
-//			writer.append(EMPTY_);
-//			
-//			// Deprel
-//			writer.append(SEPERATOR_);
-//			writer.append(EMPTY_);
-//			writer.append(SEPERATOR_);
-//			writer.append(EMPTY_);
-//
-//			// Predicate
-//			writer.append(SEPERATOR_);
-//			writer.append(EMPTY_);
-//			
-//			// Yield
-//			writer.append(SEPERATOR_);
-//			writer.append(EMPTY_);
-				
 			writer.append('\n');
 		}
 		writer.append('\n');

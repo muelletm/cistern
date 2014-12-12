@@ -52,7 +52,7 @@ public class FeaturePrinter {
 	private static void printFeatures(MorphModel model, MorphOptions options,
 			MorphWeightVector weights, String filename, String out_filename)
 			throws IOException {
-		String seperator = "\t";
+		String separator = "\t";
 		BufferedWriter writer = new BufferedWriter(new FileWriter(out_filename));
 
 		for (Sequence sentence : new SentenceReader(filename)) {
@@ -78,7 +78,7 @@ public class FeaturePrinter {
 				
 				for (int findex = 0; findex < vector.size(); findex ++) {
 					int feature = vector.get(findex);
-					writer.write(seperator);
+					writer.write(separator);
 					writer.write(toString(feature));
 				}
 				writer.write('\n');
