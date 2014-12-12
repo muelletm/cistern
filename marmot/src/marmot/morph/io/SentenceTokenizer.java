@@ -17,7 +17,7 @@ import marmot.morph.Word;
 
 public class SentenceTokenizer {
 
-	private static final char SEPERATOR_ = '\t';
+	private static final char SEPARATOR_ = '\t';
 	private static final String EMPTY_ = "_";
 
 	public static List<Sequence> resegment(List<Sequence> sentences,
@@ -65,14 +65,14 @@ public class SentenceTokenizer {
 				Word word = sentence.getWord(i);
 
 				writer.append(Integer.toString(i + 1));
-				writer.append(SEPERATOR_);
+				writer.append(SEPARATOR_);
 				writer.append(word.getWordForm());
 
-				writer.append(SEPERATOR_);
+				writer.append(SEPARATOR_);
 				writer.append((word.getPosTag() != null) ? word.getPosTag()
 						: EMPTY_);
 
-				writer.append(SEPERATOR_);
+				writer.append(SEPARATOR_);
 				writer.append((word.getMorphTag() != null) ? word.getMorphTag()
 						: EMPTY_);
 				
