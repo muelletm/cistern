@@ -148,25 +148,24 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 	}
 
 	@Override
-	public FeatureVector extractStateFeatures(Sequence sentence, int token_index) {
+	public FeatureVector extractStateFeatures(Sequence sequence, int token_index) {
 		prepareEncoder();
-		Token word = sentence.get(token_index);
-		Word token = (Word) word;
+		Word word = (Word) sequence.get(token_index);
 
 		int[] mdict_indexes = null;
 		if (mdict_ != null) {
-			mdict_indexes = mdict_.getIndexes(token.getWordForm());
+			mdict_indexes = mdict_.getIndexes(word.getWordForm());
 		}
 
-		short[] chars = token.getCharIndexes();
+		short[] chars = word.getCharIndexes();
 		assert chars != null;
-		int form_index = token.getWordFormIndex();
+		int form_index = word.getWordFormIndex();
 		boolean is_rare = model_.isRare(form_index);
 		MorphFeatureVector features = new MorphFeatureVector(
 				NUM_STATE_FEATURES_
 						+ 2
-						+ ((token.getTokenFeatureIndexes() == null) ? 0
-								: token.getTokenFeatureIndexes().length)
+						+ ((word.getTokenFeatureIndexes() == null) ? 0
+								: word.getTokenFeatureIndexes().length)
 						+ ((mdict_indexes == null) ? 0 : mdict_indexes.length));
 		int fc = 0;
 
@@ -194,7 +193,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 			fc++;
 
 			if (token_index - 1 >= 0) {
-				int pform_index = ((Word) sentence.get(token_index - 1))
+				int pform_index = ((Word) sequence.get(token_index - 1))
 						.getWordFormIndex();
 				if (pform_index >= 0) {
 					encoder_.append(0, order_bits_);
@@ -215,7 +214,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 				int pshape_index = -1;
 
 				if (shape_) {
-					pshape_index = ((Word) sentence.get(token_index - 1))
+					pshape_index = ((Word) sequence.get(token_index - 1))
 							.getWordShapeIndex();
 				}
 
@@ -235,8 +234,8 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 			fc++;
 			fc++;
 
-			if (token_index + 1 < sentence.size()) {
-				int nform_index = ((Word) sentence.get(token_index + 1))
+			if (token_index + 1 < sequence.size()) {
+				int nform_index = ((Word) sequence.get(token_index + 1))
 						.getWordFormIndex();
 
 				if (nform_index >= 0) {
@@ -257,7 +256,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 
 				int nshape_index = -1;
 				if (shape_) {
-					nshape_index = ((Word) sentence.get(token_index + 1))
+					nshape_index = ((Word) sequence.get(token_index + 1))
 							.getWordShapeIndex();
 				}
 				if (nshape_index >= 0) {
@@ -279,7 +278,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 
 			int shape_index = -1;
 			if (shape_) {
-				shape_index = token.getWordShapeIndex();
+				shape_index = word.getWordShapeIndex();
 			}
 
 			if (is_rare && shape_index >= 0) {
@@ -294,7 +293,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 			fc++;
 
 			if (is_rare) {
-				int signature = token.getWordSignature();
+				int signature = word.getWordSignature();
 				encoder_.append(0, order_bits_);
 				encoder_.append(0, level_bits_);
 				encoder_.append(fc, state_feature_bits_);
@@ -349,7 +348,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 			fc++;
 		}
 
-		int[] token_feature_indexes = token.getTokenFeatureIndexes();
+		int[] token_feature_indexes = word.getTokenFeatureIndexes();
 		if (token_feature_indexes != null) {
 			
 			for (int token_feature_index : token_feature_indexes) {
@@ -369,15 +368,15 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 
 		if (fdict_ != null) {
 
-			FloatFeatureVector vector = extractFloatFeatures(sentence, token_index);
+			FloatFeatureVector vector = extractFloatFeatures(sequence, token_index);
 			features.setFloatVector(vector);
 
 		} else {
-			token_feature_indexes = token.getWeightedTokenFeatureIndexes();
+			token_feature_indexes = word.getWeightedTokenFeatureIndexes();
 			if (token_feature_indexes != null) {
 
 				features.setFloatVector(new ArrayFloatFeatureVector(
-						token_feature_indexes, token
+						token_feature_indexes, word
 								.getWeightedTokenFeatureWeights(), model_
 								.getWeightedTokenFeatureTable().size()));
 			}
