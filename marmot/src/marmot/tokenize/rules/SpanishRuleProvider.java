@@ -1,28 +1,27 @@
 package marmot.tokenize.rules;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Matcher;
-
-import marmot.tokenize.openlp.SplitRules;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.regex.Pattern;
 
 public class SpanishRuleProvider extends RuleProvider {
 
 	@Override
-	public Map<Matcher, Matcher> getTokRules() {
-		Map<Matcher, Matcher> tok_rules = new HashMap<Matcher, Matcher>();
-		SplitRules.addRule("Fz", "", tok_rules);
-		return tok_rules;
+	public Collection<Rule> getTokRules() {
+		List<Rule> rules = new LinkedList<Rule>();
+		rules.add(new Rule(Pattern.compile("\\w( Fz)") ,""));
+		rules.add(new Rule(Pattern.compile("\\w(_)\\w") ," "));
+		return rules;
 	}
 
 	@Override
-	public Map<Matcher, Matcher> getUnTokRules() {
-		Map<Matcher, Matcher> untok_rules = new HashMap<Matcher, Matcher>();
-		SplitRules.addRule("del", "de el", untok_rules);
-		SplitRules.addRule("al", "a el", untok_rules);
-		return untok_rules;
+	public Collection<Rule> getUnTokRules() {
+		List<Rule> rules = new LinkedList<Rule>();
+		
+		addSimpleRule("del", "de el", rules);
+		addSimpleRule("al", "a el", rules);
+		return rules;
 	}
-
-	
 
 }

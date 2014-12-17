@@ -9,12 +9,14 @@ import java.util.List;
 
 import marmot.tokenize.openlp.Aligner;
 import marmot.tokenize.openlp.LevenshteinAligner;
-import marmot.tokenize.openlp.SplitRules;
+import marmot.tokenize.rules.RuleProvider;
+import marmot.tokenize.rules.RulebasedTransformator;
 
 public class WikiSelector {
 	private int num_sentences_;
-	private WikiReader reader;
-	private SplitRules split_rules;
+	private WikiReader reader_;
+	private RulebasedTransformator tok_transformator_;
+	private RulebasedTransformator untok_transformator_;
 
 	public WikiSelector(String untokenizedFile, String tokenizedFile,
 			String lang, int max_sentences) {
@@ -25,8 +27,16 @@ public class WikiSelector {
 			expand = true;
 		}
 
-		reader = new WikiReader(untokenizedFile, tokenizedFile, expand);
-		split_rules = new SplitRules();
+		reader_ = new WikiReader(untokenizedFile, tokenizedFile, expand);
+		
+		RuleProvider provider = RuleProvider.createRuleProvider(lang);
+		if (provider == null) {
+			tok_transformator_ = null;
+			untok_transformator_ = null;
+		} else {
+			tok_transformator_ = provider.getTokTransformator();
+			untok_transformator_ = provider.getUnTokTransformator();
+		}		
 	}
 
 	public void select(String untok, String tok) throws IOException {
@@ -37,8 +47,8 @@ public class WikiSelector {
 		int num_selected_sentences = 0;
 
 		while ((num_sentences_ < 0 || num_selected_sentences < num_sentences_)
-				&& reader.hasNext()) {
-			Pair pair = reader.next();
+				&& reader_.hasNext()) {
+			Pair pair = reader_.next();
 
 			int num_tokens = pair.tokenized.split("\\s+").length;
 
@@ -64,29 +74,27 @@ public class WikiSelector {
 	}
 
 	//Method to read selected files and print them together with the aligner results
-	public void testAligner(int num_sentences, String lang) throws IOException {
+	public void testAligner(String tokfile, String untokfile, int num_sentences, String lang) throws IOException {
 		
 		// reading data into string arrays
 		String[] tokenized = new String[num_sentences];
 		String[] untokenized = new String[num_sentences];
 		
-	    BufferedReader br_tok = new BufferedReader(new FileReader(
-	    		//"/home/muellets/Desktop/tokenizer_data_sml/"+lang+"/tok_selected.txt"));
-	    		"data/"+lang+"/tok_selected.txt"));
-	    BufferedReader br_untok = new BufferedReader(new FileReader(
-	    		//"/home/muellets/Desktop/tokenizer_data_sml/"+lang+"/sbd_selected.txt"));
-	    		"data/"+lang+"/sbd_selected.txt"));
+	    BufferedReader br_tok = new BufferedReader(new FileReader(tokfile));
+	    BufferedReader br_untok = new BufferedReader(new FileReader(untokfile));
 	    
 	    for(int i=0; i<num_sentences; i++) {
-	    	String tmp = br_tok.readLine(); 
-	    	if(lang.equals("es") && tmp.contains("_")) {
-	    		tmp = tmp.replace("_", " ");
+	    	tokenized[i] = br_tok.readLine();
+	    	untokenized[i] = br_untok.readLine();
+	    	
+	    	// the actual split is hidden, but here all exceptions are split off	    	
+	    	if (tok_transformator_ != null) {
+	    		tokenized[i] = tok_transformator_.applyRules(tokenized[i]);
 	    	}
 	    	
-	    	// the actual split is hidden, but here all exceptions are split off
-	    	String[] line = split_rules.applyRules(br_untok.readLine(), tmp);
-	    	untokenized[i] = line[0];
-	    	tokenized[i] = line[1];
+	    	if (untok_transformator_ != null) {
+	    		untokenized[i] = untok_transformator_.applyRules(untokenized[i]);
+	    	}
 	    }	    
 
 	    br_tok.close();
@@ -117,8 +125,12 @@ public class WikiSelector {
 		String[] langs = { "de", "en", "es" };
 
 		for (String lang : langs) {
-			//String path = "/home/muellets/Desktop/tokenizer_data_sml/" + lang;
-			String path = "data/" + lang;
+			String path;
+			//path = "/mounts/data/proj/marmot/tokenizer/data/sml/";
+			//path = "/home/muellets/Desktop/tokenizer_data_sml/";
+			path = "data/";
+			
+			path = path + lang;
 			
 			String untok_file = path + "/sbd_full.txt.bz2";
 			String tok_file = path + "/tok_full.txt.bz2";
@@ -131,7 +143,7 @@ public class WikiSelector {
 
 			selector.select(untok_outfile, tok_outfile);
 			
-			selector.testAligner(20, lang);
+			selector.testAligner(tok_outfile, untok_outfile, 20, lang);
 
 		}
 
