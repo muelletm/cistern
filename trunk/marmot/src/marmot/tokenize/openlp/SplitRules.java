@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import marmot.tokenize.rules.RuleProvider;
+
 public class SplitRules {
 	/**
 	 * This class can define a number of conversion rules for exceptions which arise in either
@@ -17,17 +19,19 @@ public class SplitRules {
 	private Map<Matcher, Matcher> tok_rules_;
 	private Map<Matcher, Matcher> untok_rules_;
 	
-	
 	public SplitRules() {
-		// initialize matchlist. The setup is very specific, so it's not handled 
-		// in a user-accesses method.
-		tok_rules_ = new HashMap<Matcher, Matcher>();
-		untok_rules_ = new HashMap<Matcher, Matcher>();
-		addRule("del", "de el", untok_rules_);
-		addRule("al", "a el", untok_rules_);
-		addRule("Fz", "", tok_rules_);
+		this(RuleProvider.createRuleProvider("es"));		
 	}
 	
+	public SplitRules(RuleProvider rule_provider) {
+		this(rule_provider.getTokRules(), rule_provider.getUnTokRules());
+	}
+	
+	public SplitRules(Map<Matcher, Matcher> tok_rules, Map<Matcher, Matcher> untok_rules) {
+		tok_rules_ = tok_rules;
+		untok_rules_ = untok_rules;
+	}
+
 	public String[] applyRules(String untok, String tok) {
 		// calls the rule sets for both directions and sends the results back
 		String[] result = applyRule(tok, untok, tok_rules_);
@@ -36,15 +40,13 @@ public class SplitRules {
 		return applyRule(untok, tok, untok_rules_);
 	}
 	
-	private void addRule(String a, String b, Map<Matcher, Matcher> rule_book) {
+	public static void addRule(String a, String b, Map<Matcher, Matcher> rule_book) {
 		// internal encapsulation of the rule-adding routine. Note that it's private 
 		rule_book.put(
 				Pattern.compile("\\W"+a+"\\W", Pattern.CASE_INSENSITIVE).matcher(""), 
 				Pattern.compile("\\W"+b+"\\W", Pattern.CASE_INSENSITIVE).matcher("")
 		);
 	}
-	
-	
 	
 	private String[] applyRule(String a, String b, Map<Matcher, Matcher> rule_book) {
 		// application of either of the two rule sets
