@@ -1,3 +1,6 @@
+// Copyright 2014 Thomas Müller
+// This file is part of MarMoT, which is licensed under GPLv3.
+
 package marmot.tokenize.preprocess;
 
 import java.io.BufferedReader;
