@@ -1,4 +1,4 @@
-package marmot.test;
+package marmot.test.tokenizer.opennlp;
 
 import static org.junit.Assert.*;
 

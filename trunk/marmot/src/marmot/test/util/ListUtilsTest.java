@@ -1,4 +1,4 @@
-package marmot.test;
+package marmot.test.util;
 
 import static org.junit.Assert.*;
 
