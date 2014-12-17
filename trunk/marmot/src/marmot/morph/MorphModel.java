@@ -32,8 +32,13 @@ import marmot.util.StringUtils.Mode;
 import marmot.util.SymbolTable;
 
 public class MorphModel extends Model {
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
+	private final static int POS_INDEX_ = 0;
+	private final static int MORPH_INDEX_ = 1;
+	private final static String POS_NAME_ = "pos";
+	private final static String MORPH_NAME_ = "morph";
+		
 	private SymbolTable<String> word_table_;
 	private SymbolTable<String> shape_table_;
 	private SymbolTable<Character> char_table_;
@@ -53,14 +58,11 @@ public class MorphModel extends Model {
 	private boolean verbose_;
 	private boolean shape_;
 	private boolean tag_morph_;
-	private int morph_index_;
 	private int num_folds_;
-	private int pos_index_;
 	private int rare_word_max_freq_;
 
 	private boolean split_morphs_;
 	private boolean split_pos_;
-	private String subtag_separator_;
 
 	private Mode normalize_forms_;
 	
@@ -69,17 +71,15 @@ public class MorphModel extends Model {
 	public void init(MorphOptions options, Collection<Sequence> sentences) {
 		verbose_ = options.getVerbose();
 		rare_word_max_freq_ = options.getRareWordMaxFreq();
-		pos_index_ = 0;
-		morph_index_ = 1;
-		num_folds_ = 10;
 		shape_ = options.getShape();
 		tag_morph_ = options.getTagMorph();
 		split_pos_ = options.getSplitPos();
 		split_morphs_ = options.getSplitMorphs();
-		subtag_separator_ = options.getSubTagSeparator();
+		String subtag_separator_ = options.getSubTagSeparator();
 		normalize_forms_ = options.getNormalizeForms();
 		special_signature_ = options.getSpecialSignature();
-
+		num_folds_ = options.getNumFolds();
+		
 		init(options, extractCategories(sentences));
 
 		List<SymbolTable<String>> tag_tables_ = getTagTables();
@@ -89,11 +89,11 @@ public class MorphModel extends Model {
 		subtag_tables_.add(null);
 
 		if (split_pos_) {
-			subtag_tables_.set(pos_index_, new SymbolTable<String>());
+			subtag_tables_.set(POS_INDEX_, new SymbolTable<String>());
 		}
 
 		if (tag_morph_ && split_morphs_) {
-			subtag_tables_.set(morph_index_, new SymbolTable<String>());
+			subtag_tables_.set(MORPH_INDEX_, new SymbolTable<String>());
 		}
 
 		word_table_ = new SymbolTable<String>(true);
@@ -151,7 +151,7 @@ public class MorphModel extends Model {
 		transitions_ = extractPossibleTransitions(options, sentences);
 		observed_sets_ = extractObservedSets(sentences);
 		tag_classes_ = extractTagClasses(tag_tables_);
-		extractSubTags();
+		tag_to_subtag_ = extractSubTags(subtag_separator_);
 
 		for (Sequence sentence : sentences) {
 			for (Token token : sentence) {
@@ -181,8 +181,8 @@ public class MorphModel extends Model {
 		return set.contains(index);
 	}
 
-	private void extractSubTags() {
-		tag_to_subtag_ = new int[subtag_tables_.size()][][];
+	private int[][][] extractSubTags(String subtag_separator) {
+		int[][][] tag_to_subtag = new int[subtag_tables_.size()][][];
 
 		int offset = 0;
 		for (int level = 0; level < subtag_tables_.size(); level++) {
@@ -193,16 +193,16 @@ public class MorphModel extends Model {
 			SymbolTable<String> table = getTagTables().get(level);
 
 			if (table != null && subtag_tables_.get(level) != null) {
-				tag_to_subtag_[level] = new int[table.size()][];
+				tag_to_subtag[level] = new int[table.size()][];
 				for (Map.Entry<String, Integer> entry : table.entrySet()) {
-					tag_to_subtag_[level][entry.getValue()] = getSubTags(
-							entry.getKey(), level, true, offset);
+					tag_to_subtag[level][entry.getValue()] = getSubTags(
+							entry.getKey(), level, true, offset, subtag_separator);
 				}
 
 				offset += subtag_tables_.get(level).size();
 			}
 		}
-
+		return tag_to_subtag;
 	}
 
 	private int[][] extractTagClasses(List<SymbolTable<String>> tag_tables) {
@@ -399,8 +399,8 @@ public class MorphModel extends Model {
 
 		for (Sequence sentence : sentences) {
 			for (Token token : sentence) {
-				int from_index = token.getTagIndexes()[pos_index_];
-				int to_index = token.getTagIndexes()[morph_index_];
+				int from_index = token.getTagIndexes()[POS_INDEX_];
+				int to_index = token.getTagIndexes()[MORPH_INDEX_];
 				Set<Integer> tags = tag_to_morph.get(from_index);
 				if (tags == null) {
 					tags = new HashSet<Integer>();
@@ -432,9 +432,9 @@ public class MorphModel extends Model {
 
 	private SymbolTable<String> extractCategories(Collection<Sequence> sentences) {
 		SymbolTable<String> catgegory_table = new SymbolTable<String>(true);
-		catgegory_table.toIndex("pos", true);
+		catgegory_table.toIndex(POS_NAME_, true);
 		if (tag_morph_) {
-			catgegory_table.toIndex("morph", true);
+			catgegory_table.toIndex(MORPH_NAME_, true);
 		}
 		return catgegory_table;
 	}
@@ -578,7 +578,7 @@ public class MorphModel extends Model {
 		addCharIndexes(word, normalized_form, insert);
 	}
 
-	private int[] getSubTags(String morph, int level, boolean insert, int offset) {
+	private int[] getSubTags(String morph, int level, boolean insert, int offset, String subtag_separator) {
 		if (morph.equals(BORDER_SYMBOL_)) {
 			return null;
 		}
@@ -597,7 +597,7 @@ public class MorphModel extends Model {
 			return null;
 		}
 
-		String[] sub_tags = morph.split(subtag_separator_);
+		String[] sub_tags = morph.split(subtag_separator);
 
 		if (sub_tags.length == 1) {
 			return null;
@@ -750,7 +750,7 @@ public class MorphModel extends Model {
 	public int[] getTagCandidates(Sequence sequence, int index, State state) {
 		int level = (state == null) ? 0 : state.getLevel() + 1;
 
-		if (transitions_ != null && level == morph_index_) {
+		if (transitions_ != null && level == MORPH_INDEX_) {
 			return transitions_[state.getIndex()];
 		}
 

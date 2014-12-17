@@ -14,7 +14,6 @@ import marmot.core.FloatWeights;
 import marmot.core.Model;
 import marmot.core.Sequence;
 import marmot.core.State;
-import marmot.core.Token;
 import marmot.core.WeightVector;
 import marmot.core.ZeroFloatFeatureVector;
 import marmot.util.Encoder;
