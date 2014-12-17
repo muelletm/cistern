@@ -79,15 +79,12 @@ public class WikiSelector {
 	    		"data/"+lang+"/sbd_selected.txt"));
 	    
 	    for(int i=0; i<num_sentences; i++) {
-	    	//tokenized[i] = br_tok.readLine();
 	    	String tmp = br_tok.readLine(); 
 	    	if(lang.equals("es") && tmp.contains("_")) {
-	    		//System.out.println(tokenized[i]);
-	    		//tokenized[i] = tokenized[i].replace("_", " ");
 	    		tmp = tmp.replace("_", " ");
 	    	}
 	    	
-	    	//untokenized[i] = br_untok.readLine();
+	    	// the actual split is hidden, but here all exceptions are split off
 	    	String[] line = split_rules.applyRules(br_untok.readLine(), tmp);
 	    	untokenized[i] = line[0];
 	    	tokenized[i] = line[1];
