@@ -31,6 +31,7 @@ public class MorphOptions extends Options {
 	public static final String NUM_CHUNKS = "num-chunks";
 	public static final String SPECIAL_SIGNATURE = "special-signature";
 	public static final String INTERNAL_ANALYZER = "internal-analyzer";
+	public static final String NUM_FOLDS = "num-folds";
 	
 	private static final Map<String, String> DEFALUT_VALUES_ = new HashMap<String, String>();
 	private static final Map<String, String> COMMENTS_ = new HashMap<String, String>();
@@ -75,9 +76,9 @@ public class MorphOptions extends Options {
 		COMMENTS_.put(SPECIAL_SIGNATURE, "Whether to mark if a word contains a special character in the word signature.");
 		DEFALUT_VALUES_.put(INTERNAL_ANALYZER, "");
 		COMMENTS_.put(INTERNAL_ANALYZER, "Use an internal morphological analyzer. Currently supported: 'ar' for AraMorph (Arabic)");
+		DEFALUT_VALUES_.put(NUM_FOLDS, "10");
+		COMMENTS_.put(NUM_FOLDS, "Number of folds used for estimation of open word classes.");
 	}
-
-	
 
 	public MorphOptions() {
 		super();
@@ -171,6 +172,10 @@ public class MorphOptions extends Options {
 		}
 		
 		return prop;
+	}
+
+	public int getNumFolds() {
+		return Integer.parseInt(getProperty(NUM_FOLDS));
 	}
 
 }

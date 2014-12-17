@@ -9,9 +9,6 @@ import java.util.List;
 
 import marmot.util.SymbolTable;
 
-
-
-
 public abstract class Model implements Serializable {
 	private static final long serialVersionUID = 1L;
 	public static final String BORDER_SYMBOL_ = "<STOP>";

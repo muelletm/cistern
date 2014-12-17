@@ -29,6 +29,10 @@ public class FileOptions {
 	public FileOptions(String option_string) {
 		parse(option_string);
 	}
+	
+	public FileOptions(int form_index, int tag_index, int morph_index, int token_feature_index, InputStream stream) {
+		form_index_ = form_index;
+	}
 
 	private void parse(String option_string) {
 		form_index_ = -1;
