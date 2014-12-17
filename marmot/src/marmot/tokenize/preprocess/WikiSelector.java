@@ -7,7 +7,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
-import opennlp.tools.formats.Conll02NameSampleStream.LANGUAGE;
 import marmot.tokenize.openlp.Aligner;
 import marmot.tokenize.openlp.LevenshteinAligner;
 import marmot.tokenize.openlp.SplitRules;
