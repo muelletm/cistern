@@ -1,4 +1,4 @@
-package marmot.test;
+package marmot.test.morph;
 
 import static org.junit.Assert.assertEquals;
 

@@ -1,4 +1,4 @@
-package marmot.test;
+package marmot.test.tokenizer.preprocess;
 
 import static org.junit.Assert.*;
 

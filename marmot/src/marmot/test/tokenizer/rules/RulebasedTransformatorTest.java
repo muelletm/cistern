@@ -1,4 +1,4 @@
-package marmot.test;
+package marmot.test.tokenizer.rules;
 
 import static org.junit.Assert.*;
 import marmot.tokenize.rules.RuleProvider;

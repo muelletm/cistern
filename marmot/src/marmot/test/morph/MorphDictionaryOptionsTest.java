@@ -1,7 +1,7 @@
 // Copyright 2013 Thomas Müller
 // This file is part of MarMoT, which is licensed under GPLv3.
 
-package marmot.test;
+package marmot.test.morph;
 
 import static org.junit.Assert.*;
 

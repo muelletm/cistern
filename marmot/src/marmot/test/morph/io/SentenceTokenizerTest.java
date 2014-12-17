@@ -1,12 +1,13 @@
 // Copyright 2013 Thomas Müller
 // This file is part of MarMoT, which is licensed under GPLv3.
 
-package marmot.test;
+package marmot.test.morph.io;
 
 import java.util.List;
 
 import marmot.core.Sequence;
 import marmot.morph.io.SentenceTokenizer;
+import marmot.test.morph.PipelineTest;
 
 import org.junit.Test;
 
