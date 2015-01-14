@@ -105,27 +105,81 @@ public class WikiSelector {
 	    
 	    // feeding pairs of a sentence to an aligner
 		Aligner a = new LevenshteinAligner();
-	    for(int i=0; i<num_sentences; i++) {	    	
+		int counter_e = 0;
+	    for(int i=0; i<num_sentences; i++) {
 	    	Viewer v = new Viewer(tokenized[i], untokenized[i], a.align(tokenized[i], untokenized[i]));
-	    	List<String> view = v.getView();
+	    	List<String> view = null;
+			try {
+				view = v.getView();
+			} catch (java.lang.StringIndexOutOfBoundsException e) {
+				System.err.println("Out of bounds!");
+				continue;
+			}
 	    	if(view == null) {
 	    		System.err.println("No alignment done!");
 	    		System.err.println(tokenized[i]);
 	    		System.err.println(untokenized[i]+"\n");
-	    		continue;
+	    		counter_e++;
+	    		continue;	
 	    	}
 	    	for(String str : view) {
 	    		System.out.println(str);
 	    	}
 	    	System.out.println();
+	    	System.out.flush();
+	    	System.err.flush();
 	    }
 	    System.out.println("Success\n\n\n");
+	    System.out.println(counter_e);
+	}
+	
+	public void generateOpenNlp(String tokfile, String untokfile, int num_sentences, String lang) throws IOException{
+        BufferedWriter openNlpFile = new BufferedWriter(new FileWriter("data/"+lang+"/open_nlp_style.txt"));		
+		Aligner a = new LevenshteinAligner();
+	    BufferedReader br_tok = new BufferedReader(new FileReader(tokfile));
+	    BufferedReader br_untok = new BufferedReader(new FileReader(untokfile));	    
 	    
+	    // some repeated code, but this step needs to be done separately
+	    for(int i=0; i<num_sentences; i++) {
+	    	String tokenized = br_tok.readLine();
+	    	String untokenized = br_untok.readLine();
+	    	
+	    	if (tok_transformator_ != null) {
+	    		tokenized = tok_transformator_.applyRules(tokenized);
+	    	}
+	    	
+	    	if (untok_transformator_ != null) {
+	    		untokenized = untok_transformator_.applyRules(untokenized);
+	    	}
+			List<Aligner.Pair> pairs = a.align(tokenized, untokenized).pairs;
+			if(pairs != null) {
+	    		openNlpFile.write(insertSplit(untokenized, pairs));
+	    		openNlpFile.newLine();
+	    	}
+	    }	 
+	    openNlpFile.close();
+	    br_tok.close();
+	    br_untok.close();
+	}
+	
+	private String insertSplit(String untokenized, List<Aligner.Pair> pairs){
+		String result = "";
+		int count = 0;
+		for(Aligner.Pair p : pairs) {
+			if(p.b == -1){
+				result += "<SPLIT>";
+			} else {
+				result += untokenized.charAt(count);
+				count ++;
+			}
+		}
+		return result;
 	}
 	
 	public static void main(String[] args) throws IOException {
 
-		String[] langs = { "de", "en", "es" };
+		String[] langs = { "es" };
+		//String[] langs = { "de", "en", "es" };
 
 		for (String lang : langs) {
 			String path;
@@ -146,8 +200,8 @@ public class WikiSelector {
 
 			selector.select(untok_outfile, tok_outfile);
 			
-			selector.testAligner(tok_outfile, untok_outfile, 20, lang);
-
+			selector.testAligner(tok_outfile, untok_outfile, 1000, lang);
+			
 		}
 
 		// OpenNlpTokenizerTrainer trainer = new OpenNlpTokenizerTrainer();

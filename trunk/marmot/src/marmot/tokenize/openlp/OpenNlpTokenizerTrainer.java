@@ -24,7 +24,7 @@ public class OpenNlpTokenizerTrainer {
 	
 	public final static int CUTOFF = 1;
 	
-	public Tokenizer train(String path) throws IOException {
+	public static Tokenizer train(String path) throws IOException {
 		TokenizerModel model;
 
 		ObjectStream<String> line_stream = new PlainTextByLineStream(

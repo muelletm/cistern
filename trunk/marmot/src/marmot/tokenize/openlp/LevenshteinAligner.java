@@ -99,6 +99,7 @@ public class LevenshteinAligner implements Aligner {
 
 			System.err.println(input_);
 			System.err.println(output_);
+			System.err.flush();
 			
 			long time = System.currentTimeMillis();
 			

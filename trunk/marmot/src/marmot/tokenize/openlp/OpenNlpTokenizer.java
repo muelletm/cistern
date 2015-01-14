@@ -41,4 +41,13 @@ public class OpenNlpTokenizer extends AbstractTokenizer {
 		model_ = new TokenizerModel(ois);
 	}
 
+	public static void main(String[] args) throws IOException {
+		String[] langs = {/*"de", "en", */"es"};
+		for(String lang : langs) {
+			String path = "data/"+lang;
+			marmot.tokenize.Tokenizer tok = OpenNlpTokenizerTrainer.train(path+"/open_nlp_style.txt");
+			tok.saveToFile(path+"/tokenizer.model");
+			System.out.println("Success!");
+		}
+	}
 }

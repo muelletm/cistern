@@ -13,8 +13,9 @@ public class SpanishRuleProvider extends RuleProvider {
 	@Override
 	public Collection<Rule> getTokRules() {
 		List<Rule> rules = new LinkedList<Rule>();
-		rules.add(new Rule(Pattern.compile("\\w( Fz)") ,""));
-		rules.add(new Rule(Pattern.compile("\\w(_)\\w") ," "));
+		rules.add(new Rule(Pattern.compile("\\S( Fz)") ,""));
+		rules.add(new Rule(Pattern.compile("\\S(_)\\S") ," "));
+		rules.add(new Rule(Pattern.compile("( ̃)") , ""));
 		return rules;
 	}
 
@@ -24,6 +25,7 @@ public class SpanishRuleProvider extends RuleProvider {
 		
 		addSimpleRule("del", "de el", rules);
 		addSimpleRule("al", "a el", rules);
+		//addSimpleRule("  ̃", " ", rules);		
 		return rules;
 	}
 
