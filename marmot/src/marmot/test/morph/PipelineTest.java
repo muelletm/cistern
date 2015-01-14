@@ -5,7 +5,6 @@ package marmot.test.morph;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -27,20 +26,21 @@ import marmot.morph.MorphOptions;
 import marmot.morph.MorphResult;
 import marmot.morph.Sentence;
 import marmot.morph.Word;
-import marmot.morph.io.FileOptions;
 import marmot.morph.io.SentenceReader;
 import marmot.util.FileUtils;
 import marmot.util.StringUtils.Mode;
 
 public class PipelineTest {
 
+	private String getResourceFile(String name) {
+		Package pack = getClass().getPackage();		
+		String path = pack.getName().replace(".", "/");
+		return String.format("res:///%s/%s", path, name);
+	}
+	
 	public List<Sequence> getSentences(String filename, int number) {
-		FileOptions options = new FileOptions(filename);
-		InputStream input_stream = getClass().getResourceAsStream(
-				options.getFilename());
-		options.setInputStream(input_stream);
 		List<Sequence> list = new LinkedList<Sequence>();
-		for (Sequence sentence : new SentenceReader(options)) {
+		for (Sequence sentence : new SentenceReader(filename)) {
 			list.add(sentence);
 			if (list.size() >= number) {
 				break;
@@ -134,10 +134,10 @@ public class PipelineTest {
 		options.setProperty(Options.ORDER, "3");
 		options.setProperty(Options.PENALTY, ".1");
 		options.setProperty(MorphOptions.TRAIN_FILE,
-				"form-index=1,tag-index=4,morph-index=6,trn.txt");
+				"form-index=1,tag-index=4,morph-index=6," + getResourceFile("trn.txt"));
 		options.setProperty(MorphOptions.TEST_FILE,
-				"form-index=1,tag-index=4,morph-index=6,tst.txt");
-		realTestWithOptions(options);
+				"form-index=1,tag-index=4,morph-index=6," + getResourceFile("tst.txt"));
+		realTestWithOptions(options, 98.51, 54.10);
 	}
 	
 	@Test
@@ -152,10 +152,10 @@ public class PipelineTest {
 		options.setProperty(Options.PENALTY, ".1");
 		options.setProperty(MorphOptions.FORM_NORMALIZATION, Mode.lower.toString());
 		options.setProperty(MorphOptions.TRAIN_FILE,
-				"form-index=1,tag-index=4,morph-index=6,trn.txt");
+				"form-index=1,tag-index=4,morph-index=6," + getResourceFile("trn.txt"));
 		options.setProperty(MorphOptions.TEST_FILE,
-				"form-index=1,tag-index=4,morph-index=6,tst.txt");
-		realTestWithOptions(options);
+				"form-index=1,tag-index=4,morph-index=6," + getResourceFile("tst.txt"));
+		realTestWithOptions(options, 99.11, 55.38);
 	}
 	
 	@Test
@@ -170,10 +170,10 @@ public class PipelineTest {
 		options.setProperty(Options.PENALTY, ".1");
 		options.setProperty(MorphOptions.SPECIAL_SIGNATURE, "true");
 		options.setProperty(MorphOptions.TRAIN_FILE,
-				"form-index=1,tag-index=4,morph-index=6,trn.txt");
+				"form-index=1,tag-index=4,morph-index=6," + getResourceFile("trn.txt"));
 		options.setProperty(MorphOptions.TEST_FILE,
-				"form-index=1,tag-index=4,morph-index=6,tst.txt");
-		realTestWithOptions(options);
+				"form-index=1,tag-index=4,morph-index=6," + getResourceFile("tst.txt"));
+		realTestWithOptions(options, 98.45, 53.96);
 	}
 	
 	@Test
@@ -187,11 +187,11 @@ public class PipelineTest {
 		options.setProperty(Options.ORDER, "3");
 		options.setProperty(Options.PENALTY, ".1");
 		options.setProperty(MorphOptions.TRAIN_FILE,
-				"form-index=1,tag-index=4,trn.txt");
+				"form-index=1,tag-index=4," + getResourceFile("trn.txt"));
 		options.setProperty(MorphOptions.TEST_FILE,
-				"form-index=1,tag-index=4,tst.txt");
+				"form-index=1,tag-index=4," + getResourceFile("tst.txt"));
 		options.setProperty(MorphOptions.TAG_MORPH, "false");
-		realTestWithOptions(options);
+		realTestWithOptions(options, 99.66, 79.14);
 	}
 
 	@Test
@@ -206,10 +206,10 @@ public class PipelineTest {
 				PerceptronTrainer.class.getCanonicalName());
 		options.setProperty(MorphOptions.TAG_MORPH, "false");
 		options.setProperty(MorphOptions.TRAIN_FILE,
-				"form-index=1,tag-index=4,morph-index=6,trn.txt");
+				"form-index=1,tag-index=4,morph-index=6," + getResourceFile("trn.txt"));
 		options.setProperty(MorphOptions.TEST_FILE,
-				"form-index=1,tag-index=4,morph-index=6,tst.txt");
-		realTestWithOptions(options);
+				"form-index=1,tag-index=4,morph-index=6," + getResourceFile("tst.txt"));
+		realTestWithOptions(options, 98.84, 77.49);
 	}
 
 	@Test
@@ -224,10 +224,10 @@ public class PipelineTest {
 		options.setProperty(Options.PENALTY, ".1");
 		options.setProperty(Options.ORACLE, "true");
 		options.setProperty(MorphOptions.TRAIN_FILE,
-				"form-index=1,tag-index=4,morph-index=6,trn.txt");
+				"form-index=1,tag-index=4,morph-index=6," + getResourceFile("trn.txt"));
 		options.setProperty(MorphOptions.TEST_FILE,
-				"form-index=1,tag-index=4,morph-index=6,tst.txt");
-		realTestWithOptions(options);
+				"form-index=1,tag-index=4,morph-index=6," + getResourceFile("tst.txt"));
+		realTestWithOptions(options, 99.94, 53.39);
 	}
 
 	@Test
@@ -241,10 +241,28 @@ public class PipelineTest {
 		options.setProperty(Options.ORDER, "3");
 		options.setProperty(Options.PENALTY, ".1");
 		options.setProperty(MorphOptions.TRAIN_FILE,
-				"form-index=1,tag-index=4,morph-index=6,token-feature-index=7,train_fst.txt");
+				"form-index=1,tag-index=4,morph-index=6,token-feature-index=7," + getResourceFile("trn.fst.txt"));
 		options.setProperty(MorphOptions.TEST_FILE,
-				"form-index=1,tag-index=4,morph-index=6,token-feature-index=7,test_fst.txt");
-		realTestWithOptions(options);
+				"form-index=1,tag-index=4,morph-index=6,token-feature-index=7," + getResourceFile("tst.fst.txt"));
+		realTestWithOptions(options, 99.33, 70.10);
+	}
+	
+	@Test
+	public void realFstNoDefaultFeaturesTest() {
+		MorphOptions options = new MorphOptions();
+		options.setProperty(Options.SEED, "42");
+		options.setProperty(Options.NUM_ITERATIONS, "10");
+		options.setProperty(Options.VECTOR_SIZE, "10000000");
+		options.setProperty(Options.CANDIDATES_PER_STATE, "[4, 2, 1.5, 1.25]");
+		options.setProperty(Options.PRUNE, "true");
+		options.setProperty(Options.ORDER, "3");
+		options.setProperty(Options.PENALTY, ".1");
+		options.setProperty(MorphOptions.TRAIN_FILE,
+				"form-index=1,tag-index=4,morph-index=6,token-feature-index=7," + getResourceFile("trn.fst.txt"));
+		options.setProperty(MorphOptions.TEST_FILE,
+				"form-index=1,tag-index=4,morph-index=6,token-feature-index=7," + getResourceFile("tst.fst.txt"));
+		options.setProperty(MorphOptions.USE_DEFAULT_FEATURES, "false");
+		realTestWithOptions(options, 60.84, 50.13);
 	}
 	
 	@Test
@@ -258,23 +276,23 @@ public class PipelineTest {
 		options.setProperty(Options.ORDER, "3");
 		options.setProperty(Options.PENALTY, ".1");
 		options.setProperty(MorphOptions.TRAIN_FILE,
-				"form-index=1,tag-index=4,morph-index=6,trn.aramorph.txt");
+				"form-index=1,tag-index=4,morph-index=6," + getResourceFile("trn.aramorph.txt"));
 		options.setProperty(MorphOptions.TEST_FILE,
-				"form-index=1,tag-index=4,morph-index=6,tst.aramorph.txt");
+				"form-index=1,tag-index=4,morph-index=6," + getResourceFile("tst.aramorph.txt"));
 		//realTestWithOptions(options);
 		
 		options.setProperty(MorphOptions.TRAIN_FILE,
-				"form-index=1,tag-index=4,morph-index=6,token-feature-index=7,trn.aramorph.txt");
+				"form-index=1,tag-index=4,morph-index=6,token-feature-index=7," + getResourceFile("trn.aramorph.txt"));
 		options.setProperty(MorphOptions.TEST_FILE,
-				"form-index=1,tag-index=4,morph-index=6,token-feature-index=7,tst.aramorph.txt");
+				"form-index=1,tag-index=4,morph-index=6,token-feature-index=7," + getResourceFile("tst.aramorph.txt"));
 		//realTestWithOptions(options);
 
 		options.setProperty(MorphOptions.INTERNAL_ANALYZER, "ar");
 		options.setProperty(MorphOptions.TRAIN_FILE,
-				"form-index=1,tag-index=4,morph-index=6,trn.aramorph.txt");
+				"form-index=1,tag-index=4,morph-index=6," + getResourceFile("trn.aramorph.txt"));
 		options.setProperty(MorphOptions.TEST_FILE,
-				"form-index=1,tag-index=4,morph-index=6,tst.aramorph.txt");
-		realTestWithOptions(options);
+				"form-index=1,tag-index=4,morph-index=6," + getResourceFile("tst.aramorph.txt"));
+		realTestWithOptions(options, 100.00, 66.26);
 	}
 
 
@@ -290,10 +308,10 @@ public class PipelineTest {
 		options.setProperty(Options.PENALTY, ".1");
 		options.setProperty(Options.MAX_TRANSITION_FEATURE_LEVEL, "0");
 		options.setProperty(MorphOptions.TRAIN_FILE,
-				"form-index=1,tag-index=4,morph-index=6,token-feature-index=7,train_fst.txt");
+				"form-index=1,tag-index=4,morph-index=6,token-feature-index=7," + getResourceFile("trn.fst.txt"));
 		options.setProperty(MorphOptions.TEST_FILE,
-				"form-index=1,tag-index=4,morph-index=6,token-feature-index=7,test_fst.txt");
-		realTestWithOptions(options);
+				"form-index=1,tag-index=4,morph-index=6,token-feature-index=7," + getResourceFile("tst.fst.txt"));
+		realTestWithOptions(options, 99.06, 69.46);
 	}
 
 	@Test
@@ -308,10 +326,10 @@ public class PipelineTest {
 		options.setProperty(Options.PENALTY, ".1");
 		options.setProperty(Options.ORACLE, "true");
 		options.setProperty(MorphOptions.TRAIN_FILE,
-				"form-index=1,tag-index=4,morph-index=6,token-feature-index=7,train_fst.txt");
+				"form-index=1,tag-index=4,morph-index=6,token-feature-index=7," + getResourceFile("trn.fst.txt"));
 		options.setProperty(MorphOptions.TEST_FILE,
-				"form-index=1,tag-index=4,morph-index=6,token-feature-index=7,test_fst.txt");
-		realTestWithOptions(options);
+				"form-index=1,tag-index=4,morph-index=6,token-feature-index=7," + getResourceFile("tst.fst.txt"));
+		realTestWithOptions(options, 99.83, 70.94);
 	}
 
 	public void toyTestWithOptions(MorphOptions options) {
@@ -319,9 +337,9 @@ public class PipelineTest {
 		testWithOptions(options, getTrainSentences(), getTestSentences(), 100.0, 100.0);
 	}
 
-	public void realTestWithOptions(final MorphOptions options) {
+	public void realTestWithOptions(final MorphOptions options, double train_acc, double test_acc) {
 		testWithOptions(options, getSentences(options.getTrainFile(), 100),
-				getSentences(options.getTestFile(), 100), 90., 45.);
+				getSentences(options.getTestFile(), 100), train_acc, test_acc);
 	}
 
 	public void testWithOptions(MorphOptions options,
@@ -376,7 +394,7 @@ public class PipelineTest {
 		double accuracy = (result.num_tokens - result.morph_errors) * 100.
 				/ result.num_tokens;
 
-		System.err.format("%s: %g\n",name, accuracy);
+		//System.err.format("%s: %g\n",name, accuracy);
 
 		if (accuracy - threshold < -1e-5) {
 			throw new AssertionFailedError(accuracy + " < " + threshold);

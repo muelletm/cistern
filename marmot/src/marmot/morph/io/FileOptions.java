@@ -11,31 +11,27 @@ import java.util.zip.GZIPInputStream;
 
 public class FileOptions {
 	public static final String FORM_INDEX = "form-index";
+	public static final String LEMMA_INDEX = "lemma-index";
 	public static final String TAG_INDEX = "tag-index";
 	public static final String MORPH_INDEX = "morph-index";
 	public static final String LIMIT = "limit";
 	public static final String FST_MORPH_INDEX = "token-feature-index";
 
 	private int form_index_;
+	private int lemma_index_;
 	private int tag_index_;
 	private int morph_index_;
 	private int token_feature_index_;
 	private String filename_;
 	private int limit_;
-	private InputStream input_stream_;
-
-	// private InputStream input_stream_;
 
 	public FileOptions(String option_string) {
 		parse(option_string);
 	}
-	
-	public FileOptions(int form_index, int tag_index, int morph_index, int token_feature_index, InputStream stream) {
-		form_index_ = form_index;
-	}
 
 	private void parse(String option_string) {
 		form_index_ = -1;
+		lemma_index_ = -1;
 		tag_index_ = -1;
 		morph_index_ = -1;
 		limit_ = -1;
@@ -69,6 +65,13 @@ public class FileOptions {
 										+ option_string);
 					}
 					form_index_ = Integer.parseInt(value);
+				}  else if (option.equalsIgnoreCase(LEMMA_INDEX)) {
+					if (lemma_index_ != -1) {
+						throw new RuntimeException(
+								"Option string contains more than one lemma index: "
+										+ option_string);
+					}
+					lemma_index_ = Integer.parseInt(value);
 				} else if (option.equalsIgnoreCase(TAG_INDEX)) {
 					if (tag_index_ != -1) {
 						throw new RuntimeException(
@@ -140,17 +143,26 @@ public class FileOptions {
 	}
 
 	public InputStream getInputStream() {
-		
-		if (input_stream_ != null) {
-			return input_stream_;
-		}
 
-		InputStream input_stream;
+		InputStream input_stream = null;
 
 		try {
-			
-			input_stream = new FileInputStream(filename_);
 
+			if (filename_.toLowerCase().startsWith("res://")) {
+				
+				String name = filename_.substring(6);
+				input_stream = getClass().getResourceAsStream(name);
+				
+				if (input_stream == null) {
+					throw new RuntimeException("Resource not found: " + filename_);
+				}
+				
+			} else {
+			
+				input_stream = new FileInputStream(filename_);
+				
+			}
+			
 			if (filename_.toLowerCase().endsWith(".gz")) {
 				input_stream = new GZIPInputStream(input_stream);
 			}
@@ -162,12 +174,11 @@ public class FileOptions {
 		}
 
 		return input_stream;
-
 	}
 
-	public void setInputStream(InputStream input_stream) {
-	 input_stream_ = input_stream;
-	}
+//	public void setInputStream(InputStream input_stream) {
+//		input_stream_ = input_stream;
+//	}
 
 	public int getTokenFeatureIndex() {
 		return token_feature_index_;
@@ -181,4 +192,9 @@ public class FileOptions {
 		}
 	}
 
+	public int getLemmaIndex() {
+		return lemma_index_;
+	}
+
 }
+ 

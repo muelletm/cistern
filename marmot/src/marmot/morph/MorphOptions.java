@@ -32,6 +32,7 @@ public class MorphOptions extends Options {
 	public static final String SPECIAL_SIGNATURE = "special-signature";
 	public static final String INTERNAL_ANALYZER = "internal-analyzer";
 	public static final String NUM_FOLDS = "num-folds";
+	public static final String USE_DEFAULT_FEATURES = "use-default-features";
 	
 	private static final Map<String, String> DEFALUT_VALUES_ = new HashMap<String, String>();
 	private static final Map<String, String> COMMENTS_ = new HashMap<String, String>();
@@ -78,6 +79,8 @@ public class MorphOptions extends Options {
 		COMMENTS_.put(INTERNAL_ANALYZER, "Use an internal morphological analyzer. Currently supported: 'ar' for AraMorph (Arabic)");
 		DEFALUT_VALUES_.put(NUM_FOLDS, "10");
 		COMMENTS_.put(NUM_FOLDS, "Number of folds used for estimation of open word classes.");
+		DEFALUT_VALUES_.put(USE_DEFAULT_FEATURES, "true");
+		COMMENTS_.put(USE_DEFAULT_FEATURES, "Whether to extract default features such as prefixes, suffixes, word forms.");
 	}
 
 	public MorphOptions() {
@@ -176,6 +179,10 @@ public class MorphOptions extends Options {
 
 	public int getNumFolds() {
 		return Integer.parseInt(getProperty(NUM_FOLDS));
+	}
+
+	public boolean getUseDefaultFeatures() {
+		return Boolean.parseBoolean(getProperty(USE_DEFAULT_FEATURES));
 	}
 
 }

@@ -37,6 +37,7 @@ public class SentenceReader implements Iterable<Sequence> {
 			@Override
 			public Sequence next() {
 				int form_index = options_.getFormIndex();
+				int lemma_index = options_.getLemmaIndex();
 				int tag_index = options_.getTagIndex();
 				int morph_index = options_.getMorphIndex();
 				int token_feature_index = options_.getTokenFeatureIndex();
@@ -53,39 +54,12 @@ public class SentenceReader implements Iterable<Sequence> {
 						break;
 					}
 
-					if (form_index < 0 || form_index >= row.size()) {
-						RuntimeException e = new RuntimeException(
-								"form_index out of range: " + form_index
-										+ " : " + row);
-						throw e;
-					}
-
-					if (tag_index >= row.size()) {
-						RuntimeException e = new RuntimeException(
-								"tag_index out of range: " + tag_index + " : "
-										+ row);
-						throw e;
-					}
-
-					if (morph_index >= row.size()) {
-						RuntimeException e = new RuntimeException(
-								"morph_index out of range: " + morph_index
-										+ " : " + row);
-						throw e;
-					}
-
-					String word = row.get(form_index);
-
-					String tag = null;
-					if (tag_index >= 0) {
-						tag = row.get(tag_index);
-					}
-
-					String morph = null;
-					if (morph_index >= 0) {
-						morph = row.get(morph_index);
-					}
-
+					String word = check_index(form_index, "form_index", row, true);
+					String lemma = check_index(lemma_index, "lemma_index", row, false);
+					String tag = check_index(tag_index, "tag_index", row, false);
+					String morph = check_index(morph_index, "morph_index", row, false);
+					
+							
 					List<String> token_feature_list = null;
 					List<String> weighted_token_feature_list = new LinkedList<String>();
 					List<Double> weighted_token_feature_weight_list = new LinkedList<Double>();
@@ -122,7 +96,7 @@ public class SentenceReader implements Iterable<Sequence> {
 
 					}
 
-					tokens.add(new Word(word, tag, morph, Converter.toStringArray(token_feature_list), Converter.toStringArray(weighted_token_feature_list), Converter.toDoubleArray(weighted_token_feature_weight_list)));
+					tokens.add(new Word(word, lemma, tag, morph, Converter.toStringArray(token_feature_list), Converter.toStringArray(weighted_token_feature_list), Converter.toDoubleArray(weighted_token_feature_weight_list)));
 				}
 
 				if (tokens.isEmpty()) {
@@ -134,6 +108,20 @@ public class SentenceReader implements Iterable<Sequence> {
 				Sentence sentence = new Sentence(tokens);
 
 				return sentence;
+			}
+
+			private String check_index(int index, String string, List<String> row, boolean check_zero) {
+				if ((index < 0 && check_zero) || index >= row.size()) {
+					RuntimeException e = new RuntimeException(String.format(
+							"%s out of range: %d : %s\n", index, string, row));
+					throw e;					
+				}
+				
+				if (index < 0) {
+					return null;
+				}
+				
+				return row.get(index);
 			}
 
 			@Override
