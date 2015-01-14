@@ -15,6 +15,7 @@ public class Word implements Token {
 	private String tag_;
 	private String morph_;
 	private String[] token_features_;
+	private String lemma_;
 	
 	private int word_index_;
 	private short[] char_indexes_;
@@ -27,8 +28,11 @@ public class Word implements Token {
 	private double[] weighted_token_feature_weights_;
 	private int[] weighted_token_feature_indexes_;
 	
-	public Word(String word, String tag, String morph, String[] token_features, String[] weighted_token_features, double[] weighted_token_feature_weights) {
+	
+	
+	public Word(String word, String lemma, String tag, String morph, String[] token_features, String[] weighted_token_features, double[] weighted_token_feature_weights) {
 		word_ = word;
+		lemma_ = lemma;
 		tag_ = tag;
 		morph_ = morph;
 		token_features_ = token_features;
@@ -37,6 +41,10 @@ public class Word implements Token {
 		word_index_ = -1;
 		word_shape_index_ = -1;
 		signature_ = -1;
+	}
+	
+	public Word(String word, String tag, String morph, String[] token_features, String[] weighted_token_features, double[] weighted_token_feature_weights) {
+		this(word, null, tag, morph, token_features, weighted_token_features, weighted_token_feature_weights);
 	}
 	
 	public Word(String word, String tag, String morph) {
@@ -238,6 +246,10 @@ public class Word implements Token {
 
 	public void setTokenFeatures(String[] token_features) {
 		token_features_ = token_features;
+	}
+
+	public String getLemma() {
+		return lemma_;
 	}
 	
 }

@@ -60,15 +60,17 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 	private MorphDictionary mdict_;
 	private FloatHashDictionary fdict_;
 	private int mdict_bits_;
-
+	private boolean use_state_features_;
+	
 	// private double[] accumulated_float_penalty_;
 	private static final boolean use_bigrams_ = true;
-	private static final boolean use_state_features_ = true;
+	
 
 	public MorphWeightVector(MorphOptions options) {
 		shape_ = options.getShape();
 		max_transition_feature_level_ = options.getMaxTransitionFeatureLevel();
 		initial_vector_size_ = options.getInitialVectorSize();
+		use_state_features_ = options.getUseDefaultFeatures();
 
 		if (!options.getMorphDict().isEmpty()) {
 			mdict_ = MorphDictionary.create(options.getMorphDict());
