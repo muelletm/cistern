@@ -37,16 +37,25 @@ public class RulebasedTransformatorTest {
 		testUnTokRules("es"," ádela del ", " ádela de el ");
 		testUnTokRules("es"," ödela del ", " ödela de el ");
 		testUnTokRules("es"," ñdela del ", " ñdela de el ");
-		
+		testUnTokRules("es", "Pádel", "Pádel");
+
 		testUnTokRules("es", " del ", " de el ");
 		testUnTokRules("es", "del", "de el");
 		testUnTokRules("es", " del", " de el");
 		testUnTokRules("es", "del ", "de el ");
+		testUnTokRules("es", "(del)", "(de el)");
 	}
 	
 	@Test 
 	public void testSpanishUnTokRules() {
-		testTokRules("es", "dejando_de_lado", "dejando de lado");		
+		testTokRules("es", "dejando_de_lado", "dejando de lado");	
+		testTokRules("es", "José_Ramon", "José Ramon");
+		testTokRules("es", "3_mayo", "3 mayo");
+		testTokRules("es", " a_conocer ", " a conocer ");
+		testTokRules("es", "Pasado más de una década, Fey dio a_conocer que en esta etapa era explotada por la gente que trabajaba con ella y esa era una de las razones por la cual desapareció de el medio.",
+				           "Pasado más de una década, Fey dio a conocer que en esta etapa era explotada por la gente que trabajaba con ella y esa era una de las razones por la cual desapareció de el medio.");
+		//Construcción barroca de finales de el s .XVII y principios de el XVIII .
+		//Construcción barroca de finales de el s. XVII y principios de el XVIII.
 		testTokRules("es", " 1.0 Fz ", " 1.0 ");
 		testTokRules("es", " 1.0 FZ ", " 1.0 FZ ");
 		testTokRules("es", " 1.0 Fz", " 1.0");	

@@ -23,15 +23,15 @@ public abstract class RuleProvider {
 	
 	public void addSimpleRule(String a, String b, List<Rule> rules) {
 		rules.add(new Rule(
-				Pattern.compile("\\W("+a+")\\W", Pattern.CASE_INSENSITIVE), 
+				Pattern.compile("\\P{L}("+a+")\\P{L}", Pattern.CASE_INSENSITIVE), 
 				b
 		));
 		rules.add(new Rule(
-				Pattern.compile("^("+a+")\\W", Pattern.CASE_INSENSITIVE), 
+				Pattern.compile("^("+a+")\\P{L}", Pattern.CASE_INSENSITIVE), 
 				b
 		));
 		rules.add(new Rule(
-				Pattern.compile("\\W("+a+")$", Pattern.CASE_INSENSITIVE), 
+				Pattern.compile("\\P{L}("+a+")$", Pattern.CASE_INSENSITIVE), 
 				b
 		));
 		rules.add(new Rule(
