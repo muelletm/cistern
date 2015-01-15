@@ -42,6 +42,9 @@ public class Options extends java.util.Properties {
 	public static final String TRAINER = "trainer";
 	public static final String AVERAGING = "averaging";
 	public static final String SEED = "seed";
+	public static final String OPTIMIZE_NUM_ITERATIONS = "optimize-num-iterations";
+
+
 
 	private static final Map<String, String> DEFALUT_VALUES_ = new HashMap<String, String>();
 	private static final Map<String, String> COMMENTS_ = new HashMap<String, String>();
@@ -96,6 +99,8 @@ public class Options extends java.util.Properties {
 		COMMENTS_.put(AVERAGING, "Whether to use averaging. Perceptron only!");
 		DEFALUT_VALUES_.put(SEED, "42");
 		COMMENTS_.put(SEED, "Random seed to use for shuffling. 0 for nondeterministic seed");
+		DEFALUT_VALUES_.put(OPTIMIZE_NUM_ITERATIONS, "false");
+		COMMENTS_.put(OPTIMIZE_NUM_ITERATIONS, "Whether to optimize the number of training iterations on the dev set.");
 
 
 	}
@@ -345,6 +350,10 @@ public class Options extends java.util.Properties {
 
 	public long getSeed() {
 		return Long.parseLong(getProperty(SEED));
+	}
+
+	public boolean getOptimizeNumIterations() {
+		return Boolean.parseBoolean(getProperty(OPTIMIZE_NUM_ITERATIONS));
 	}
 
 }

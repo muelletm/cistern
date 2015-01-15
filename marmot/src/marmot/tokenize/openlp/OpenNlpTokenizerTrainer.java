@@ -24,7 +24,7 @@ public class OpenNlpTokenizerTrainer {
 	
 	public final static int CUTOFF = 1;
 	
-	public static Tokenizer train(String path) throws IOException {
+	public Tokenizer train(String path) throws IOException {
 		TokenizerModel model;
 
 		ObjectStream<String> line_stream = new PlainTextByLineStream(
@@ -39,7 +39,7 @@ public class OpenNlpTokenizerTrainer {
 		
 		TrainingParameters params = TrainingParameters.defaultParams();
 		params.put(TrainUtil.CUTOFF_PARAM, Integer.toString(CUTOFF));
-				
+		
 		try {
 			model = TokenizerME.train(samples, factory, params);
 		}

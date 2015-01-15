@@ -3,10 +3,12 @@
 
 package marmot.tokenize.rules;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.regex.Matcher;
 
-public class RulebasedTransformator {
+public class RulebasedTransformator implements Serializable {
+	private static final long serialVersionUID = 1L;
 	/**
 	 * This class can define a number of conversion rules for exceptions which arise in either
 	 * direction of tokenization. After finding a match in the corresponding string, a 

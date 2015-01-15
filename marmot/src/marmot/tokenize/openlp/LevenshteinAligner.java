@@ -96,11 +96,7 @@ public class LevenshteinAligner implements Aligner {
 		}
 
 		private List<Character> searchOperationSequence(List<State> states) {
-
-			System.err.println(input_);
-			System.err.println(output_);
-			System.err.flush();
-			
+		
 			long time = System.currentTimeMillis();
 			
 			while (!states.isEmpty()) {
