@@ -153,4 +153,9 @@ public class MorphResult implements Result {
 		return 100. - (morph_oov_errors * 100. / num_oovs);
 	}
 
+	@Override
+	public double getScore() {
+		return getTokenAccuracy();
+	}
+
 }

@@ -10,7 +10,7 @@ public abstract class AbstractTokenizer implements Tokenizer {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void saveToFile(String path) {
+	public final void saveToFile(String path) {
 		FileUtils.saveToFile(this, path);
 	}
 	

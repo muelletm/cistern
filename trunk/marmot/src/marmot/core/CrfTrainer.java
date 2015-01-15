@@ -20,6 +20,7 @@ public class CrfTrainer implements Trainer {
 	private boolean very_verbose_;
 	private double quadratic_penalty_;
 	private long seed_;
+	private boolean optimize_num_iterations_;
 
 	@Override
 	public void train(Tagger tagger, Collection<Sequence> in_sequences,
@@ -41,6 +42,10 @@ public class CrfTrainer implements Trainer {
 		int small_factor = 1;
 		WeightVector weights = tagger.getWeightVector();
 		assert weights != null;
+		
+		double[] best_float_params = null;
+		double[] best_params = null;
+		double best_score = 0.0;
 
 		double accumalted_penalty = 0;
 
@@ -114,22 +119,55 @@ public class CrfTrainer implements Trainer {
 				Result result = evaluator.eval(tagger);
 				System.err.println(result);
 				weights.setExtendFeatureSet(true);
+				
+				if (optimize_num_iterations_) {
+					
+					double score = result.getScore();
+					
+					if (score > best_score) {
+						best_score = score;
+						best_params = weights.getWeights().clone();
+						best_float_params = weights.getFloatWeights().clone();						
+					}
+					
+				}
+				
 			}
 		}
 
 		weights.setPenalty(false, 0.0);
 		weights.setExtendFeatureSet(false);
+		
+		if (optimize_num_iterations_) {
+			
+			
+			
+			if (best_params != null) {
+				
+				//System.err.println(best_params.length + " " + weights.getWeights().length);
+				
+				weights.setWeights(best_params);
+			}
+			
+			if (best_float_params != null) {
+				weights.setFloatWeights(best_float_params);
+			}
+			
+			Result result = evaluator.eval(tagger);
+			System.err.println("Results with optimal iterations:");
+			System.err.println(result);
+		}
 	}
 
 	@Override
 	public void setOptions(Options options) {
 		setOptions(options.getPenalty(), options.getQuadraticPenalty(), options.getNumIterations(), options
-				.getShuffle(), options.getVerbose(), options.getVeryVerbose(), options.getSeed());	
+				.getShuffle(), options.getVerbose(), options.getVeryVerbose(), options.getSeed(), options.getOptimizeNumIterations());	
 	}
 
 	private void setOptions(double penalty, double quadratic_penalty,
 			int steps, boolean shuffle, boolean verbose,
-			boolean very_verbose, long seed) {
+			boolean very_verbose, long seed, boolean optimize_num_iterations) {
 		penalty_ = penalty;
 		steps_ = steps;
 		shuffle_ = shuffle;
@@ -137,6 +175,7 @@ public class CrfTrainer implements Trainer {
 		very_verbose_ = very_verbose;
 		quadratic_penalty_ = quadratic_penalty;
 		seed_ = seed;
+		optimize_num_iterations_ = optimize_num_iterations;
 	}
 
 }

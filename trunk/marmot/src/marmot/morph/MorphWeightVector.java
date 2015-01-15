@@ -812,4 +812,14 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 	public SymbolTable<Feature> getFeatureTable() {
 		return feature_table_;
 	}
+
+	@Override
+	public double[] getFloatWeights() {
+		return float_weights_;
+	}
+
+	@Override
+	public void setFloatWeights(double[] weights) {
+		float_weights_ = weights;
+	}
 }

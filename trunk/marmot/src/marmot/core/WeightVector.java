@@ -20,4 +20,6 @@ public interface WeightVector extends Serializable {
 	void setExtendFeatureSet(boolean extend);
 	double[] getWeights();
 	void setWeights(double[] weights);
+	double[] getFloatWeights();
+	void setFloatWeights(double[] weights);
 }

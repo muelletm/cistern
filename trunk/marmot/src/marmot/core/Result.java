@@ -5,4 +5,6 @@ package marmot.core;
 
 public interface Result {
 
+	double getScore();
+
 }
