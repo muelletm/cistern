@@ -50,7 +50,7 @@ public class WikiSelector implements Iterable<Pair> {
 					return true;
 				}
 				
-				if (num_selected_sentences_ >= num_sentences_) {
+				if (num_sentences_ > 0 && num_selected_sentences_ >= num_sentences_) {
 					return false;
 				}
 				
