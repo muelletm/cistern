@@ -110,7 +110,7 @@ public class WikiReader implements Iterator<Pair> {
 			pair_ = pair;
 			expanded = true;
 		} else {
-			tokenized_.reset();
+			tokenized_.reset(); // not supported in BufferedReaderWrapper!
 		}
 		
 		
@@ -128,7 +128,7 @@ public class WikiReader implements Iterator<Pair> {
 			pair_ = pair;
 			expanded = true;
 		} else {
-			untokenized_.reset();
+			untokenized_.reset(); // not supported in BufferedReaderWrapper!
 		}
 
 		if (expanded) {

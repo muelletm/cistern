@@ -51,11 +51,9 @@ public class RulebasedTransformatorTest {
 		testTokRules("es", "dejando_de_lado", "dejando de lado");	
 		testTokRules("es", "José_Ramon", "José Ramon");
 		testTokRules("es", "3_mayo", "3 mayo");
-		testTokRules("es", " a_conocer ", " a conocer ");
-		testTokRules("es", "Pasado más de una década, Fey dio a_conocer que en esta etapa era explotada por la gente que trabajaba con ella y esa era una de las razones por la cual desapareció de el medio.",
-				           "Pasado más de una década, Fey dio a conocer que en esta etapa era explotada por la gente que trabajaba con ella y esa era una de las razones por la cual desapareció de el medio.");
-		//Construcción barroca de finales de el s .XVII y principios de el XVIII .
-		//Construcción barroca de finales de el s. XVII y principios de el XVIII.
+		testTokRules("es", "van_a_conocer ", "van a conocer ");
+		//testTokRules("es", "6_de_enero_del_2007", "6 de enero de el 2007"); // del --> de el?
+		//testTokRules("es", "el s .XVII", "el s . XVII");
 		testTokRules("es", " 1.0 Fz ", " 1.0 ");
 		testTokRules("es", " 1.0 FZ ", " 1.0 FZ ");
 		testTokRules("es", " 1.0 Fz", " 1.0");	

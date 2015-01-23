@@ -21,11 +21,13 @@ public class SpanishRuleProvider extends RuleProvider {
 
 	@Override
 	public Collection<Rule> getUnTokRules() {
-		List<Rule> rules = new LinkedList<Rule>();
-		
+		List<Rule> rules = new LinkedList<Rule>();	
 		addSimpleRule("del", "de el", rules);
-		addSimpleRule("al", "a el", rules);
-		//addSimpleRule("  ̃", " ", rules);		
+		addSimpleRule("al", "a el", rules); // Al-razir?
+		//rules.add(new Rule(Pattern.compile("\\w+(dole)\\W") , "(do le)"));
+		//rules.add(new Rule(Pattern.compile("\\w+(dose)\\W") , "(do se)"));
+		// TODO: llamarse, ponerse, pongome, ... how many? Maybe make a list?
+		// Regex might lead to too many errors
 		return rules;
 	}
 
