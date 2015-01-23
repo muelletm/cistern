@@ -1,6 +1,5 @@
 package marmot.tokenize.openlp;
 
-import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
 
@@ -23,10 +22,15 @@ public class OpenNlpConverter {
 		}	
 	}
 	
-	public void convert(Iterable<Pair> pairs, Writer writer) throws IOException {
+	public void convert(Iterable<Pair> pairs, Writer writer, int verbose) {
 		Aligner a = new LevenshteinAligner();
 		
+		int total = 0;
+		int error = 0;
+		
 		for (Pair pair : pairs) {
+			total ++;
+			
 			String tokenized = pair.tokenized;
 	    	String untokenized = pair.untokenized;
 	    	
@@ -37,12 +41,38 @@ public class OpenNlpConverter {
 	    	if (untok_transformator_ != null) {
 	    		untokenized = untok_transformator_.applyRules(untokenized);
 	    	}
-	    	
-			List<Aligner.Pair> alignment = a.align(tokenized, untokenized).pairs;
-			if(alignment != null) {
+
+	    	try {
+	    		List<Aligner.Pair> alignment = a.align(tokenized, untokenized).pairs;
+	    		if(alignment == null) {
+	    			throw new RuntimeException(); // java style goto
+	    		}
+	    		
 	    		writer.write(insertSplit(untokenized, alignment));
 	    		writer.write("\n");
-	    	}
+	    		if(verbose == 1 || verbose == 2) {
+					System.out.println(tokenized);
+					System.out.println(untokenized);	
+					System.out.flush();
+				}
+	    		
+			} catch (Exception e) { // catches unforeseen alignment errors as well
+				error++;
+				if(verbose == 2 || verbose == 3) {
+					if(!e.getClass().toString().split("\\.")[2].equals("RuntimeException")) {
+						System.err.println("GRAVE ERROR!");
+					}
+					
+					System.err.println(tokenized);
+					System.err.println(untokenized);	
+					System.err.flush();
+				}
+			} 
+		}
+		if(verbose > 0) {
+			System.out.println("Error rate:   "+((float)error / (float)total));
+			System.out.println("Total words:  "+total);
+			System.out.println("Total errors: "+error);
 		}
 	}
 	

@@ -65,7 +65,7 @@ public class WikiSelector implements Iterable<Pair> {
 					return true;
 					
 				}
-								
+			
 				return next_();
 			}
 
@@ -83,7 +83,6 @@ public class WikiSelector implements Iterable<Pair> {
 			}
 			
 		};
-		
+			
 	}
-	
 }

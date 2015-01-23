@@ -17,6 +17,12 @@ public abstract class RuleProvider {
 		if (lang.equalsIgnoreCase("es")) {
 			return new SpanishRuleProvider();
 		}
+		if (lang.equalsIgnoreCase("en")) {
+			return new EnglishRuleProvider();
+		}
+		if (lang.equalsIgnoreCase("de")) {
+			return new GermanRuleProvider();
+		}
 		
 		return null;
 	}

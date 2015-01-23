@@ -29,16 +29,20 @@ public class RulebasedTransformator implements Serializable {
 	
 	private String applyRules(String string, Collection<Rule> rules) {
 		StringBuilder sb = new StringBuilder();
-		
 		for(Rule rule : rules) {
 			Matcher matcher = rule.pattern.matcher(string);
 
 			int end = 0;
-			while(matcher.find()) {			
-				int start = matcher.start(1);
+			int start = 0;
+			while(matcher.find(start)) {			
+				start = matcher.start(1);
+				if(end > start) {
+					start = end;
+					continue;
+				}
 				sb.append(string.substring(end, start));
 				sb.append(rule.replacement);
-				end   = matcher.end(1);
+				end = matcher.end(1);
 			}
 			sb.append(string.substring(end));
 			
