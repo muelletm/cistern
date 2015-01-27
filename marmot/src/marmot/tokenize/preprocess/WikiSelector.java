@@ -55,7 +55,7 @@ public class WikiSelector implements Iterable<Pair> {
 				}
 				
 				Pair pair = reader_.next();
-
+				
 				int num_tokens = pair.tokenized.split("\\s+").length;
 
 				if (num_tokens > token_threshold_ && pair.score > score_threshold_) {

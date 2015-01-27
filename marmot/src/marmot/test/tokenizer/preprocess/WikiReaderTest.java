@@ -22,11 +22,11 @@ public class WikiReaderTest {
 		int current_pos_;
 		int current_mark_;
 		List<String> content_;
-		
+
 		FakeReader() {
 			content_ = new ArrayList<String>();
 		}
-		
+
 		@Override
 		public void mark() {
 			current_mark_ = current_pos_;
@@ -39,13 +39,13 @@ public class WikiReaderTest {
 
 		@Override
 		public String readLine() {
-			
+
 			if (current_pos_ >= content_.size()) {
 				return null;
 			}
-			
+
 			String line = content_.get(current_pos_);
-			current_pos_ ++;
+			current_pos_++;
 			return line;
 		}
 
@@ -59,23 +59,23 @@ public class WikiReaderTest {
 		}
 
 	}
-	
+
 	@Test
 	public void simpleTest() {
-		
+
 		FakeReader a = new FakeReader();
 		a.add("abc");
 		FakeReader b = new FakeReader();
 		b.add("ab");
 		b.add("c");
-		
+
 		List<Pair> expected = Arrays.asList(new Pair("abc", "abc"));
-		bothWayTest(a, b, expected);		
+		bothWayTest(a, b, expected);
 	}
 
 	@Test
 	public void test() {
-		
+
 		FakeReader a = new FakeReader();
 		a.add("a");
 		a.add("");
@@ -86,15 +86,20 @@ public class WikiReaderTest {
 		a.add("");
 		b.add("d");
 		a.add("");
-		
+
 		List<Pair> expected = Arrays.asList(new Pair("abcd", "abcd"));
-		bothWayTest(a,b, expected);
+		bothWayTest(a, b, expected);
 	}
 
 	private void bothWayTest(FakeReader a, FakeReader b, List<Pair> expected) {
 		WikiReader reader = new WikiReader(a, b, true);
 		List<Pair> actual = reader.readAll();
+		
+//		for (Pair p : actual)
+//			System.err.println(p);
+		
 		assertEquals(expected, actual);
+		
 		a.fullReset();
 		b.fullReset();
 		reader = new WikiReader(b, a, true);

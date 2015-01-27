@@ -49,9 +49,18 @@ public class WikiReader implements Iterator<Pair> {
 		readNext();
 		return pair_ != null;
 	}
+	
+	protected String fixLine(String line) {
+		if (line == null) {
+			return line;
+		}
+		
+		line = line.replace((char)0xa0, ' ');
+		return line;
+	}
 
 	protected String readNonEmptyLine(InternalReader reader) {
-		String line = reader.readLine();
+		String line = fixLine(reader.readLine());
 
 		if (line == null) {
 			throw new NoSuchElementException();
@@ -60,7 +69,7 @@ public class WikiReader implements Iterator<Pair> {
 		line = line.trim();
 
 		while (line.isEmpty()) {
-			line = reader.readLine();
+			line = fixLine(reader.readLine());
 
 			if (line == null) {
 				throw new NoSuchElementException();
@@ -87,11 +96,13 @@ public class WikiReader implements Iterator<Pair> {
 		if (expand_)
 			expandPair();
 		
+		if (pair_.score > 0.7 && pair_.tokenized.length() > 20) {
+			throw new RuntimeException(String.format("Alignment error: %s --- %s : %g", pair_.tokenized, pair_.untokenized, pair_.score));
+		}
+		
 		} catch (NoSuchElementException e) {
 			
 		}
-		
-
 	}
 
 	protected void expandPair() {

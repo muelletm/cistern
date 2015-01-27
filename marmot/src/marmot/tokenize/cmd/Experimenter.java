@@ -54,8 +54,8 @@ public class Experimenter {
 		jsap.registerParameter(opt);
 
 		
-		opt = new FlaggedOption("verbose").setLongFlag(
-				"verbose").setStringParser(JSAP.INTEGER_PARSER).setDefault("0");
+		opt = new FlaggedOption("verbosity").setLongFlag(
+				"verbosity").setStringParser(JSAP.INTEGER_PARSER).setDefault("0");
 		jsap.registerParameter(opt);
 		
 		JSAPResult config = jsap.parse(args);
@@ -76,7 +76,8 @@ public class Experimenter {
 		String tok_file = config.getString("tokenized-file");
 		String untok_file = config.getString("untokenized-file");
 		int num_sentences = config.getInt("num-sentences");
-		int verbose = config.getInt("verbose");
+		int verbosity = config.getInt("verbosity");
+		
 		Random random = new Random(config.getInt("random-seed"));
 		// verbose: 0 no output
 		//			1 only success
@@ -110,9 +111,9 @@ public class Experimenter {
 			index = (index + 1) % 10;
 		}
 
-		runExperiment(trnset, devset, tstset, 1., verbose, lang);
-		runExperiment(trnset, devset, tstset, 10., verbose, lang);
-		runExperiment(trnset, devset, tstset, 100., verbose, lang);
+		runExperiment(trnset, devset, tstset, 1., verbosity, lang);
+		runExperiment(trnset, devset, tstset, 10., verbosity, lang);
+		runExperiment(trnset, devset, tstset, 100., verbosity, lang);
 	}
 
 	public static void runExperiment(List<Pair> trnset, List<Pair> devset,

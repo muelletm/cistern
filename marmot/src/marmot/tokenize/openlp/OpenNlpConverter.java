@@ -50,11 +50,10 @@ public class OpenNlpConverter {
 	    		
 	    		writer.write(insertSplit(untokenized, alignment));
 	    		writer.write("\n");
-	    		if(verbose == 1 || verbose == 2) {
-					System.out.println(tokenized);
-					System.out.println(untokenized);	
-					System.out.flush();
-				}
+//	    		if(verbose == 1 || verbose == 2) {
+//					System.err.println(tokenized);
+//					System.err.println(untokenized);	
+//				}
 	    		
 			} catch (Exception e) { // catches unforeseen alignment errors as well
 				error++;
@@ -63,16 +62,14 @@ public class OpenNlpConverter {
 						System.err.println("GRAVE ERROR!");
 					}
 					
-					System.err.println(tokenized);
-					System.err.println(untokenized);	
-					System.err.flush();
+					System.err.println("<Tok> " + tokenized + "</Tok>");
+					System.err.println("<UnT> " + untokenized + "</UnT>" );	
 				}
 			} 
 		}
+		
 		if(verbose > 0) {
-			System.out.println("Error rate:   "+((float)error / (float)total));
-			System.out.println("Total words:  "+total);
-			System.out.println("Total errors: "+error);
+			System.err.format("Conversion Error rate: %d / %d = %g\n", error, total, error * 100. / total);
 		}
 	}
 	
