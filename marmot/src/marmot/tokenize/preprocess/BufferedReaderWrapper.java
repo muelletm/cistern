@@ -18,7 +18,7 @@ public class BufferedReaderWrapper implements InternalReader {
 	@Override
 	public void mark() {
 		try {
-			reader_.mark(1000);
+			reader_.mark(10000);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
