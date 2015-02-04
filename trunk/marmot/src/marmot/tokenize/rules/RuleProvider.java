@@ -14,14 +14,20 @@ public abstract class RuleProvider {
 	
 	public static RuleProvider createRuleProvider(String lang) {
 		
-		if (lang.equalsIgnoreCase("es")) {
-			return new SpanishRuleProvider();
+		if (lang.equalsIgnoreCase("cs")) {
+			return new CzechRuleProvider();
+		}
+		if (lang.equalsIgnoreCase("de")) {
+			return new GermanRuleProvider();
 		}
 		if (lang.equalsIgnoreCase("en")) {
 			return new EnglishRuleProvider();
 		}
-		if (lang.equalsIgnoreCase("de")) {
-			return new GermanRuleProvider();
+		if (lang.equalsIgnoreCase("es")) {
+			return new SpanishRuleProvider();
+		}
+		if (lang.equalsIgnoreCase("hu")) {
+			return new HungarianRuleProvider();
 		}
 		
 		return null;

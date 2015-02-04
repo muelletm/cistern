@@ -58,5 +58,11 @@ public class RulebasedTransformatorTest {
 		testTokRules("es", " 1.0 FZ ", " 1.0 FZ ");
 		testTokRules("es", " 1.0 Fz", " 1.0");	
 	}
+	
+	@Test
+	public void testCzechTokRules() {
+		testTokRules("cs", "Starověký Bejt Še &apos; arim", "Starověký Bejt Še ' arim");
+		testTokRules("cs", "&quot; Elysium &quot;", "\" Elysium \"");
+	}
 
 }
