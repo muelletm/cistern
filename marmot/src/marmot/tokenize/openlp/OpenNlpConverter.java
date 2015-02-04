@@ -41,7 +41,7 @@ public class OpenNlpConverter {
 	    	if (untok_transformator_ != null) {
 	    		untokenized = untok_transformator_.applyRules(untokenized);
 	    	}
-
+	    	
 	    	try {
 	    		List<Aligner.Pair> alignment = a.align(tokenized, untokenized).pairs;
 	    		if(alignment == null) {

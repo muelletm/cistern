@@ -1,15 +1,21 @@
 package marmot.tokenize.cmd;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Iterator;
+
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 
 import marmot.tokenize.RuleBasedTokenizer;
 import marmot.tokenize.Tokenizer;
 import marmot.tokenize.openlp.OpenNlpConverter;
 import marmot.tokenize.openlp.OpenNlpTokenizerTrainer;
+import marmot.tokenize.preprocess.BufferedReaderWrapper;
 import marmot.tokenize.preprocess.Pair;
 import marmot.tokenize.preprocess.WikiSelector;
 import marmot.tokenize.rules.RuleProvider;
@@ -75,7 +81,7 @@ public class Trainer {
 		//			1 only success
 		//			2 all messages
 		//			3 only failure
-		
+	
 		boolean expand = lang.equalsIgnoreCase("de") || lang.equalsIgnoreCase("es");
 		
 		Iterable<Pair> pairs = new WikiSelector(untok_file, tok_file,
