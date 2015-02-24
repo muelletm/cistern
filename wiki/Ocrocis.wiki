@@ -1,7 +1,7 @@
 #labels OCR,LSTM
 = Ocrocis =
 
-Download the project as .tar.gz here: <http://cistern.cis.lmu.de/ocrocis.tar.gz>
+Download the project as .tar.gz here: http://cistern.cis.lmu.de/ocrocis.tar.gz
  
 == Synopsis ==
  
