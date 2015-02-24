@@ -5,7 +5,7 @@ by David Kaumanns and Uwe Springmann (2015)
 
 Please see the official readme at
 
-http://cistern.cis.uni-muenchen.de/ocrocis
+http://cistern.cis.lmu.de/ocrocis
 
 Download the application from
 
