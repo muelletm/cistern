@@ -1,17 +1,17 @@
 #labels OCR,LSTM
 = Ocrocis =
 
-by David Kaumanns and Uwe Springmann (2015)
+A project manager for Thomas Breuel's Ocropy toolkit for training optical character recognition (OCR) models with long short term memory networks (https://github.com/tmbdev/ocropy).
 
-Please see the official readme at
+Ocrocis guides the user in training high-quality OCR models from raw PDFs or images. It features automatic project management and a minimalistic interface.
 
-http://cistern.cis.lmu.de/ocrocis
+Please see the official readme at http://cistern.cis.lmu.de/ocrocis
 
-Download the application from
-
-http://cistern.cis.lmu.de/ocrocis.tar.gz
+Download the application from http://cistern.cis.lmu.de/ocrocis.tar.gz
 
 ---
+
+David Kaumanns and Uwe Springmann (2015)
 
 Licensed 2015 under Apache 2.0 (http://www.apache.org/licenses/LICENSE-2.0) 
 
