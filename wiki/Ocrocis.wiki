@@ -15,4 +15,6 @@ http://cistern.cis.lmu.de/ocrocis.tar.gz
 
 Licensed 2015 under Apache 2.0 (http://www.apache.org/licenses/LICENSE-2.0) 
 
-Center for Information and Language Processing (CIS) University of Munich http://www.cis.uni-muenchen.de
+Center for Information and Language Processing (CIS) 
+University of Munich 
+http://www.cis.lmu
