@@ -1,0 +1,316 @@
+#labels OCR,LSTM
+= Ocrocis =
+
+* [[#synopsis|Synopsis]]
+* [[#installation|Installation]]
+* [[#how-it-works|How it works]]
+* [[#step-by-step-example|Step-by-step example]]
+* [[#model-application|Model application]]
+
+== Synopsis ==
+
+''Ocrocis'' is a project manager interface for Thomas Breuel's ''Ocropy'', a toolkit for training optical character recognition (OCR) models with long short term memory networks (https://github.com/tmbdev/ocropy).
+
+''Ocrocis'' guides the user in training high-quality OCR models from raw PDFs or images. It features automatic project management with a minimalistic philosophy:
+
+* Smart parameter inference, few required arguments
+* Non-redundant disk usage via hardlinks
+* Only core-Perl dependencies (aside ''Ocropy'''s native dependencies')
+
+
+-----
+
+Licensed 2015 under Apache 2.0 (<http://www.apache.org/licenses/LICENSE-2.0)
+by David Kaumanns and Uwe Springmann
+
+Center for Information and Language Processing (CIS)
+University of Munich
+<http://www.cis.uni-muenchen.de>
+
+== Installation ==
+
+=== Requirements ===
+
+All systems:
+
+* Manual installation: ''Ocropy'', ''Imagemagick'', ''Perl &gt;= 5.14'', ''perl-doc'', ''groff''
+* '''Or''' automatic installation: ''Docker &gt;= 1.4.1''
+
+''Ocrocis'' can be installed via ''Docker'' which takes care of all dependencies, including those of ''Ocropy''.
+
+The idea of ''Docker'' is to deliver pre-packaged containers of software that just need to be built and run.
+
+==== How to get Docker ====
+
+===== Linux =====
+
+You can use your package manager to install ''docker'' (or ''docker.io'' in Ubuntu). ''Docker'' is under heavy development (February 2015), so please make sure that you are installing a current version (1.4.1 as of Feb 2015).
+
+If in doubt, install ''Docker'' yourself, for example on ''Ubuntu'':
+
+http://docs.docker.com/installation/ubuntulinux/
+
+===== Mac OS X =====
+
+Install ''Xcode'' (https://itunes.apple.com/en/app/xcode/id497799835?mt=12) and its command line tools:
+
+<pre>xcode-select --install</pre>
+Install the ''Docker'' environment for ''OS X'' (see https://docs.docker.com/installation/mac/). It is recommended to use the package manager ''Homebrew'' (http://brew.sh):
+
+<pre>brew install Caskroom/cask/virtualbox docker boot2docker</pre>
+The following two instructions are given by the ''boot2docker'' install routine and are repeated here for convenience. Let ''launchd'' start ''boot2docker'' at login and then load ''boot2docker'':
+
+<pre>ln -sfv /usr/local/opt/boot2docker/*.plist ~/Library/LaunchAgents
+launchctl load ~/Library/LaunchAgents/homebrew.mxcl.boot2docker.plist</pre>
+Finally, initialize, start and export ''boot2docker'':
+
+<pre>boot2docker init
+boot2docker start
+$(boot2docker shellinit)</pre>
+The last two steps, <code>start</code> and <code>shellinit</code>, have to be repeated in each new shell you open. ''Ocrocis'' will handle that for you, so you don't have to worry about it.
+
+Now your ''Docker'' should be ready to go on ''OS X''. Test it like so:
+
+<pre>docker run hello-world</pre>
+==== How to get Ocropy for manual installation ====
+
+See https://github.com/tmbdev/ocropy.
+
+Note that the manual installation of ''Ocropy'' requires <code>sudo</code> privileges and is known to have some issues on ''OS X''.
+
+=== Installing ''Ocrocis'' ===
+
+'''With ''Git'':''' Clone and enter the repository like so:
+
+<pre>git clone git@gitlab.cis.uni-muenchen.de:ocr/ocrocis.git &amp;&amp; cd ocrocis</pre>
+'''Without ''Git'':''' Download and unzip ''Ocrocis'', then open your terminal and enter the installation directory.
+
+In both cases, run the installation with your preferred installation method. There are two options:
+
+# <code>./install with-docker</code> : builds the ''Docker'' image and installs ''Ocrocis'' as ''Docker+Perl'' application.
+# <code>./install perl-only</code> : installs ''Ocrocis'' as Perl-only application. Use this method if you already have ''Ocropy'' installed or want to install it manually.
+
+Notes:
+
+* You can re-run the installation with different methods as often as you want.
+* If you have run ''install with-docker'' several times, it is recommended to remove cached redundant ''Docker'' images once in a while to free space:
+** <code>./dockerclean</code>
+
+== How it works ==
+
+=== Workflow ===
+
+There are five (and a half) commands:
+
+<ul>
+<li>'''Project initialization'''
+<ol style="list-style-type: decimal;">
+<li><code>ocrocis convert</code> - convert a PDF file or a set of images to binary PNG images</li>
+<li><code>ocrocis burst</code> - segment each binary page image into a directory of line images</li></ol>
+</li>
+<li>'''Iteration'''
+<ol start="3" style="list-style-type: decimal;">
+<li><code>ocrocis next</code> - initialize the next project iteration</li>
+<li><code>ocrocis train</code> - prepare and run training</li>
+<li><code>ocrocis test</code> - prepare and run tests on annotated data</li></ol>
+</li>
+<li>'''Model application'''
+<ol start="6" style="list-style-type: decimal;">
+<li><code>ocrocis test --book</code> - run tests on unannotated data</li></ol>
+</li></ul>
+
+Each command may or may not require some preparation (e.g. cropping images or annotating lines). See the documentation for further details.
+
+'''Output flow'''
+
+''Ocrocis'' itself is silent by default. All native ''Ocropus'' output is printed to standard output for convenient logging (e.g. with <code>&gt; logfile.txt</code>).
+
+Use <code>--verbose</code> to print verbose information to standard error (<code>2&gt;</code>).
+
+=== Project architecture ===
+
+'''Data is structured'''
+
+''Ocrocis'' works on a fixed directory structure that allows it to efficiently manage the data generated in the training process:
+
+* book repository with pages and line images
+* iterations
+** for each iteration: annotation set, annotation HTML, models
+* training set
+* test set
+
+'''Data is linked'''
+
+''Ocrocis'' uses hardlinks to consolidate data between the book repository, annotation sets, trainings sets and test sets. Data is always linked to its source directory, never copied. This avoids redundant disk usage.
+
+There are two kinds of source directories:
+
+# ''book'': Original pages and line images, linked to by ''annotation'', ''training'' and ''test''
+# ''annotation'' (for each iteration): Original ground truths, linked to by ''training'' and ''test''
+
+The link structure is tree-like, analog to the directory structure, not chain-like. Each link points to the original data.
+
+'''Data is unique'''
+
+Changes to files (including links) anywhere in the link tree are reflected in the source directory. This is especially useful if you wish to modify the images (e.g. by cropping) at some iteration in the training process. The changes are reflected everywhere in the project.
+
+'''Data is safe'''
+
+The link structure also allows you to safely delete any link in the tree. The original data is kept, as long as there is still at least one link somewhere in the project. (Note that technically, the original data in ''book'' are also just links.)
+
+This tree shows a part of an example project with two pages used for training and testing.
+
+<pre>home
+  ├── book
+  │    ├── [original page images]
+  │    ├── 0001
+  │    │    └── [original line images]
+  │    ├── 0002
+  │    │    └── [original line images]
+  │    └── ...
+  │
+  ├── iterations
+  │    ├── 01
+  │    │    ├── annotation
+  │    │    │    ├── 0001
+  │    │    │    │    ├── [links to line images in book]
+  │    │    │    │    └── [original ground truths]
+  │    │    │    ├── 0002
+  │    │    │    │    ├── [links to line images in book]
+  │    │    │    │    └── [original ground truths]
+  │    │    │    └── ...
+  │    │    ├── models
+  │    │    │    └── [model files]
+  │    │    └── index.html
+  │    ├── 02
+  │    │    └── ...
+  │    └── ...
+  │
+  ├── training
+  │    ├── 0001
+  │    │    ├── [links to line images in book]
+  │    │    └── [links to ground truths in annotation]
+  │    └── ...
+  │
+  └── test
+       ├── 0002
+       │    ├── [links to line images in book]
+       │    └── [links to ground truths in annotation]
+       └── ...</pre>
+== Step-by-step example ==
+
+This walkthrough shows how to train models from the demo PDF.
+
+Please refer to the <code>--help</code> page of each command for references and further options, like using a specific model or several CPUs.
+
+Note on '''Pass-through options''': Each command takes one or more pass-through options as strings. These parameters are passed through unchanged to the underlying calls of ''convert'' or ''Ocropy''. For help on these options, please refer to their original documentations.
+
+
+-----
+
+First, let's bootstrap the very first models. Create a directory named ''demo'' and enter it:
+
+<pre>mkdir demo &amp;&amp; cd demo</pre>
+Download the demo PDF to the current project directory. This way you have access to it, even if you use ''Docker''.
+
+<blockquote>If you run ''Ocrocis'' via ''Docker'', the current directory is mounted into the ''Docker'' container. This means you only have access to files in or below the current directory, not above.
+</blockquote>
+<pre>wget http://cistern.cis.lmu.de/ocrocis/demo.pdf</pre>
+
+-----
+
+'''Step 1''': Convert the demo PDF to binary page images. This populates the <code>book</code> repository with binary page images:
+
+<pre>ocrocis convert --verbose --pdf demo.pdf --convert &quot;-density 300&quot; --ocropus-nlbin &quot;-nochecks&quot;</pre>
+
+-----
+
+'''Step 2''': Burst each page image into a directory of line images:
+
+<pre>ocrocis burst</pre>
+
+-----
+
+'''Step 3''': Initialize the next iteration with a subset of the page numbers in the <code>book</code> repository. This creates the first annotation set inside the <code>iterations/01/annotation</code> directory and populates it with links to the original line images for pages 1 and 2:
+
+<pre>ocrocis next --verbose 1 2</pre>
+From these, an annotation HTML is created as <code>iterations/01/annotations/Correction.html</code>. Open it with your favourite web browser, either by double-clicking on it within a file manager or via command line, like so:
+
+<pre>firefox iterations/01/annotation/Correction.html</pre>
+<blockquote>Safari on Mac OS X cannot save modifies HTML files. It is recommended to use Firefox or Chrome.
+</blockquote>
+Annotate the ground truths inside the text fields, one for each line. Save the HTML file (with sources) as '''the same file''' via your browser's ''Save as...'' feature.
+
+
+-----
+
+'''Step 4''': Run the training on a subset of the annotation set, in this case just page 1:
+
+<pre>ocrocis train --verbose --ntrain 2000 --savefreq 1000 1</pre>
+This command extracts the ground truths from the annotation HTML and saves them alongside the line images in the annotation set. It then creates the ''training'' directory and populates it with links to line images and ground truths in the annotation set. It then starts training on the whole training set.
+
+<blockquote>This command automatically reuses the latest model of the previous iteration as a starting point, if it exists.
+</blockquote>
+
+-----
+
+'''Step 5''': After training, you can expand the global test set and run an evaluation, e.g. of the latest model:
+
+<pre>ocrocis test --verbose</pre>
+This command automatically uses the remaining pages from the annotation set (here page 3). Just like <code>train</code>, it creates links in the global test set, pointing to line images and ground truths in the annotation set.
+
+
+-----
+
+The test results will be quite bad due to the tiny training set. If you want to '''continue training within the same iteration''', just run <code>train</code> again, this time with the last model as starting point:
+
+<pre>ocrocis train --verbose --ntrain 2000 --savefreq 1000 --model iterations/01/models/model-00002000.pyrnn.gz 1</pre>
+Note that each time you call <code>train</code> and <code>test</code>, the annotation HTML will be parsed for any changes and the ground truths will be updated. In other words, you may change the annotation HTML whenever you want and be sure that the changes are used in all subsequent runs.
+
+
+-----
+
+'''Step 5.x and beyond''': Repeat '''steps 3 to 5''' for several iterations, until the resulting models reach the desired quality. Each iteration will reuse the latest model from the previous iteration.
+
+
+-----
+
+'''Step 6''': If you want to apply a model on the whole <code>book</code> repository, use the <code>--book</code> switch. This command uses the latest model of the current project:
+
+<pre>ocrocis test --book --verbose</pre>
+For further information on model application, see the section below.
+
+== Model application ==
+
+This section explains how to apply a model on unknown (i.e. unannotated) pages and generate '''only predictions''' (no evaluations). Since this is a special case of testing, the <code>test</code> command is reused for this purpose.
+
+=== Initialize new project ===
+
+''Ocropus'' only works on binarized line images. Therefore, you first have to initialize a new project from the new pages via <code>convert</code> and <code>burst</code>.
+
+Run <code>ocrocis convert --help</code> and <code>ocrocis burst --help</code> to see how to initialize a new project from PDFs or image files.
+
+=== Apply model on project ===
+
+Applying a model to a project works just like testing. Just skip the <code>next</code> and <code>train</code> commands and go right to the testing.
+
+<code>ocrocis test --book --model [FILE] [OPTIONS] [PAGE-NUMBER...]</code>
+
+The <code>--book</code> switch tells ''Ocrocis'' that you want to test on the unannotated ''book'' repository. Since it is unannotated, '''only predictions''' are computed, not evaluations.
+
+All other options are the same as in testing (see <code>ocrocis test --help</code>).
+
+<blockquote>If you do not specify the project home via <code>--home</code>, make sure you are within the newly initialized project directory.
+</blockquote>
+<blockquote>If you use ''Docker'', make sure the model you want to use is in the current directory or below. Copy it there if necessary.
+</blockquote>
+<blockquote>If you do not specify an external model, a model from the same project is infered.
+</blockquote>
+'''Examples'''
+
+<pre>ocrocis test --book
+ocrocis test --book {1..3}
+ocrocis test --book --verbose --model some-model-from-another-project.pyrnn.gz
+ocrocis test --book --verbose --model iterations/02/models
+ocrocis test --book --verbose --model iterations/02/models/model-00000010.pyrnn.gz
+ocrocis test --book --verbose --model iterations/02/models/model-00000010.pyrnn.gz {1..3}</pre>
