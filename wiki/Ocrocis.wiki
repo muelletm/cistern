@@ -16,5 +16,7 @@ David Kaumanns and Uwe Springmann (2015)
 Licensed 2015 under Apache 2.0 (http://www.apache.org/licenses/LICENSE-2.0) 
 
 Center for Information and Language Processing (CIS) 
+
 University of Munich 
+
 http://www.cis.lmu
