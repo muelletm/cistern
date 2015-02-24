@@ -3,12 +3,6 @@
 
 Download the project as .tar.gz here: <http://cistern.cis.lmu.de/ocrocis.tar.gz>
  
-* [Synopsis]
-* [Installation]
-* [How it works]
-* [Step-by-step example]
-* [Model application]
- 
 == Synopsis ==
  
 _Ocrocis_ is a project manager interface for Thomas Breuel's _Ocropy_, a toolkit for training optical character recognition (OCR) models with long short term memory networks ([https://github.com/tmbdev/ocropy]).
