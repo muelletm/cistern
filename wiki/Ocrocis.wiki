@@ -19,7 +19,6 @@ Ocrocis (2015) is licensed by David Kaumanns (Ocrocis software) & Uwe Springmann
 
 under Apache 2.0 (http://www.apache.org/licenses/LICENSE-2.0) 
 
-Center for Information and Language Processing (CIS) 
-University of Munich 
+Center for Information and Language Processing (CIS), University of Munich 
 
-http://www.cis.lmu
+http://www.cis.lmu.de
