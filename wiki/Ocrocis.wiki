@@ -5,18 +5,21 @@ A project manager for Thomas Breuel's Ocropy toolkit for training optical charac
 
 Ocrocis guides the user in training high-quality OCR models from raw PDFs or images. It features automatic project management and a minimalistic interface.
 
-Please see the official readme at http://cistern.cis.lmu.de/ocrocis
+*Official readme*: http://cistern.cis.lmu.de/ocrocis
 
-Download the application from http://cistern.cis.lmu.de/ocrocis.tar.gz
+== Downloads ==
 
----
+  * *Ocrocis*: http://cistern.cis.lmu.de/ocrocis.tar.gz
+  * *Tutorial*: http://cistern.cis.lmu.de/ocrocis/tutorial.pdf
+  * *Tutorial data*: http://cistern.cis.lmu.de/ocrocis/tutdemo.zip
 
-David Kaumanns and Uwe Springmann (2015)
+== License ==
 
-Licensed 2015 under Apache 2.0 (http://www.apache.org/licenses/LICENSE-2.0) 
+Ocrocis (2015) is licensed by David Kaumanns (Ocrocis software) & Uwe Springmann (Ocrocis tutorial)
+
+under Apache 2.0 (http://www.apache.org/licenses/LICENSE-2.0) 
 
 Center for Information and Language Processing (CIS) 
-
 University of Munich 
 
 http://www.cis.lmu
