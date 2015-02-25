@@ -5,7 +5,7 @@ A project manager for Thomas Breuel's Ocropy toolkit for training optical charac
 
 Ocrocis guides the user in training high-quality OCR models from raw PDFs or images. It features automatic project management and a minimalistic interface.
 
-*Official readme*: http://cistern.cis.lmu.de/ocrocis
+*Readme*: http://cistern.cis.lmu.de/ocrocis
 
 == Downloads ==
 
