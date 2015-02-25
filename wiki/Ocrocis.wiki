@@ -9,7 +9,7 @@ Ocrocis guides the user in training high-quality OCR models from raw PDFs or ima
 
 == Downloads ==
 
-  * *Ocrocis*: http://cistern.cis.lmu.de/ocrocis.tar.gz
+  * *Ocrocis*: http://cistern.cis.lmu.de/ocrocis.zip
   * *Tutorial*: http://cistern.cis.lmu.de/ocrocis/tutorial.pdf
   * *Tutorial data*: http://cistern.cis.lmu.de/ocrocis/tutdemo.zip
 
