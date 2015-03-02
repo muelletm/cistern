@@ -11,7 +11,7 @@ memory networks
 
  * Smart parameter inference, few required arguments
  * Non-redundant disk usage via hardlinks
- * Only core-Perl dependencies (aside <em>Ocropy</em>'s native dependencies')
+ * Only core-Perl dependencies (aside <em>Ocropy</em>'s native dependencies)
 
 == Details ==
 
