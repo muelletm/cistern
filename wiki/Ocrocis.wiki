@@ -1,7 +1,7 @@
 #labels OCR,LSTM
 = Ocrocis =
 
-A project manager for Thomas Breuel's Ocropy toolkit for training optical character recognition (OCR) models with long short term memory networks (https://github.com/tmbdev/ocropy).
+A project manager for Thomas Breuel's Ocropy tool kit for training optical character recognition (OCR) models with long short term memory networks (https://github.com/tmbdev/ocropy).
 
 Ocrocis guides the user in training high-quality OCR models from raw PDFs or images. It features automatic project management and a minimalistic interface.
 
