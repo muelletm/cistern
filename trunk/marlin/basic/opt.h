@@ -94,7 +94,5 @@ inline string opt_define_string_wrap(const string &name, string *var, const stri
 void print_opts();
 
 extern int rand_seed;
-extern string comment;
-extern int initC;
 
 #endif

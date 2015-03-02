@@ -1,6 +1,5 @@
 #include "opt.h"
 #include "std.h"
-#include "logging.h"
 #include <getopt.h>
 
 ////////////////////////////////////////////////////////////////////////
@@ -171,15 +170,14 @@ void init_opt(int argc, char *argv[]) {
 }
 
 void print_opts() {
-  track("print_opts()", "", true);
   forvec(_, const OptInfo<bool> &, o, bool_opts)
-    logs(o.name << " = " << (*o.var ? "true" : "false"));
+    cerr << o.name << " = " << (*o.var ? "true" : "false") << endl;
   forvec(_, const OptInfo<int> &, o, int_opts)
-    logs(o.name << " = " << *o.var);
+    cerr << o.name << " = " << *o.var << endl;
   forvec(_, const OptInfo<double> &, o, double_opts)
-    logs(o.name << " = " << *o.var);
+    cerr << o.name << " = " << *o.var << endl;
   forvec(_, const OptInfo<string> &, o, string_opts)
-    logs(o.name << " = " << *o.var);
+    cerr << o.name << " = " << *o.var << endl;
 }
 
 ////////////////////////////////////////////////////////////
