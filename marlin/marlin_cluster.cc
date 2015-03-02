@@ -1,35 +1,19 @@
 #include "basic/std.h"
 #include "basic/stl-basic.h"
 #include "basic/stl-utils.h"
-#include "basic/str.h"
-#include "basic/strdb.h"
-#include "basic/union-set.h"
-#include "basic/mem-tracker.h"
 #include "basic/opt.h"
-#include "basic/timer.h"
 #include <unistd.h>
-#include <stdio.h>
-#include <execinfo.h>
-#include <signal.h>
-#include <stdlib.h>
 
 vector< OptInfo<bool> > bool_opts;
 vector< OptInfo<int> > int_opts;
 vector< OptInfo<real> > double_opts;
 vector< OptInfo<string> > string_opts;
 
-int trigram_delta_time_;
-int delta_time_;
-int char_delta_time_;
-
 opt_define_string_req(unigram_file_, "words", "Text file with words.");
 opt_define_string_req(bigram_file_, "bigrams", "Text file with bigrams.");
-opt_define_string(trigram_file_, "trigrams", "", "Text file with trigrams.");
 opt_define_string_req(output_,    "output", "Output.");
 
 opt_define_double(alpha_, "alpha", 0.0,         "Character Model Strength [0,1].");
-opt_define_double(beta_, "beta", 0.0,         "Trigram Model Strength [0,1].");
-
 opt_define_int(num_classes_,        "c", 1000,                    "Number of clusters.");
 opt_define_int(num_steps_,        "steps", -1,                    "Number of steps or -1 to run until convergence.");
 opt_define_int(rand_seed,    "rand", time(NULL)*getpid(),  "Number to call srand with.");
@@ -92,14 +76,7 @@ typedef vector<BiEntryVec> BiEntryVecVec;
 EntryVecVec left_context_;
 EntryVecVec right_context_;
 
-BiEntryVecVec left_tri_context_;
-BiEntryVecVec center_tri_context_;
-BiEntryVecVec right_tri_context_;
-
 IntVec word_counts_;
-
-IntVecVec class_class_class_counts_;
-IntVecVec current_class_class_class_counts_;
 
 IntVec class_class_counts_;
 IntVec class_counts_;
@@ -113,8 +90,6 @@ int num_chars_;
 
 // Whether a character bigram model is used. Depends on alpha.
 bool character_;
-bool trigrams_;
-bool bigrams_;
 
 StringVec word_forms_;
 IntVecVec word_chars_;
@@ -210,9 +185,6 @@ void assignToZero() {
     }
   }
   class_class_counts_[0] = class_counts_[0];
-  if (trigrams_) {
-    class_class_class_counts_[0][0] = class_counts_[0];
-  }
 }
 
 void addTagTagCount(int klass, int cclass, int count) {
@@ -239,75 +211,6 @@ void incrementBigrams(int word, int klass, int factor) {
   }
 }
 
-void addTagTagTagCount(int c, int k, int g, int count) {
-  class_class_class_counts_[c][classIndex(k, g)] += count;
-  assert( class_class_class_counts_[c][classIndex(k, g)] >= 0);
-}
-
-void incrementTrigrams(int word, int klass, int factor) {
-  forvec (_, BiEntry, entry, left_tri_context_[word]) {
-    int cword = entry.item;
-    int cword2 = entry.item2;
-
-    // cerr << cword << " " << cword2 << " " << word << endl;
-
-    assert (cword >= 0 && cword < num_words_);
-    assert (cword2 >= 0 && cword2 < num_words_);
-
-    int cclass = word_assignment_[cword];
-    int cclass2 = word_assignment_[cword2];
-
-    if (cword == word) {
-      if (cword2 == word) {
-	addTagTagTagCount(klass, klass, klass, factor * entry.count);
-      } else {
-	addTagTagTagCount(klass, cclass2, klass, factor * entry.count);
-      }
-    } else {
-      if (cword2 == word) {
-	addTagTagTagCount(cclass, klass, klass, factor * entry.count);
-      } else {
-	addTagTagTagCount(cclass, cclass2, klass, factor * entry.count);
-      }
-    }  
-  }
-
-  forvec (_, BiEntry, entry, center_tri_context_[word]) {
-     int cword = entry.item;
-     int cword2 = entry.item2;
-
-     assert (cword >= 0 && cword < num_words_);
-     assert (cword2 >= 0 && cword2 < num_words_);
-
-     int cclass = word_assignment_[cword];
-     int cclass2 = word_assignment_[cword2];
-
-     if (cword2 != word) {
-
-       if (cword == word) {
-	 addTagTagTagCount(klass, klass, cclass2, factor * entry.count);
-       } else {
-	 addTagTagTagCount(cclass, klass, cclass2, factor * entry.count);
-       }
-     }
-  }
-
-  forvec (_, BiEntry, entry, right_tri_context_[word]) {
-     int cword = entry.item;
-     int cword2 = entry.item2;
-
-     assert (cword >= 0 && cword < num_words_);
-     assert (cword2 >= 0 && cword2 < num_words_);
-
-     int cclass = word_assignment_[cword];
-     int cclass2 = word_assignment_[cword2];
-
-     if (cword != word && cword2 != word) {
-       addTagTagTagCount(klass, cclass, cclass2, factor * entry.count);
-     }
-  }
-}
-
 void increment(int word, int klass, int factor) {
 
   assert (word > 0);
@@ -316,10 +219,6 @@ void increment(int word, int klass, int factor) {
   class_counts_[klass] += factor * word_counts_[word];
 
   incrementBigrams(word, klass, factor);
-
-  if (trigrams_) {
-    incrementTrigrams(word, klass, factor);
-  }
 
   if (character_) {
     incrementChars(word, klass, factor);
@@ -429,101 +328,13 @@ void readBigrams() {
       right_count += entry.count;
     }
 
-    if (!(count > 0 && count == left_count && count == right_count)) {
-      cerr << word_forms_[word] << " " << count << " " << left_count << " " << right_count << endl;
-    }
-    assert (count > 0 && count == left_count && count == right_count);
+    assert (count == left_count && count == right_count);
   }
 
 }
-
-void readTrigrams() {
-  ifstream in(trigram_file_.c_str());
-  string buf;
-  int word = 0;
-
-  while(getline(in, buf)) {
-    BiEntryVec& cwords = right_tri_context_[word];
-
-    StringVec line;
-    strtok(line, buf, (char) 0);
-
-    forvec (_, string, pair_string, line) {
-      BiEntry entry;
-
-      StringVec tokens;
-      strtok(tokens, pair_string, ':');
-
-      const string& word_string = tokens[0];
-      const string& word2_string = tokens[1];
-      const string& count_string = tokens[2];
-  
-      long cword = atoi(word_string.c_str());
-      long cword2 = atoi(word2_string.c_str());
-      int count = atoi(count_string.c_str());
-
-      // Add to right contexts
-      entry.item = cword;
-      entry.item2 = cword2;
-
-      assert (entry.item >= 0);
-      entry.count = count;
-      cwords.push_back(entry);
-
-      // Add to center contexts     
-      entry.item = word;
-      entry.item2 = cword2;
-      assert (entry.item >= 0);
-      center_tri_context_[cword].push_back(entry);
-
-      // Add to left contexts     
-      entry.item = word;
-      entry.item2 = cword;
-      assert (entry.item >= 0);
-      left_tri_context_[cword2].push_back(entry);
-
-    }
-
-    word++;
-  }
-
-
-  // Check consistency
-  for (word = 0; word < num_words_; word++) {
-    int count = word_counts_[word];
-
-    int left_count = 0;
-    forvec (_, const BiEntry&, entry, left_tri_context_[word]) {
-      left_count += entry.count;
-    }
-
-    int center_count = 0;
-    forvec (_, const BiEntry&, entry, center_tri_context_[word]) {
-      center_count += entry.count;
-    }
-
-
-    int right_count = 0;
-    forvec (_, const BiEntry&, entry, right_tri_context_[word]) {
-      right_count += entry.count;
-    }
-
-    // if (!(count > 0 && count == left_count && count == right_count && count == center_count)) {
-    //   fprintf(stderr, "%d %d %d %d %d\n", word, count, left_count, center_count, right_count);
-    // }
-
-    assert (count > 0 && count == left_count && count == right_count && count == center_count);
-  }
-
-}
-
 
 void readData() {
   readWordForms();
-
-  if (verbose_ > 0) {
-    cerr << "Number of words: " << num_words_ << endl;
-  }
 
   if (alpha_ > 1e-5) {
     character_ = true;
@@ -539,14 +350,6 @@ void readData() {
 
   // Init data structures.
 
-  if (trigrams_) {
-    matrix_resize(class_class_class_counts_, num_classes_, num_classes_ * num_classes_);
-    matrix_resize(current_class_class_class_counts_, num_classes_, num_classes_ * num_classes_);
-    left_tri_context_.resize(num_words_);
-    center_tri_context_.resize(num_words_);
-    right_tri_context_.resize(num_words_);
-  }
-
   class_class_counts_.resize(num_classes_ * num_classes_);  
   current_class_class_counts_.resize(num_classes_ * num_classes_);
 
@@ -559,9 +362,6 @@ void readData() {
   word_forms_.resize(num_words_);
 
   readBigrams();
-  if (trigrams_) {
-    readTrigrams();
-  }
 
   if (character_) {
 
@@ -629,45 +429,20 @@ real calcCharLikelihood(int klass) {
 real calcLikelihood() {
   real ll = 0;
 
-  // Trigram Context Counts.
-  if (trigrams_) {
-
-    real ll_t = 0;
-
-    for (int c = 0; c < num_classes_; c++) {
-      for (int k = 0; k < num_classes_; k++) {
-	for (int g = 0; g < num_classes_; g++) {
-	  ll_t += nlogn(class_class_class_counts_[c][classIndex(k, g)]);
-	}
-      }
-    }
-
-    for (int c = 0; c < num_classes_; c++) {
-      for (int k = 0; k < num_classes_; k++) {
-	ll_t -= nlogn(class_class_counts_[classIndex(c, k)]);
-      }
-    }
-
-    ll += beta_ * ll_t;
-  }
-
   // Bigram Context Counts.
-  if (bigrams_) {
+  real ll_b = 0;
 
-    real ll_b = 0;
-
-    for (int c = 0; c < num_classes_; c++) {
-      for (int k = 0; k < num_classes_; k++) {
-	ll_b += nlogn(class_class_counts_[classIndex(c, k)]);
-      }
+  for (int c = 0; c < num_classes_; c++) {
+    for (int k = 0; k < num_classes_; k++) {
+      ll_b += nlogn(class_class_counts_[classIndex(c, k)]);
     }
-
-    for (int c = 0; c < num_classes_; c++) {
-      ll_b -= nlogn(class_counts_[c]);
-    }
-
-    ll += (1.0 - beta_) * ll_b;
   }
+  
+  for (int c = 0; c < num_classes_; c++) {
+    ll_b -= nlogn(class_counts_[c]);
+  }
+
+  ll += ll_b;
 
   // Unigram Word Emission Counts.
   real ll_w = word_ll_term_;
@@ -731,84 +506,16 @@ void setContextClassCount(int word) {
   }
 }
 
-void setTrigramContextClassCount(int word) {
-  left_tri_class_counts_.clear();
-  center_tri_class_counts_.clear();
-  right_tri_class_counts_.clear();
-
-  word_word_word_count_ = 0;
-  word_word_x_counts_.clear();
-  word_x_word_counts_.clear();
-  x_word_word_counts_.clear();
-
-  forvec (_, BiEntry, entry, left_tri_context_[word]) {
-    int cword = entry.item;
-    int cword2 = entry.item2;
-
-    int cclass = word_assignment_[cword];
-    int cclass2 = word_assignment_[cword2];
-
-    if (cword == word) {
-      if (cword2 == word) {
-	word_word_word_count_ = entry.count;
-      } else {
-	addToSparseEntryVec(word_x_word_counts_, cclass2, entry.count);
-      }
-    } else {
-      if (cword2 == word) {
-	addToSparseEntryVec(x_word_word_counts_, cclass, entry.count);
-      } else {
-	addToSparseEntryVec(left_tri_class_counts_, classIndex(cclass, cclass2), entry.count);
-      }
-    }
-  }
-
-  forvec (_, BiEntry, entry, center_tri_context_[word]) {
-    int cword = entry.item;
-    int cword2 = entry.item2;
-
-    int cclass = word_assignment_[cword];
-    int cclass2 = word_assignment_[cword2];
-
-    if (cword2 != word) {
-      if (cword == word) {
-	addToSparseEntryVec(word_word_x_counts_, cclass2, entry.count);
-      } else {
-	addToSparseEntryVec(center_tri_class_counts_, classIndex(cclass, cclass2), entry.count);
-      }
-    } 
-  }
-
-  forvec (_, BiEntry, entry, right_tri_context_[word]) {
-    int cword = entry.item;
-    int cword2 = entry.item2;
-
-    int cclass = word_assignment_[cword];
-    int cclass2 = word_assignment_[cword2];
-
-    if (cword != word && cword2 != word) {
-      addToSparseEntryVec(right_tri_class_counts_, classIndex(cclass, cclass2), entry.count);
-    } 
-  }
-}
-
-
 void setCurrentWord(int w) {
   current_word_ = w;
 
   setContextClassCount(w);
-
-  if (trigrams_) {
-    setTrigramContextClassCount(w);
-  }
 
   if (character_)
     setCharCounts(w);
 }
 
 real calcCharDelta(int klass) {
-  Timer timer;
-  timer.start();
   int wcount = word_counts_[current_word_];
   real delta = 0;
 
@@ -824,8 +531,6 @@ real calcCharDelta(int klass) {
     delta -= nlogn(new_count) - nlogn(old_count);
   }
    
-  timer.stop();
-  char_delta_time_ += timer.ms;
   return delta;
 }
 
@@ -873,145 +578,16 @@ real calcBigramDelta(int klass) {
   return delta;
 }
 
-real calcLocalDelta(int c, int k, int g, int count) {
-  assert (k >= 0 && k < num_classes_);
-  assert (c >= 0 && c < num_classes_);
-  assert (g >= 0 && g < num_classes_);
-  assert (count >= 0);
-  int index = classIndex(k, g);
-  int oldcount = class_class_class_counts_[c][index] + current_class_class_class_counts_[c][index];
-  int newcount = oldcount + count;
-  current_class_class_class_counts_[c][index] += count;
-  return nlogn(newcount) - nlogn(oldcount);
-}
-
-void setZero(int c, int k, int g) {
-  assert (k < num_classes_);
-  assert (c < num_classes_);
-  assert (g < num_classes_);
-  int index = classIndex(k, g);
-  current_class_class_class_counts_[c][index] = 0;
-}
-
-
-real calcTrigramDelta(int klass) {
-  Timer timer;
-  timer.start();
-
-  real delta = 0;
-
-  assert (klass >= 0 && klass < num_classes_);
-
-  forvec (_, Entry, entry, left_tri_class_counts_) {
-    int cclass = entry.item / num_classes_;
-    int cclass2 = entry.item % num_classes_;
-    assert (cclass >= 0 && cclass < num_classes_);
-    assert (cclass2 >= 0 && cclass2 < num_classes_);
-    delta += calcLocalDelta(cclass, cclass2, klass, entry.count);
-  }
-
-  forvec (_, Entry, entry, center_tri_class_counts_) {
-    int cclass = entry.item / num_classes_;
-    int cclass2 = entry.item % num_classes_;
-    assert (cclass >= 0 && cclass < num_classes_);
-    assert (cclass2 >= 0 && cclass2 < num_classes_);
-    delta += calcLocalDelta(cclass, klass, cclass2, entry.count);
-  }
-
-  forvec (_, Entry, entry, right_tri_class_counts_) {
-    int cclass = entry.item / num_classes_;
-    int cclass2 = entry.item % num_classes_;
-    assert (cclass >= 0 && cclass < num_classes_);
-    assert (cclass2 >= 0 && cclass2 < num_classes_);
-    delta += calcLocalDelta(klass, cclass, cclass2, entry.count);
-  }
-
-  delta += calcLocalDelta(klass, klass, klass, word_word_count_);
-
-  forvec (_, Entry, entry, word_word_x_counts_) {
-    assert (entry.item >= 0 && entry.item < num_classes_);
-    delta += calcLocalDelta(klass, klass, entry.item, entry.count);
-  }
-
-  forvec (_, Entry, entry, word_x_word_counts_) {
-    assert (entry.item >= 0 && entry.item < num_classes_);
-    delta += calcLocalDelta(klass, entry.item, klass, entry.count);
-  }
-
-  forvec (_, Entry, entry, x_word_word_counts_) {
-    assert (entry.item >= 0 && entry.item < num_classes_);
-    delta += calcLocalDelta(entry.item, klass, klass, entry.count);
-  }
-
-  forvec (_, Entry, entry, left_tri_class_counts_) {
-    int cclass = entry.item / num_classes_;
-    int cclass2 = entry.item % num_classes_;
-    assert (cclass >= 0 && cclass < num_classes_);
-    assert (cclass2 >= 0 && cclass2 < num_classes_);
-    setZero(cclass, cclass2, klass);
-  }
-
-  forvec (_, Entry, entry, center_tri_class_counts_) {
-    int cclass = entry.item / num_classes_;
-    int cclass2 = entry.item % num_classes_;
-    assert (cclass >= 0 && cclass < num_classes_);
-    assert (cclass2 >= 0 && cclass2 < num_classes_);
-    setZero(cclass, klass, cclass2);
-  }
-
-  forvec (_, Entry, entry, right_tri_class_counts_) {
-    int cclass = entry.item / num_classes_;
-    int cclass2 = entry.item % num_classes_;
-    assert (cclass >= 0 && cclass < num_classes_);
-    assert (cclass2 >= 0 && cclass2 < num_classes_);
-    setZero(klass, cclass, cclass2);
-  }
-
-  setZero(klass, klass, klass);
-
-  forvec (_, Entry, entry, word_word_x_counts_) {
-    assert (entry.item >= 0 && entry.item < num_classes_);
-    setZero(klass, klass, entry.item);
-  }
-
-  forvec (_, Entry, entry, word_x_word_counts_) {
-    assert (entry.item >= 0 && entry.item < num_classes_);
-    setZero(klass, entry.item, klass);
-  }
-
-  forvec (_, Entry, entry, x_word_word_counts_) {
-    assert (entry.item >= 0 && entry.item < num_classes_);
-    setZero(entry.item, klass, klass);
-  }
-
-  timer.stop();
-  trigram_delta_time_ += timer.ms;
-  return delta;
-}
-
-
 real calcDelta(int klass) {
-  Timer timer;
-  timer.start();
-
   int wcount = word_counts_[current_word_];
   real delta = 0;
 
   real bigram_delta = calcBigramDelta(klass);
 
-  if (trigrams_) {
-    real delta_t = 0;
-    delta_t += calcTrigramDelta(klass);
-    delta_t -= bigram_delta;
-    delta += beta_ * delta_t;
-  } 
-
-  if (bigrams_) {
-    real delta_b = 0;
-    delta_b += bigram_delta;
-    delta_b -= (nlogn(class_counts_[klass] + wcount ) - nlogn(class_counts_[klass]));
-    delta += (1.0 -  beta_) * delta_b;
-  }
+  real delta_b = 0;
+  delta_b += bigram_delta;
+  delta_b -= (nlogn(class_counts_[klass] + wcount ) - nlogn(class_counts_[klass]));
+  delta += delta_b;
 
   // Word Emission
   delta -= (1.0 - alpha_) * (nlogn(class_counts_[klass] + wcount ) - nlogn(class_counts_[klass]));
@@ -1021,8 +597,6 @@ real calcDelta(int klass) {
     delta += alpha_ * calcCharDelta(klass);
   }
 
-  timer.stop();
-  delta_time_ += timer.ms;
   return delta;
 }
 
@@ -1044,16 +618,7 @@ void update(UpdateResult &r) {
 int update() {
   int swaps = 0;
 
-  Timer timer;  
-  timer.start();
-
   real current_ll = calcLikelihood();
-
-  int time = 0;
-
-  char_delta_time_ = 0;
-  trigram_delta_time_ = 0;
-  delta_time_ = 0;
 
   UpdateResult r;
 
@@ -1084,17 +649,12 @@ int update() {
     }
 
     if (verbose_ > 1 && w % (num_words_ / 4) == 0) {
-      timer.stop();
-      time += timer.ms;
-      fprintf(stderr, "W:%d LL: %g Swaps: %5d Time:%d DTime: %d CDTTime: %d\n", w, current_ll, swaps, time, delta_time_, trigram_delta_time_);
-      timer.start();
+      fprintf(stderr, "W:%6d / %6d LL: %g Swaps: %5d\n", w, num_words_, current_ll, swaps);
     }
   }
 
   if (verbose_ > 0) {
-      timer.stop();
-      time += timer.ms;
-      fprintf(stderr, "W:%d LL: %g Swaps: %5d Time:%d DTime: %d CDTTime: %d\n", num_words_, current_ll, swaps, time, delta_time_, char_delta_time_);
+    fprintf(stderr, "W:%6d / %6d LL: %g Swaps: %5d\n", num_words_, num_words_, current_ll, swaps);
   }
 
   return swaps;
@@ -1109,37 +669,22 @@ void writeAssignment() {
   os.close();
 }
 
-void handler(int sig) {
-  void *array[10];
-  size_t size;
-
-  // get void*'s for all entries on the stack
-  size = backtrace(array, 10);
-
-  // print out all the frames to stderr
-  fprintf(stderr, "Error: signal %d:\n", sig);
-  backtrace_symbols_fd(array, size, STDERR_FILENO);
-  exit(1);
-}
-
 int main(int argc, char** argv) {
-  signal(SIGSEGV, handler);
   init_opt(argc, argv);
 
-  if (beta_ > 1e-5) {
-    assert (trigram_file_.length() > 0);
-  }
-
-  trigrams_ = beta_ > 1e-5;
-  bigrams_ = beta_ < 1.0 - 1e-5;
-  assert (trigrams_ || bigrams_);
-  
   readData();
   randomInit();
 
+  if (verbose_ > 0) {
+    cerr << "W:     Number of words processed / total" << endl
+         << "LL:    Current log-likelihood" << endl
+         << "Swaps: Number of words that changed their class" << endl 
+         << endl;
+  }
+
   for (int step = 0; num_steps_ < 0 || step < num_steps_; step++) {
     if (verbose_ > 0)
-      cerr << step << endl;
+      cerr << "iter: " << step << endl;
 
     int swaps = update();
 

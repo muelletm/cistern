@@ -3,7 +3,6 @@
 #include <unistd.h>
 #include "std.h"
 #include "str.h"
-#include "timer.h"
 
 // Return the current date/time.
 string now() {
