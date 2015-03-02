@@ -15,10 +15,10 @@ memory networks
 
 == Details ==
 
-  * *Installation*: http://www.cis.lmu.de/ocrocis/installation.html
-  * *How it works*: http://www.cis.lmu.de/ocrocis/how-it-works.html
-  * *Step by step example*: http://www.cis.lmu.de/ocrocis/step-by-step-example.html
-  * *Model application*: http://www.cis.lmu.de/ocrocis/model-application.html
+  * *Installation*: http://cistern.cis.lmu.de/ocrocis/installation.html
+  * *How it works*: http://cistern.cis.lmu.de/ocrocis/how-it-works.html
+  * *Step by step example*: http://cistern.cis.lmu.de/ocrocis/step-by-step-example.html
+  * *Model application*: http://cistern.cis.lmu.de/ocrocis/model-application.html
 
 
 == Downloads ==
