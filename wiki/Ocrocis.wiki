@@ -9,9 +9,9 @@ memory networks
 
 <em>Ocrocis</em> guides the user in training high-quality OCR models from raw PDFs or images. It features automatic project management with a minimalistic philosophy:
 
- * Smart parameter inference, few required arguments<br /></li>
- * Non-redundant disk usage via hardlinks<br /></li>
- * Only core-Perl dependencies (aside <em>Ocropy</em>'s native dependencies')</li>
+ * Smart parameter inference, few required arguments
+ * Non-redundant disk usage via hardlinks
+ * Only core-Perl dependencies (aside <em>Ocropy</em>'s native dependencies')
 
 
 
