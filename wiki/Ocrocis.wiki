@@ -7,11 +7,8 @@ character recognition (OCR) models with long short term
 memory networks
 (https://github.com/tmbdev/ocropy).
 
-A project manager for Thomas Breuel's Ocropy tool kit for training optical character recognition (OCR) models with long short term memory networks (https://github.com/tmbdev/ocropy).
+<em>Ocrocis</em> guides the user in training high-quality OCR models from raw PDFs or images. It features automatic project management with a minimalistic philosophy:
 
-Ocrocis guides the user in training high-quality OCR models from raw PDFs or images. It features automatic project management and a minimalistic interface.
-
-*Readme*: http://cistern.cis.lmu.de/ocrocis
 
 *Forum*: https://groups.google.com/forum/#!forum/ocrocis
 
