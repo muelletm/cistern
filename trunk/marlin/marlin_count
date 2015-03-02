@@ -1,133 +1,140 @@
 #!/usr/bin/env python
+"""
+marlin_count, extract bigram staitics from a file.
+"""
 
 import optparse
 import collections
-import sys
-import random
-import os
 import gzip
 import bz2
 
 
-def myopen(filename, mode = 'r'):
-        """
-        Open file. Use gzip or bzip2 if appropriate.
-        """
-	if filename.endswith('.gz'):
-		return gzip.open(filename, mode)
+def myopen(filename, mode='r'):
+    """
+    Open file. Use gzip or bzip2 if appropriate.
+    """
+    if filename.endswith('.gz'):
+        return gzip.open(filename, mode)
 
-	if filename.endswith('.bz2'):
-		return bz2.BZ2File(filename, mode)
+    if filename.endswith('.bz2'):
+        return bz2.BZ2File(filename, mode)
 
-	return open(filename, mode)
-
-
-def readUnigramCounts(f, sent_limit = -1):
-        """
-        Read unigram counts from text file.
-        If sentence_limit is positive only read that-many sentences/lines.
-        """
-        unigram_counts = collections.defaultdict(int)
-        for nr, line in enumerate(f):
-                tokens = line.split()                       
-                for token in tokens:
-                        unigram_counts[token] += 1
-                if sent_limit >= 0 and sent_limit > nr:
-                        break
-        return unigram_counts
+    return open(filename, mode)
 
 
-def writeWords(f, table):
-        """
-        Write words in order of their index to file.
-        """
-        table_inv = [None] * len(table)
-        for word, index in table.items():
-                table_inv[index] = word
-        for index, word in enumerate(table_inv):
-                f.write(word)
-                f.write('\n')
+def read_unigram_counts(file_handle, sent_limit=-1):
+    """
+    Read unigram counts from text file.
+    If sentence_limit is positive only read that-many sentences/lines.
+    """
+    unigram_counts = collections.defaultdict(int)
+    for number, line in enumerate(file_handle):
+        tokens = line.split()
+        for token in tokens:
+            unigram_counts[token] += 1
+        if sent_limit >= 0 and sent_limit > number:
+            break
+    return unigram_counts
 
 
-def readBigramCounts(f, table, stop_index, rare_index, sent_limit):
-        """
-        Count bigram coocurrences. Use rare_index for words not in table.
-        If sentence_limit is positive only read that-many sentences/lines.
-        """
-        counts = []
-        for _ in table:
-                counts.append(collections.defaultdict(int))
-        for nr, line in enumerate(f):
-                tokens = line.split()
-                last = stop_index
-                for token in tokens:
-                        current = table.get(token, None)
-                        if current is None:
-                                current = rare_index
-                        counts[last][current] += 1
-                        last = current
-                counts[last][stop_index] += 1
-                if sent_limit >= 0 and sentence_limit > nr:
-                        break
-        return counts
+def write_words(file_handle, table):
+    """
+    Write words in order of their index to file.
+    """
+    table_inv = [None] * len(table)
+    for word, index in table.items():
+        table_inv[index] = word
+    for index, word in enumerate(table_inv):
+        file_handle.write(word)
+        file_handle.write('\n')
 
 
-def writeBigramCounts(f, counts):
-        for _, neighbors in enumerate(counts):
-                items = []
-                for neighbor, count in neighbors.items():
-                        items.append('%d:%d' % (neighbor, count))
-                print >>f, ' '.join(items)
+def read_bigram_counts(file_handle, table, stop_index, rare_index, sent_limit):
+    """
+    Count bigram coocurrences. Use rare_index for words not in table.
+    If sentence_limit is positive only read that-many sentences/lines.
+    """
+    counts = []
+    for _ in table:
+        counts.append(collections.defaultdict(int))
+    for number, line in enumerate(file_handle):
+        tokens = line.split()
+        last = stop_index
+        for token in tokens:
+            current = table.get(token, None)
+            if current is None:
+                current = rare_index
+            counts[last][current] += 1
+            last = current
+        counts[last][stop_index] += 1
+        if sent_limit >= 0 and sent_limit > number:
+            break
+    return counts
+
+
+def write_bigram_counts(file_handle, counts):
+    """
+    Write bigram statistics to file.
+    """
+    for _, neighbors in enumerate(counts):
+        items = []
+        for neighbor, count in neighbors.items():
+            items.append('%d:%d' % (neighbor, count))
+        print >>file_handle, ' '.join(items)
 
 
 def main():
-        """
-        Main function.
-        """
+    """
+    Main function.
+    """
 
-        parser = optparse.OptionParser()
-        parser.add_option("-t", "--text", dest="text",
-                          help="Input text. (one sentence per line, whitespace separated)", metavar="FILE")
-        parser.add_option("-w", "--words", dest="words",
-                          help="Output: Word list.", metavar="FILE")
-        parser.add_option("-b", "--bigrams", dest="bigrams",
-                          help="Output: Bigrams counts.", metavar="FILE")
-        parser.add_option("-r", "--rank-limit", dest="rank_limit", default = 250000,
-                          help="If positive, only extract the r most frequent words.", type=int)
-        parser.add_option("-s", "--sent-limit", dest="sent_limit", default = -1,
-                          help="If positive, only process the s first sentences/lines.", type=int)
+    parser = optparse.OptionParser()
+    parser.add_option("-t", "--text", dest="text",
+                      help="Input text. (one sentence per line, whitespace separated)",
+                      metavar="FILE")
+    parser.add_option("-w", "--words", dest="words",
+                      help="Output: Word list.", metavar="FILE")
+    parser.add_option("-b", "--bigrams", dest="bigrams",
+                      help="Output: Bigrams counts.", metavar="FILE")
+    parser.add_option("-r", "--rank-limit", dest="rank_limit", default=250000,
+                      help="If positive, only extract the r most frequent words.",
+                      type=int)
+    parser.add_option("-s", "--sent-limit", dest="sent_limit", default=-1,
+                      help="If positive, only process the s first sentences/lines.",
+                      type=int)
 
-        (options, args) = parser.parse_args()
+    options, _ = parser.parse_args()
 
-        with myopen(options.text) as f_in:
-                unigram_counts = readUnigramCounts(f_in, options.sent_limit)
+    with myopen(options.text) as file_handle:
+        unigram_counts = read_unigram_counts(file_handle, options.sent_limit)
 
-        table = {}
-        stop_index = 0
-        rare_index = 1
-        table['<STOP>'] = stop_index
-        table['<RARE>'] = rare_index
-        
+    table = {}
+    stop_index = 0
+    rare_index = 1
+    table['<STOP>'] = stop_index
+    table['<RARE>'] = rare_index
 
-        unigram_counts = unigram_counts.items()
-        unigram_counts.sort(key = lambda (word, count) : count, reverse = True)
-        # Add high rank words to table
-        for word, count in unigram_counts:
-                table[word] = len(table)
-                if options.rank_limit >= 0 and len(table) >= options.rank_limit:
-                        break
-        # Don't need this anymore:
-        del unigram_counts
+    unigram_counts = unigram_counts.items()
+    unigram_counts.sort(key=lambda (word, count): count, reverse=True)
+    # Add high rank words to table
+    for word, _ in unigram_counts:
+        table[word] = len(table)
+        if options.rank_limit >= 0 and len(table) >= options.rank_limit:
+            break
+    # Don't need this anymore:
+    del unigram_counts
 
-        with myopen(options.words, 'w') as f:
-                writeWords(f, table)
+    with myopen(options.words, 'w') as file_handle:
+        write_words(file_handle, table)
 
-        with myopen(options.text) as f_in:
-                bigram_counts = readBigramCounts(f_in, table, stop_index, rare_index, options.sent_limit)
-      
-        with myopen(options.bigrams, 'w') as f:
-                writeBigramCounts(f, bigram_counts)
-                
+    with myopen(options.text) as file_handle:
+        bigram_counts = read_bigram_counts(file_handle, table, stop_index, rare_index,
+                                           options.sent_limit)
+
+    with myopen(options.bigrams, 'w') as file_handle:
+        write_bigram_counts(file_handle, bigram_counts)
+
 
 if __name__ == '__main__':
     main()
+
