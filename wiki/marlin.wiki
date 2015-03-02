@@ -16,6 +16,9 @@ marlin_cluster --words words --bigrams bigrams --output --c 10
 
 _marlin_count_ extracts a word list and bigram statistics and _marlin_cluster_ performs the actual clustering.
 
+= Pretrained Clusterings =
+
+Pretrained clustering for English, German, Hungarian, Latin and Spanish can be found [http://cistern.cis.lmu.de/marmot/naacl2015/ here].
 = References =
 
 If you use MarLiN in your research and would like to acknowledge it, please refer to the following paper.
