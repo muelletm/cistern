@@ -1,4 +1,4 @@
-#summary One-sentence summary of this page.
+#summary A word clustering tool.
 
 = Introduction =
 
@@ -39,4 +39,3 @@ For the paper descripting the algorithm refer to:
   year={1998},
 }
 </pre>
-
