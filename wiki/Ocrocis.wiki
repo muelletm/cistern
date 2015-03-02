@@ -13,6 +13,12 @@ memory networks
  * Non-redundant disk usage via hardlinks
  * Only core-Perl dependencies (aside <em>Ocropy</em>'s native dependencies')
 
+== Details ==
+
+  * *Installation*: http://www.cis.lmu.de/ocrocis/installation.html
+  * *How it works*:
+  * *Step by step example*:
+  * *Model application*:
 
 
 == Downloads ==
