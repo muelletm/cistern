@@ -6,6 +6,7 @@ On this page you can find resources related to our work on robust morphological 
 
 == Resources ==
 
+ * [marmot MarMoT] a fast and accurate morphological tagger.
  * [marlin MarLiN] a fast word clustering tool.
  * [http://cistern.cis.lmu.de/marmot/naacl2015/naacl2015_dict.tar.bz2 Word representations] (morphological dictionaries and word clusterings)
  * Tokenized and tagged Wikipedia dumps:
