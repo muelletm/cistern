@@ -35,7 +35,7 @@ https://groups.google.com/forum/#!forum/ocrocis
 
 Or send an email to the developer:
 
-kaumanns [aet] cis.lmu.de
+kaumanns \[aet\] cis.lmu.de
 
 == License ==
 
