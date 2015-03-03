@@ -3,6 +3,8 @@
 
 package marmot.core;
 
+import java.util.Arrays;
+
 public class FeatureVector {
 	private int[] features_;
 
@@ -37,6 +39,11 @@ public class FeatureVector {
 
 	public boolean add(int feature) {
 		if (feature >= 0) {
+			
+			if (length_ >= features_.length) {
+				features_ = Arrays.copyOf(features_, features_.length * 2);
+			}
+			
 			features_[length_++] = feature;
 		}
 		return true;

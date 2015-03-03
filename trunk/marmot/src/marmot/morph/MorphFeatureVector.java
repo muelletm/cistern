@@ -9,8 +9,8 @@ public class MorphFeatureVector extends FeatureVector {
 
 	private int word_index_ = -1;
 
-	public MorphFeatureVector(int capacity) {
-		this(capacity, null, false);
+	public MorphFeatureVector(int inital_capacity) {
+		this(inital_capacity, null, false);
 	}
 
 	public MorphFeatureVector(int capacity, FeatureVector vector) {

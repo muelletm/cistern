@@ -33,6 +33,11 @@ public class MorphOptions extends Options {
 	public static final String INTERNAL_ANALYZER = "internal-analyzer";
 	public static final String NUM_FOLDS = "num-folds";
 	public static final String USE_DEFAULT_FEATURES = "use-default-features";
+	public static final String USE_HASH_VECTOR = "use-hash-vector";
+	public static final String FEATURE_TEMPLATES = "feature-templates";
+	public static final String MAX_AFFIX_LENGTH = "max-affix-length";
+
+
 	
 	private static final Map<String, String> DEFALUT_VALUES_ = new HashMap<String, String>();
 	private static final Map<String, String> COMMENTS_ = new HashMap<String, String>();
@@ -81,6 +86,13 @@ public class MorphOptions extends Options {
 		COMMENTS_.put(NUM_FOLDS, "Number of folds used for estimation of open word classes.");
 		DEFALUT_VALUES_.put(USE_DEFAULT_FEATURES, "true");
 		COMMENTS_.put(USE_DEFAULT_FEATURES, "Whether to extract default features such as prefixes, suffixes, word forms.");
+		DEFALUT_VALUES_.put(USE_HASH_VECTOR, "true");
+		COMMENTS_.put(USE_HASH_VECTOR, "Whether to use a hashed feature vector. Saves memory decreases accuracy.");
+		DEFALUT_VALUES_.put(FEATURE_TEMPLATES, "form,rare,affix,context,sig,bigrams");
+		COMMENTS_.put(FEATURE_TEMPLATES, "Comma separated list, activates individual templates.");
+		DEFALUT_VALUES_.put(MAX_AFFIX_LENGTH, "10");
+		COMMENTS_.put(MAX_AFFIX_LENGTH, "Max affix length to use in feature extraction.");
+
 	}
 
 	public MorphOptions() {
@@ -183,6 +195,18 @@ public class MorphOptions extends Options {
 
 	public boolean getUseDefaultFeatures() {
 		return Boolean.parseBoolean(getProperty(USE_DEFAULT_FEATURES));
+	}
+
+	public boolean getUseHashVector() {
+		return Boolean.parseBoolean(getProperty(USE_HASH_VECTOR));
+	}
+
+	public String getFeatureTemplates() {
+		return getProperty(FEATURE_TEMPLATES);
+	}
+
+	public int getMaxAffixLength() {
+		return Integer.parseInt(getProperty(MAX_AFFIX_LENGTH));
 	}
 
 }

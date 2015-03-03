@@ -231,10 +231,18 @@ public class Options extends java.util.Properties {
 		}
 
 		if (getVerbose()) {
-			for (Map.Entry<Object, Object> prop : this.entrySet()) {
-				System.err.println(prop.getKey() + ": " + prop.getValue());
-			}
+			System.err.print(toString());
 		}
+	}
+
+	@Override 
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for (Map.Entry<Object, Object> prop : entrySet()) {
+			sb.append(prop.getKey() + ": " + prop.getValue());
+			sb.append("\n");
+		}
+		return sb.toString();
 	}
 
 	private void checkBoundaries(int index, String[] args) {

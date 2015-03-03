@@ -4,9 +4,11 @@
 package marmot.morph;
 
 import java.io.File;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -16,6 +18,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import marmot.core.Model;
+import marmot.core.Options;
 import marmot.core.Sequence;
 import marmot.core.State;
 import marmot.core.Tagger;
@@ -25,6 +28,7 @@ import marmot.core.TrainerFactory;
 import marmot.core.WeightVector;
 import marmot.morph.analyzer.Analyzer;
 import marmot.morph.signature.Trie;
+import marmot.util.Copy;
 import marmot.util.Counter;
 import marmot.util.FileUtils;
 import marmot.util.StringUtils;
@@ -38,7 +42,7 @@ public class MorphModel extends Model {
 	private final static int MORPH_INDEX_ = 1;
 	private final static String POS_NAME_ = "pos";
 	private final static String MORPH_NAME_ = "morph";
-		
+
 	private SymbolTable<String> word_table_;
 	private SymbolTable<String> shape_table_;
 	private SymbolTable<Character> char_table_;
@@ -65,7 +69,7 @@ public class MorphModel extends Model {
 	private boolean split_pos_;
 
 	private Mode normalize_forms_;
-	
+
 	private Analyzer analyzer_;
 
 	public void init(MorphOptions options, Collection<Sequence> sentences) {
@@ -79,7 +83,7 @@ public class MorphModel extends Model {
 		normalize_forms_ = options.getNormalizeForms();
 		special_signature_ = options.getSpecialSignature();
 		num_folds_ = options.getNumFolds();
-		
+
 		init(options, extractCategories(sentences));
 
 		List<SymbolTable<String>> tag_tables_ = getTagTables();
@@ -108,9 +112,9 @@ public class MorphModel extends Model {
 
 		String internal_analyzer = options.getInternalAnalyzer();
 		if (internal_analyzer != null) {
-			analyzer_ = Analyzer.create(internal_analyzer); 
+			analyzer_ = Analyzer.create(internal_analyzer);
 		}
-		
+
 		if ((shape_)) {
 
 			File file = null;
@@ -196,7 +200,8 @@ public class MorphModel extends Model {
 				tag_to_subtag[level] = new int[table.size()][];
 				for (Map.Entry<String, Integer> entry : table.entrySet()) {
 					tag_to_subtag[level][entry.getValue()] = getSubTags(
-							entry.getKey(), level, true, offset, subtag_separator);
+							entry.getKey(), level, true, offset,
+							subtag_separator);
 				}
 
 				offset += subtag_tables_.get(level).size();
@@ -472,18 +477,18 @@ public class MorphModel extends Model {
 		if (signature_cache == null) {
 			signature_cache = new HashMap<String, Integer>();
 		}
-		
+
 		Integer signature = signature_cache.get(form);
 		if (signature == null) {
 			signature = 0;
-			
+
 			if (special_signature_) {
 				if (StringUtils.containsSpecial(form)) {
 					signature += 1;
 				}
 				signature *= 2;
 			}
-			
+
 			if (StringUtils.containsDigit(form)) {
 				signature += 1;
 			}
@@ -508,45 +513,44 @@ public class MorphModel extends Model {
 
 	private void addTokenFeatures(Word word, Word in_word, boolean insert) {
 		String[] token_features = in_word.getTokenFeatures();
-		
+
 		List<String> readings = null;
 		if (analyzer_ != null) {
 			readings = analyzer_.analyze(in_word.getWordForm());
 		}
-		
+
 		int indexes_length = 0;
-		
+
 		if (token_features != null) {
 			indexes_length += token_features.length;
 		}
-		
+
 		if (readings != null) {
 			indexes_length += readings.size();
 		}
-		
+
 		if (indexes_length > 0) {
 			int[] indexes = new int[indexes_length];
 			int index = 0;
-			
+
 			if (token_features != null) {
 				for (String feature : token_features) {
 					indexes[index] = token_feature_table_.toIndex(feature, -1,
 							insert);
 					index++;
-				}	
+				}
 			}
-			
+
 			if (readings != null) {
 				for (String feature : readings) {
 					indexes[index] = token_feature_table_.toIndex(feature, -1,
 							insert);
 					index++;
-				}	
+				}
 			}
-			
+
 			word.setTokenFeatureIndexes(indexes);
 		}
-		
 
 		token_features = word.getWeightedTokenFeatures();
 		if (token_features != null && weighted_token_feature_table_ != null) {
@@ -578,7 +582,8 @@ public class MorphModel extends Model {
 		addCharIndexes(word, normalized_form, insert);
 	}
 
-	private int[] getSubTags(String morph, int level, boolean insert, int offset, String subtag_separator) {
+	private int[] getSubTags(String morph, int level, boolean insert,
+			int offset, String subtag_separator) {
 		if (morph.equals(BORDER_SYMBOL_)) {
 			return null;
 		}
@@ -671,13 +676,150 @@ public class MorphModel extends Model {
 		return word_table_;
 	}
 
+	public static Tagger trainOptimal(MorphOptions options,
+			Collection<Sequence> train_sentences,
+			Collection<Sequence> test_sentences, List<String> parameters,
+			List<List<String>> values_list, List<MorphEntry> results) {
+
+		if (test_sentences == null) {
+			throw new InvalidParameterException("test_sentences is null!");
+		}
+
+		assert parameters.size() == values_list.size();
+		assert !parameters.isEmpty();
+
+		if (parameters.size() == 1) {
+			return trainOptimal(options, train_sentences, test_sentences,
+					parameters.get(0), values_list.get(0), results);
+		}
+
+		parameters = new LinkedList<String>(parameters);
+		values_list = new LinkedList<List<String>>(values_list);
+
+		Tagger best_tagger = null;
+
+		String parameter = ((LinkedList<String>) parameters).pollFirst();
+		Collection<String> values = ((LinkedList<List<String>>) values_list)
+				.pollFirst();
+
+		for (String value : values) {
+			options = Copy.clone(options);
+			options.setProperty(parameter, value);
+			Tagger tagger = trainOptimal(options, train_sentences,
+					test_sentences, parameters, values_list, results);
+
+			if (best_tagger == null) {
+				best_tagger = tagger;
+			} else {
+				if (tagger.getResult().getScore() > best_tagger.getResult()
+						.getScore()) {
+					best_tagger = tagger;
+				}
+			}
+		}
+
+		return best_tagger;
+	}
+
+	public static class MorphEntry implements Comparable<MorphEntry> {
+		private MorphOptions options_;
+		private MorphResult result_;
+
+		public MorphEntry(MorphOptions options, MorphResult result) {
+			options_ = options;
+			result_ = result;
+		}
+
+		@Override
+		public int compareTo(MorphEntry o) {
+			return -Double.compare(result_.getScore(), o.result_.getScore());
+		}
+
+		public MorphOptions getOptions() {
+			return options_;
+		}
+
+		public MorphResult getResult() {
+			return result_;
+		}
+
+	}
+
+	public static Tagger trainOptimal(MorphOptions options,
+			Collection<Sequence> train_sentences,
+			Collection<Sequence> test_sentences, String parameter,
+			Collection<String> values, List<MorphEntry> results) {
+		Tagger best_tagger = null;
+
+		if (test_sentences == null) {
+			throw new InvalidParameterException("test_sentebces is null!");
+		}
+
+		for (String value : values) {
+			options = Copy.clone(options);
+			options.setProperty(parameter, value);
+			Tagger tagger = train(Copy.clone(options), train_sentences,
+					test_sentences);
+
+			results.add(new MorphEntry(options, (MorphResult) tagger
+					.getResult()));
+
+			if (best_tagger == null) {
+				best_tagger = tagger;
+			} else {
+				if (tagger.getResult().getScore() > best_tagger.getResult()
+						.getScore()) {
+					best_tagger = tagger;
+				}
+			}
+		}
+
+		return best_tagger;
+	}
+
+	public static Tagger trainOptimal(MorphOptions options,
+			List<Sequence> train_sentences, List<Sequence> test_sentences) {
+
+		if (test_sentences == null) {
+			throw new InvalidParameterException("test_sentences is null!");
+		}
+
+		List<String> parameters = Arrays.asList(Options.ORDER, Options.SEED,
+				Options.PENALTY);
+		List<MorphEntry> results = new LinkedList<MorphEntry>();
+		List<List<String>> values_list = Arrays.asList(
+				Arrays.asList("1", "3", "5"), Arrays.asList("41", "42", "43"),
+				Arrays.asList("0.0", "0.05", "0.1", "0.5"));
+
+		Tagger tagger = MorphModel.trainOptimal(options, train_sentences,
+				test_sentences, parameters, values_list, results);
+
+		Collections.sort(results);
+
+		System.err.println("OPTIMAL OPTIONS AND RESULTS");
+		for (MorphEntry result : results) {
+			StringBuilder sb = new StringBuilder();
+			for (String param : parameters) {
+				if (sb.length() > 0) {
+					sb.append(',');
+					sb.append(' ');
+				}
+
+				sb.append(param);
+				sb.append(':');
+				sb.append(result.getOptions().getProperty(param));
+			}
+			sb.append('\t');
+			sb.append(result.getResult().getScore());
+			System.err.println(sb.toString());
+		}
+
+		return tagger;
+	}
+
 	public static Tagger train(MorphOptions options,
 			Collection<Sequence> train_sentences,
 			Collection<Sequence> test_sentences) {
-
-		if (!options.getVerbose()) {
-			test_sentences = null;
-		}
 
 		MorphModel model = new MorphModel();
 		model.init(options, train_sentences);
@@ -766,7 +908,7 @@ public class MorphModel extends Model {
 	}
 
 	public int getMaxSignature() {
-		return (special_signature_) ? 64 : 32; 
+		return (special_signature_) ? 64 : 32;
 	}
 
 	public static Tagger train(MorphOptions options,

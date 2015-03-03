@@ -86,16 +86,16 @@ public class Experimenter {
 		
 		boolean expand = lang.equalsIgnoreCase("de") || lang.equalsIgnoreCase("es");
 		
-		List<Pair> pairs = new LinkedList<>(); 
+		List<Pair> pairs = new LinkedList<Pair>(); 
 		for (Pair pair : new WikiSelector(untok_file, tok_file,
 				expand, num_sentences)) {
 			pairs.add(pair);
 		}
 		Collections.shuffle(pairs, random);
 		
-		List<Pair> trnset = new LinkedList<>();
-		List<Pair> devset = new LinkedList<>();
-		List<Pair> tstset = new LinkedList<>();
+		List<Pair> trnset = new LinkedList<Pair>();
+		List<Pair> devset = new LinkedList<Pair>();
+		List<Pair> tstset = new LinkedList<Pair>();
 		
 		int index = 0;
 		for (Pair pair : pairs) {

@@ -20,6 +20,40 @@ import java.util.zip.GZIPOutputStream;
 
 public class FileUtils {
 
+	public static InputStream openFileInputStream(String filename_) {
+
+		InputStream input_stream = null;
+
+		try {
+
+			if (filename_.toLowerCase().startsWith("res://")) {
+				
+				String name = filename_.substring(6);
+				input_stream = FileUtils.class.getResourceAsStream(name);
+				
+				if (input_stream == null) {
+					throw new RuntimeException("Resource not found: " + filename_);
+				}
+				
+			} else {
+			
+				input_stream = new FileInputStream(filename_);
+				
+			}
+			
+			if (filename_.toLowerCase().endsWith(".gz")) {
+				input_stream = new GZIPInputStream(input_stream);
+			}
+
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
+		return input_stream;
+	}
+	
 	public static BufferedReader openFile(String filename) throws IOException {
 		return openFileReader(filename);
 	}
@@ -72,10 +106,6 @@ public class FileUtils {
 		}		
 		
 		return new BufferedReader(new InputStreamReader(stream, "UTF-8"));
-	}
-
-	private static InputStream openFileInputStream(String filename) throws FileNotFoundException {
-		return new FileInputStream(filename);
 	}
 
 	public static BufferedReader openStream(InputStream in) throws IOException {

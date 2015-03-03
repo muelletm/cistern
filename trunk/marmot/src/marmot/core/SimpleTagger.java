@@ -170,6 +170,7 @@ public class SimpleTagger implements Tagger {
 	}
 
 	private boolean cache_feature_vector_ = false;
+	private Result result_;
 
 	protected List<List<State>> getStates(Sequence sequence) {
 		List<List<State>> candidates = new ArrayList<List<State>>(
@@ -616,6 +617,16 @@ public class SimpleTagger implements Tagger {
 
 	public void setMaxLevel(int level) {
 		num_level_ = level;
+	}
+
+	@Override
+	public void setResult(Result result) {
+		result_ = result;
+	}
+
+	@Override
+	public Result getResult() {
+		return result_;
 	}
 
 }

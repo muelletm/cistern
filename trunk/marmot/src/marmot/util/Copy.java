@@ -12,7 +12,7 @@ import java.io.Serializable;
 
 public class Copy {
 
-	public static Serializable clone(Serializable object) {
+	public static <T extends Serializable> T clone(T object) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ObjectOutputStream oos = null;
 		try {
@@ -25,7 +25,7 @@ public class Copy {
 		ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
 		try {
 			ObjectInputStream ois = new ObjectInputStream(bais);
-			return (Serializable) ois.readObject();
+			return (T) ois.readObject();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		} catch (ClassNotFoundException e) {

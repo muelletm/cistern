@@ -132,7 +132,6 @@ public class PerceptronTrainer implements Trainer {
 		
 
 		weights.setExtendFeatureSet(false);
-
 	}
 
 	private void update(WeightVector weights, List<List<State>> candidates,
