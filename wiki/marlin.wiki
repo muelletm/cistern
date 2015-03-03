@@ -32,7 +32,7 @@ If you use MarLiN in your research and would like to acknowledge it, please refe
 }
 </pre>
 
-For the paper descripting the algorithm refer to:
+For the paper describing the algorithm refer to:
 
 <pre>
 @article{martin1998,
