@@ -6,8 +6,6 @@ On this page you can find resources related to our work on robust morphological 
 
 == Resources ==
 
- * [marmot MarMoT] a fast and accurate morphological tagger.
- * [marlin MarLiN] a fast word clustering tool.
  * [http://cistern.cis.lmu.de/marmot/naacl2015/naacl2015_dict.tar.bz2 Word representations] (morphological dictionaries and word clusterings)
  * Tokenized and tagged Wikipedia dumps:
   * [http://cistern.cis.lmu.de/marmot/naacl2015/cs.wikidump.bz2 Czech]
@@ -18,8 +16,12 @@ On this page you can find resources related to our work on robust morphological 
   * [http://cistern.cis.lmu.de/marmot/naacl2015/es.wikidump.bz2 Spanish]
  * A manually annotated [http://cistern.cis.lmu.de/marmot/naacl2015/smultron.tar.bz2 morphological layer] for the [http://www.cl.uzh.ch/research/parallelcorpora/paralleltreebanks/smultron_en.html SMULTRON] corpus
 
-== Reference ==
+== Software ==
 
+ * [marmot MarMoT] a fast and accurate morphological tagger.
+ * [marlin MarLiN] a fast word clustering tool.
+
+== References ==
 The creation of these resources is documented in the following paper.
 If you use any of these resources in your research and would like to acknowledge them, this would also be a good paper to cite.
 
