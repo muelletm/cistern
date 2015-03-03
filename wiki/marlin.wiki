@@ -2,8 +2,8 @@
 
 = Introduction =
 
-MarLiN is program suite to induce word clusters form text.
-It is based on the algorithm by Martin et al. (1998).
+MarLiN is a program suite to induce word clusters form text.
+It is based on the algorithm by Martin, Lierman and Ney (1998).
 
 = Usage =
 
