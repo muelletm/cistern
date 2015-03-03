@@ -60,11 +60,10 @@ public class SequenceSumLattice implements SumLattice {
 	public List<List<State>> pruneStates() {
 		init();
 		double score_sum_forward = forward_.partitionFunction();
-		double score_sum_backward = backward_.partitionFunction();
-
-		normalTest(score_sum_forward);
-		normalTest(score_sum_backward);
-		diffTest(score_sum_forward, score_sum_backward);
+		//double score_sum_backward = backward_.partitionFunction();
+		//normalTest(score_sum_forward);
+		//normalTest(score_sum_backward);
+		//diffTest(score_sum_forward, score_sum_backward);
 
 		List<List<State>> candidates = new ArrayList<List<State>>(
 				candidates_.size());
@@ -173,12 +172,10 @@ public class SequenceSumLattice implements SumLattice {
 		double ll = 0;
 
 		double score_sum = forward_.partitionFunction();
-		double score_sum_backward = backward_.partitionFunction();
-
-		normalTest(score_sum);
-		normalTest(score_sum_backward);
-
-		diffTest(score_sum_backward, score_sum);
+//		double score_sum_backward = backward_.partitionFunction();
+//		normalTest(score_sum);
+//		normalTest(score_sum_backward);
+//		diffTest(score_sum_backward, score_sum);
 		
 		int last_gold_candidate_index = 0;
 		for (int index = 0; index < candidates_.size(); index++) {
@@ -186,8 +183,8 @@ public class SequenceSumLattice implements SumLattice {
 
 			double state_sum = Double.NEGATIVE_INFINITY;
 			double trans_sum = Double.NEGATIVE_INFINITY;
-			double state_p_sum = 0;
-			double trans_p_sum = 0;
+//			double state_p_sum = 0;
+//			double trans_p_sum = 0;
 
 			int state_index = 0;
 			for (State state : candidates_.get(index)) {
@@ -206,7 +203,7 @@ public class SequenceSumLattice implements SumLattice {
 						trans_sum = Numerics.sumLogProb(trans_sum, trans_score);
 
 						double p = Math.exp(trans_score - score_sum);
-						trans_p_sum += p;
+//						trans_p_sum += p;
 
 						if (trans_index == last_gold_candidate_index && is_gold_sequence_state) {
 							ll += transition.getScore();
@@ -223,7 +220,7 @@ public class SequenceSumLattice implements SumLattice {
 
 				state_sum = Numerics.sumLogProb(state_sum, state_score);
 				double p = Math.exp(state_score - score_sum);
-				state_p_sum += p;
+//				state_p_sum += p;
 
 				if (is_gold_sequence_state) {
 					ll += state.getScore();
@@ -236,14 +233,14 @@ public class SequenceSumLattice implements SumLattice {
 				state_index++;
 			}
 
-			normalTest(state_sum);
-			normalTest(trans_sum);
-			diffTest(state_sum, score_sum);
-			diffTest(trans_sum, score_sum);
-			normalTest(state_p_sum);
-			normalTest(trans_p_sum);
-			diffTest(state_p_sum, 1.0);
-			diffTest(trans_p_sum, 1.0);
+//			normalTest(state_sum);
+//			normalTest(trans_sum);
+//			diffTest(state_sum, score_sum);
+//			diffTest(trans_sum, score_sum);
+//			normalTest(state_p_sum);
+//			normalTest(trans_p_sum);
+//			diffTest(state_p_sum, 1.0);
+//			diffTest(trans_p_sum, 1.0);
 			
 			for (State state : candidates_.get(index)) {
 				state.updateWeights(weights);
@@ -256,20 +253,20 @@ public class SequenceSumLattice implements SumLattice {
 		return ll;
 	}
 
-	protected void normalTest(double score) {
-		if ((Double.isNaN(score) || Double.isInfinite(score))) {
-			throw new RuntimeException("normalTest: " + score);
-		}
-	}
-
-	protected double diffTest(double a, double b) {
-		double diff = Math.abs(a - b);
-		if (diff > 1.e-5) {
-			throw new RuntimeException(String.format("test failed: %g %g : %g",
-					a, b, diff));
-		}
-		return diff;
-	}
+//	protected void normalTest(double score) {
+//		if ((Double.isNaN(score) || Double.isInfinite(score))) {
+//			throw new RuntimeException("normalTest: " + score);
+//		}
+//	}
+//
+//	protected double diffTest(double a, double b) {
+//		double diff = Math.abs(a - b);
+//		if (diff > 1.e-5) {
+//			throw new RuntimeException(String.format("test failed: %g %g : %g",
+//					a, b, diff));
+//		}
+//		return diff;
+//	}
 
 	@Override
 	public int getOrder() {
