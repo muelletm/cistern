@@ -82,7 +82,7 @@ public class SentenceReader implements Iterable<Sequence> {
 									token_feature = token_feature.substring(0,
 											colon_index);
 								} catch (NumberFormatException e) {
-
+									throw new RuntimeException("Cannot parse double. If this wasn't meant to be a float feature then replace the colon: " + token_feature);
 								}
 							}
 
