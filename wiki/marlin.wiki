@@ -1,11 +1,11 @@
 #summary A word clustering tool.
 
-= Introduction =
+== Introduction ==
 
 MarLiN is a program suite to induce word clusters form text.
 It is based on the algorithm by Martin, Lierman and Ney (1998).
 
-= Usage =
+== Usage ==
 
 The following code will cluster the words in _example.txt_ into 10 classes.
 
@@ -16,10 +16,11 @@ marlin_cluster --words words --bigrams bigrams --output --c 10
 
 _marlin_count_ extracts a word list and bigram statistics and _marlin_cluster_ performs the actual clustering.
 
-= Pretrained Clusterings =
+== Pretrained Clusterings ==
 
 Pretrained clustering for English, German, Hungarian, Latin and Spanish can be found [http://cistern.cis.lmu.de/marmot/naacl2015/ here].
-= References =
+
+== References ==
 
 If you use MarLiN in your research and would like to acknowledge it, please refer to the following paper.
 
