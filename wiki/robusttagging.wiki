@@ -15,7 +15,7 @@ On this page you can find resources related to our work on robust morphological 
   * [http://cistern.cis.lmu.de/marmot/naacl2015/hu.wikidump.bz2 Hungarian]
   * [http://cistern.cis.lmu.de/marmot/naacl2015/la.wikidump.bz2 Latin]
   * [http://cistern.cis.lmu.de/marmot/naacl2015/es.wikidump.bz2 Spanish]
- * A manually annotated [http://cistern.cis.lmu.de/marmot/naacl2015/smultron.tar.bz2 morphological layer] for the [http://www.cl.uzh.ch/research/parallelcorpora/paralleltreebanks/smultron_en.htm SMULTRON] corpus
+ * A manually annotated [http://cistern.cis.lmu.de/marmot/naacl2015/smultron.tar.bz2 morphological layer] for the [http://www.cl.uzh.ch/research/parallelcorpora/paralleltreebanks/smultron_en.html SMULTRON] corpus
 
 == Reference ==
 
