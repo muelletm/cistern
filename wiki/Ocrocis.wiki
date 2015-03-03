@@ -23,7 +23,7 @@ memory networks
 
 == Downloads ==
 
-  * *Ocrocis*: http://cistern.cis.lmu.de/ocrocis.zip
+  * *Ocrocis* (Github): https://github.com/kmnns/ocrocis
   * *Tutorial*: http://cistern.cis.lmu.de/ocrocis/tutorial.pdf
   * *Tutorial data*: http://cistern.cis.lmu.de/ocrocis/tutdemo.zip
 
