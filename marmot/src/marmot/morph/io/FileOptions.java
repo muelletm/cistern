@@ -7,6 +7,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 public class FileOptions {
@@ -21,7 +23,7 @@ public class FileOptions {
 	private int lemma_index_;
 	private int tag_index_;
 	private int morph_index_;
-	private int token_feature_index_;
+	private List<Integer> token_feature_index_;
 	private String filename_;
 	private int limit_;
 
@@ -35,7 +37,7 @@ public class FileOptions {
 		tag_index_ = -1;
 		morph_index_ = -1;
 		limit_ = -1;
-		token_feature_index_ = -1;
+		token_feature_index_ = new LinkedList<Integer>();
 		filename_ = null;
 
 		String[] args = option_string.split(",");
@@ -88,12 +90,7 @@ public class FileOptions {
 					morph_index_ = Integer.parseInt(value);
 
 				} else if (option.equalsIgnoreCase(FST_MORPH_INDEX)) {
-					if (token_feature_index_ != -1) {
-						throw new RuntimeException(
-								"Option string contains more than one token feature index: "
-										+ option_string);
-					}
-					token_feature_index_ = Integer.parseInt(value);
+					token_feature_index_.add(Integer.parseInt(value));
 				} else if (option.equalsIgnoreCase(LIMIT)) {
 					if (limit_ != -1) {
 						throw new RuntimeException(
@@ -180,7 +177,7 @@ public class FileOptions {
 //		input_stream_ = input_stream;
 //	}
 
-	public int getTokenFeatureIndex() {
+	public List<Integer> getTokenFeatureIndex() {
 		return token_feature_index_;
 	}
 

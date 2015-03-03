@@ -3,7 +3,9 @@
 
 package marmot.core;
 
-public interface Result {
+import java.io.Serializable;
+
+public interface Result extends Serializable {
 
 	double getScore();
 

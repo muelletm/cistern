@@ -26,6 +26,10 @@ public class CrfTrainer implements Trainer {
 	public void train(Tagger tagger, Collection<Sequence> in_sequences,
 			Evaluator evaluator) {
 		
+		if (optimize_num_iterations_) {
+			assert evaluator != null : "Set optimize_num_iterations but did not provide test data.";
+		}
+		
 		Random rng = null;
 		if (shuffle_) {
 			if (seed_ == 0) {
@@ -114,11 +118,15 @@ public class CrfTrainer implements Trainer {
 				number++;
 			}
 
-			if (evaluator != null && verbose_) {
+			if (evaluator != null && (verbose_ || optimize_num_iterations_)) {
 				weights.setExtendFeatureSet(false);
 				Result result = evaluator.eval(tagger);
-				System.err.println(result);
 				weights.setExtendFeatureSet(true);
+				
+				tagger.setResult(result);
+				
+				if (verbose_)
+					System.err.println(result);
 				
 				if (optimize_num_iterations_) {
 					
@@ -131,7 +139,6 @@ public class CrfTrainer implements Trainer {
 					}
 					
 				}
-				
 			}
 		}
 
@@ -139,13 +146,8 @@ public class CrfTrainer implements Trainer {
 		weights.setExtendFeatureSet(false);
 		
 		if (optimize_num_iterations_) {
-			
-			
-			
 			if (best_params != null) {
-				
-				//System.err.println(best_params.length + " " + weights.getWeights().length);
-				
+				assert weights.getWeights().length == best_params.length;
 				weights.setWeights(best_params);
 			}
 			
@@ -153,9 +155,10 @@ public class CrfTrainer implements Trainer {
 				weights.setFloatWeights(best_float_params);
 			}
 			
-			Result result = evaluator.eval(tagger);
-			System.err.println("Results with optimal iterations:");
-			System.err.println(result);
+			if (evaluator != null) {	
+				Result result = evaluator.eval(tagger);
+				tagger.setResult(result);
+			}
 		}
 	}
 

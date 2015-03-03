@@ -13,6 +13,7 @@ import marmot.core.Tagger;
 
 
 public class MorphResult implements Result {
+	private static final long serialVersionUID = 1L;
 	public int num_sentences;
 	public int sentence_errors;
 	public int num_unreachable_sentences;

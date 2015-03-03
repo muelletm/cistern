@@ -42,7 +42,7 @@ public class PipelineTest {
 		List<Sequence> list = new LinkedList<Sequence>();
 		for (Sequence sentence : new SentenceReader(filename)) {
 			list.add(sentence);
-			if (list.size() >= number) {
+			if (number >= 0 && list.size() >= number) {
 				break;
 			}
 		}
@@ -133,6 +133,104 @@ public class PipelineTest {
 		options.setProperty(Options.PRUNE, "true");
 		options.setProperty(Options.ORDER, "3");
 		options.setProperty(Options.PENALTY, ".1");
+		options.setProperty(MorphOptions.TRAIN_FILE,
+				"form-index=1,tag-index=4,morph-index=6," + getResourceFile("trn.txt"));
+		options.setProperty(MorphOptions.TEST_FILE,
+				"form-index=1,tag-index=4,morph-index=6," + getResourceFile("tst.txt"));
+		realTestWithOptions(options, 98.51, 54.10);
+	}
+	
+	@Test
+	public void realInfixTest() {
+		MorphOptions options = new MorphOptions();
+		options.setProperty(Options.SEED, "42");
+		options.setProperty(Options.NUM_ITERATIONS, "10");
+		options.setProperty(Options.VECTOR_SIZE, "10000000");
+		options.setProperty(Options.CANDIDATES_PER_STATE, "[4, 2, 1.5, 1.25]");
+		options.setProperty(Options.PRUNE, "true");
+		options.setProperty(Options.ORDER, "3");
+		options.setProperty(Options.PENALTY, ".1");
+		options.setProperty(MorphOptions.MAX_AFFIX_LENGTH, "5");
+		options.setProperty(MorphOptions.FEATURE_TEMPLATES, "form,rare,infix,context,sig,bigrams");
+		options.setProperty(MorphOptions.TRAIN_FILE,
+				"form-index=1,tag-index=4,morph-index=6," + getResourceFile("trn.txt"));
+		options.setProperty(MorphOptions.TEST_FILE,
+				"form-index=1,tag-index=4,morph-index=6," + getResourceFile("tst.txt"));
+		realTestWithOptions(options, 99, 51.50);
+	}
+	
+	@Test
+	public void realFloatTest() {
+		MorphOptions options = new MorphOptions();
+		options.setProperty(Options.SEED, "42");
+		options.setProperty(Options.NUM_ITERATIONS, "10");
+		options.setProperty(Options.VECTOR_SIZE, "10000000");
+		options.setProperty(Options.CANDIDATES_PER_STATE, "[4, 2, 1.5, 1.25]");
+		options.setProperty(Options.PRUNE, "true");
+		options.setProperty(Options.ORDER, "3");
+		options.setProperty(Options.PENALTY, ".1");
+		options.setProperty(MorphOptions.FLOAT_TYPE_DICT, getResourceFile("svd_small.txt"));
+		options.setProperty(MorphOptions.TRAIN_FILE,
+				"form-index=1,tag-index=4,morph-index=6," + getResourceFile("trn.txt"));
+		options.setProperty(MorphOptions.TEST_FILE,
+				"form-index=1,tag-index=4,morph-index=6," + getResourceFile("tst.txt"));
+		realTestWithOptions(options, 98.89, 54.52);
+	}
+	
+	@Test
+	public void realOptimizerTest() {
+		MorphOptions options = new MorphOptions();
+		options.setProperty(Options.SEED, "42");
+		options.setProperty(Options.NUM_ITERATIONS, "10");
+		options.setProperty(Options.VECTOR_SIZE, "10000000");
+		options.setProperty(Options.CANDIDATES_PER_STATE, "[4, 2, 1.5, 1.25]");
+		options.setProperty(Options.PRUNE, "true");
+		options.setProperty(Options.OPTIMIZE_NUM_ITERATIONS, "true");
+		options.setProperty(MorphOptions.TRAIN_FILE,
+				"form-index=1,tag-index=4,morph-index=6," + getResourceFile("trn.txt"));
+		options.setProperty(MorphOptions.TEST_FILE,
+				"form-index=1,tag-index=4,morph-index=6," + getResourceFile("tst.txt"));
+		// realOptimizerTestWithOptions(options, 97.96, 54.18);
+	}
+	
+	@Test
+	public void realMaTest() {
+		
+		MorphOptions options = new MorphOptions();
+		options.setProperty(MorphOptions.TRAIN_FILE,
+				"form-index=0,tag-index=1," + getResourceFile("0.trn.baseline.10"));
+		options.setProperty(MorphOptions.TEST_FILE,
+				"form-index=0,tag-index=1," + getResourceFile("0.dev.baseline"));
+
+		options.setProperty(Options.NUM_ITERATIONS, "10");
+		options.setProperty(MorphOptions.TAG_MORPH, "false");
+		options.setProperty(Options.SEED, "42");
+		options.setProperty(Options.PRUNE, "false");
+		options.setProperty(MorphOptions.USE_HASH_VECTOR, "false");
+		options.setProperty(Options.VECTOR_SIZE, "10000");
+		options.setProperty(MorphOptions.USE_DEFAULT_FEATURES, "true");
+		options.setProperty(MorphOptions.OBSERVED_FEATURE, "false");
+		options.setProperty(Options.OPTIMIZE_NUM_ITERATIONS, "false");
+		options.setProperty(MorphOptions.RARE_WORD_MAX_FREQ, "100");
+		options.setProperty(MorphOptions.FEATURE_TEMPLATES, "affix");
+		options.setProperty(MorphOptions.MAX_AFFIX_LENGTH, "3");	
+		options.setProperty(Options.ORDER, "0");
+		options.setProperty(Options.PENALTY, "0.00");
+		
+		realTestWithOptions(options, 91.00, 76.00);
+	}
+	
+	@Test
+	public void realNonHashTest() {
+		MorphOptions options = new MorphOptions();
+		options.setProperty(Options.SEED, "42");
+		options.setProperty(Options.NUM_ITERATIONS, "10");
+		options.setProperty(Options.VECTOR_SIZE, "1");
+		options.setProperty(MorphOptions.USE_HASH_VECTOR, "false");
+		options.setProperty(Options.CANDIDATES_PER_STATE, "[4, 2, 1.5, 1.25]");
+		options.setProperty(Options.PRUNE, "true");
+		options.setProperty(Options.ORDER, "3");
+		options.setProperty(Options.PENALTY, "0.1");
 		options.setProperty(MorphOptions.TRAIN_FILE,
 				"form-index=1,tag-index=4,morph-index=6," + getResourceFile("trn.txt"));
 		options.setProperty(MorphOptions.TEST_FILE,
@@ -275,18 +373,6 @@ public class PipelineTest {
 		options.setProperty(Options.PRUNE, "true");
 		options.setProperty(Options.ORDER, "3");
 		options.setProperty(Options.PENALTY, ".1");
-		options.setProperty(MorphOptions.TRAIN_FILE,
-				"form-index=1,tag-index=4,morph-index=6," + getResourceFile("trn.aramorph.txt"));
-		options.setProperty(MorphOptions.TEST_FILE,
-				"form-index=1,tag-index=4,morph-index=6," + getResourceFile("tst.aramorph.txt"));
-		//realTestWithOptions(options);
-		
-		options.setProperty(MorphOptions.TRAIN_FILE,
-				"form-index=1,tag-index=4,morph-index=6,token-feature-index=7," + getResourceFile("trn.aramorph.txt"));
-		options.setProperty(MorphOptions.TEST_FILE,
-				"form-index=1,tag-index=4,morph-index=6,token-feature-index=7," + getResourceFile("tst.aramorph.txt"));
-		//realTestWithOptions(options);
-
 		options.setProperty(MorphOptions.INTERNAL_ANALYZER, "ar");
 		options.setProperty(MorphOptions.TRAIN_FILE,
 				"form-index=1,tag-index=4,morph-index=6," + getResourceFile("trn.aramorph.txt"));
@@ -337,6 +423,11 @@ public class PipelineTest {
 		testWithOptions(options, getTrainSentences(), getTestSentences(), 100.0, 100.0);
 	}
 
+	public void realOptimizerTestWithOptions(final MorphOptions options, double train_acc, double test_acc) {
+		testOptimizerWithOptions(options, getSentences(options.getTrainFile(), 100),
+				getSentences(options.getTestFile(), 100), train_acc, test_acc);
+	}
+	
 	public void realTestWithOptions(final MorphOptions options, double train_acc, double test_acc) {
 		testWithOptions(options, getSentences(options.getTrainFile(), 100),
 				getSentences(options.getTestFile(), 100), train_acc, test_acc);
@@ -353,7 +444,37 @@ public class PipelineTest {
 			caller = stack[3].getMethodName();
 		}
 		
-		Tagger tagger = MorphModel.train(options, train_sentences,
+		Tagger tagger = MorphModel.train(options, train_sentences);
+
+		assertModelPerformanceOnTestset(caller + " Train", tagger, train_sentences, train_threshold);
+		assertModelPerformanceOnTestset(caller + " Test ", tagger, test_sentences, test_threshold);
+		
+		File tempfile;
+		try {
+			tempfile = File.createTempFile("tagger", ".marmot");
+			tempfile.deleteOnExit();
+			FileUtils.saveToFile(tagger, tempfile);
+			Tagger loaded_tagger = FileUtils.loadFromFile(tempfile);
+			assertModelPerformanceOnTestset(caller + " Test (reload) ", loaded_tagger, test_sentences, test_threshold);
+			
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public void testOptimizerWithOptions(MorphOptions options,
+			List<Sequence> train_sentences, List<Sequence> test_sentences,
+			double train_threshold, double test_threshold) {
+
+		StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+		
+		String caller = "None";
+		if (stack.length > 3) {
+			caller = stack[3].getMethodName();
+		}
+		
+		assert test_sentences != null;
+		Tagger tagger = MorphModel.trainOptimal(options, train_sentences,
 				test_sentences);
 
 		assertModelPerformanceOnTestset(caller + " Train", tagger, train_sentences, train_threshold);
@@ -370,11 +491,8 @@ public class PipelineTest {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-		
-		
-		
-
 	}
+
 
 	private void assertModelPerformanceOnTestset(String name, Tagger tagger,
 			List<Sequence> sentences, double threshold) {

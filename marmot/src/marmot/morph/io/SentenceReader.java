@@ -40,7 +40,7 @@ public class SentenceReader implements Iterable<Sequence> {
 				int lemma_index = options_.getLemmaIndex();
 				int tag_index = options_.getTagIndex();
 				int morph_index = options_.getMorphIndex();
-				int token_feature_index = options_.getTokenFeatureIndex();
+				List<Integer> token_feature_indexes = options_.getTokenFeatureIndex();
 
 				if (!hasNext()) {
 					throw new NoSuchElementException();
@@ -61,16 +61,17 @@ public class SentenceReader implements Iterable<Sequence> {
 					
 							
 					List<String> token_feature_list = null;
-					List<String> weighted_token_feature_list = new LinkedList<String>();
-					List<Double> weighted_token_feature_weight_list = new LinkedList<Double>();
+					List<String> weighted_token_feature_list = null;
+					List<Double> weighted_token_feature_weight_list = null;
 
+					for (int token_feature_index : token_feature_indexes) {
+					
 					if (token_feature_index >= 0 && token_feature_index < row.size()) {
 						String[] token_features = row.get(token_feature_index)
 								.split("#");
+						
 
-						token_feature_list = new LinkedList<String>();
-						weighted_token_feature_list = new LinkedList<String>();
-
+					
 						for (String token_feature : token_features) {
 							int colon_index = token_feature.indexOf(':');
 							Double weight = null;
@@ -86,14 +87,23 @@ public class SentenceReader implements Iterable<Sequence> {
 							}
 
 							if (weight != null) {
+								if (weighted_token_feature_list == null) {
+									weighted_token_feature_list = new LinkedList<String>();
+									weighted_token_feature_weight_list = new LinkedList<Double>();
+								}
+								
 								weighted_token_feature_list.add(token_feature);
 								weighted_token_feature_weight_list.add(weight);
 							} else {
+								if (token_feature_list == null) {
+									token_feature_list =new LinkedList<String>();
+								}
 								token_feature_list.add(token_feature);
 							}
 
 						}
 
+					}
 					}
 
 					tokens.add(new Word(word, lemma, tag, morph, Converter.toStringArray(token_feature_list), Converter.toStringArray(weighted_token_feature_list), Converter.toDoubleArray(weighted_token_feature_weight_list)));

@@ -18,4 +18,6 @@ public interface Tagger extends Serializable {
 	List<Integer> getGoldIndexes(Sequence sequence, List<List<State>> candidates);
 	WeightVector getWeightVector();
 	String setThresholds(boolean return_stats_as_string);
+	void setResult(Result result);
+	Result getResult();
 }
