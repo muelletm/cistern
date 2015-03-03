@@ -1,0 +1,32 @@
+#summary Resources for robust morphological tagging.
+
+== Introduction ==
+
+On this page you can find resources related to our work on robust morphological tagging.
+
+== Resources ==
+
+ * [marlin MarLiN] are fast word clustering tool.
+ * [http://cistern.cis.lmu.de/marmot/naacl2015/naacl2015_dict.tar.bz2/ Word representations] (morphological dictionaries and word clusterings)
+ * Tokenized and tagged Wikipedia dumps:
+  * [http://cistern.cis.lmu.de/marmot/naacl2015/cs.wikidump.bz2 Czech]
+  * [http://cistern.cis.lmu.de/marmot/naacl2015/en.wikidump.bz2 English]
+  * [http://cistern.cis.lmu.de/marmot/naacl2015/de.wikidump.bz2 German]
+  * [http://cistern.cis.lmu.de/marmot/naacl2015/hu.wikidump.bz2 Hungarian]
+  * [http://cistern.cis.lmu.de/marmot/naacl2015/la.wikidump.bz2 Latin]
+  * [http://cistern.cis.lmu.de/marmot/naacl2015/es.wikidump.bz2 Spanish]
+ * A manually annotated [http://cistern.cis.lmu.de/marmot/naacl2015/smultron.tar.bz2 morphological layer] for the [http://www.cl.uzh.ch/research/parallelcorpora/paralleltreebanks/smultron_en.htm SMULTRON] corpus
+
+== Reference ==
+
+The creation of these resources is documented in the following paper.
+If you use any of these resources in your research and would like to acknowledge them, this would also be a good paper to cite.
+
+<pre>
+ @InProceedings{mueller2015,
+   author = {M\"uller, Thomas and Sch\"utze, Hinrich},
+   title = {Robust Morphological Tagging with Word Representations},
+   booktitle = {Proceedings of NAACL},
+   year = {2015},
+ }
+</pre>
