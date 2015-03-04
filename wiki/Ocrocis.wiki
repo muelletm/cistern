@@ -10,8 +10,10 @@ memory networks
 <em>Ocrocis</em> guides the user in training high-quality OCR models from raw PDFs or images. It features automatic project management with a minimalistic philosophy:
 
  * Smart parameter inference, few required arguments
- * Non-redundant disk usage via hardlinks
+ * Non-redundant disk usage via hardlinks (Linux only)
  * Only core-Perl dependencies (aside <em>Ocropy</em>'s native dependencies)
+
+Available for Linux and Mac OS X.
 
 == Details ==
 
