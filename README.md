@@ -1,6 +1,3 @@
-# cistern
-# Automatically exported from code.google.com/p/cistern
-
 Cistern is the principal repository of tools and resources released by the Center for Information and Language Processing ([CIS](http://www.cis.uni-muenchen.de/)) of the University of Munich ([LMU](http://www.uni-muenchen.de/)).
 
 The CIS conducts research on linguistically-informed statistical natural language processing ([NLP](http://en.wikipedia.org/wiki/Natural_language_processing)) including problems such as part-of-speech tagging, parsing and sentiment analysis.
