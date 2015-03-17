@@ -17,18 +17,18 @@ https://github.com/muelletm/cistern/tree/master/hmmla
 Assuming a training file esp.train with the following form:
 
 <pre>
-1	El	el	d<br>
-2	aumento	aumento	n<br>
-3	del	del	s<br>
-4	índice	índice	n<br>
+1	El	el	d
+2	aumento	aumento	n
+3	del	del	s
+4	índice	índice	n
 </pre>
 (Note, that the lemmata are not necessary.) A refining model can be trained by calling:
 
 <pre>
 java -ea -cp hmmla.jar hmmla.Trainer -train-file form-index=1,tag-index=3,esp.train\<br>
--model-name esp.hmmla\<br>
--num-tags 50\<br>
--refine true<br>
+-model-name esp.hmmla\
+-num-tags 50\
+-refine true
 </pre>
 
 Where form-index=1 specifies that the word form can bound in the second column.
@@ -38,18 +38,18 @@ Where form-index=1 specifies that the word form can bound in the second column.
 Assuming a test file esp.test of the same format as esp.train we can annotate the file with:
 
 <pre>
-java -ea -cp hmmla.jar hmmla.Tagger  -model-name esp.hmmla\<br>
--test-file form-index=1,tag-index=3,conll2007/esp.test\<br>
--pred-file esp.test.pred<br>
+java -ea -cp hmmla.jar hmmla.Tagger  -model-name esp.hmmla\
+-test-file form-index=1,tag-index=3,conll2007/esp.test\
+-pred-file esp.test.pred
 </pre>
 
 The output esp.test.pred will have the following form:
 
 <pre>
-0	Las	d1<br>
-1	reservas	n10<br>
-2	de	s010<br>
-3	oro	n11<br>
+0	Las	d1
+1	reservas	n10
+2	de	s010
+3	oro	n11
 </pre>
 
 Have a look at [example.sh](https://code.google.com/p/cistern/source/browse/trunk/hmmla/example.sh) for a complete example.
@@ -59,10 +59,10 @@ Have a look at [example.sh](https://code.google.com/p/cistern/source/browse/trun
 If you use HMMLA in your research and would like to acknowledge it, please refer to the following paper.
 
 <pre>
-@InProceedings{mueller2014,<br>
-author = {M\"uller, Thomas and Farkas, Richard and Alex, Judea and Schmid, Helmut and Sch\"utze, Hinrich},<br>
-title = {Dependency parsing with latent refinements of part-of-speech tags},<br>
-booktitle = {Proceedings of the 2014 Conference on Empirical Methods in Natural Language Processing},<br>
-year = {2014},<br>
-}<br>
+@InProceedings{mueller2014,
+author = {M\"uller, Thomas and Farkas, Richard and Alex, Judea and Schmid, Helmut and Sch\"utze, Hinrich},
+title = {Dependency parsing with latent refinements of part-of-speech tags},
+booktitle = {Proceedings of the 2014 Conference on Empirical Methods in Natural Language Processing},
+year = {2014},
+}
 </pre>
