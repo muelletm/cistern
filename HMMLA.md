@@ -10,8 +10,6 @@ To get the latest binary release of HMMLA, please visit HMMLA's [CIS home page](
 
 # Source Code #
 
-# Source Code #
-
 https://github.com/muelletm/cistern/tree/master/hmmla
 
 # Training #
