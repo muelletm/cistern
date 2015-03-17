@@ -14,6 +14,10 @@ marlin_cluster --words words --bigrams bigrams --output --c 10<br>
 
 _marlin\_count_ extracts a word list and bigram statistics and _marlin\_cluster_ performs the actual clustering.
 
+## Source Code ##
+
+https://github.com/muelletm/cistern/tree/master/marlin
+
 ## Pretrained Clusterings ##
 
 Pretrained clustering for English, German, Hungarian, Latin and Spanish can be found [here](http://cistern.cis.lmu.de/marmot/naacl2015/).
