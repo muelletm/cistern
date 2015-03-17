@@ -8,6 +8,9 @@ MarMoT is a generic [Conditional Random Field](http://en.wikipedia.org/wiki/Cond
 
 To get the latest binary release of MarMoT, please visit MarMoT's [CIS home page](http://cistern.cis.lmu.de/marmot/CURRENT).
 
+# Source Code #
+
+https://github.com/muelletm/cistern/tree/master/marmot
 
 # Quickstart #
 
