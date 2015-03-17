@@ -23,6 +23,6 @@ You can build MarMoT by running:
 
 $ ant
 
-For documentation on how to use MarMoT have a look at <https://code.google.com/p/cistern/>
+For documentation on how to use MarMoT have a look at https://github.com/muelletm/cistern/blob/wiki/marmot.md
 
 
