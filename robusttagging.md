@@ -24,10 +24,10 @@ The creation of these resources is documented in the following paper.
 If you use any of these resources in your research and would like to acknowledge them, this would also be a good paper to cite.
 
 <pre>
-@InProceedings{mueller2015,<br>
-author = {M\"uller, Thomas and Sch\"utze, Hinrich},<br>
-title = {Robust Morphological Tagging with Word Representations},<br>
-booktitle = {Proceedings of NAACL},<br>
-year = {2015},<br>
-}<br>
+@InProceedings{mueller2015,
+author = {M\"uller, Thomas and Sch\"utze, Hinrich},
+title = {Robust Morphological Tagging with Word Representations},
+booktitle = {Proceedings of NAACL},
+year = {2015},
+}
 </pre>
