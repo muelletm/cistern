@@ -22,7 +22,7 @@ public class MorphOptions extends Options {
 	public static final String TAG_MORPH = "tag-morph";
 	public static final String PRED_FILE = "pred-file";
 	public static final String OBSERVED_FEATURE = "observed-feature";
-	public static final String SPLIT_MORPHS = "split-morphs";
+	public static final String SPLIT_MORPH = "split-morph";
 	public static final String SUBTAG_SEPARATOR = "subtag-separator";
 	public static final String TYPE_DICT = "type-dict";
 	public static final String SPLIT_POS = "split-pos";
@@ -66,8 +66,8 @@ public class MorphOptions extends Options {
 		COMMENTS_.put(OBSERVED_FEATURE, "Whether to use the observed feature. Have a look at the paper!");
 		DEFALUT_VALUES_.put(SPLIT_POS, "false");
 		COMMENTS_.put(SPLIT_POS, "Whether to split POS tags. See subtag-separator. Have a look at the paper!");
-		DEFALUT_VALUES_.put(SPLIT_MORPHS, "true");
-		COMMENTS_.put(SPLIT_MORPHS, "Whether to split MORPG tags. See subtag-separator. Have a look at the paper!");
+		DEFALUT_VALUES_.put(SPLIT_MORPH, "true");
+		COMMENTS_.put(SPLIT_MORPH, "Whether to split MORPH tags. See subtag-separator. Have a look at the paper!");
 		DEFALUT_VALUES_.put(SUBTAG_SEPARATOR, "\\|");
 		COMMENTS_.put(SUBTAG_SEPARATOR, "Regular expression to use for splitting tags. (Has to work with Java's String.split)");
 		DEFALUT_VALUES_.put(TYPE_DICT, "");
@@ -141,7 +141,7 @@ public class MorphOptions extends Options {
 	}
 
 	public boolean getSplitMorphs() {
-		return Boolean.parseBoolean(getProperty(SPLIT_MORPHS));
+		return Boolean.parseBoolean(getProperty(SPLIT_MORPH));
 	}
 	
 	public String getSubTagSeparator() {
