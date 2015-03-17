@@ -8,6 +8,12 @@ This implementation can be either used as a standard HMM tagger or to refine the
 
 To get the latest binary release of HMMLA, please visit HMMLA's [CIS home page](http://www.cis.lmu.de/~muellets/hmmla/CURRENT).
 
+# Source Code #
+
+# Source Code #
+
+https://github.com/muelletm/cistern/tree/master/hmmla
+
 # Training #
 
 Assuming a training file esp.train with the following form:
