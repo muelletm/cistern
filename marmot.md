@@ -6,7 +6,7 @@ MarMoT is a generic [Conditional Random Field](http://en.wikipedia.org/wiki/Cond
 
 # Download #
 
-To get the latest binary release of MarMoT, please visit MarMoT's [CIS home page](http://cistern.cis.lmu.de/marmot/CURRENT).
+To get the latest binary release of MarMoT, please visit MarMoT's [CIS home page](http://cistern.cis.lmu.de/marmot/bin).
 Petrained models can be found [here](http://cistern.cis.lmu.de/marmot/models/).
 
 # Source Code #
