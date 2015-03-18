@@ -20,7 +20,7 @@ https://github.com/muelletm/cistern/tree/master/marlin
 
 ## Pretrained Clusterings ##
 
-Pretrained clustering for English, German, Hungarian, Latin and Spanish can be found [here](http://cistern.cis.lmu.de/marmot/naacl2015/).
+Pretrained clusterings for English, German, Hungarian, Latin and Spanish can be found [here](http://cistern.cis.lmu.de/marmot/naacl2015/).
 
 ## References ##
 
