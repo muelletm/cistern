@@ -32,8 +32,7 @@ author = {M\"uller, Thomas and Sch\"utze, Hinrich},
 title = {Robust Morphological Tagging with Word Representations},
 booktitle = {Proceedings of NAACL},
 year = {2015},
-}<br>
-</pre>
+}</pre>
 
 For the paper describing the algorithm refer to:
 
@@ -43,5 +42,4 @@ title={Algorithms for bigram and trigram word clustering},
 author={Martin, Sven and Liermann, J{\"o}rg and Ney, Hermann},
 journal={Speech communication},
 year={1998},
-}
-</pre>
+}</pre>
