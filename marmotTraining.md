@@ -7,21 +7,21 @@ MarMoT can be used to train plain [part-of-speech (POS)](http://en.wikipedia.org
 Given a training file train.txt in a column format:
 
 <pre>
-1  Marmots    NNS<br>
-2  are        VBP<br>
-3  large      JJ<br>
-4  ground     NN<br>
-5  squirrels  NNS<br>
-6  .          .<br>
+1  Marmots    NNS
+2  are        VBP
+3  large      JJ
+4  ground     NN
+5  squirrels  NNS
+6  .          .
 </pre>
 
 A model can be trained by running:
 
 <pre>
-$ java -Xmx5G -cp marmot.jar marmot.morph.cmd.Trainer\<br>
--train-file form-index=1,tag-index=2,train.txt\<br>
--tag-morph false\<br>
--model-file en.marmot<br>
+$ java -Xmx5G -cp marmot.jar marmot.morph.cmd.Trainer\
+-train-file form-index=1,tag-index=2,train.txt\
+-tag-morph false\
+-model-file en.marmot
 </pre>
 
 # Training Morphological Taggers #
@@ -29,22 +29,22 @@ $ java -Xmx5G -cp marmot.jar marmot.morph.cmd.Trainer\<br>
 For training a morphological tagger we also need morphological information in the training file.
 
 <pre>
-0       El       d       pos=article|gen=m|num=s<br>
-1       género   n       pos=common|gen=m|num=s<br>
-2       Marmota  n       pos=proper|gen=c|num=c<br>
-3       incluye  v       pos=main|gen=c|num=s|per=3|mood=ind|tense=p<br>
-4       catorce  d       postype=numeral|gen=c|num=p<br>
-5       especies n       postype=common|gen=f|num=p<br>
-6       .        f       punct=period<br>
+0       El       d       pos=article|gen=m|num=s
+1       género   n       pos=common|gen=m|num=s
+2       Marmota  n       pos=proper|gen=c|num=c
+3       incluye  v       pos=main|gen=c|num=s|per=3|mood=ind|tense=p
+4       catorce  d       postype=numeral|gen=c|num=p
+5       especies n       postype=common|gen=f|num=p
+6       .        f       punct=period
 </pre>
 
 And we have to specify the index of the morphological tag:
 
 <pre>
-$ java -Xmx5G -cp marmot.jar marmot.morph.cmd.Trainer\<br>
--train-file form-index=1,tag-index=2,morph-index=3,train.txt\<br>
--tag-morph true\<br>
--model-file es.marmot<br>
+$ java -Xmx5G -cp marmot.jar marmot.morph.cmd.Trainer\
+-train-file form-index=1,tag-index=2,morph-index=3,train.txt\
+-tag-morph true\
+-model-file es.marmot
 </pre>
 
 # Advanced Training Options #
@@ -52,112 +52,136 @@ $ java -Xmx5G -cp marmot.jar marmot.morph.cmd.Trainer\<br>
 Run the training command without arguments to have a look at advanced training options.
 
 <pre>
-$ java marmot.jar marmot.morph.cmd.Trainer<br>
-<br>
-General Options:<br>
-prune:<br>
-Whether to use pruning.<br>
-Default value: "true"<br>
-effective-order:<br>
-Maximal order to reach before increasing the level.<br>
-Default value: "1"<br>
-seed:<br>
-Random seed to use for shuffling. 0 for nondeterministic seed<br>
-Default value: "0"<br>
-prob-threshold:<br>
-Initial pruning threshold. Changing this value should have almost no effect.<br>
-Default value: "0.01"<br>
-very-verbose:<br>
-Whether to print a lot of status messages.<br>
-Default value: "false"<br>
-oracle:<br>
-Whether to do oracle pruning. Probably not relevant. Have a look at the paper!<br>
-Default value: "false"<br>
-trainer:<br>
-Which trainer to use. (There is also a perceptron trainer but don't use it.)<br>
-Default value: "marmot.core.CrfTrainer"<br>
-num-iterations:<br>
-Number of training iterations.<br>
-Default value: "10"<br>
-candidates-per-state:<br>
-Average number of states to obtain after pruning at each order. These are the mu values from the paper.<br>
-Default value: "[4, 2, 1.5]"<br>
-max-transition-feature-level:<br>
-Something for testing the code. Don't change it.<br>
-Default value: "-1"<br>
-beam-size:<br>
-Specify the beam size of the n-best decoder.<br>
-Default value: "1"<br>
-order:<br>
-Set the model order.<br>
-Default value: "2"<br>
-initial-vector-size:<br>
-Size of the weight vector.<br>
-Default value: "10000000"<br>
-averaging:<br>
-Whether to use averaging. Perceptron only!<br>
-Default value: "true"<br>
-shuffle:<br>
-Whether to shuffle between training iterations.<br>
-Default value: "true"<br>
-verbose:<br>
-Whether to print status messages.<br>
-Default value: "false"<br>
-quadratic-penalty:<br>
-L2 penalty parameter.<br>
-Default value: "0.0"<br>
-penalty:<br>
-L1 penalty parameter.<br>
-Default value: "0.0"<br>
-<br>
-Morph Options:<br>
-type-embeddings:<br>
-Word type embeddings file (optional)<br>
-Default value: ""<br>
-model-file:<br>
-Output model file.<br>
-Default value: ""<br>
-observed-feature:<br>
-Whether to use the observed feature. Have a look at the paper!<br>
-Default value: "true"<br>
-split-pos:<br>
-Whether to split POS tags. See subtag-seperator. Have a look at the paper!<br>
-Default value: "false"<br>
-shape:<br>
-Whether to use shape features.<br>
-Default value: "false"<br>
-restrict-transitions:<br>
-Whether to only allow POS -> MORPH transitions that have been seen during training.<br>
-Default value: "true"<br>
-type-dict:<br>
-Word type dictionary file (optional)<br>
-Default value: ""<br>
-split-morphs:<br>
-Whether to split MORPG tags. See subtag-seperator. Have a look at the paper!<br>
-Default value: "true"<br>
-rare-word-max-freq:<br>
-Maximal frequency of a rare word.<br>
-Default value: "10"<br>
-normalize-forms:<br>
-Whether to normalize word forms before tagging.<br>
-Default value: "false"<br>
-train-file:<br>
-Input training file<br>
-Default value: ""<br>
-pred-file:<br>
-Output prediction file in CoNLL09. (optional for training)<br>
-Default value: ""<br>
-subtag-seperator:<br>
-Regular expression to use for splitting tags. (Has to work with Java's String.split)<br>
-Default value: "\\|"<br>
-shape-trie-path:<br>
-Path to the shape trie. Will be created if non-existent.<br>
-Default value: ""<br>
-tag-morph:<br>
-Whether to train a morphological tagger or a POS tagger.<br>
-Default value: "true"<br>
-test-file:<br>
-Input test file. (optional for training)<br>
-Default value: ""<br>
-<br>
-</pre>
+$ java marmot.jar marmot.morph.cmd.Trainer
+General Options:
+	very-verbose:
+		Whether to print a lot of status messages.
+		Default value: "false"
+	num-iterations:
+		Number of training iterations.
+		Default value: "10"
+	oracle:
+		Whether to do oracle pruning. Probably not relevant. Have a look at the paper!
+		Default value: "false"
+	seed:
+		Random seed to use for shuffling. 0 for nondeterministic seed
+		Default value: "42"
+	penalty:
+		L1 penalty parameter.
+		Default value: "0.0"
+	averaging:
+		Whether to use averaging. Perceptron only!
+		Default value: "true"
+	optimize-num-iterations:
+		Whether to optimize the number of training iterations on the dev set.
+		Default value: "false"
+	beam-size:
+		Specify the beam size of the n-best decoder.
+		Default value: "1"
+	prob-threshold:
+		Initial pruning threshold. Changing this value should have almost no effect.
+		Default value: "0.01"
+	initial-vector-size:
+		Size of the weight vector.
+		Default value: "10000000"
+	verbose:
+		Whether to print status messages.
+		Default value: "false"
+	max-transition-feature-level:
+		Something for testing the code. Don't change it.
+		Default value: "-1"
+	prune:
+		Whether to use pruning.
+		Default value: "true"
+	trainer:
+		Which trainer to use. (There is also a perceptron trainer but don't use it.)
+		Default value: "marmot.core.CrfTrainer"
+	effective-order:
+		Maximal order to reach before increasing the level.
+		Default value: "1"
+	candidates-per-state:
+		Average number of states to obtain after pruning at each order. These are the mu values from the paper.
+		Default value: "[4, 2, 1.5]"
+	quadratic-penalty:
+		L2 penalty parameter.
+		Default value: "0.0"
+	shuffle:
+		Whether to shuffle between training iterations.
+		Default value: "true"
+	order:
+		Set the model order.
+		Default value: "2"
+
+Morph Options:
+	special-signature:
+		Whether to mark if a word contains a special character in the word signature.
+		Default value: "false"
+	train-file:
+		Input training file
+		Default value: ""
+	tag-morph:
+		Whether to train a morphological tagger or a POS tagger.
+		Default value: "true"
+	restrict-transitions:
+		Whether to only allow POS -> MORPH transitions that have been seen during training.
+		Default value: "true"
+	num-chunks:
+		Number of chunks. CrossAnnotator only.
+		Default value: "5"
+	shape:
+		Whether to use shape features.
+		Default value: "false"
+	type-dict:
+		Word type dictionary file (optional)
+		Default value: ""
+	shape-trie-path:
+		Path to the shape trie. Will be created if non-existent.
+		Default value: ""
+	use-hash-vector:
+		Whether to use a hashed feature vector. Saves memory decreases accuracy.
+		Default value: "true"
+	split-pos:
+		Whether to split POS tags. See subtag-separator. Have a look at the paper!
+		Default value: "false"
+	subtag-separator:
+		Regular expression to use for splitting tags. (Has to work with Java's String.split)
+		Default value: "\\|"
+	use-default-features:
+		Whether to extract default features such as prefixes, suffixes, word forms.
+		Default value: "true"
+	model-file:
+		Output model file.
+		Default value: ""
+	pred-file:
+		Output prediction file in CoNLL09. (optional for training)
+		Default value: ""
+	observed-feature:
+		Whether to use the observed feature. Have a look at the paper!
+		Default value: "true"
+	test-file:
+		Input test file. (optional for training)
+		Default value: ""
+	type-embeddings:
+		Word type embeddings file (optional)
+		Default value: ""
+	form-normalization:
+		Whether to normalize word forms before tagging.
+		Default value: "none"
+	num-folds:
+		Number of folds used for estimation of open word classes.
+		Default value: "10"
+	max-affix-length:
+		Max affix length to use in feature extraction.
+		Default value: "10"
+	rare-word-max-freq:
+		Maximal frequency of a rare word.
+		Default value: "10"
+	internal-analyzer:
+		Use an internal morphological analyzer. Currently supported: 'ar' for AraMorph (Arabic)
+		Default value: ""
+	split-morph:
+		Whether to split MORPH tags. See subtag-separator. Have a look at the paper!
+		Default value: "true"
+	feature-templates:
+		Comma separated list, activates individual templates.
+		Default value: "form,rare,affix,context,sig,bigrams"</pre>
