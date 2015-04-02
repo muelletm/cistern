@@ -2,8 +2,8 @@ package marmot.test.lemma;
 
 import java.util.Arrays;
 
-import marmot.lemma.Aligner;
-import marmot.lemma.HackyAligner;
+import marmot.lemma.toutanova.Aligner;
+import marmot.lemma.toutanova.HackyAligner;
 
 import org.junit.Test;
 

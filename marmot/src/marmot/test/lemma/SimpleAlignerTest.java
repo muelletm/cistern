@@ -7,9 +7,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import marmot.lemma.Aligner;
-import marmot.lemma.SimpleAligner;
-import marmot.lemma.Aligner.Pair;
+import marmot.lemma.toutanova.Aligner;
+import marmot.lemma.toutanova.SimpleAligner;
+import marmot.lemma.toutanova.Aligner.Pair;
 
 import org.junit.Test;
 

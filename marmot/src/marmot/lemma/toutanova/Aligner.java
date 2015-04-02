@@ -1,4 +1,4 @@
-package marmot.lemma;
+package marmot.lemma.toutanova;
 
 import java.util.Iterator;
 import java.util.LinkedList;
