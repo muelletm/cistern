@@ -1,4 +1,4 @@
-package marmot.test.lemma;
+package marmot.test.lemma.toutanova;
 
 import java.util.Arrays;
 
