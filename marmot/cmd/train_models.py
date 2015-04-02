@@ -97,7 +97,7 @@ def main(args):
             print
             sys.stdout.flush()
 
-            t = threading.Thread(target=eval, args=(lang_data, jarfile, dirname))
+            t = threading.Thread(target=train, args=(lang_data, jarfile, dirname))
             threads.append(t)
 
     while threads:
