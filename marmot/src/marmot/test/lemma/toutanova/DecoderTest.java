@@ -22,7 +22,7 @@ public class DecoderTest {
 		
 		
 		int[] alignment = {};
-		train_instances.add(new ToutanovaInstance(new Instance("aaae", "aaa", null, null), alignment));
+		//train_instances.add(new ToutanovaInstance(new Instance("aaae", "aaa", null, null), alignment));
 		
 		
 		model.init(train_instances, null);
