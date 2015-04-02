@@ -2,6 +2,8 @@ package marmot.lemma.transducer;
 
 import java.util.Set;
 
+import marmot.lemma.transducer.exceptions.NegativeContext;
+
 public abstract class Transducer {
 	
 	// context values
@@ -15,13 +17,17 @@ public abstract class Transducer {
 	private int c3;
 	private int c4;
 	
-	private Set alphabet;
+	private Set<Character> alphabet;
 	
-	public Transducer(Set alphabet, int c1, int c2, int c3, int c4) {
+	public Transducer(Set<Character> alphabet, int c1, int c2, int c3, int c4) throws NegativeContext {
 		this.c1 = c1;
 		this.c2 = c2;
 		this.c3 = c3;
 		this.c4 = c4;
+		
+		if (this.c1 < 0 || this.c2 < 0 || this.c3 < 0 || this.c4 < 0) {
+			throw new NegativeContext();
+		}
 		
 		this.alphabet = alphabet;
 	}
