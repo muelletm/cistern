@@ -21,13 +21,19 @@ public class WFST extends Transducer {
 	
 
 	@Override
-	protected void gradient(double[] gradient, String upper, String lower) {
+	protected void gradient(double[] gradient, int i) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	protected double logLikelihood(String upper, String lower) {
+	protected double logLikelihood() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	
+	@Override
+	protected double logLikelihood(int i ) {
 		// TODO Auto-generated method stub
 		return 0;
 	}

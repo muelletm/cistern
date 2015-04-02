@@ -1,11 +1,14 @@
 package marmot.lemma.transducer;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
 
+import marmot.lemma.Instance;
 import marmot.lemma.LemmatizerTrainer;
 import marmot.lemma.transducer.exceptions.NegativeContext;
 
@@ -25,6 +28,13 @@ public abstract class Transducer implements LemmatizerTrainer {
 	// arrays for dynamic programming
 	protected double[][] alphas;
 	protected double[][] betas;
+	
+	// context to int assignment
+	protected int[][] contexts;
+	
+	//data
+	protected List<Instance> trainingData;
+	protected List<Instance> devData;
 	
 	protected Set<Character> alphabet;
 	
@@ -77,9 +87,88 @@ public abstract class Transducer implements LemmatizerTrainer {
 		}
 	}
 	
-	protected abstract void gradient(double[] gradient);
-	protected abstract void gradient(double[] gradient, String upper, String lower);
-	protected abstract double logLikelihood(String upper, String lower);
 
+	protected int[][][] preextractContexts(List<Instance> instances, int c1, int c2, int c3, int c4) {
+		int[][][] contexts = new int[instances.size()][][];
+		
+		String END_SYMBOL = "$";
+		String BREAK_SYMBOL = "*****";
+		
+		//String upper = "abcd";
+		//String lower = "efgh";
+		
+		Map<String,Integer> hash = new HashMap<String,Integer>();
+		int counter = 0;
+		int instanceI = 0;
+		
+		for (Instance instance : instances) {
+			
+			String upper = instance.getForm();
+			String lower = instance.getLemma();
+			
+			contexts[instanceI] = new int[upper.length()][lower.length()];
+			
+			for (int i = 0; i < upper.length(); ++i) {
+
+				int ul_limit = Math.max(0, i - c1);
+				int ur_limit = Math.min(upper.length() - 1, i + c2);
+
+				String ul = upper.substring(ul_limit, i);
+				String ur = upper.substring(i, ur_limit);
+
+				// pad
+				while (ul.length() < c1) {
+					ul = END_SYMBOL + ul;
+				}
+
+				while (ur.length() < c2) {
+					ur = ur + END_SYMBOL;
+				}
+
+				for (int j = 0; j < lower.length(); ++j) {
+
+					int ll_limit = Math.max(0, j - c3);
+					int lr_limit = Math.min(lower.length() - 1, j + c4);
+
+					String ll = lower.substring(ll_limit, j);
+					String lr = lower.substring(j, lr_limit);
+
+					// pad
+					while (lr.length() < c3) {
+						lr = lr + END_SYMBOL;
+					}
+					while (ll.length() < c4) {
+						ll = END_SYMBOL + ll;
+					}
+
+					// hash the string
+					String contextString = ul + BREAK_SYMBOL + ur
+							+ BREAK_SYMBOL + ll + BREAK_SYMBOL + lr;
+
+					/*
+					System.out.println(i);
+					System.out.println(j);
+					System.out.println("C1: " + ul + ", C2: " + ur + ", C3: "
+							+ ll + ", C4: " + lr);
+					System.out.println();
+					*/
+					if (!hash.keySet().contains(contextString)) {
+						hash.put(contextString, counter);
+						++counter;
+					}
+					contexts[instanceI][i][j] = hash.get(contextString);
+
+				}
+			}
+			instanceI += 1;
+		}
+		
+		return contexts;
+	}
+	
+	protected abstract void gradient(double[] gradient);
+	protected abstract void gradient(double[] gradient, int instanceId);
+	protected abstract double logLikelihood(int instanceId);
+	protected abstract double logLikelihood();
 	
 }

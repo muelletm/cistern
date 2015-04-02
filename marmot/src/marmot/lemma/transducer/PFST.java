@@ -10,6 +10,7 @@ import marmot.lemma.Instance;
 import marmot.lemma.Lemmatizer;
 import marmot.lemma.transducer.exceptions.LabelBiasException;
 import marmot.lemma.transducer.exceptions.NegativeContext;
+import marmot.util.Encoder;
 import marmot.util.Numerics;
 
 
@@ -41,7 +42,11 @@ public class PFST extends Transducer {
 	}
 	
 	@Override
-	protected void gradient(double[] gradient, String upper, String lower) {
+	protected void gradient(double[] gradient, int instanceId) {
+		// get data instance
+		Instance instance = this.trainingData.get(instanceId);
+		String upper = instance.getForm();
+		String lower = instance.getLemma();
 		
 		LOGGER.info("Starting gradient computation for pair (" + upper + "," + lower + ")...");
 		//zero out the relevant positions in the log-semiring
@@ -57,6 +62,7 @@ public class PFST extends Transducer {
 			for (int j = lower.length() - 1; j >= 0; --j) {
 	
 				// TODO EXTRACT CONTEXT
+				int context_id = contexts[i][j];
 				
 				// ins 
 				betas[i][j] = Numerics.sumLogProb(betas[i][j], betas[i+1][j] + 1.0);
@@ -110,9 +116,20 @@ public class PFST extends Transducer {
 			System.out.println();
 		}
 	}
+	
+	@Override
+	protected double logLikelihood() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
 	@Override
-	protected double logLikelihood(String upper, String lower) {
+	protected double logLikelihood(int instanceId) {
+		// get data instance
+		Instance instance = this.trainingData.get(instanceId);
+		String upper = instance.getForm();
+		String lower = instance.getLemma();
+		
 		zeroOut(betas,upper.length()+1, lower.length()+1);
 		betas[upper.length()][lower.length()] = 0.0;
 		
@@ -121,6 +138,7 @@ public class PFST extends Transducer {
 			for (int j = lower.length() - 1; j >= 0; --j) {
 	
 				// TODO EXTRACT CONTEXT
+				
 				
 				// ins 
 				betas[i][j] = Numerics.sumLogProb(betas[i][j], betas[i+1][j] + 1.0);
@@ -139,6 +157,8 @@ public class PFST extends Transducer {
 	public Lemmatizer train(List<Instance> instances,
 			List<Instance> dev_instances) {
 		
+		
+		preextractContexts(instances,this.c1,this.c2, this.c3, this.c4);
 	
 		// get maximum input and output strings sizes
 		this.alphabet = new HashSet<Character>();
@@ -174,11 +194,11 @@ public class PFST extends Transducer {
 		zeroOut(betas);
 	
 		double[] gradient_vector = new double[5];
-		this.gradient(gradient_vector,instances.get(0).getForm(), instances.get(0).getLemma());
+		this.gradient(gradient_vector,0);
 		
 		return new LemmatizerPFST();
 	}
-
+	
 	
 
 	
