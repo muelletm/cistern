@@ -1,7 +1,10 @@
 package marmot.lemma.transducer;
 
+import java.util.List;
 import java.util.Set;
 
+import marmot.lemma.Instance;
+import marmot.lemma.Lemmatizer;
 import marmot.lemma.transducer.exceptions.LabelBiasException;
 import marmot.lemma.transducer.exceptions.NegativeContext;
 
@@ -25,6 +28,12 @@ public class PFST extends Transducer {
 	protected double logLikelihood() {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	@Override
+	public Lemmatizer train(List<Instance> instances,
+			List<Instance> dev_instances) {
+		return new LemmatizerPFST();
 	}
 
 }

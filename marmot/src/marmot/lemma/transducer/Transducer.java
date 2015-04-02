@@ -2,9 +2,10 @@ package marmot.lemma.transducer;
 
 import java.util.Set;
 
+import marmot.lemma.LemmatizerTrainer;
 import marmot.lemma.transducer.exceptions.NegativeContext;
 
-public abstract class Transducer {
+public abstract class Transducer implements LemmatizerTrainer {
 	
 	// context values
 	// See Cotterell et al. (2014) for more details
@@ -12,12 +13,12 @@ public abstract class Transducer {
 	// c2 = upper right hand context
 	// c3 = lower left hand context
 	// c4 = lower right hand context
-	private int c1;
-	private int c2;
-	private int c3;
-	private int c4;
+	protected int c1;
+	protected int c2;
+	protected int c3;
+	protected int c4;
 	
-	private Set<Character> alphabet;
+	protected Set<Character> alphabet;
 	
 	public Transducer(Set<Character> alphabet, int c1, int c2, int c3, int c4) throws NegativeContext {
 		this.c1 = c1;
@@ -32,7 +33,8 @@ public abstract class Transducer {
 		this.alphabet = alphabet;
 	}
 	
-	private void extractContexts() {
+	
+	protected void extractContexts() {
 		
 	}
 	
