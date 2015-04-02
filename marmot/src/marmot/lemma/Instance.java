@@ -1,7 +1,5 @@
 package marmot.lemma;
 
-import java.util.List;
-
 public class Instance {
 
 	String form_;

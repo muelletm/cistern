@@ -8,7 +8,6 @@ import marmot.core.Token;
 import marmot.lemma.Instance;
 import marmot.lemma.Lemmatizer;
 import marmot.lemma.LemmatizerTrainer;
-import marmot.lemma.toutanova.Model;
 import marmot.morph.Word;
 import marmot.morph.io.SentenceReader;
 
