@@ -32,15 +32,18 @@ public abstract class Transducer implements LemmatizerTrainer {
 	protected double[][] betas;
 	
 	// context to int assignment
-	protected int[][] contexts;
+	protected int[][][] contexts;
+	
+	// weights (in context space)
+	protected double[][][] weights;
 	
 	//data
 	protected List<Instance> trainingData;
 	protected List<Instance> devData;
 	
-	protected Set<Character> alphabet;
+	protected Map<Character,Integer> alphabet;
 	
-	public Transducer(Set<Character> alphabet, int c1, int c2, int c3, int c4) throws NegativeContext {
+	public Transducer(Map<Character,Integer> alphabet, int c1, int c2, int c3, int c4) throws NegativeContext {
 		this.c1 = c1;
 		this.c2 = c2;
 		this.c3 = c3;
@@ -58,7 +61,7 @@ public abstract class Transducer implements LemmatizerTrainer {
 	protected void extractContexts() {
 		List<Set<Character>> cartesianProductArgs = new ArrayList<Set<Character>>();
 		for (int i = 0; i < this.c1 + this.c2 + this.c3 + this.c4; ++i) {
-			cartesianProductArgs.add(this.alphabet);
+			//cartesianProductArgs.add(this.alphabet);
 		}
 				
 		Sets.cartesianProduct((Set[]) cartesianProductArgs.toArray());

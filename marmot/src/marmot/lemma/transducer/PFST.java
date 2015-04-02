@@ -1,23 +1,30 @@
 package marmot.lemma.transducer;
 
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.logging.Logger;
+
+import org.javatuples.Pair;
 
 import marmot.lemma.Instance;
 import marmot.lemma.Lemmatizer;
 import marmot.lemma.transducer.exceptions.LabelBiasException;
 import marmot.lemma.transducer.exceptions.NegativeContext;
-import marmot.util.Encoder;
 import marmot.util.Numerics;
 
 
 
 public class PFST extends Transducer {
 
+	// logger
     private static final Logger LOGGER = Logger.getLogger(PFST.class.getName());
+    
+    //distribution
+    private double[][][] distribution;
 
 	/**
 	 * Don't ever call
@@ -27,7 +34,7 @@ public class PFST extends Transducer {
 	public PFST() throws NegativeContext, LabelBiasException {
 		this(null,0,1,0,0);
 	}
-	public PFST(Set<Character> alphabet, int c1, int c2, int c3, int c4) throws LabelBiasException, NegativeContext {
+	public PFST(Map<Character,Integer> alphabet, int c1, int c2, int c3, int c4) throws LabelBiasException, NegativeContext {
 		super(alphabet, c1, c2, c3, c4);
 		if (c4 != 0) {
 			throw new LabelBiasException();
@@ -61,15 +68,15 @@ public class PFST extends Transducer {
 		for (int i = upper.length() - 1 ; i >= 0; --i) {
 			for (int j = lower.length() - 1; j >= 0; --j) {
 	
-				// TODO EXTRACT CONTEXT
-				int context_id = contexts[i][j];
+				int context_id = contexts[instanceId][i][j];
+				double w  = 0.0;
 				
 				// ins 
-				betas[i][j] = Numerics.sumLogProb(betas[i][j], betas[i+1][j] + 1.0);
+				betas[i][j] = Numerics.sumLogProb(betas[i][j], betas[i+1][j] + w);
 				// del
-				betas[i][j] = Numerics.sumLogProb(betas[i][j], betas[i][j+1] + 1.0);
+				betas[i][j] = Numerics.sumLogProb(betas[i][j], betas[i][j+1] + w);
 				// sub
-				betas[i][j] = Numerics.sumLogProb(betas[i][j], betas[i+1][j+1] + 1.0);
+				betas[i][j] = Numerics.sumLogProb(betas[i][j], betas[i+1][j+1] + w);
 			}
 		}
 		
@@ -87,10 +94,7 @@ public class PFST extends Transducer {
 		for (int i = 1; i < upper.length() + 1; ++i) {
 			for (int j = 1; j < lower.length() + 1; ++j ) {
 				
-				//TODO EXTRACT CONTEXT
-				
-				// compute gradient
-				
+				int contextId = contexts[instanceId][i-1][j-1];				
 				// ins
 				double tmp = alphas[i-1][j] * betas[i][j];
 				// del
@@ -99,12 +103,14 @@ public class PFST extends Transducer {
 				// sub
 				tmp = alphas[i-1][j-1] * betas[i][j];
 				
+				double w = 0.0;
+				
 				// ins 
-				alphas[i][j] = Numerics.sumLogProb(alphas[i][j],alphas[i-1][j] + 1);
+				alphas[i][j] = Numerics.sumLogProb(alphas[i][j],alphas[i-1][j] + w);
 				// del
-				alphas[i][j] = Numerics.sumLogProb(alphas[i][j],alphas[i][j-1] + 1);
+				alphas[i][j] = Numerics.sumLogProb(alphas[i][j],alphas[i][j-1] + w);
 				// sub
-				alphas[i][j] = Numerics.sumLogProb(alphas[i][j],alphas[i-1][j-1] + 1);
+				alphas[i][j] = Numerics.sumLogProb(alphas[i][j],alphas[i-1][j-1] + w);
 			}
 		}
 		// PRINT
@@ -115,6 +121,9 @@ public class PFST extends Transducer {
 			}
 			System.out.println();
 		}
+		
+		System.out.println(betas[0][0]);
+		System.out.println(alphas[upper.length()][lower.length()]);
 	}
 	
 	@Override
@@ -153,26 +162,57 @@ public class PFST extends Transducer {
 		return 0;
 	}
 
+	private void renormalizeAll() {
+		
+	}
+	
 	@Override
 	public Lemmatizer train(List<Instance> instances,
 			List<Instance> dev_instances) {
 		
+		this.trainingData = instances;
+		this.devData = dev_instances;
 		
-		preextractContexts(instances,this.c1,this.c2, this.c3, this.c4);
-	
+		Pair<int[][][],Integer> result = preextractContexts(instances,this.c1,this.c2, this.c3, this.c4);
+		this.contexts = result.getValue0();
+		this.weights = new double[result.getValue1()][3][this.alphabet.size()];
+		
+		Random rand = new Random();
+		for (int i = 0; i < result.getValue1(); ++i) {
+			for (int j = 0; j < 3; ++j) {
+				for (int k= 0; k < this.alphabet.size(); ++k) {
+					this.weights[i][j][k] += rand.nextGaussian();
+				}
+			}
+		}
+		
 		// get maximum input and output strings sizes
-		this.alphabet = new HashSet<Character>();
+		this.alphabet = new HashMap<Character,Integer>();
+		
+		// TERMINATION SYMBOL
+		this.alphabet.put('$',0);
+		
+		
 		int max1 = 0;
 		int max2 = 0;
+		
+		int alphabetCounter = 1;
 		for (Instance instance : instances) {
 			max1 = Math.max(max1,instance.getForm().length()+1);
 			max2 = Math.max(max2,instance.getLemma().length()+1);	
-					//extract alphabet
+				
+			//extract alphabet
 			for (Character c : instance.getForm().toCharArray()) {
-				this.alphabet.add(c);
+				if (!this.alphabet.keySet().contains(c)) {
+					this.alphabet.put(c,alphabetCounter);
+					alphabetCounter += 1;
+				}
 			}
 			for (Character c : instance.getLemma().toCharArray()) {
-				this.alphabet.add(c);
+				if (!this.alphabet.keySet().contains(c)) {
+					this.alphabet.put(c,alphabetCounter);
+					alphabetCounter += 1;
+				}
 			}
 		}
 		for (Instance instance : dev_instances) {
@@ -181,12 +221,21 @@ public class PFST extends Transducer {
 			
 			//extract alphabet
 			for (Character c : instance.getForm().toCharArray()) {
-				this.alphabet.add(c);
+				if (!this.alphabet.keySet().contains(c)) {
+					this.alphabet.put(c,alphabetCounter);
+					alphabetCounter += 1;
+				}
 			}
 			for (Character c : instance.getLemma().toCharArray()) {
-				this.alphabet.add(c);
+				if (!this.alphabet.keySet().contains(c)) {
+					this.alphabet.put(c,alphabetCounter);
+					alphabetCounter += 1;
+				}
 			}
 		}
+		
+		this.distribution = new double[result.getValue1()][3][this.alphabet.size()];
+		
 		this.alphas = new double[max1][max2];
 		this.betas = new double[max1][max2];
 		
@@ -194,7 +243,7 @@ public class PFST extends Transducer {
 		zeroOut(betas);
 	
 		double[] gradient_vector = new double[5];
-		this.gradient(gradient_vector,0);
+		this.gradient(gradient_vector,5);
 		
 		return new LemmatizerPFST();
 	}
