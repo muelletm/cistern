@@ -10,6 +10,7 @@ public class ToutanovaInstance {
 	private List<Integer> alignment_;
 	private int[] form_segments_;
 	private int[] lemma_segments_;
+	private int[] form_char_indexes_;
 	
 	public ToutanovaInstance(Instance instance, List<Integer> alignment) {
 		instance_ = instance;
@@ -30,6 +31,14 @@ public class ToutanovaInstance {
 
 	public void setLemmaSegments(int[] lemma_segments) {
 		lemma_segments_ = lemma_segments; 
+	}
+
+	public int[] getFormCharIndexes() {
+		return form_char_indexes_;
+	}
+
+	public void setFormCharIndexes(int[] char_indexes) {
+		form_char_indexes_ = char_indexes;
 	}
 	
 }
