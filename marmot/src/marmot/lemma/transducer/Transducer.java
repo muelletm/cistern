@@ -8,6 +8,8 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 
+import org.javatuples.Pair;
+
 import marmot.lemma.Instance;
 import marmot.lemma.LemmatizerTrainer;
 import marmot.lemma.transducer.exceptions.NegativeContext;
@@ -88,7 +90,7 @@ public abstract class Transducer implements LemmatizerTrainer {
 	}
 	
 
-	protected int[][][] preextractContexts(List<Instance> instances, int c1, int c2, int c3, int c4) {
+	protected Pair<int[][][],Integer> preextractContexts(List<Instance> instances, int c1, int c2, int c3, int c4) {
 		int[][][] contexts = new int[instances.size()][][];
 		
 		String END_SYMBOL = "$";
@@ -163,7 +165,7 @@ public abstract class Transducer implements LemmatizerTrainer {
 			instanceI += 1;
 		}
 		
-		return contexts;
+		return new Pair<int[][][],Integer> (contexts,counter-1);
 	}
 	
 	protected abstract void gradient(double[] gradient);
