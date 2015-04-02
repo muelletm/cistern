@@ -1,6 +1,10 @@
 package marmot.lemma.transducer;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
+
+import com.google.common.collect.Sets;
 
 import marmot.lemma.LemmatizerTrainer;
 import marmot.lemma.transducer.exceptions.NegativeContext;
@@ -18,6 +22,10 @@ public abstract class Transducer implements LemmatizerTrainer {
 	protected int c3;
 	protected int c4;
 	
+	// arrays for dynamic programming
+	protected double[][] alphas;
+	protected double[][] betas;
+	
 	protected Set<Character> alphabet;
 	
 	public Transducer(Set<Character> alphabet, int c1, int c2, int c3, int c4) throws NegativeContext {
@@ -34,11 +42,44 @@ public abstract class Transducer implements LemmatizerTrainer {
 	}
 	
 	
+	@SuppressWarnings("unchecked")
 	protected void extractContexts() {
+		List<Set<Character>> cartesianProductArgs = new ArrayList<Set<Character>>();
+		for (int i = 0; i < this.c1 + this.c2 + this.c3 + this.c4; ++i) {
+			cartesianProductArgs.add(this.alphabet);
+		}
+				
+		Sets.cartesianProduct((Set[]) cartesianProductArgs.toArray());
 		
 	}
 	
-	protected abstract void gradient();
+	/**
+	 *  zerosOut an array in the log semiring.
+	 * @param array
+	 */
+	protected static void zeroOut(double[][] array) {
+		for (int i = 0; i < array.length; ++i) {
+			for (int j = 0; j < array[0].length; ++j) {
+				array[i][j] = Double.NEGATIVE_INFINITY;
+			}
+		}
+	}
+	
+	/**
+	 *  zerosOut an array in the log semiring.
+	 * @param array
+	 */
+	protected static void zeroOut(double[][] array, int first, int second) {
+		for (int i = 0; i < first; ++i) {
+			for (int j = 0; j < second; ++j) {
+				array[i][j] = Double.NEGATIVE_INFINITY;
+			}
+		}
+	}
+	
+	protected abstract void gradient(double[] gradient);
+	protected abstract void gradient(double[] gradient, String upper, String lower);
 	protected abstract double logLikelihood();
+
 	
 }

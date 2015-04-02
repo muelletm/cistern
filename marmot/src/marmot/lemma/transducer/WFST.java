@@ -14,7 +14,14 @@ public class WFST extends Transducer {
 	}
 
 	@Override
-	protected void gradient() {
+	protected void gradient(double[] gradient) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+
+	@Override
+	protected void gradient(double[] gradient, String upper, String lower) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -30,4 +37,5 @@ public class WFST extends Transducer {
 			List<Instance> dev_instances) {
 		return new LemmatizerWFST();
 	}
+
 }
