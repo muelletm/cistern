@@ -27,7 +27,7 @@ public class WFST extends Transducer {
 	}
 
 	@Override
-	protected double logLikelihood() {
+	protected double logLikelihood(String upper, String lower) {
 		// TODO Auto-generated method stub
 		return 0;
 	}

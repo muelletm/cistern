@@ -79,7 +79,7 @@ public abstract class Transducer implements LemmatizerTrainer {
 	
 	protected abstract void gradient(double[] gradient);
 	protected abstract void gradient(double[] gradient, String upper, String lower);
-	protected abstract double logLikelihood();
+	protected abstract double logLikelihood(String upper, String lower);
 
 	
 }
