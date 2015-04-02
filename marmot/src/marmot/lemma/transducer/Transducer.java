@@ -17,7 +17,7 @@ public abstract class Transducer {
 	
 	private Set alphabet;
 	
-	public Transduer(Set alphabet, int c1, int c2, int c3, int c4) {
+	public Transducer(Set alphabet, int c1, int c2, int c3, int c4) {
 		this.c1 = c1;
 		this.c2 = c2;
 		this.c3 = c3;
@@ -30,7 +30,7 @@ public abstract class Transducer {
 		
 	}
 	
-	private abstract void gradient();
-	private abstract double logLikelihood();
+	protected abstract void gradient();
+	protected abstract double logLikelihood();
 	
 }
