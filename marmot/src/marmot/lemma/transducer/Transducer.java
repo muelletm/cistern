@@ -111,15 +111,18 @@ public abstract class Transducer implements LemmatizerTrainer {
 			String upper = instance.getForm();
 			String lower = instance.getLemma();
 			
-			contexts[instanceI] = new int[upper.length()][lower.length()];
+			contexts[instanceI] = new int[upper.length()+1][lower.length()+1];
 			
-			for (int i = 0; i < upper.length(); ++i) {
+			for (int i = 0; i < upper.length() + 1; ++i) {
 
-				int ul_limit = Math.max(0, i - c1);
-				int ur_limit = Math.min(upper.length() - 1, i + c2);
+				int pointI = Math.min(i, upper.length());
+				
+				int ul_limit = Math.max(0, pointI - c1);
+				int ur_limit = Math.min(upper.length(), pointI + c2);
 
-				String ul = upper.substring(ul_limit, i);
-				String ur = upper.substring(i, ur_limit);
+
+				String ul = upper.substring(ul_limit, pointI);
+				String ur = upper.substring(pointI, ur_limit);
 
 				// pad
 				while (ul.length() < c1) {
@@ -130,13 +133,16 @@ public abstract class Transducer implements LemmatizerTrainer {
 					ur = ur + END_SYMBOL;
 				}
 
-				for (int j = 0; j < lower.length(); ++j) {
+				for (int j = 0; j < lower.length() + 1; ++j) {
 
-					int ll_limit = Math.max(0, j - c3);
-					int lr_limit = Math.min(lower.length() - 1, j + c4);
+					int pointJ = Math.min(j, lower.length());
 
-					String ll = lower.substring(ll_limit, j);
-					String lr = lower.substring(j, lr_limit);
+					int ll_limit = Math.max(0, pointJ - c3);
+					int lr_limit = Math.min(lower.length(), pointJ + c4);
+					
+					
+					String ll = lower.substring(ll_limit, pointJ);
+					String lr = lower.substring(pointJ, lr_limit);
 
 					// pad
 					while (lr.length() < c3) {
@@ -167,12 +173,11 @@ public abstract class Transducer implements LemmatizerTrainer {
 			}
 			instanceI += 1;
 		}
-		
 		return new Pair<int[][][],Integer> (contexts,counter-1);
 	}
 	
-	protected abstract void gradient(double[] gradient);
-	protected abstract void gradient(double[] gradient, int instanceId);
+	protected abstract void gradient(double[][][] gradient);
+	protected abstract void gradient(double[][][] gradient, int instanceId);
 	protected abstract double logLikelihood(int instanceId);
 	protected abstract double logLikelihood();
 	
