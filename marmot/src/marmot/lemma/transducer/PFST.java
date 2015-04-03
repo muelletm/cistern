@@ -55,12 +55,10 @@ public class PFST extends Transducer {
 		// TODO NEVER NEED TO RENORMALIZE ALL, ONLY *SEEN* CONTEXTS
 		this.renormalizeAll();
 		
-	
 		LOGGER.info("Starting gradient computation for pair (" + upper + "," + lower + ")...");
 		//zero out the relevant positions in the log-semiring
 		zeroOut(alphas,upper.length()+1, lower.length()+1);
 		zeroOut(betas,upper.length()+1, lower.length()+1);
-		
 		
 		//TODO NEED TO MOVE OUT TO MAKE EFFICIENT
 		double[] contextCounts = new double[gradient.length];
@@ -78,7 +76,6 @@ public class PFST extends Transducer {
 					continue;
 				}	
 				int outputId = this.alphabet.get(lower.charAt(j));
-
 				// ins 
 				betas[i][j] = Numerics.sumLogProb(betas[i][j], betas[i][j+1] + Math.log(distribution[contextId][0][outputId]));
 				// sub
