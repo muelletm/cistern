@@ -71,51 +71,56 @@ public class PFST extends Transducer {
 		for (int i = upper.length() ; i >= 0; --i) {
 			for (int j = lower.length(); j >= 0; --j) {
 				int contextId = contexts[instanceId][i][j];
-				if (j == lower.length()) {
+				// del 
+				if (i < upper.length()) {
 					betas[i][j] = Numerics.sumLogProb(betas[i][j], betas[i+1][j] + Math.log(distribution[contextId][2][0]));
-					continue;
-				}	
-				int outputId = this.alphabet.get(lower.charAt(j));
-				// ins 
-				betas[i][j] = Numerics.sumLogProb(betas[i][j], betas[i][j+1] + Math.log(distribution[contextId][0][outputId]));
+				}
+				// ins
+				if (j < lower.length()) {
+					int outputId = this.alphabet.get(lower.charAt(j));
+					betas[i][j] = Numerics.sumLogProb(betas[i][j], betas[i][j+1] + Math.log(distribution[contextId][0][outputId]));
+				}
 				// sub
-				betas[i][j] = Numerics.sumLogProb(betas[i][j], betas[i+1][j+1] + Math.log(distribution[contextId][1][outputId]));
-				// del
-				betas[i][j] = Numerics.sumLogProb(betas[i][j], betas[i+1][j] + Math.log(distribution[contextId][2][0]));
+				if (i < upper.length() && j < lower.length()) {
+					int outputId = this.alphabet.get(lower.charAt(j));
+					betas[i][j] = Numerics.sumLogProb(betas[i][j], betas[i+1][j+1] + Math.log(distribution[contextId][1][outputId]));
+				}
 			}
 		}
 
-		
+		// partition function
 		double Z = Math.exp(betas[0][0]);
 
-		//forward 
+		// forward 
 		for (int i = 0; i < upper.length() + 1; ++i) {
 			for (int j = 0; j < lower.length() + 1 ; ++j ) {
-				int contextId = contexts[instanceId][i][j]; 	
-				//gradient observed counts
+				int contextId = contexts[instanceId][i][j]; 
+				
+				//alpha updates and gradient observed counts
+				double thisAlpha =  Math.exp(alphas[i][j]);
 				// ins 
 				if (j < lower.length()) {
 					int outputId = this.alphabet.get(lower.charAt(j));
-					gradient[contextId][0][outputId] += Math.exp(alphas[i][j]) * distribution[contextId][0][outputId]  / Z *  Math.exp(betas[i][j+1]);
+					gradient[contextId][0][outputId] += thisAlpha * distribution[contextId][0][outputId]  / Z *  Math.exp(betas[i][j+1]);
 					alphas[i][j+1] = Numerics.sumLogProb(alphas[i][j+1],alphas[i][j] + Math.log(distribution[contextId][0][outputId]));				
 
 				}
 				// sub
 				if (j < lower.length() && i < upper.length()) {
 					int outputId = this.alphabet.get(lower.charAt(j));
-					gradient[contextId][1][outputId] += Math.exp(alphas[i][j]) * distribution[contextId][1][outputId] / Z *  Math.exp(betas[i+1][j+1]);
+					gradient[contextId][1][outputId] += thisAlpha * distribution[contextId][1][outputId] / Z *  Math.exp(betas[i+1][j+1]);
 					alphas[i+1][j+1] = Numerics.sumLogProb(alphas[i+1][j+1],alphas[i][j] + Math.log(distribution[contextId][1][outputId]));
 				}
 				
 				// del
 				if (i < upper.length()) {
-					gradient[contextId][2][0] += Math.exp(alphas[i][j]) * distribution[contextId][2][0] / Z *  Math.exp(betas[i+1][j]);
+					gradient[contextId][2][0] += thisAlpha * distribution[contextId][2][0] / Z *  Math.exp(betas[i+1][j]);
 					alphas[i+1][j] = Numerics.sumLogProb(alphas[i+1][j],alphas[i][j] + Math.log(distribution[contextId][2][0]));
 				}
 				
 				//extract the context counts
 				if (j < lower.length() || i < upper.length()) {
-					contextCounts[contextId] += Math.exp(alphas[i][j]) * Math.exp(betas[i][j]) / Z;		
+					contextCounts[contextId] += thisAlpha * Math.exp(betas[i][j]) / Z;		
 				}
 			}
 		}
@@ -152,29 +157,26 @@ public class PFST extends Transducer {
 		zeroOut(betas,upper.length()+1, lower.length()+1);
 		betas[upper.length()][lower.length()] = 0.0;
 		
+		//backward
 		for (int i = upper.length() ; i >= 0; --i) {
 			for (int j = lower.length(); j >= 0; --j) {
 				int contextId = contexts[instanceId][i][j];
-				if (j == lower.length()) {
+				// del 
+				if (i < upper.length()) {
 					betas[i][j] = Numerics.sumLogProb(betas[i][j], betas[i+1][j] + Math.log(distribution[contextId][2][0]));
-					continue;
 				}
-				
-			
-				int outputId = this.alphabet.get(lower.charAt(j));
-
-				// ins 
-				betas[i][j] = Numerics.sumLogProb(betas[i][j], betas[i][j+1] + Math.log(distribution[contextId][0][outputId]));
+				// ins
+				if (j < lower.length()) {
+					int outputId = this.alphabet.get(lower.charAt(j));
+					betas[i][j] = Numerics.sumLogProb(betas[i][j], betas[i][j+1] + Math.log(distribution[contextId][0][outputId]));
+				}
 				// sub
-				betas[i][j] = Numerics.sumLogProb(betas[i][j], betas[i+1][j+1] + Math.log(distribution[contextId][1][outputId]));
-				// del
-				betas[i][j] = Numerics.sumLogProb(betas[i][j], betas[i+1][j] + Math.log(distribution[contextId][2][0]));
-				
-				
+				if (i < upper.length() && j < lower.length()) {
+					int outputId = this.alphabet.get(lower.charAt(j));
+					betas[i][j] = Numerics.sumLogProb(betas[i][j], betas[i+1][j+1] + Math.log(distribution[contextId][1][outputId]));
+				}
 			}
 		}
-		//System.out.println("LIKELIIHOOD");
-		//System.out.println(betas[0][0]);
 		return betas[0][0];
 	}
 
@@ -267,11 +269,9 @@ public class PFST extends Transducer {
 		this.alphabet.put('d',4);
 		this.alphabet.put('e',5);
 		this.alphabet.put('f',5);
-		/*
-		this.alphabet.put('e',2);
-		this.alphabet.put('i',3);
-		this.alphabet.put('n',4);
-		*/
+	
+		
+		// weights and gradients
 		this.weights = new double[result.getValue1()][3][this.alphabet.size()];
 		this.distribution = new double[result.getValue1()][3][this.alphabet.size()];
 		double[][][] gradientVector = new double[result.getValue1()][3][this.alphabet.size()];
@@ -295,6 +295,7 @@ public class PFST extends Transducer {
 	
 		this.gradient(gradientVector,5);
 		
+		// finite difference check
 		double eps = 0.01;
 		for (int i = 0; i < result.getValue1(); ++i) {
 			for (int j = 0; j < 2; ++j) {
@@ -321,16 +322,8 @@ public class PFST extends Transducer {
 			this.weights[i][2][0] +=  eps;
 			approxGradientVector[i][2][0] = (val1 - val2) / (2 * eps);
 
-			
-
-
 		}
-		/*
-		System.out.println("Gradient");
-		System.out.println(Arrays.deepToString(gradientVector));
-		System.out.println("Approximation");
-		System.out.println(Arrays.deepToString(approxGradientVector));
-		*/
+	
 		System.out.println(Numerics.approximatelyEqual(gradientVector, approxGradientVector, 0.001));
 
 		return new LemmatizerPFST();
