@@ -37,7 +37,6 @@ public class PFST extends Transducer {
 		if (c4 != 0) {
 			throw new LabelBiasException();
 		}
-		// TODO Auto-generated constructor stub
 	}
 	
 	@Override
@@ -53,6 +52,7 @@ public class PFST extends Transducer {
 		String upper = instance.getForm();
 		String lower = instance.getLemma();
 		
+		// TODO NEVER NEED TO RENORMALIZE ALL, ONLY *SEEN* CONTEXTS
 		this.renormalizeAll();
 		
 	
@@ -60,8 +60,9 @@ public class PFST extends Transducer {
 		//zero out the relevant positions in the log-semiring
 		zeroOut(alphas,upper.length()+1, lower.length()+1);
 		zeroOut(betas,upper.length()+1, lower.length()+1);
-		//TODO NEED TO MOVE OUT TO MAKE EFFICIENT
 		
+		
+		//TODO NEED TO MOVE OUT TO MAKE EFFICIENT
 		double[] contextCounts = new double[gradient.length];
 		
 		//make the start position unity in the log-semiring
@@ -84,8 +85,6 @@ public class PFST extends Transducer {
 				betas[i][j] = Numerics.sumLogProb(betas[i][j], betas[i+1][j+1] + Math.log(distribution[contextId][1][outputId]));
 				// del
 				betas[i][j] = Numerics.sumLogProb(betas[i][j], betas[i+1][j] + Math.log(distribution[contextId][2][0]));
-				
-				
 			}
 		}
 
