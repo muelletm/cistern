@@ -227,6 +227,7 @@ public abstract class Transducer implements LemmatizerTrainer {
 						hash.put(contextString, counter);
 						++counter;
 					}
+					
 					contexts[instanceI][i][j] = hash.get(contextString);
 
 				}

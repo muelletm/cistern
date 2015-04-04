@@ -86,7 +86,7 @@ public class PFST extends Transducer {
 		String upper = instance.getForm();
 		String lower = instance.getLemma();
 				
-		LOGGER.info("Starting gradient computation for pair (" + upper + "," + lower + ")...");
+		LOGGER.info("Starting observed count computation for pair (" + upper + "," + lower + ")...");
 		//zero out the relevant positions in the log-semiring
 		zeroOut(alphas,upper.length()+1, lower.length()+1);
 		zeroOut(betas,upper.length()+1, lower.length()+1);
