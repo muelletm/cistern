@@ -41,27 +41,55 @@ public class PFST extends Transducer {
 	
 	@Override
 	protected void gradient(double gradient[][][] ) {
-		// TODO Auto-generated method stub
+		// TODO we need selective renormalization to speed this up
+		this.renormalizeAll();
+		double[] contextCounts = new double[gradient.length];
 		
+		// computation of observed counts
+		for (int instanceId = 0; instanceId < this.trainingData.size(); ++instanceId) {
+			observedCounts(gradient,contextCounts,instanceId);
+		}
+		// note that the expected counts are computed *outside* a loop over
+		// the data
+		expectedCounts(gradient,contextCounts);
 	}
 	
+	
 	@Override
-	protected void gradient(double[][][] gradient, int instanceId) {
+	protected void gradient(double gradient[][][], int instanceId ) {
+		// TODO we need selective renormalization to speed this up
+		this.renormalizeAll();
+		double[] contextCounts = new double[gradient.length];
+		observedCounts(gradient,contextCounts,instanceId);
+		expectedCounts(gradient,contextCounts);
+	}
+	
+	protected void expectedCounts(double[][][] gradient , double[] contextCounts) {
+		// gradient expected counts
+		for (int contextId = 0; contextId < gradient.length; ++contextId) {
+			// ins 
+			for (int symbol = 0; symbol < gradient[contextId][0].length; ++symbol) {
+				gradient[contextId][0][symbol] -=  contextCounts[contextId] * this.distribution[contextId][0][symbol];
+			}
+			// sub 
+			for (int symbol = 0; symbol < gradient[contextId][1].length; ++symbol) {
+				gradient[contextId][1][symbol] -=  contextCounts[contextId] * this.distribution[contextId][1][symbol];
+			}
+			// del
+			gradient[contextId][2][0] -=  contextCounts[contextId] * this.distribution[contextId][2][0];
+		}
+	}
+	 
+	protected void observedCounts(double[][][] gradient, double[] contextCounts, int instanceId) {
 		// get data instance
 		Instance instance = this.trainingData.get(instanceId);
 		String upper = instance.getForm();
 		String lower = instance.getLemma();
-		
-		// TODO NEVER NEED TO RENORMALIZE ALL, ONLY *SEEN* CONTEXTS
-		this.renormalizeAll();
-		
+				
 		LOGGER.info("Starting gradient computation for pair (" + upper + "," + lower + ")...");
 		//zero out the relevant positions in the log-semiring
 		zeroOut(alphas,upper.length()+1, lower.length()+1);
 		zeroOut(betas,upper.length()+1, lower.length()+1);
-		
-		//TODO NEED TO MOVE OUT TO MAKE EFFICIENT
-		double[] contextCounts = new double[gradient.length];
 		
 		//make the start position unity in the log-semiring
 		alphas[0][0] = 0.0;
@@ -124,21 +152,6 @@ public class PFST extends Transducer {
 				}
 			}
 		}
-		
-		// gradient expected counts
-		for (int contextId = 0; contextId < gradient.length; ++contextId) {
-			// ins 
-			for (int symbol = 0; symbol < gradient[contextId][0].length; ++symbol) {
-				gradient[contextId][0][symbol] -=  contextCounts[contextId] * this.distribution[contextId][0][symbol];
-			}
-			// sub 
-			for (int symbol = 0; symbol < gradient[contextId][1].length; ++symbol) {
-				gradient[contextId][1][symbol] -=  contextCounts[contextId] * this.distribution[contextId][1][symbol];
-			}
-			// del
-			gradient[contextId][2][0] -=  contextCounts[contextId] * this.distribution[contextId][2][0];
-		}
-		
 	}
 	
 	@Override
