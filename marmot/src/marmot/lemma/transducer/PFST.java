@@ -226,54 +226,11 @@ public class PFST extends Transducer {
 			
 		// get maximum input and output strings sizes
 		this.alphabet = new HashMap<Character,Integer>();
-		
-		// TERMINATION SYMBOL
-		this.alphabet.put('$',0);
-		
-		int max1 = 0;
-		int max2 = 0;
-		
-		int alphabetCounter = 1;
-		for (Instance instance : instances) {
-			max1 = Math.max(max1,instance.getForm().length()+1);
-			max2 = Math.max(max2,instance.getLemma().length()+1);	
-				
-			//extract alphabet
-			for (Character c : instance.getForm().toCharArray()) {
-				if (!this.alphabet.keySet().contains(c)) {
-					this.alphabet.put(c,alphabetCounter);
-					alphabetCounter += 1;
-				}
-			}
-			for (Character c : instance.getLemma().toCharArray()) {
-				if (!this.alphabet.keySet().contains(c)) {
-					this.alphabet.put(c,alphabetCounter);
-					alphabetCounter += 1;
-				}
-			}
-		}
-		
-		for (Instance instance : dev_instances) {
-			max1 = Math.max(max1,instance.getForm().length()+1);
-			max2 = Math.max(max2,instance.getLemma().length()+1);
-			
-			//extract alphabet
-			for (Character c : instance.getForm().toCharArray()) {
-				if (!this.alphabet.keySet().contains(c)) {
-					this.alphabet.put(c,alphabetCounter);
-					alphabetCounter += 1;
-				}
-			}
-			for (Character c : instance.getLemma().toCharArray()) {
-				if (!this.alphabet.keySet().contains(c)) {
-					this.alphabet.put(c,alphabetCounter);
-					alphabetCounter += 1;
-				}
-			}
-		}
+		Pair<Integer,Integer> maxes = extractAlphabet();
+
 		
 		// FOR DEBUGGING
-		
+		/*
 		this.alphabet = new HashMap<Character,Integer>();
 		this.alphabet.put('$',0);
 		this.alphabet.put('a',1);
@@ -282,7 +239,7 @@ public class PFST extends Transducer {
 		this.alphabet.put('d',4);
 		this.alphabet.put('e',5);
 		this.alphabet.put('f',5);
-	
+		*/
 		
 		// weights and gradients
 		this.weights = new double[result.getValue1()][3][this.alphabet.size()];
@@ -291,17 +248,10 @@ public class PFST extends Transducer {
 		double[][][] approxGradientVector = new double[result.getValue1()][3][this.alphabet.size()];
 
 		
-		Random rand = new Random();
-		for (int i = 0; i < result.getValue1(); ++i) {
-			for (int j = 0; j < 3; ++j) {
-				for (int k= 0; k < this.alphabet.size(); ++k) {
-					this.weights[i][j][k] += rand.nextGaussian();
-				}
-			}
-		}
+		randomlyInitWeights();
 		
-		this.alphas = new double[max1][max2];
-		this.betas = new double[max1][max2];
+		this.alphas = new double[maxes.getValue0()][maxes.getValue1()];
+		this.betas = new double[maxes.getValue0()][maxes.getValue1()];
 		
 		zeroOut(alphas);
 		zeroOut(betas);

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
@@ -92,6 +93,65 @@ public abstract class Transducer implements LemmatizerTrainer {
 		}
 	}
 	
+	
+	protected void randomlyInitWeights() {
+		Random rand = new Random();
+		for (int i = 0; i < this.weights.length; ++i) {
+			for (int j = 0; j < 3; ++j) {
+				for (int k= 0; k < this.alphabet.size(); ++k) {
+					this.weights[i][j][k] += rand.nextGaussian();
+				}
+			}
+		}
+	}
+	
+	protected Pair<Integer,Integer> extractAlphabet() {
+		// TERMINATION SYMBOL
+		this.alphabet.put('$',0);
+				
+		int max1 = 0;
+		int max2 = 0;
+				
+		int alphabetCounter = 1;
+		for (Instance instance : this.trainingData) {
+				max1 = Math.max(max1,instance.getForm().length()+1);
+				max2 = Math.max(max2,instance.getLemma().length()+1);	
+						
+				//extract alphabet
+				for (Character c : instance.getForm().toCharArray()) {
+					if (!this.alphabet.keySet().contains(c)) {
+						this.alphabet.put(c,alphabetCounter);
+						alphabetCounter += 1;
+					}
+				}
+				for (Character c : instance.getLemma().toCharArray()) {
+					if (!this.alphabet.keySet().contains(c)) {
+						this.alphabet.put(c,alphabetCounter);
+						alphabetCounter += 1;
+					}
+				}
+		}
+		
+		for (Instance instance : this.devData) {
+			max1 = Math.max(max1,instance.getForm().length()+1);
+			max2 = Math.max(max2,instance.getLemma().length()+1);
+			
+			//extract alphabet
+			for (Character c : instance.getForm().toCharArray()) {
+				if (!this.alphabet.keySet().contains(c)) {
+					this.alphabet.put(c,alphabetCounter);
+					alphabetCounter += 1;
+				}
+			}
+			for (Character c : instance.getLemma().toCharArray()) {
+				if (!this.alphabet.keySet().contains(c)) {
+					this.alphabet.put(c,alphabetCounter);
+					alphabetCounter += 1;
+				}
+			}
+		}		
+		return new Pair<Integer,Integer>(max1,max2);
+	}
 
 	protected Pair<int[][][],Integer> preextractContexts(List<Instance> instances, int c1, int c2, int c3, int c4) {
 		int[][][] contexts = new int[instances.size()][][];
