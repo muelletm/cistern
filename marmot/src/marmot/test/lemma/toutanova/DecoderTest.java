@@ -9,6 +9,7 @@ import java.util.List;
 import marmot.lemma.Instance;
 import marmot.lemma.toutanova.Decoder;
 import marmot.lemma.toutanova.Model;
+import marmot.lemma.toutanova.Result;
 import marmot.lemma.toutanova.ToutanovaInstance;
 
 import org.junit.Test;
@@ -50,12 +51,19 @@ public class DecoderTest {
 		model.setWeight(model.getPairFeatureIndex(train_instances.get(1).getFormCharIndexes(), 0, 1, b_index), 1.0);
 		model.setWeight(model.getPairFeatureIndex(train_instances.get(2).getFormCharIndexes(), 0, 1, c_index), 1.0);
 		
-		assertEquals(Arrays.asList(a_index, a_index, a_index), decoder.decode(train_instances.get(0)));
-		assertEquals(Arrays.asList(a_index, a_index, a_index), decoder.decode(train_instances.get(3)));
-		assertEquals(Arrays.asList(b_index, b_index, b_index), decoder.decode(train_instances.get(1)));
-		assertEquals(Arrays.asList(b_index, b_index, b_index), decoder.decode(train_instances.get(4)));
-		assertEquals(Arrays.asList(c_index, c_index, c_index), decoder.decode(train_instances.get(2)));
-		assertEquals(Arrays.asList(c_index, c_index, c_index), decoder.decode(train_instances.get(5)));
+		assertResultEquals(Arrays.asList(a_index, a_index, a_index), Arrays.asList(1, 2, 4), decoder.decode(train_instances.get(0)));
+		assertResultEquals(Arrays.asList(a_index, a_index, a_index), Arrays.asList(1, 2, 4), decoder.decode(train_instances.get(3)));
+		assertResultEquals(Arrays.asList(b_index, b_index, b_index), Arrays.asList(1, 2, 4), decoder.decode(train_instances.get(1)));
+		assertResultEquals(Arrays.asList(b_index, b_index, b_index), Arrays.asList(1, 2, 4), decoder.decode(train_instances.get(4)));
+		assertResultEquals(Arrays.asList(c_index, c_index, c_index), Arrays.asList(1, 2, 4), decoder.decode(train_instances.get(2)));
+		assertResultEquals(Arrays.asList(c_index, c_index, c_index), Arrays.asList(1, 2, 4), decoder.decode(train_instances.get(5)));
+	}
+
+	private void assertResultEquals(List<Integer> outputs, List<Integer> inputs,
+			Result result) {
+		assertEquals(outputs, result.getOutputs());
+		assertEquals(inputs, result.getInputs());
+		
 	}
 
 }

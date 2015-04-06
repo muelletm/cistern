@@ -15,15 +15,17 @@ public class Decoder {
 
 	private int num_output_symbols_;
 	private int input_length_;
+	private ToutanovaInstance instance_;
 
 	public Decoder(Model model) {
 		model_ = model;
 		num_output_symbols_ = model_.getOutputTable().size();
 	}
 
-	public List<Integer> decode(ToutanovaInstance instance) {
+	public Result decode(ToutanovaInstance instance) {
 		int max_input_segment_length = model_.getMaxInputSegmentLength();
 		input_length_ = instance.getFormCharIndexes().length;
+		instance_ = instance;
 
 		checkArraySize(num_output_symbols_ * input_length_);
 		Arrays.fill(score_array_, Double.NEGATIVE_INFINITY);
@@ -54,7 +56,7 @@ public class Decoder {
 					} else {
 
 						for (int last_o = 0; last_o < num_output_symbols_; last_o++) {
-							double prev_cost = score_array_[getIndex(o, l_start - 1)];
+							double prev_cost = score_array_[getIndex(last_o, l_start - 1)];
 							double transiton_score = model_.getTransitionScore(instance, last_o, o,
 									l_start, l);
 							
@@ -75,13 +77,19 @@ public class Decoder {
 
 			}
 		}
-
-		return backTrace();
-
+		
+		Result result = backTrace();
+		
+		double test_score = model_.getScore(instance, result);
+		
+		assert Math.abs(result.getScore() - test_score) < 1e-5;
+		
+		return result;
 	}
 
-	private List<Integer> backTrace() {
-		List<Integer> output = new LinkedList<>();
+	private Result backTrace() {
+		List<Integer> outputs = new LinkedList<>();
+		List<Integer> inputs = new LinkedList<>();
 		int end_index = input_length_;
 		double best_score = Double.NEGATIVE_INFINITY;
 		int end_output = -1;
@@ -89,13 +97,19 @@ public class Decoder {
 		for (int o = 0; o < num_output_symbols_; o++) {
 			double score = score_array_[getIndex(o, end_index - 1)];
 
+//			System.err.format("End score: %s %s %g\n", instance_.getInstance().getLemma(), model_.getOutput(o), score);
+			
 			if (score > best_score) {
 				best_score = score;
 				end_output = o;
 			}
+			
+			
+			
 		}
 
-		output.add(end_output);
+		outputs.add(end_output);
+		inputs.add(end_index);
 
 		while (true) {
 
@@ -105,13 +119,16 @@ public class Decoder {
 			if (start_output < 0)
 				break;
 			
-			output.add(start_output);
+			outputs.add(start_output);
+			inputs.add(start_index);
+			
 			end_output = start_output;
 			end_index = start_index;
 		}
 
-		Collections.reverse(output);
-		return output;
+		Collections.reverse(outputs);
+		Collections.reverse(inputs);
+		return new Result(model_, outputs, inputs, best_score);
 	}
 
 	private int getIndex(int output, int index) {

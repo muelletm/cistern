@@ -22,4 +22,8 @@ public class Instance {
 		return lemma_;
 	}
 
+	public String getPosTag() {
+		return tag_;
+	}
+
 }

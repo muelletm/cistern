@@ -17,13 +17,13 @@ public class SymbolTable<T> implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private Map<T, Integer> toIndex;
-	private Map<Integer, T> fromIndex;
+	private ArrayList<T> fromIndex;
 	private boolean bidirectional_;
 
 	public SymbolTable(boolean bidirectional, int capacity) {
 		toIndex = new HashMap<T, Integer>(capacity);
 		if (bidirectional) {
-			fromIndex = new HashMap<Integer, T>(capacity);
+			fromIndex = new ArrayList<T>();
 		}
 		bidirectional_ = bidirectional;
 	}
@@ -41,8 +41,7 @@ public class SymbolTable<T> implements Serializable {
 				(HashMap<T, Integer>) symbol_table.toIndex);
 		bidirectional_ = symbol_table.bidirectional_;
 		if (bidirectional_) {
-			fromIndex = new HashMap<Integer, T>(
-					(HashMap<Integer, T>) symbol_table.fromIndex);
+			fromIndex = new ArrayList<T>( symbol_table.fromIndex);
 		}
 	}
 
@@ -81,7 +80,8 @@ public class SymbolTable<T> implements Serializable {
 				index = toIndex.size();
 				toIndex.put(symbol, index);
 				if (bidirectional_) {
-					fromIndex.put(index, symbol);
+					fromIndex.add(symbol);
+					assert fromIndex.get(index).equals(symbol);
 				}
 			} else {
 				return default_index;
@@ -135,9 +135,12 @@ public class SymbolTable<T> implements Serializable {
 		if (bidirectional_ != bidirectional) {
 			
 			if (!bidirectional_) {
-				fromIndex = new HashMap<Integer, T>((int)(toIndex.size() * 1.25));
+				fromIndex = new ArrayList<T>(toIndex.size());
+				for (int i=0;i<fromIndex.size(); i++) {
+					fromIndex.add(null);
+				}
 				for (Map.Entry<T, Integer> entry : toIndex.entrySet()) {
-					fromIndex.put(entry.getValue(), entry.getKey());
+					fromIndex.add(entry.getValue(), entry.getKey());
 				}
 				bidirectional_ = true;
 			} else {

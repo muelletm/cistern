@@ -8,9 +8,9 @@ public class ToutanovaInstance {
 
 	private Instance instance_;
 	private List<Integer> alignment_;
-	private int[] form_segments_;
-	private int[] lemma_segments_;
 	private int[] form_char_indexes_;
+	private Result result_;
+	private int pos_tag_index_;
 	
 	public ToutanovaInstance(Instance instance, List<Integer> alignment) {
 		instance_ = instance;
@@ -25,20 +25,24 @@ public class ToutanovaInstance {
 		return alignment_;
 	}
 
-	public void setFormSegments(int[] form_segments) {
-		form_segments_ = form_segments;
-	}
-
-	public void setLemmaSegments(int[] lemma_segments) {
-		lemma_segments_ = lemma_segments; 
-	}
-
 	public int[] getFormCharIndexes() {
 		return form_char_indexes_;
 	}
 
 	public void setFormCharIndexes(int[] char_indexes) {
 		form_char_indexes_ = char_indexes;
+	}
+
+	public Result getResult() {
+		return result_;
+	}
+
+	public void setResult(Result result) {
+		result_ = result;
+	}
+
+	public void setPosTagIndex(int index) {
+		pos_tag_index_ = index;
 	}
 	
 }
