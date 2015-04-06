@@ -152,6 +152,63 @@ public abstract class Transducer implements LemmatizerTrainer {
 		}		
 		return new Pair<Integer,Integer>(max1,max2);
 	}
+	
+	protected Pair<int[][],Integer> preextractUpperContexts(List<Instance> instances, int c1, int c2) {
+		int[][] contexts = new int[instances.size()][];
+		
+		String END_SYMBOL = "$";
+		String BREAK_SYMBOL = "*****";
+		
+		//String upper = "abcd";
+		//String lower = "efgh";
+		
+		Map<String,Integer> hash = new HashMap<String,Integer>();
+		int counter = 0;
+		int instanceI = 0;
+		
+		for (Instance instance : instances) {
+			
+			String upper = instance.getForm();
+			
+			contexts[instanceI] = new int[upper.length()+1];
+			
+			for (int i = 0; i < upper.length() + 1; ++i) {
+
+				int pointI = Math.min(i, upper.length());
+				
+				int ul_limit = Math.max(0, pointI - c1);
+				int ur_limit = Math.min(upper.length(), pointI + c2);
+
+
+				String ul = upper.substring(ul_limit, pointI);
+				String ur = upper.substring(pointI, ur_limit);
+
+				// pad
+				while (ul.length() < c1) {
+					ul = END_SYMBOL + ul;
+				}
+
+				while (ur.length() < c2) {
+					ur = ur + END_SYMBOL;
+				}
+
+			
+				String contextString = ul + BREAK_SYMBOL + ur;
+				
+				if (!hash.keySet().contains(contextString)) {
+					hash.put(contextString, counter);
+					++counter;
+				}
+					
+				contexts[instanceI][i] = hash.get(contextString);
+
+				
+			}
+			instanceI += 1;
+		}
+		return new Pair<int[][],Integer> (contexts,counter-1);
+	}
+	
 
 	protected Pair<int[][][],Integer> preextractContexts(List<Instance> instances, int c1, int c2, int c3, int c4) {
 		int[][][] contexts = new int[instances.size()][][];

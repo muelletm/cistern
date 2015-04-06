@@ -1,6 +1,7 @@
 package marmot.lemma.transducer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import com.google.common.collect.Sets;
 
 import marmot.lemma.Instance;
 import marmot.lemma.Lemmatizer;
+import marmot.lemma.transducer.exceptions.LabelBiasException;
 import marmot.lemma.transducer.exceptions.NegativeContext;
 import marmot.util.Numerics;
 import mikera.arrayz.NDArray;
@@ -21,9 +23,15 @@ public class WFST extends Transducer {
 
 	private static final Logger LOGGER = Logger.getLogger(PFST.class.getName());
 
+	private int[][] upperContexts;
 	private int insertionLimit;
+	private int keyDimension; // lookup dimensions
 	private NDArray alphasExpected;
 	private NDArray betasExpected;
+	
+	public WFST() throws NegativeContext, LabelBiasException {
+		this(null,0,1,1,0,2);
+	}
 	
 	public WFST(Map<Character,Integer> alphabet, int c1, int c2, int c3, int c4, int insertionLimit) throws NegativeContext {
 		super(alphabet,c1,c2,c3,c4);
@@ -120,19 +128,21 @@ public class WFST extends Transducer {
 		
 		// arguments for the Cartesian product
 		List<Set<Character>> cartesianProductArgs = new ArrayList<Set<Character>>();
-		for (int i = 0; i < this.c3 + this.c4; ++i) {
+		for (int i = 0; i < this.c3 + this.c4; ++i) {	
 			cartesianProductArgs.add(this.alphabet.keySet());
 		}
-		
+
 		//backward
 		for (int i = upper.length() ; i >= 0; --i) {
 			for (int j = lower.length(); j >= 0; --j) {
 				// all combinations of c3 + c4 characters
 				for (List<Character> product : Sets.cartesianProduct(cartesianProductArgs)) {
 					
+					System.out.println(product);
 				
-				
-					int contextId = contexts[instanceId][i][j];
+					int upperContextId = upperContexts[instanceId][i];
+					int[] key = new int[this.keyDimension];
+
 					// del 
 					if (i < upper.length()) {
 						//betas[i][j] = Numerics.sumLogProb(betas[i][j], betas[i+1][j] + Math.log(distribution[contextId][2][0]));
@@ -193,7 +203,7 @@ public class WFST extends Transducer {
 
 	@Override
 	protected void gradient(double[][][] gradient, int i) {
-		// TODO Auto-generated method stub
+		expectedCounts(gradient,i);
 		
 	}
 
@@ -214,11 +224,16 @@ public class WFST extends Transducer {
 	public Lemmatizer train(List<Instance> instances,
 			List<Instance> dev_instances) {
 		
-
+		LOGGER.info("Instantiating WFST...");
+		
 		this.trainingData = instances;
 		this.devData = dev_instances;
 		
 		Pair<int[][][],Integer> result = preextractContexts(instances,this.c1,this.c2, this.c3, this.c4);
+		Pair<int[][],Integer> resultUpper = preextractUpperContexts(instances,this.c1,this.c2);
+		this.upperContexts = resultUpper.getValue0();
+		int numUpperContexts = resultUpper.getValue1();
+		
 		this.contexts = result.getValue0();
 			
 		// get maximum input and output strings sizes
@@ -240,9 +255,10 @@ public class WFST extends Transducer {
 		zeroOut(alphas);
 		zeroOut(betas);
 		
+		this.keyDimension = 2 + this.c3 + this.c4 + 1;
 		int[] dimensions = new int[2 + this.c3 + this.c4 + 1];
 		
-		dimensions[0] = result.getValue1(); // UPPER CONTEXT
+		dimensions[0] = numUpperContexts; // UPPER CONTEXT
 		dimensions[1] = 3;
 
 		for (int c3c4 = 0; c3c4 < this.c3 + this.c4; ++c3c4) {
@@ -252,8 +268,12 @@ public class WFST extends Transducer {
 		
 		this.alphasExpected = NDArray.newArray(dimensions);
 		this.betasExpected = NDArray.newArray(dimensions);
-
+		
+		System.out.println(this.betasExpected.get(new int[] {0, 0, 0, 0 } ));
+		System.out.println(Arrays.toString(this.betasExpected.getShape()));
+		System.exit(0);
 		this.gradient(gradientVector,5);
+		
 		return new LemmatizerWFST();
 		
 		
