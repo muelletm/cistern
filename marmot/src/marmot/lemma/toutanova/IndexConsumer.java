@@ -15,7 +15,7 @@ public abstract class IndexConsumer {
 		int index = feature_map_.toIndex(encoder.getFeature(), -1, getInsert());
 		consume(index);
 		
-		if (num_pos_bits_ >= 0) {
+		if (num_pos_bits_ >= 0 && instance.getPosTagIndex() >= 0) {
 			encoder.append(instance.getPosTagIndex(), num_pos_bits_);
 			index = feature_map_.toIndex(encoder.getFeature(), -1, getInsert());
 			consume(index);

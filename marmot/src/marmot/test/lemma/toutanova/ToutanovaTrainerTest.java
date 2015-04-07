@@ -37,14 +37,14 @@ public class ToutanovaTrainerTest extends SimpleTrainerTest {
 		// 88.17 86.09 42
 		// 83.51 80.09 10
 		// 91.18 89.38  3
-		runModerateTest(new ToutanovaTrainer(options), 1, 1);
+		runModerateTest(new ToutanovaTrainer(options), 91.18, 89.38);
 	}
 	
 	@Test
 	public void moderateAveragingAlignerPosTest() {	
 		ToutanovaTrainer.Options options = ToutanovaTrainer.Options.newInstance();
 		options.setNumIterations(10).setUsePos(true).setFilterAlphabet(5).setAligner(new HackyAligner()).setSeed(10).setAveraging(true);
-		runModerateTest(new ToutanovaTrainer(options), 1, 1);
+		runModerateTest(new ToutanovaTrainer(options), 91.03, 89.60);
 		// 91.15 89.67  3
 		// 91.03 89.60 10
 	}
@@ -60,7 +60,7 @@ public class ToutanovaTrainerTest extends SimpleTrainerTest {
 	@Test
 	public void smallPosTest() {	
 		ToutanovaTrainer.Options options = ToutanovaTrainer.Options.newInstance();
-		options.setNumIterations(10).setUsePos(true).setFilterAlphabet(1).setAveraging(true).setSeed(3);
+		options.setNumIterations(10).setUsePos(true).setFilterAlphabet(1).setAveraging(true);
 		// 89.33 81.19 
 		// 88.70 81.30
 		runSmallTest(new ToutanovaTrainer(options), 89.33, 81.19);

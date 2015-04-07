@@ -87,7 +87,7 @@ public class Model {
 		encoder = new Encoder(10);
 		weights_ = new double[10000000];
 		Random random = new Random(options.getSeed());
-		for (int i=0; i< weights_.length; i++) {
+		for (int i = 0; i < weights_.length; i++) {
 			weights_[i] = random.nextGaussian();
 		}
 
@@ -120,7 +120,7 @@ public class Model {
 		simple_options.setHandleUnseen(false);
 		simple_options.setUsePos(options.getUsePos());
 		simple_options.setUseBackup(!options.getUsePos());
-		
+
 		return new SimpleLemmatizerTrainer(simple_options).train(instances,
 				null);
 	}
@@ -180,7 +180,8 @@ public class Model {
 
 	}
 
-	private void filterRareOutputSymbols(Options options, List<ToutanovaInstance> train_instances) {
+	private void filterRareOutputSymbols(Options options,
+			List<ToutanovaInstance> train_instances) {
 
 		Logger logger = Logger.getLogger(getClass().getName());
 
@@ -197,7 +198,8 @@ public class Model {
 				rare_output_symbols++;
 			}
 		}
-		logger.info(String.format("Num rare output symbols (< %d): %d", options.getFilterAlphabet(), rare_output_symbols));
+		logger.info(String.format("Num rare output symbols (< %d): %d",
+				options.getFilterAlphabet(), rare_output_symbols));
 
 		for (ToutanovaInstance instance : train_instances) {
 			boolean instance_is_rare = false;
@@ -361,9 +363,10 @@ public class Model {
 
 			if (pos_table_ != null) {
 				String pos_tag = instance.getInstance().getPosTag();
-				if (pos_tag != null)
-					instance.setPosTagIndex(pos_table_.toIndex(pos_tag, -1,
-							insert));
+				if (pos_tag != null) {
+					int index = pos_table_.toIndex(pos_tag, -1, insert);
+					instance.setPosTagIndex(index);
+				}
 			}
 		}
 	}
