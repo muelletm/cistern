@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.logging.Logger;
 
 import marmot.core.Feature;
@@ -25,7 +26,7 @@ public class Model {
 	private int num_output_bits;
 	private SymbolTable<Character> char_table;
 	private Encoder encoder;
-	private double[] weights;
+	private double[] weights_;
 	private int num_char_bits;
 	private int num_pos_bits;
 
@@ -84,11 +85,15 @@ public class Model {
 
 		SymbolTable<Feature> feature_map = new SymbolTable<>();
 		encoder = new Encoder(10);
-		weights = new double[10000000];
+		weights_ = new double[10000000];
+		Random random = new Random(options.getSeed());
+		for (int i=0; i< weights_.length; i++) {
+			weights_[i] = random.nextGaussian();
+		}
 
-		scorer_ = new IndexScorer(weights);
+		scorer_ = new IndexScorer(weights_);
 		scorer_.setFeatureMap(feature_map).setPosBits(num_pos_bits);
-		updater_ = new IndexUpdater(weights);
+		updater_ = new IndexUpdater(weights_);
 		updater_.setFeatureMap(feature_map).setPosBits(num_pos_bits);
 	}
 
@@ -114,6 +119,8 @@ public class Model {
 				.newInstance();
 		simple_options.setHandleUnseen(false);
 		simple_options.setUsePos(options.getUsePos());
+		simple_options.setUseBackup(!options.getUsePos());
+		
 		return new SimpleLemmatizerTrainer(simple_options).train(instances,
 				null);
 	}
@@ -184,14 +191,13 @@ public class Model {
 			}
 		}
 
-		int output_symbols_with_count_one = 0;
+		int rare_output_symbols = 0;
 		for (int i = 0; i < count.length; i++) {
 			if (count[i] == 1) {
-				output_symbols_with_count_one++;
+				rare_output_symbols++;
 			}
 		}
-		logger.info("Output symbols with count 1: "
-				+ output_symbols_with_count_one);
+		logger.info(String.format("Num rare output symbols (< %d): %d", options.getFilterAlphabet(), rare_output_symbols));
 
 		for (ToutanovaInstance instance : train_instances) {
 			boolean instance_is_rare = false;
@@ -360,6 +366,16 @@ public class Model {
 							insert));
 			}
 		}
+	}
+
+	public double[] getWeights() {
+		return weights_;
+	}
+
+	public void setWeights(double[] weights) {
+		weights_ = weights;
+		scorer_.setWeights(weights);
+		updater_.setWeights(weights);
 	}
 
 }

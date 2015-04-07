@@ -6,6 +6,7 @@ import marmot.lemma.Instance;
 import marmot.lemma.Lemmatizer;
 import marmot.lemma.LemmatizerTrainer;
 import marmot.lemma.cmd.Trainer;
+import marmot.lemma.toutanova.HackyAligner;
 import marmot.lemma.toutanova.ToutanovaTrainer;
 import marmot.morph.io.SentenceReader;
 
@@ -29,36 +30,40 @@ public class ToutanovaTrainerTest extends SimpleTrainerTest {
 		assertAccuracy(lemmatizer, getCopyInstances(instances), 99.1935);
 	}
 
-	
 	@Test
-	public void moderateTest() {		
+	public void moderateAlignerPosTest() {	
 		ToutanovaTrainer.Options options = ToutanovaTrainer.Options.newInstance();
-		options.setNumIterations(10);
-		options.setFilterAlphabet(1);
-		runModerateTest(new ToutanovaTrainer(options), 1.00, 1.00);
+		options.setNumIterations(10).setUsePos(true).setFilterAlphabet(5).setAligner(new HackyAligner()).setSeed(3);
+		// 88.17 86.09 42
+		// 83.51 80.09 10
+		// 91.18 89.38  3
+		runModerateTest(new ToutanovaTrainer(options), 1, 1);
 	}
 	
 	@Test
-	public void moderatePosTest() {	
+	public void moderateAveragingAlignerPosTest() {	
 		ToutanovaTrainer.Options options = ToutanovaTrainer.Options.newInstance();
-		options.setNumIterations(10).setUsePos(true);
-		runModerateTest(new ToutanovaTrainer(options), 1.00, 1.00);
+		options.setNumIterations(10).setUsePos(true).setFilterAlphabet(5).setAligner(new HackyAligner()).setSeed(10).setAveraging(true);
+		runModerateTest(new ToutanovaTrainer(options), 1, 1);
+		// 91.15 89.67  3
+		// 91.03 89.60 10
 	}
-	
 	
 	@Test
 	public void smallTest() {		
 		ToutanovaTrainer.Options options = ToutanovaTrainer.Options.newInstance();
 		options.setNumIterations(10);
 		options.setFilterAlphabet(1);
-		runSmallTest(new ToutanovaTrainer(options), 76.76, 70.44);
+		runSmallTest(new ToutanovaTrainer(options), 76.02, 68.31);
 	}
 	
 	@Test
 	public void smallPosTest() {	
 		ToutanovaTrainer.Options options = ToutanovaTrainer.Options.newInstance();
-		options.setNumIterations(10).setUsePos(true);
-		runSmallTest(new ToutanovaTrainer(options), 89.96, 81.90);
+		options.setNumIterations(10).setUsePos(true).setFilterAlphabet(1).setAveraging(true).setSeed(3);
+		// 89.33 81.19 
+		// 88.70 81.30
+		runSmallTest(new ToutanovaTrainer(options), 89.33, 81.19);
 	}
-	
+		
 }

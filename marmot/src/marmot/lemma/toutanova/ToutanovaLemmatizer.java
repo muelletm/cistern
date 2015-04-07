@@ -24,7 +24,7 @@ public class ToutanovaLemmatizer implements Lemmatizer {
 		}
 		
 		ToutanovaInstance tinstance = new ToutanovaInstance(instance, null);
-		model_.addIndexes(tinstance, true);
+		model_.addIndexes(tinstance, false);
 		return decoder_.decode(tinstance).getOutput();
 	}
 

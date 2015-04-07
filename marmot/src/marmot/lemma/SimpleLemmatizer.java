@@ -40,11 +40,13 @@ public class SimpleLemmatizer implements Lemmatizer {
 			}
 		}
 
-		key = toSimpleKey(instance);
-		if (key != null) {
-			lemmas = map_.get(key);
-			if (lemmas != null) {
-				return lemmas.get(0);
+		if (options_.getUseBackup()) {
+			key = toSimpleKey(instance);
+			if (key != null) {
+				lemmas = map_.get(key);
+				if (lemmas != null) {
+					return lemmas.get(0);
+				}
 			}
 		}
 

@@ -24,6 +24,10 @@ public class IndexUpdater extends IndexConsumer {
 	protected boolean getInsert() {
 		return true;
 	}
+
+	public void setWeights(double[] weights) {
+		weights_ = weights;
+	}
 	
 
 

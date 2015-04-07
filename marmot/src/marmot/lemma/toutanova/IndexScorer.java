@@ -29,4 +29,8 @@ public class IndexScorer extends IndexConsumer {
 		return false;
 	}
 
+	public void setWeights(double[] weights) {
+		weights_ = weights;
+	}
+
 }

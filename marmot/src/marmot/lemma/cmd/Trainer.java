@@ -1,7 +1,9 @@
 package marmot.lemma.cmd;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import marmot.core.Sequence;
 import marmot.core.Token;
@@ -10,6 +12,7 @@ import marmot.lemma.Lemmatizer;
 import marmot.lemma.LemmatizerTrainer;
 import marmot.morph.Word;
 import marmot.morph.io.SentenceReader;
+import marmot.util.MutableInteger;
 
 public class Trainer {
 	
@@ -30,16 +33,46 @@ public class Trainer {
 	}
 	
 	public static List<Instance> getInstances(SentenceReader reader) {
-		List<Instance> instances = new LinkedList<Instance>(); 
+		return getInstances(reader, -1);
+	}
+	
+	public static List<Instance> getInstances(SentenceReader reader, int limit) {
+		 
+		Map<Instance, MutableInteger> map = new HashMap<>();
 		
+		int number = 0;
 		for (Sequence sentence : reader) {
 			for (Token token : sentence) {
+				
+				number ++;
+				
 				Word word = (Word) token;
 				String form = word.getWordForm();
 				String lemma = word.getLemma();			
 				Instance instance = new Instance(form, lemma, word.getPosTag(), word.getMorphTag());
-				instances.add(instance);
+				
+				MutableInteger mi = map.get(instance);
+				if (mi == null) {
+					mi = new MutableInteger();
+					map.put(instance, mi);
+				}
+				
+				mi.add(1);
 			}
+			
+			if (limit >= 0 && number > limit)
+				break;
+			
+		}
+		
+		List<Instance> instances = new LinkedList<Instance>();
+		for (Map.Entry<Instance, MutableInteger> entry : map.entrySet()) {
+
+			Instance instance = entry.getKey();
+			double count = entry.getValue().get();
+			
+			instance.setCount(count);
+			instances.add(instance);
 		}
 
 		return instances;

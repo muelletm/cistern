@@ -11,10 +11,12 @@ public class SimpleLemmatizerTrainer implements LemmatizerTrainer {
 		
 		private boolean handle_unseen_;
 		private boolean use_pos_;
+		private boolean use_backup_;
 
 		private Options() {
 			handle_unseen_ = false;
 			use_pos_ = false;
+			use_backup_ = true;
 		}
 		
 		public static Options newInstance() {
@@ -29,12 +31,23 @@ public class SimpleLemmatizerTrainer implements LemmatizerTrainer {
 			return handle_unseen_;
 		}
 
-		public void setHandleUnseen(boolean b) {
+		public Options setHandleUnseen(boolean b) {
 			handle_unseen_ = b;
+			return this;
 		}
 
-		public void setUsePos(boolean b) {
+		public Options setUsePos(boolean b) {
 			use_pos_ = b;
+			return this;
+		}
+		
+		public Options setUseBackup(boolean b) {
+			use_backup_ = b;
+			return this;
+		}
+		
+		public boolean getUseBackup() {
+			return use_backup_;
 		}
 		
 	}
@@ -54,13 +67,15 @@ public class SimpleLemmatizerTrainer implements LemmatizerTrainer {
 		for (Instance instance : instances) {
 			String key = null;
 			
-			if (options_.use_pos_) {
+			if (options_.getUsePos()) {
 				key = SimpleLemmatizer.toKey(instance);
 				addToMap(key, map, instance);
 			}
 			
-			key = SimpleLemmatizer.toSimpleKey(instance);
-			addToMap(key, map, instance);
+			if (options_.getUseBackup()) {
+				key = SimpleLemmatizer.toSimpleKey(instance);
+				addToMap(key, map, instance);
+			}
 		}		
 		
 		return new SimpleLemmatizer(options_, map);

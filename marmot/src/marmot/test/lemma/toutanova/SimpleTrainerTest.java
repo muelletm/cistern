@@ -21,14 +21,14 @@ public class SimpleTrainerTest {
 	@Test
 	public void moderateTest() {
 		Options options = SimpleLemmatizerTrainer.Options.newInstance();
-		runModerateTest(new SimpleLemmatizerTrainer(options), 99.24, 68.95);
+		runModerateTest(new SimpleLemmatizerTrainer(options), 98.41, 64.47);
 	}
 	
 	@Test
 	public void moderateUnseenTest() {
 		Options options = SimpleLemmatizerTrainer.Options.newInstance();
 		options.setHandleUnseen(true);
-		runModerateTest(new SimpleLemmatizerTrainer(options), 99.24, 86.93);
+		runModerateTest(new SimpleLemmatizerTrainer(options), 98.41, 86.19);
 	}
 	
 	@Test
@@ -36,7 +36,7 @@ public class SimpleTrainerTest {
 		Options options = SimpleLemmatizerTrainer.Options.newInstance();
 		options.setHandleUnseen(true);
 		options.setUsePos(true);
-		runModerateTest(new SimpleLemmatizerTrainer(options), 99.91, 87.15);
+		runModerateTest(new SimpleLemmatizerTrainer(options), 99.84, 86.82);
 	}
 	
 	protected String getResourceFile(String name) {
@@ -64,7 +64,7 @@ public class SimpleTrainerTest {
 	protected void runTest(LemmatizerTrainer trainer, double train_acc, double test_acc, String trainfile_name) {	
 		String indexes = "form-index=4,lemma-index=5,tag-index=2,";
 		String trainfile = indexes+ getResourceFile(trainfile_name);
-		String testfile = indexes + getResourceFile("dev_sml.tsv");
+		String testfile = indexes + getResourceFile("dev.tsv");
 		
 		List<Instance> training_instances = Trainer.getInstances(new SentenceReader(trainfile));
 		Lemmatizer lemmatizer = trainer.train(training_instances, null);
@@ -82,9 +82,9 @@ public class SimpleTrainerTest {
 			String predicted_lemma = lemmatizer.lemmatize(instance);
 			
 			if (predicted_lemma != null && predicted_lemma.equals(instance.getLemma())) {
-				correct ++;
+				correct += instance.getCount();
 			}
-			total ++;
+			total += instance.getCount();
 		}
 		
 		double accuracy = correct * 100. / total;
