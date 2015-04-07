@@ -4,11 +4,11 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Logger;
 
 import marmot.lemma.Instance;
 import marmot.lemma.Lemmatizer;
 import marmot.lemma.LemmatizerTrainer;
-import marmot.lemma.toutanova.ToutanovaTrainer.Options;
 
 public class ToutanovaTrainer implements LemmatizerTrainer {
 
@@ -17,11 +17,13 @@ public class ToutanovaTrainer implements LemmatizerTrainer {
 		private int num_iterations_;
 		private boolean use_pos_;
 		private long seed_;
+		private int filter_alphabet_;
 
 		private Options() {
 			num_iterations_ = 1;
 			use_pos_ = false;
 			seed_ = 42;
+			filter_alphabet_ = 0;
 		}
 		
 		public Options setNumIterations(int iters) {
@@ -48,6 +50,14 @@ public class ToutanovaTrainer implements LemmatizerTrainer {
 		
 		public long getSeed() {
 			return seed_;
+		}
+
+		public int getFilterAlphabet() {
+			return filter_alphabet_;
+		}
+
+		public void setFilterAlphabet(int i) {
+			filter_alphabet_ = i;
 		}
 		
 	}
@@ -97,75 +107,54 @@ public class ToutanovaTrainer implements LemmatizerTrainer {
 
 	public Lemmatizer trainAligned(List<ToutanovaInstance> train_instances,
 			List<ToutanovaInstance> dev_instances) {
+		
+		Logger logger = Logger.getLogger(getClass().getName());
 
 		Model model = new Model();
 		model.init(options_, train_instances, dev_instances);
 
 		Decoder decoder = new Decoder(model);
 
-		int number;
 		int correct;
 		int total;
 
-		for (int epoch = 0; epoch < options_.getNumIterations(); epoch++) {
+		for (int iter = 0; iter < options_.getNumIterations(); iter++) {
 
+			logger.info(String.format("Iter: %3d / %3d", iter, options_.getNumIterations()));
+			
 			correct = 0;
 			total = 0;
-			number = 0;
 
 			Collections.shuffle(train_instances, random_);
 			for (ToutanovaInstance instance : train_instances) {
-				number++;
 
-				if (number % 100 == 0) {
-					System.err.format("Processed %6d / %6d\n", number,
-							train_instances.size());
-				}
-
+				if (instance.isRare())
+					continue;
+				
 				Result result = decoder.decode(instance);
 				String output = result.getOutput();
 
 				if (!output.equals(instance.getInstance().getLemma())) {
 
-					// System.err.println(output);
 					model.update(instance, result, -1);
 					model.update(instance, instance.getResult(), +1);
-					// model.printWeights();
-					
 					
 				} else {
 					correct++;
 				}
+				
 				total++;
+				if (total % 1000 == 0) {
+					logger.info(String.format("Processed: %6d / %6d", total,
+							train_instances.size()));
+				}
 
 			}
-
-			System.err.format("Train Accuracy: %d / %d = %g\n", correct, total,
-					correct * 100. / total);
+			
+			logger.info(String.format("Train Accuracy: %d / %d = %g", correct, total,
+					correct * 100. / total));
 
 		}
-
-//		correct = 0;
-//		total = 0;
-//		number = 0;
-//		for (ToutanovaInstance instance : dev_instances) {
-//			number += 1;
-//
-//			Result result = decoder.decode(instance);
-//
-//			if (result.getOutput().equals(instance.getInstance().getLemma())) {
-//				correct += 1;
-//			}
-//			total += 1;
-//
-//			if (number % 100 == 0) {
-//				System.err.format("Accuracy: %d / %d = %g\n", correct, total,
-//						correct * 100. / total);
-//			}
-//		}
-//
-//		System.err.format("Accuracy: %d / %d = %g\n", correct, total, correct
-//				* 100. / total);
 
 		return new ToutanovaLemmatizer(model);
 	}

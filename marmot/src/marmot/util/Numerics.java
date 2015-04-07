@@ -6,6 +6,8 @@ package marmot.util;
 public class Numerics {
 
 	
+	public final static double EPSILON = 1e-5;
+
 	/**
 	 * Determines whether two 1d jagged arrays are approximately equal 	
 	 * @param array1
@@ -118,4 +120,15 @@ public class Numerics {
 	public static double exp_digamma(double x) {
 		return Math.exp(digamma(x));
 	}
+
+	public static boolean approximatelyGreaterEqual(double a,
+			double b, double epsilon) {
+		return a + epsilon > b;
+	}
+	
+	public static boolean approximatelyGreaterEqual(double a,
+			double b) {
+		return approximatelyGreaterEqual(a, b, EPSILON);
+	}
+
 }

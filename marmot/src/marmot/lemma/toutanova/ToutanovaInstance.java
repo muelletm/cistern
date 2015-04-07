@@ -11,10 +11,12 @@ public class ToutanovaInstance {
 	private int[] form_char_indexes_;
 	private Result result_;
 	private int pos_tag_index_;
+	private boolean rare_;
 	
 	public ToutanovaInstance(Instance instance, List<Integer> alignment) {
 		instance_ = instance;
 		alignment_ = alignment;
+		rare_ = false;
 	}
 	
 	Instance getInstance() {
@@ -47,6 +49,14 @@ public class ToutanovaInstance {
 
 	public int getPosTagIndex() {
 		return pos_tag_index_;
+	}
+
+	public void setRare(boolean instance_is_rare) {
+		rare_ = instance_is_rare;
+	}
+	
+	public boolean isRare() {
+		return rare_;
 	}
 	
 }

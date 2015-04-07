@@ -58,6 +58,11 @@ public class DecoderTest {
 		assertResultEquals(Arrays.asList(b_index, b_index, b_index), Arrays.asList(1, 2, 4), decoder.decode(train_instances.get(4)));
 		assertResultEquals(Arrays.asList(c_index, c_index, c_index), Arrays.asList(1, 2, 4), decoder.decode(train_instances.get(2)));
 		assertResultEquals(Arrays.asList(c_index, c_index, c_index), Arrays.asList(1, 2, 4), decoder.decode(train_instances.get(5)));
+		
+//		double test_score = model_.getScore(instance, result);
+//		assert Math.abs(result.getScore() - test_score) < 1e-5;
+		
+		
 	}
 
 	private void assertResultEquals(List<Integer> outputs, List<Integer> inputs,

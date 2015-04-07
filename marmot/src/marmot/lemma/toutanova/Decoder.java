@@ -7,7 +7,7 @@ import java.util.List;
 
 public class Decoder {
 
-	Model model_;
+	private Model model_;
 
 	private double[] score_array_;
 	private int[] output_array_;
@@ -79,11 +79,6 @@ public class Decoder {
 		}
 		
 		Result result = backTrace();
-		
-		double test_score = model_.getScore(instance, result);
-		
-		assert Math.abs(result.getScore() - test_score) < 1e-5;
-		
 		return result;
 	}
 
@@ -128,7 +123,7 @@ public class Decoder {
 
 		Collections.reverse(outputs);
 		Collections.reverse(inputs);
-		return new Result(model_, outputs, inputs, best_score);
+		return new Result(model_, outputs, inputs, instance_.getInstance().getForm(), best_score);
 	}
 
 	private int getIndex(int output, int index) {

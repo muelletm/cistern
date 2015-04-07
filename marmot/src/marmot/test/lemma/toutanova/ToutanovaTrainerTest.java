@@ -1,9 +1,5 @@
 package marmot.test.lemma.toutanova;
 
-import static org.junit.Assert.*;
-
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 import marmot.lemma.Instance;
@@ -15,22 +11,8 @@ import marmot.morph.io.SentenceReader;
 
 import org.junit.Test;
 
-public class ToutanovaTrainerTest {
+public class ToutanovaTrainerTest extends SimpleTrainerTest {
 
-	private List<Instance> getCopyInstances(List<Instance> instances) {
-		List<Instance> new_instances = new LinkedList<>();
-		for (Instance instance : instances) {
-			if (instance.getForm().equals(instance.getLemma())) {
-					new_instances.add(instance);
-			}
-		}
-		return new_instances;
-	}
-	
-	private String getResourceFile(String name) {
-		return String.format("res:///%s/%s", "marmot/test/lemma", name);
-	}
-	
 	@Test
 	public void copyTest() {
 		
@@ -47,61 +29,36 @@ public class ToutanovaTrainerTest {
 		assertAccuracy(lemmatizer, getCopyInstances(instances), 99.1935);
 	}
 
+	
 	@Test
-	public void normalPosTest() {	
-		ToutanovaTrainer.Options options = ToutanovaTrainer.Options.newInstance()
-				.setNumIterations(10)
-				.setUsePos(true);
-		
-		LemmatizerTrainer trainer = new ToutanovaTrainer(options);
-		
-		String indexes = "form-index=4,lemma-index=5,tag-index=2,";
-		String trainfile = indexes+ getResourceFile("trn_sml.tsv");
-		String testfile = indexes + getResourceFile("dev_sml.tsv");
-		
-		List<Instance> training_instances = Trainer.getInstances(new SentenceReader(trainfile));
-		Lemmatizer lemmatizer = trainer.train(training_instances, null);
-		
-		List<Instance> instances = Trainer.getInstances(new SentenceReader(testfile));
-		assertAccuracy(lemmatizer, instances, 80.62);
+	public void moderateTest() {		
+		ToutanovaTrainer.Options options = ToutanovaTrainer.Options.newInstance();
+		options.setNumIterations(10);
+		options.setFilterAlphabet(1);
+		runModerateTest(new ToutanovaTrainer(options), 1.00, 1.00);
+	}
+	
+	@Test
+	public void moderatePosTest() {	
+		ToutanovaTrainer.Options options = ToutanovaTrainer.Options.newInstance();
+		options.setNumIterations(10).setUsePos(true);
+		runModerateTest(new ToutanovaTrainer(options), 1.00, 1.00);
 	}
 	
 	
 	@Test
-	public void normalTest() {
-		
-		ToutanovaTrainer.Options options = ToutanovaTrainer.Options.newInstance().setNumIterations(10);
-		
-		LemmatizerTrainer trainer = new ToutanovaTrainer(options);
-		
-		String indexes = "form-index=4,lemma-index=5,";
-		String trainfile = indexes+ getResourceFile("trn_sml.tsv");
-		String testfile = indexes + getResourceFile("dev_sml.tsv");
-		
-		List<Instance> training_instances = Trainer.getInstances(new SentenceReader(trainfile));
-		Lemmatizer lemmatizer = trainer.train(training_instances, null);
-		
-		List<Instance> instances = Trainer.getInstances(new SentenceReader(testfile));
-		assertAccuracy(lemmatizer, instances, 72.0556);
+	public void smallTest() {		
+		ToutanovaTrainer.Options options = ToutanovaTrainer.Options.newInstance();
+		options.setNumIterations(10);
+		options.setFilterAlphabet(1);
+		runSmallTest(new ToutanovaTrainer(options), 76.76, 70.44);
 	}
-
-	private void assertAccuracy(Lemmatizer lemmatizer, Collection<Instance> instances, double min_accuracy) {
-		int correct = 0;
-		int total = 0;
-		
-		for (Instance instance : instances) {
-			String form = lemmatizer.lemmatize(instance);
-			
-			if (form.equals(instance.getLemma())) {
-				correct ++;
-			}
-			total ++;
-		}
-		
-		double accuracy = correct * 100. / total;
-		
-		System.err.println(accuracy);
-		assertTrue(accuracy + 1e-5 > min_accuracy);
+	
+	@Test
+	public void smallPosTest() {	
+		ToutanovaTrainer.Options options = ToutanovaTrainer.Options.newInstance();
+		options.setNumIterations(10).setUsePos(true);
+		runSmallTest(new ToutanovaTrainer(options), 89.96, 81.90);
 	}
-
+	
 }
