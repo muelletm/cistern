@@ -1,9 +1,9 @@
-``	--	$(	_	``	``
+``	--	$(	_	a	a
 Ross	Ross	NE	case=nom|number=sg|gender=masc	ross	ross
 Perot	Perot	NE	case=nom|number=sg|gender=masc	perot	perot
 wäre	sein	VAFIN	number=sg|person=3|tense=past|mood=subj	wäre	sein
 vielleicht	vielleicht	ADV	_	vielleicht	vielleicht
-ein	ein	ART	case=nom|number=sg|gender=masc	ein	ein
+a	a	ART	case=nom|number=sg|gender=masc	abc	df
 prächtiger	prächtig	ADJA	case=nom|number=sg|gender=masc|degree=pos	prächtiger	prächtig
 Diktator	Diktator	NN	case=nom|number=sg|gender=masc	diktator	diktator
 ''	--	$(	_	''	''

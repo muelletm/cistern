@@ -5,6 +5,68 @@ package marmot.util;
 
 public class Numerics {
 
+	
+	/**
+	 * Determines whether two 1d jagged arrays are approximately equal 	
+	 * @param array1
+	 * @param array2
+	 * @param eps
+	 * @return
+	 */
+	public static boolean approximatelyEqual(double[] array1, double[] array2, double eps) {
+		boolean approxEqual = true;
+		for (int i = 0; i < array1.length; ++i) {
+			if (Math.abs(array1[i] - array2[i]) > eps) {
+				approxEqual = false;
+				break;
+			}		
+		}
+		return approxEqual;
+	}
+	
+	/**
+	 * Determines whether two 2d jagged arrays are approximately equal 	
+	 * @param array1
+	 * @param array2
+	 * @param eps
+	 * @return
+	 */
+	public static boolean approximatelyEqual(double[][] array1, double[][] array2, double eps) {
+		boolean approxEqual = true;
+		for (int i = 0; i < array1.length; ++i) {
+			for (int j = 0; j < array1[i].length; ++j) {
+				if (Math.abs(array1[i][j] - array2[i][j]) > eps) {
+					approxEqual = false;
+					break;
+				}		
+			}
+		}
+		return approxEqual;
+	}
+	
+	/**
+	 * Determines whether two 3d jagged arrays are approximately equal 	
+	 * @param array1
+	 * @param array2
+	 * @param eps
+	 * @return
+	 */
+	public static boolean approximatelyEqual(double[][][] array1, double[][][] array2, double eps) {
+		boolean approxEqual = true;
+		for (int i = 0; i < array1.length; ++i) {
+			for (int j = 0; j < array1[i].length; ++j) {
+				for (int k = 0; k < array1[i][j].length; ++k) {
+					if (Math.abs(array1[i][j][k] - array2[i][j][k]) > eps) {
+						approxEqual = false;
+						break;
+					}
+				}
+			}
+		}
+		
+		return approxEqual;
+	}
+	
 	// The following code is based on a similar function in MALLET.
 	// (http://www.cs.umass.edu/~mccallum/mallet)
 	// But was modified using the thresholds from log1pexp.
