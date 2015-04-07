@@ -48,15 +48,14 @@ public class ToutanovaTrainerTest {
 	}
 
 	@Test
-	public void normalPosTest() {
-		
+	public void normalPosTest() {	
 		ToutanovaTrainer.Options options = ToutanovaTrainer.Options.newInstance()
 				.setNumIterations(10)
 				.setUsePos(true);
 		
 		LemmatizerTrainer trainer = new ToutanovaTrainer(options);
 		
-		String indexes = "form-index=4,lemma-index=5,";
+		String indexes = "form-index=4,lemma-index=5,tag-index=2,";
 		String trainfile = indexes+ getResourceFile("trn_sml.tsv");
 		String testfile = indexes + getResourceFile("dev_sml.tsv");
 		
@@ -64,7 +63,7 @@ public class ToutanovaTrainerTest {
 		Lemmatizer lemmatizer = trainer.train(training_instances, null);
 		
 		List<Instance> instances = Trainer.getInstances(new SentenceReader(testfile));
-		assertAccuracy(lemmatizer, instances, 100.00);
+		assertAccuracy(lemmatizer, instances, 80.62);
 	}
 	
 	

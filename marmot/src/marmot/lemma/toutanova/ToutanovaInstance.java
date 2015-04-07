@@ -44,5 +44,9 @@ public class ToutanovaInstance {
 	public void setPosTagIndex(int index) {
 		pos_tag_index_ = index;
 	}
+
+	public int getPosTagIndex() {
+		return pos_tag_index_;
+	}
 	
 }

@@ -3,6 +3,7 @@ package marmot.lemma.toutanova;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import marmot.core.Feature;
 import marmot.lemma.toutanova.Aligner.Pair;
@@ -12,20 +13,27 @@ import marmot.util.SymbolTable;
 
 public class Model {
 
-	int alphabet_[];
+	private String alphabet_[];
 	private SymbolTable<String> output_table_;
 	private SymbolTable<String> pos_table_;
 	private int max_input_segment_length_;
 	private int num_output_bits;
-	private SymbolTable<Feature> feature_map;
 	private SymbolTable<Character> char_table;
 	private Encoder encoder;
 	private double[] weights;
 	private int num_char_bits;
-	private static final int OFFSET = 1;
+	private int num_pos_bits;
+	
+	private IndexScorer scorer_;
+	private IndexUpdater updater_;
+	private final static int FEATURE_BITS = Encoder.bitsNeeded(3);
+	private final static int TRANS_FEAT = 0;
+	private final static int OUTPUT_FEAT = 1;
+	private final static int PAIR_FEAT = 2;
+	private final static int COPY_FEAT = 3;
 
 	public void init(Options options, List<ToutanovaInstance> train_instances, List<ToutanovaInstance> test_instances) {
-		output_table_ = new SymbolTable<>(true);
+		output_table_ = new SymbolTable<>(false);
 		char_table = new SymbolTable<>();
 		
 		if (options.getUsePos()) {
@@ -58,9 +66,6 @@ public class Model {
 			}	
 			
 			Result result = new Result(this, lemma_segments, form_indexes);
-			
-			assert (result.getOutput().equals(instance.getInstance().getLemma())) : result.getOutput() + " " + instance.getInstance().getLemma();
-			
 			instance.setResult(result);
 		}
 		
@@ -69,11 +74,24 @@ public class Model {
 			addIndexes(test_instances, false);
 				
 		num_output_bits = Encoder.bitsNeeded(output_table_.size());
+		alphabet_ = new String[output_table_.size()];
+		for (Map.Entry<String, Integer> entry : output_table_.entrySet())
+			alphabet_[entry.getValue()] = entry.getKey();
+		
 		num_char_bits = Encoder.bitsNeeded(char_table.size());
 		
-		feature_map = new SymbolTable<>();
+		num_pos_bits = -1;
+		if (pos_table_ != null)
+			num_pos_bits = Encoder.bitsNeeded(pos_table_.size());
+		
+		SymbolTable<Feature> feature_map = new SymbolTable<>();
 		encoder = new Encoder(10);
 		weights = new double[10000000];
+		
+		scorer_ = new IndexScorer(weights);
+		scorer_.setFeatureMap(feature_map).setPosBits(num_pos_bits);
+		updater_ = new IndexUpdater(weights);
+		updater_.setFeatureMap(feature_map).setPosBits(num_pos_bits);
 	}
 
 	public SymbolTable<String> getOutputTable() {
@@ -83,148 +101,87 @@ public class Model {
 	public int getMaxInputSegmentLength() {
 		return max_input_segment_length_;
 	}
+	
+	public String getOutput(int o) {
+		return alphabet_[o];
+	}
 
-	public int getTransitionFeatureIndex(int last_o, int o) {
-		
+	public void consumeTransitionFeature(IndexConsumer consumer,ToutanovaInstance instance, int last_o, int o) {
 		if (last_o < 0) {
-			return -1;
+			return;
 		}
-		
 		encoder.reset();
-		encoder.append(0, Encoder.bitsNeeded(2));
+		encoder.append(TRANS_FEAT, FEATURE_BITS);
 		encoder.append(last_o, num_output_bits);
 		encoder.append(o, num_output_bits);
-		Feature feature = encoder.getFeature();
-		return feature_map.toIndex(feature, true) + OFFSET;
+		consumer.consume(instance, encoder);
 	}
 	
-	public int getOutputFeatureIndex(int o) {
+	public void consumeOutputFeature(IndexConsumer consumer, ToutanovaInstance instance, int o) {
 		encoder.reset();
-		encoder.append(1, Encoder.bitsNeeded(2));
+		encoder.append(OUTPUT_FEAT, FEATURE_BITS);
 		encoder.append(o, num_output_bits);
-		Feature feature = encoder.getFeature();
-		return feature_map.toIndex(feature, true) + OFFSET;
+		consumer.consume(instance, encoder);
 	}
 	
-	public int getPairFeatureIndex(int[] chars, int l_start, int l_end, int o) {
+	public void consumePairFeature(IndexConsumer consumer, ToutanovaInstance instance, int l_start, int l_end, int o) {
+		int[] chars = instance.getFormCharIndexes();
 		encoder.reset();
-		encoder.append(2, Encoder.bitsNeeded(2));
-		
+		encoder.append(PAIR_FEAT, FEATURE_BITS);
+		encoder.append(o, num_output_bits);
 		for (int l=l_start; l<l_end; l++) {
 			int c = chars[l];
 			if (c < 0) {
-				return - 1;
+				return;
 			}
 			encoder.append(c, num_char_bits);
 		}
-		
-		encoder.append(o, num_output_bits);
-		Feature feature = encoder.getFeature();
-		return feature_map.toIndex(feature, true) + OFFSET;
+		consumer.consume(instance, encoder);
 	}
 	
-	public double getWeight(int index) {
-		if (index < 0)
-			return 0.;
-		
-		return weights[index];
-	}
-	
-	public void setWeight(int index, double w) {
-		weights[index] = w;
-	}
-
-	public String getOutput(int o) {
-		return output_table_.toSymbol(o);
-	}
-
-	public double getPairScore(ToutanovaInstance instance, int l_start, int l_end,
-			int o) {				
-		int index = getOutputFeatureIndex(o);
-		double score = getWeight(index);
-		
-		index = getPairFeatureIndex(instance.getFormCharIndexes(), l_start, l_end, o);
-		score += getWeight(index);
-		
-		index = getCopyFeatureIndex(instance, l_start, l_end, o);
-		score += getWeight(index);
-		
-		return score;
-	}
-
-	public double getTransitionScore(ToutanovaInstance instance, int last_o,
-			int o, int l_start, int l) {
-		int index = getTransitionFeatureIndex(last_o, o);	
-		double score = getWeight(index);
-		return score;
-	}
-
-	public void update(ToutanovaInstance instance, Result result, double update) {
-			
-		Iterator<Integer> output_iterator = result.getOutputs().iterator();
-		Iterator<Integer> input_iterator = result.getInputs().iterator();
-		
-		int last_o = -1;
-		int l_start = 0;
-		
-		while (output_iterator.hasNext()) {	
-			int o = output_iterator.next();
-			int l_end = input_iterator.next();
-			
-			if (last_o >= 0) {
-				updateTransitionScore(instance, last_o, o, l_start, l_end, update);
-			}
-			
-			updatePairScore(instance, o, l_start, l_end, update);
-			
-			last_o = o;
-			l_start = l_end;
-		}
-		
-	}
-
-	private void updatePairScore(ToutanovaInstance instance, int o,
-			int l_start, int l_end, double update) {
-		int index = getPairFeatureIndex(instance.getFormCharIndexes(), l_start, l_end, o);
-		updateWeight(index, update);	
-		
-		index = getOutputFeatureIndex(o);
-		updateWeight(index, update);
-		
-		index = getCopyFeatureIndex(instance, l_start, l_end, o);
-		updateWeight(index, update);
-		
-	}
-
-	private int getCopyFeatureIndex(ToutanovaInstance instance, int l_start,
+	private void consumeCopyFeature(IndexConsumer consumer, ToutanovaInstance instance, int l_start,
 			int l_end, int o) {
 		if (l_end - l_start == 1) {
-			String output_sequence = output_table_.toSymbol(o);			
+			String output_sequence = alphabet_[o];
 			if (output_sequence.length() == 1) {
 				char input_char = instance.getInstance().getForm().charAt(l_start);
 				char output_char = output_sequence.charAt(0);
 				if (input_char == output_char) {
-					return 1;
+					encoder.reset();
+					encoder.append(COPY_FEAT, FEATURE_BITS);
+					consumer.consume(instance, encoder);
 				}
 			}
 		}
-		return 0;
+	}
+	
+	private void consumeOutputPair(IndexConsumer consumer, ToutanovaInstance instance, int l_start, int l_end, int o) {
+		consumePairFeature(consumer, instance, l_start, l_end, o);
+		consumeOutputFeature(consumer, instance, o);
+		consumeCopyFeature(consumer, instance, l_start, l_end, o);
 	}
 
-	private void updateWeight(int index, double update) {
-		if (index >= 0) {
-			weights[index] += update;
-		}
+	private void consumeTransition(IndexConsumer consumer, ToutanovaInstance instance,  int l_start, int l_end, int last_o,
+			int o) {
+		consumeTransitionFeature(consumer, instance, last_o, o);
 	}
 
-	private void updateTransitionScore(ToutanovaInstance instance, int last_o,
-			int o, int l_start, int l_end, double update) {
-		int index = getTransitionFeatureIndex(last_o, o);
-		updateWeight(index, update);
+	public double getPairScore(ToutanovaInstance instance, int l_start, int l_end,
+			int o) {
+		scorer_.reset();
+		consumeOutputPair(scorer_, instance, l_start, l_end, o);
+		return scorer_.getScore();
 	}
 
+	public double getTransitionScore(ToutanovaInstance instance, int last_o,
+			int o, int l_start, int l_end) {
+		scorer_.reset();
+		consumeTransition(scorer_, instance, l_start, l_end, last_o, o);	
+		return scorer_.getScore();
+	}
+	
 	public double getScore(ToutanovaInstance instance, Result result) {
-		double score = 0.0;
+		scorer_.reset();
 		
 		Iterator<Integer> output_iterator = result.getOutputs().iterator();
 		Iterator<Integer> input_iterator = result.getInputs().iterator();
@@ -237,17 +194,41 @@ public class Model {
 			int l_end = input_iterator.next();
 			
 			if (last_o >= 0) {
-				score += getTransitionScore(instance, last_o, o, l_start, l_end);
+				consumeTransition(scorer_, instance, l_start, l_end, last_o, o);
 			}
 			
-			score += getPairScore(instance, l_start, l_end, o);			
+			consumeOutputPair(scorer_, instance, l_start, l_end, o);			
 			last_o = o;
 			l_start = l_end;
 		}
 		
-		return score;
+		return scorer_.getScore();
 	}
-	
+
+	public void update(ToutanovaInstance instance, Result result, double update) {
+		updater_.setUpdate(update);
+		Iterator<Integer> output_iterator = result.getOutputs().iterator();
+		Iterator<Integer> input_iterator = result.getInputs().iterator();
+		
+		int last_o = -1;
+		int l_start = 0;
+		
+		while (output_iterator.hasNext()) {	
+			int o = output_iterator.next();
+			int l_end = input_iterator.next();
+			
+			if (last_o >= 0) {
+				consumeTransition(updater_, instance, l_start, l_end, last_o, o);
+			}
+			
+			consumeOutputPair(updater_, instance, l_start, l_end, o);
+			
+			last_o = o;
+			l_start = l_end;
+		}
+		
+	}
+
 	public void addIndexes(List<ToutanovaInstance> instances, boolean insert) {
 			for (ToutanovaInstance instance : instances) {
 				addIndexes(instance, insert);
@@ -260,13 +241,13 @@ public class Model {
 		for (int i=0; i < form.length(); i++) {
 			char_indexes[i] = char_table.toIndex(form.charAt(i), -1, insert);
 		}
+		instance.setFormCharIndexes(char_indexes);
 		
 		if (pos_table_ != null) {
 			String pos_tag = instance.getInstance().getPosTag();
 			if (pos_tag != null)
 				instance.setPosTagIndex(pos_table_.toIndex(pos_tag, -1, insert));
 		}
-		instance.setFormCharIndexes(char_indexes);		
 	}
 
 

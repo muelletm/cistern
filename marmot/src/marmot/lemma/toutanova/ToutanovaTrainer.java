@@ -1,7 +1,9 @@
 package marmot.lemma.toutanova;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 import marmot.lemma.Instance;
 import marmot.lemma.Lemmatizer;
@@ -14,9 +16,12 @@ public class ToutanovaTrainer implements LemmatizerTrainer {
 		
 		private int num_iterations_;
 		private boolean use_pos_;
+		private long seed_;
 
 		private Options() {
 			num_iterations_ = 1;
+			use_pos_ = false;
+			seed_ = 42;
 		}
 		
 		public Options setNumIterations(int iters) {
@@ -41,12 +46,18 @@ public class ToutanovaTrainer implements LemmatizerTrainer {
 			return use_pos_;
 		}
 		
+		public long getSeed() {
+			return seed_;
+		}
+		
 	}
 
 	private Options options_;
+	private Random random_;
 	
 	public ToutanovaTrainer(Options options) {
 		options_ = options;
+		random_ = new Random(options_.getSeed());
 	}
 	
 	public static List<ToutanovaInstance> createToutanovaInstances(List<Instance> instances, Aligner aligner) {
@@ -102,6 +113,7 @@ public class ToutanovaTrainer implements LemmatizerTrainer {
 			total = 0;
 			number = 0;
 
+			Collections.shuffle(train_instances, random_);
 			for (ToutanovaInstance instance : train_instances) {
 				number++;
 
