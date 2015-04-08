@@ -1,5 +1,6 @@
 package marmot.lemma.transducer;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -69,33 +70,37 @@ public class PFST extends Transducer {
 	}
 	
 	protected void sgd(double learningRate, double scaleFactor, int numIterations) {
+		
+		
 		double[][][] gradientVector = new double[this.numContexts][3][this.alphabet.size()];
-
+		//this.gradient(gradientVector);
+		
 		for (int iteration = 0; iteration < numIterations; ++iteration) {
 			for (int instanceId = 0; instanceId < this.trainingData.size(); ++instanceId) {
-				System.out.println(instanceId);
+				//System.out.println(instanceId);
 				// fill up
-				for (double[][] matrix : gradientVector) {
+				/*for (double[][] matrix : gradientVector) {
 					for (double[] row : matrix) {
 						Arrays.fill(row,0.0);
 					}
-				}
+				}*/
 				this.gradient(gradientVector,instanceId);
 				// update weight vector
-				for (int i = 0; i < gradientVector.length; ++i) {
+				/*for (int i = 0; i < gradientVector.length; ++i) {
 					for (int j = 0; j < gradientVector[i].length; ++j) {
 						for (int k = 0; k < gradientVector[k].length; ++k) {
 							this.weights[i][j][k] += learningRate *  gradientVector[i][j][k];
 						}
 					}
-				}
+				}*/
 				
-				System.out.println(this.logLikelihood());
+				//System.out.println(this.logLikelihood());
 
 			}
 
 			learningRate *= scaleFactor;
 		}
+		
 	}
 	
 	protected void expectedCounts(double[][][] gradient , double[] contextCounts) {
@@ -255,8 +260,8 @@ public class PFST extends Transducer {
 	public Lemmatizer train(List<Instance> instances,
 			List<Instance> dev_instances) {
 		
-		this.trainingData = instances;
-		this.devData = dev_instances;
+		this.trainingData = new ArrayList<Instance>(instances);
+		this.devData =  new ArrayList<Instance>(dev_instances);
 		
 		Pair<int[][][],Integer> result = preextractContexts(instances,this.c1,this.c2, this.c3, this.c4);
 		this.contexts = result.getValue0();
@@ -293,7 +298,7 @@ public class PFST extends Transducer {
 		zeroOut(alphas);
 		zeroOut(betas);
 	
-		sgd(1.0,.99,100);
+		sgd(1.0,.99,1);
 
 		/*
 		// finite difference check
