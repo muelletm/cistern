@@ -12,11 +12,13 @@ public class SimpleLemmatizerTrainer implements LemmatizerTrainer {
 		private boolean handle_unseen_;
 		private boolean use_pos_;
 		private boolean use_backup_;
+		private boolean abstain_if_ambigious_;
 
 		private Options() {
 			handle_unseen_ = false;
 			use_pos_ = false;
 			use_backup_ = true;
+			abstain_if_ambigious_ = false;
 		}
 		
 		public static Options newInstance() {
@@ -48,6 +50,15 @@ public class SimpleLemmatizerTrainer implements LemmatizerTrainer {
 		
 		public boolean getUseBackup() {
 			return use_backup_;
+		}
+
+		public boolean getAbstainIfAmbigous() {
+			return abstain_if_ambigious_;
+		}
+
+		public Options setAbstainIfAmbigous(boolean b) {
+			abstain_if_ambigious_ = b;
+			return this;
 		}
 		
 	}

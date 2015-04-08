@@ -8,6 +8,7 @@ import java.util.List;
 
 import marmot.lemma.Instance;
 import marmot.lemma.toutanova.Decoder;
+import marmot.lemma.toutanova.FirstOrderDecoder;
 import marmot.lemma.toutanova.Model;
 import marmot.lemma.toutanova.Result;
 import marmot.lemma.toutanova.ToutanovaInstance;
@@ -33,7 +34,8 @@ public class DecoderTest {
 		
 		model.init(ToutanovaTrainer.Options.newInstance(), train_instances, null);
 		
-		Decoder decoder = new Decoder(model);
+		Decoder decoder = new FirstOrderDecoder();
+		decoder.init(model);
 		
 		int a_index = model.getOutputTable().toIndex("a");
 		int b_index = model.getOutputTable().toIndex("b");

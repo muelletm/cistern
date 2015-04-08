@@ -13,6 +13,7 @@ public class Encoder {
 	private int[] bytes_;
 	private short current_array_length_;
 	private short current_bit_index_;
+	private short stored_curent_array_length_;
 
 	public Encoder(int capacity) {
 		bytes_ = new int[capacity];
@@ -67,11 +68,25 @@ public class Encoder {
 	public void reset() {
 		current_array_length_ = 0;
 		current_bit_index_ = Integer.SIZE;
+		stored_curent_array_length_ = 0;
 		Arrays.fill(bytes_, 0);
 	}
 
 	public Feature getFeature(boolean flag) {
 		return getFeature();
+	}
+
+	public void storeState() {
+		stored_curent_array_length_ = current_array_length_;
+		current_array_length_ ++;
+		current_bit_index_ = Integer.SIZE;
+	}
+
+	public void restoreState() {
+		Arrays.fill(bytes_, stored_curent_array_length_ , current_array_length_ - 1, 0);
+		current_array_length_ = stored_curent_array_length_;
+		current_array_length_++;
+		current_bit_index_ = Integer.SIZE;
 	}
 
 }

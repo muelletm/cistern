@@ -34,7 +34,7 @@ public class SimpleLemmatizer implements Lemmatizer {
 			key = toKey(instance);
 			if (key != null) {
 				lemmas = map_.get(key);
-				if (lemmas != null) {
+				if (lemmas != null && (!options_.getAbstainIfAmbigous() || lemmas.size() == 1 )) {
 					return lemmas.get(0);
 				}
 			}
@@ -44,7 +44,7 @@ public class SimpleLemmatizer implements Lemmatizer {
 			key = toSimpleKey(instance);
 			if (key != null) {
 				lemmas = map_.get(key);
-				if (lemmas != null) {
+				if (lemmas != null && (!options_.getAbstainIfAmbigous() || lemmas.size() == 1 )) {
 					return lemmas.get(0);
 				}
 			}

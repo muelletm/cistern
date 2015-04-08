@@ -8,9 +8,11 @@ public class ToutanovaLemmatizer implements Lemmatizer {
 	private Model model_;
 	private Decoder decoder_;
 
-	public ToutanovaLemmatizer(Model model) {
+	public ToutanovaLemmatizer(ToutanovaTrainer.Options options, Model model) {
 		model_ = model;
-		decoder_ = new Decoder(model);
+		
+		decoder_ = options.getDecoderInstance();
+		decoder_.init(model_);
 	}
 
 	@Override

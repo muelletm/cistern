@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class HackyAligner implements Aligner {
 
@@ -67,7 +68,8 @@ public class HackyAligner implements Aligner {
 		int end_j = output.length();
 		
 		if (cost_array_[(end_i - 1) * output.length() + end_j - 1] == Double.POSITIVE_INFINITY) {
-			throw new RuntimeException(String.format("Cannot align: %s - %s", input, output));
+			Logger.getLogger(getClass().getName()).warning(String.format("Cannot align: %s %s", input, output));
+			return new SimpleAligner().align(input, output);
 		}
 		
 		while (end_i > 0 && end_j > 0) {

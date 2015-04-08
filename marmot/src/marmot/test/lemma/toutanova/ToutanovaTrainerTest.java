@@ -8,6 +8,7 @@ import marmot.lemma.LemmatizerTrainer;
 import marmot.lemma.cmd.Trainer;
 import marmot.lemma.toutanova.HackyAligner;
 import marmot.lemma.toutanova.ToutanovaTrainer;
+import marmot.lemma.toutanova.ZeroOrderDecoder;
 import marmot.morph.io.SentenceReader;
 
 import org.junit.Test;
@@ -16,7 +17,6 @@ public class ToutanovaTrainerTest extends SimpleTrainerTest {
 
 	@Test
 	public void copyTest() {
-		
 		LemmatizerTrainer trainer = new ToutanovaTrainer(ToutanovaTrainer.Options.newInstance());
 		
 		String indexes = "form-index=4,lemma-index=5,";
@@ -31,9 +31,19 @@ public class ToutanovaTrainerTest extends SimpleTrainerTest {
 	}
 
 	@Test
+	public void moderateZeroOrderAlignerPosTest() {	
+		ToutanovaTrainer.Options options = ToutanovaTrainer.Options.newInstance();
+		options.setNumIterations(10).setUsePos(true).setFilterAlphabet(5).setAligner(new HackyAligner()).setSeed(3).setDecoder(ZeroOrderDecoder.class).setUseContextFeature(true);
+		//84.53 82.52
+		//84.26 82.69 # fixed pair feature
+		//89.12 87.48
+		runModerateTest(new ToutanovaTrainer(options), 1., 1.);
+	}
+	
+	@Test
 	public void moderateAlignerPosTest() {	
 		ToutanovaTrainer.Options options = ToutanovaTrainer.Options.newInstance();
-		options.setNumIterations(10).setUsePos(true).setFilterAlphabet(5).setAligner(new HackyAligner()).setSeed(3);
+		options.setNumIterations(10).setUsePos(true).setFilterAlphabet(5).setAligner(new HackyAligner()).setSeed(3).setUseContextFeature(false);
 		// 88.17 86.09 42
 		// 83.51 80.09 10
 		// 91.18 89.38  3

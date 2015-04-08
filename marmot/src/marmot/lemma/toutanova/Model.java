@@ -34,6 +34,9 @@ public class Model {
 
 	private IndexScorer scorer_;
 	private IndexUpdater updater_;
+	private boolean use_zero_order_;
+	private int max_input_segment_length_bits_;
+	private boolean add_context_feature_;
 
 	private final static int FEATURE_BITS = Encoder.bitsNeeded(2);
 	private final static int TRANS_FEAT = 0;
@@ -95,6 +98,11 @@ public class Model {
 		scorer_.setFeatureMap(feature_map).setPosBits(num_pos_bits);
 		updater_ = new IndexUpdater(weights_);
 		updater_.setFeatureMap(feature_map).setPosBits(num_pos_bits);
+
+		use_zero_order_ = options.getDecoderClass() == ZeroOrderDecoder.class;
+		logger.info(String.format("Use zero order decoder: %s\n",
+				use_zero_order_));
+		add_context_feature_ = options.getUseContextFeature();
 	}
 
 	private Lemmatizer createSimpleLemmatizer(Options options,
@@ -112,7 +120,7 @@ public class Model {
 
 		Logger logger = Logger.getLogger(getClass().getName());
 		logger.info(String.format(
-				"Creating logger from %d out of %d instances.",
+				"Creating lemmatizer from %d out of %d instances.",
 				instances.size(), train_instances.size()));
 
 		SimpleLemmatizerTrainer.Options simple_options = SimpleLemmatizerTrainer.Options
@@ -178,6 +186,8 @@ public class Model {
 			instance.setResult(result);
 		}
 
+		max_input_segment_length_bits_ = Encoder
+				.bitsNeeded(max_input_segment_length_);
 	}
 
 	private void filterRareOutputSymbols(Options options,
@@ -231,7 +241,7 @@ public class Model {
 	}
 
 	public void consumeTransitionFeature(IndexConsumer consumer,
-			ToutanovaInstance instance, int last_o, int o) {
+			ToutanovaInstance instance, int l_start, int l_end, int last_o, int o) {
 		if (last_o < 0) {
 			return;
 		}
@@ -239,14 +249,22 @@ public class Model {
 		encoder.append(TRANS_FEAT, FEATURE_BITS);
 		encoder.append(last_o, num_output_bits);
 		encoder.append(o, num_output_bits);
+		if (add_context_feature_) {
+			encoder.append(l_start == 0);
+			encoder.append(l_end == instance.getFormCharIndexes().length);
+		}
 		consumer.consume(instance, encoder);
 	}
 
 	public void consumeOutputFeature(IndexConsumer consumer,
-			ToutanovaInstance instance, int o) {
+			ToutanovaInstance instance, int l_start, int l_end, int o) {
 		encoder.reset();
 		encoder.append(OUTPUT_FEAT, FEATURE_BITS);
 		encoder.append(o, num_output_bits);
+		if (add_context_feature_) {
+			encoder.append(l_start == 0);
+			encoder.append(l_end == instance.getFormCharIndexes().length);
+		}
 		consumer.consume(instance, encoder);
 	}
 
@@ -256,6 +274,11 @@ public class Model {
 		encoder.reset();
 		encoder.append(PAIR_FEAT, FEATURE_BITS);
 		encoder.append(o, num_output_bits);
+		encoder.append(l_end - l_start, max_input_segment_length_bits_);
+		if (add_context_feature_) {
+			encoder.append(l_start == 0);
+			encoder.append(l_end == instance.getFormCharIndexes().length);
+		}
 		for (int l = l_start; l < l_end; l++) {
 			int c = chars[l];
 			if (c < 0) {
@@ -263,19 +286,25 @@ public class Model {
 			}
 			encoder.append(c, num_char_bits);
 		}
+		
 		consumer.consume(instance, encoder);
 	}
 
 	private void consumeOutputPair(IndexConsumer consumer,
 			ToutanovaInstance instance, int l_start, int l_end, int o) {
 		consumePairFeature(consumer, instance, l_start, l_end, o);
-		consumeOutputFeature(consumer, instance, o);
+		consumeOutputFeature(consumer, instance, l_start, l_end, o);
 	}
 
 	private void consumeTransition(IndexConsumer consumer,
 			ToutanovaInstance instance, int l_start, int l_end, int last_o,
 			int o) {
-		consumeTransitionFeature(consumer, instance, last_o, o);
+
+		if (use_zero_order_) {
+			return;
+		}
+
+		consumeTransitionFeature(consumer, instance, l_start, l_end, last_o, o);
 	}
 
 	public double getPairScore(ToutanovaInstance instance, int l_start,
