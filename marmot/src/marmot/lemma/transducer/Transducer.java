@@ -291,7 +291,7 @@ public abstract class Transducer implements LemmatizerTrainer {
 			}
 			instanceI += 1;
 		}
-		return new Pair<int[][][],Integer> (contexts,counter-1);
+		return new Pair<int[][][],Integer> (contexts,counter);
 	}
 	
 	protected abstract void gradient(double[][][] gradient);
