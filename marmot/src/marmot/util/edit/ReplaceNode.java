@@ -37,7 +37,6 @@ public class ReplaceNode implements EditTree {
 	@Override
 	public void increment(Counter<String> counter) {
 		counter.increment(toString(), 1.0);
-		System.err.println(counter);
 	}
 	
 }

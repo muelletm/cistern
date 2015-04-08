@@ -6,6 +6,48 @@ import java.util.List;
 
 public interface Aligner {
 
+	public static class StaticMethods {
+		
+		public static List<Integer> mergeEmptyInputSegments(List<Integer> alignment) {
+			
+			List<Integer> new_alignment = new LinkedList<>();
+			
+			Iterator<Integer> iter = alignment.iterator();
+			
+			int carry_output = 0;
+			
+			while (iter.hasNext()) {
+				
+				int input = iter.next();
+				int output = iter.next();
+				
+				if (input == 0) {
+					
+					if (new_alignment.size() > 0) {
+						new_alignment.set(new_alignment.size() -1, new_alignment.get(new_alignment.size() - 1) + output);
+					} else {
+						carry_output += output;
+					}				
+					
+				} else {
+					
+					if (carry_output > 0) {
+						output += carry_output;
+						carry_output = 0;
+					}
+					
+					new_alignment.add(input);
+					new_alignment.add(output);
+					
+				}
+				
+			}
+			
+			return new_alignment;
+		}
+		
+	} 
+	
 	List<Integer> align(String input, String output);
 
 	public static class Pair {

@@ -1,12 +1,11 @@
 package marmot.util.edit;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import marmot.lemma.toutanova.Aligner;
-import marmot.lemma.toutanova.EditTreeAlginer;
 import marmot.util.Counter;
 
 public class EditTreeBuilder {
@@ -147,36 +146,11 @@ public class EditTreeBuilder {
 			}
 		}
 
+		Collections.shuffle(longest_matches);
 		return longest_matches;
 	}
 
-	public static void main(String[] args) {
-		Counter<String> counter = new Counter<>();
-		test("look", "look", counter);
-		test("looks", "look", counter);
-		test("gelaufen", "laufen", counter);
-		test("gezogen", "ziehen", counter);
-		test("umgezogen", "umziehen", counter);
-	}
-	
-	private static void test(String input, String output, Counter<String> counter) {
-		EditTreeBuilder b = new EditTreeBuilder();
-		
-		b.setCounter(counter);
-		
-		EditTree tree = b.build(input, output);
-		tree.increment(counter);
-		System.err.format("%s - %s -> %s\n", input, output, tree);
-		
-		EditTreeAlginer aligner = new EditTreeAlginer(b);
-		
-		List<Integer> list = aligner.align(input, output);
-		List<Aligner.Pair> pairs = Aligner.Pair.toPairs(input, output, list);
-		
-		System.err.format("%s - %s -> %s %s\n", input, output, pairs, list);
-	}
-
-	private void setCounter(Counter<String> counter) {
+	public void setCounter(Counter<String> counter) {
 		counter_ = counter;
 	}
 	

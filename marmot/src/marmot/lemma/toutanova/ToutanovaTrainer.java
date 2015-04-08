@@ -23,7 +23,7 @@ public class ToutanovaTrainer implements LemmatizerTrainer {
 		private boolean use_pos_;
 		private long seed_;
 		private int filter_alphabet_;
-		private Aligner aligner_;
+		private AlignerTrainer aligner_trainer_;
 		private boolean averaging_;
 		private int verbosity_;
 		private Class<?> decoder_class_;
@@ -34,7 +34,7 @@ public class ToutanovaTrainer implements LemmatizerTrainer {
 			use_pos_ = false;
 			seed_ = 42;
 			filter_alphabet_ = 0;
-			aligner_ = new SimpleAligner();
+			aligner_trainer_ = new SimpleAlignerTrainer();
 			averaging_ = false;
 			decoder_class_ = FirstOrderDecoder.class;
 			use_context_feature_ = false;
@@ -80,13 +80,13 @@ public class ToutanovaTrainer implements LemmatizerTrainer {
 			return this;
 		}
 
-		public Options setAligner(Aligner aligner) {
-			aligner_ = aligner;
+		public Options setAlignerTrainer(AlignerTrainer trainer) {
+			aligner_trainer_ = trainer;
 			return this;
 		}
 
-		public Aligner getAligner() {
-			return aligner_;
+		public AlignerTrainer getAligner() {
+			return aligner_trainer_;
 		}
 		
 		public boolean getAveraging() {
@@ -140,7 +140,7 @@ public class ToutanovaTrainer implements LemmatizerTrainer {
 			sb.append(String.format("use_pos: %s\n", use_pos_));
 			sb.append(String.format("seed: %s\n", seed_));
 			sb.append(String.format("filter alphabet: %s\n", filter_alphabet_));
-			sb.append(String.format("aligner: %s\n", aligner_));
+			sb.append(String.format("aligner: %s\n", aligner_trainer_));
 			sb.append(String.format("averaging: %s\n", averaging_));
 			sb.append(String.format("decoder: %s\n", decoder_class_));
 			sb.append(String.format("use context feature: %s\n", use_context_feature_));
@@ -180,7 +180,8 @@ public class ToutanovaTrainer implements LemmatizerTrainer {
 	public Lemmatizer train(List<Instance> train_instances,
 			List<Instance> dev_instances) {
 
-		Aligner aligner = options_.getAligner();
+		AlignerTrainer aligner_trainer = options_.getAligner();
+		Aligner aligner = aligner_trainer.train(train_instances);
 
 		List<ToutanovaInstance> new_train_instances = createToutanovaInstances(train_instances, aligner);
 
@@ -304,7 +305,7 @@ public class ToutanovaTrainer implements LemmatizerTrainer {
 			if (arg.equals("_")) {
 				continue;
 			} else if (arg.equalsIgnoreCase("hacky")) {
-				options.setAligner(new HackyAligner());		
+				options.setAlignerTrainer(new HackyAlignerTrainer());		
 			} else if (arg.equalsIgnoreCase("zero")) {
 				options.setDecoder(ZeroOrderDecoder.class).setUseContextFeature(true);
 			} else {

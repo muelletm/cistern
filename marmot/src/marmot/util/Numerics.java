@@ -131,4 +131,8 @@ public class Numerics {
 		return approximatelyGreaterEqual(a, b, EPSILON);
 	}
 
+	public static boolean approximatelyLesserEqual(double a, double b) {
+		return approximatelyGreaterEqual(b, a);
+	}
+
 }

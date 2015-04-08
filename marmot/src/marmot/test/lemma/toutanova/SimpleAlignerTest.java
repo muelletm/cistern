@@ -16,6 +16,19 @@ import org.junit.Test;
 public class SimpleAlignerTest {
 
 	@Test
+	public void mergeEmptyInputTest() {
+		mergeEmptyInputTest(Arrays.asList(0, 1, 2, 3), Arrays.asList(2, 4));
+		mergeEmptyInputTest(Arrays.asList(0, 1, 0, 3, 4, 5), Arrays.asList(4, 9));
+		mergeEmptyInputTest(Arrays.asList(1, 1, 0, 1, 2, 3), Arrays.asList(1, 2, 2, 3));
+	}
+	
+	private void mergeEmptyInputTest(List<Integer> alignment, List<Integer> expected) {
+		
+		List<Integer> merged = Aligner.StaticMethods.mergeEmptyInputSegments(alignment);
+		assertEquals(expected, merged);
+	}
+
+	@Test
 	public void test() {
 		
 		Aligner aligner = new SimpleAligner();

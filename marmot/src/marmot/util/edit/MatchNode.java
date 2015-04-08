@@ -47,12 +47,30 @@ public class MatchNode implements EditTree {
 
 	@Override
 	public int getInputLength() {
-		return left_.getInputLength() + match_.getLength() + right_.getInputLength();
+		int length = 0;
+		if (left_ != null)
+			length += left_.getInputLength();
+		
+		length += match_.getLength();
+		
+		if (right_ != null)
+			length += right_.getInputLength();
+		
+		return length;
 	}
 
 	@Override
 	public int getOutputLength() {
-		return left_.getOutputLength() + match_.getLength() + right_.getOutputLength();
+		int length = 0;
+		if (left_ != null)
+			length += left_.getOutputLength();
+		
+		length += match_.getLength();
+		
+		if (right_ != null)
+			length += right_.getOutputLength();
+		
+		return length;
 	}
 	
 	public void increment(Counter<String> counter) {
