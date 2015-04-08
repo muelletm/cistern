@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 import org.javatuples.Pair;
 
 import com.google.common.collect.Sets;
+import com.google.common.primitives.Ints;
 
 import marmot.lemma.Instance;
 import marmot.lemma.Lemmatizer;
@@ -33,7 +34,7 @@ public class WFST extends Transducer {
 	private HashSet<Integer> internedAlphabet;
 	
 	public WFST() throws NegativeContext, LabelBiasException {
-		this(null,0,1,0,1,1);
+		this(null,0,1,1,1,0);
 	}
 	
 	public WFST(Map<Character,Integer> alphabet, int c1, int c2, int c3, int c4, int insertionLimit) throws NegativeContext {
@@ -147,64 +148,167 @@ public class WFST extends Transducer {
 				key[counter] = charId;
 				counter += 1;
 			}
+			System.out.println(Arrays.toString(key));
 			this.alphasExpected.set(key, 1.0);
 		}
 		
 		// arguments for the Cartesian product
-		cartesianProductArgs = new ArrayList<Set<Integer>>();
+		List<Set<Integer>> cartesianProductArgsC3 = new ArrayList<Set<Integer>>();
+		List<Set<Integer>> cartesianProductArgsC4 = new ArrayList<Set<Integer>>();
 
-		for (int i = 0; i < this.c3 + this.c4; ++i) {	
-			cartesianProductArgs.add(this.internedAlphabet);
+		for (int i = 0; i < this.c3 ; ++i) {	
+			cartesianProductArgsC3.add(this.internedAlphabet);
 		}
 
-		int[] key1 = new int[this.keyDimension];
-		int[] key2 = new int[this.keyDimension];
-		int[] key3 = new int[this.keyDimension];
+		for (int i = 0; i < this.c4; ++i) {	
+			cartesianProductArgsC4.add(this.internedAlphabet);
+		}
 
+		List<Integer> contextKey = new ArrayList<Integer>();
+		List<Integer> contextKeyStart = new ArrayList<Integer>();
+		List<Integer> contextKeyInsEnd = new ArrayList<Integer>();
+		List<Integer> contextKeyDelEnd = new ArrayList<Integer>();
+		List<Integer> contextKeySubEnd = new ArrayList<Integer>();
+		
+		double prevAlpha;
+		double prevVal;
+		
 		//forward
 		for (int i = 0; i < upper.length() + 1; ++i) {
 			for (int j = 0; j <  lower.length() + 1 + this.insertionLimit; ++j) {
-				// all combinations of c3 + c4 characters
-			
-				for (List<Integer> product : Sets.cartesianProduct(cartesianProductArgs)) {
-					System.out.println("Product");
-					System.out.println(product);
-					int counter = 0;
-					for (Integer c : product) {
-						if (counter >= 0 && counter < product.size() ) {
-							key1[counter + 2] = c;
-							key3[counter + 2] = c;
-						}
-						if (counter >= 1) {
-							key2[counter + 1] = c;
-						}
-						++counter;
-					}
-					
 				
-					// del
-					if (i < upper.length()) {
-						//gradient[contextId][2][0] += thisAlpha * distribution[contextId][2][0] / Z *  Math.exp(betas[i+1][j]);
-						//alphas[i+1][j] = Numerics.sumLogProb(alphas[i+1][j],alphas[i][j] + Math.log(distribution[contextId][2][0]));
+		
+				
+				// all combinations of c3 + c4 characters
+				for (List<Integer> productC3 : Sets.cartesianProduct(cartesianProductArgsC3)) {
+					// check if valid
+					for (List<Integer> productC4 : Sets.cartesianProduct(cartesianProductArgsC4)) {
+						//check if valid
 						
-						//alphas[i+1][j] += alphas[i][j] * 1.0;
-
-						key1[0] = i;
-						key1[1] = j;
-						key3[0] = i + 1;
-						key3[1] = j;
-						// a += a * 1.0
-
-						double prevAlpha = this.alphasExpected.get(key1);
-						double prevVal = this.alphasExpected.get(key3);
-						System.out.println("KEYS");
-						System.out.println(Arrays.toString(key1));
-						System.out.println(Arrays.toString(key3));
-						this.alphasExpected.set(key3, prevVal + prevAlpha * 1.0);
-					}
+						contextKey = new ArrayList<Integer>();
+						contextKeyStart = new ArrayList<Integer>();
+						contextKeyDelEnd = new ArrayList<Integer>();
+						
+						// starting position
+						contextKeyStart.add(i);
+						contextKeyStart.add(j);
+						
+						// advance one on the output
+						contextKeyDelEnd.add(i+1);
+						contextKeyDelEnd.add(j);
 					
-					for (int last = 0; last < this.alphabet.size(); ++last) {
-						key2[this.keyDimension-1] = last;
+
+						if (this.c3 > 0 && this.c4 > 0) {
+							contextKey.addAll(productC3);
+							contextKey.addAll(productC4);
+						}
+						else if (this.c3 > 0) {
+							contextKey.addAll(productC3);
+						}
+						else if (this.c4 > 0) {
+							contextKey.addAll(productC4);
+						}
+						
+
+						if (contextKey.size() > 0) {
+							contextKeyStart.addAll(contextKey.subList(0, contextKey.size()));
+							contextKeyDelEnd.addAll(contextKey.subList(0, contextKey.size()));
+						}
+						
+						
+						// del
+						if (i < upper.length()) {
+							//gradient[contextId][2][0] += thisAlpha * distribution[contextId][2][0] / Z *  Math.exp(betas[i+1][j]);
+							//alphas[i+1][j] = Numerics.sumLogProb(alphas[i+1][j],alphas[i][j] + Math.log(distribution[contextId][2][0]));
+														prevAlpha = this.alphasExpected.get(Ints.toArray(contextKeyStart));
+							prevVal = this.alphasExpected.get(Ints.toArray(contextKeyDelEnd));
+									
+							//this.alphasExpected.set(Ints.toArray(contextKeyDelEnd), prevVal + prevAlpha * 1.0);
+						}
+						
+						for (int cur = 1; cur < this.internedAlphabet.size(); ++cur) {
+						
+							contextKey = new ArrayList<Integer>();
+							contextKeyStart = new ArrayList<Integer>();
+							contextKeyInsEnd = new ArrayList<Integer>();
+							contextKeySubEnd = new ArrayList<Integer>();
+							
+							// starting position
+							contextKeyStart.add(i);
+							contextKeyStart.add(j);
+							// advance one on the input
+							contextKeyInsEnd.add(i);
+							contextKeyInsEnd.add(j+1);
+							// advance one on the output
+							contextKeyDelEnd.add(i+1);
+							contextKeyDelEnd.add(j);
+							// advance one on the input and on the output
+							contextKeySubEnd.add(i+1);
+							contextKeySubEnd.add(j+1);
+							
+							contextKey = new ArrayList<Integer>();
+							// get the proper context key
+							
+							if (this.c3 > 0 && this.c4 > 0) {
+								contextKey.addAll(productC3);
+								contextKey.add(cur);
+								contextKey.addAll(productC4);
+							}
+							else if (this.c3 > 0) {
+								contextKey.addAll(productC3);
+								contextKey.add(cur);
+							}
+							else if (this.c4 > 0) {
+								contextKey.add(cur);
+								contextKey.addAll(productC4);
+							}
+							
+							if (contextKey.size() > 0) {
+								contextKeyStart.addAll(contextKey.subList(0, contextKey.size()-1));
+								contextKeyDelEnd.addAll(contextKey.subList(0, contextKey.size()-1));
+							}
+							
+							if (contextKey.size() > 1) {
+								contextKeyInsEnd.addAll(contextKey.subList(1, contextKey.size()));
+								contextKeySubEnd.addAll(contextKey.subList(1, contextKey.size()));
+							
+							}
+							//sub
+							if (j < lower.length() + this.insertionLimit && i < upper.length()) {
+								System.out.println("SUB START");
+								System.out.println(contextKeyStart);
+								prevAlpha = this.alphasExpected.get(Ints.toArray(contextKeyStart));
+								prevVal = this.alphasExpected.get(Ints.toArray(contextKeySubEnd));
+								this.alphasExpected.set(Ints.toArray(contextKeySubEnd), prevVal + prevAlpha * 1.0);
+		
+							}
+							//ins 
+							if (j < lower.length() + this.insertionLimit) {
+								//int outputId = this.alphabet.get(lower.charAt(j));
+								//alphas[i][j+1] = Numerics.sumLogProb(alphas[i][j+1],alphas[i][j] + Math.log(distribution[contextId][0][outputId]));				
+		
+								
+								// a += a * 1.0
+		
+								prevAlpha = this.alphasExpected.get(Ints.toArray(contextKeyStart));
+								prevVal = this.alphasExpected.get(Ints.toArray(contextKeyInsEnd));
+								//this.alphasExpected.set(Ints.toArray(contextKeyInsEnd), prevVal + prevAlpha * 1.0);
+	
+								
+							}
+							
+				
+							
+	
+					}
+						
+					
+				}
+				
+					/*
+					for (int last = 1; last < this.alphabet.size(); ++last) {
+					
+						//key2[2] = last;
 						// ins 
 						if (j < lower.length() + this.insertionLimit) {
 							//int outputId = this.alphabet.get(lower.charAt(j));
@@ -224,7 +328,7 @@ public class WFST extends Transducer {
 						}
 						// sub
 						if (j < lower.length() + this.insertionLimit && i < upper.length()) {
-							//int outputId = this.alphabet.get(lower.charAt(j));
+							//	int outputId = this.alphabet.get(lower.charAt(j));
 							//gradient[contextId][1][outputId] += thisAlpha * distribution[contextId][1][outputId] / Z *  Math.exp(betas[i+1][j+1]);
 							//alphas[i+1][j+1] = Numerics.sumLogProb(alphas[i+1][j+1],alphas[i][j] + Math.log(distribution[contextId][1][outputId]));
 							
@@ -234,13 +338,17 @@ public class WFST extends Transducer {
 							key2[1] = j + 1;
 							// a += a * 1.0
 	
+							System.out.println("KEY!");
+							System.out.println(Arrays.toString(key1));
+							System.out.println(Arrays.toString(key2));
+
 							double prevAlpha = this.alphasExpected.get(key1);
 							double prevVal = this.alphasExpected.get(key2);
-							//this.alphasExpected.set(key2, prevVal + prevAlpha * 1.0);
+							this.alphasExpected.set(key2, prevVal + prevAlpha * 1.0);
 	
 						}
 					}
-					
+					*/
 					
 				
 					
@@ -370,10 +478,10 @@ public class WFST extends Transducer {
 		
 		dimensions[0] = maxes.getValue0() + 1; // UPPER CONTEXT
 		dimensions[1] = maxes.getValue1() + 1 + this.insertionLimit;
-		
+
 		dimensions[0] = 2; // UPPER CONTEXT
 		dimensions[1] = 2 + this.insertionLimit;
-
+		
 		for (int c3c4 = 0; c3c4 < this.c3 + this.c4; ++c3c4) {
 			dimensions[c3c4 + 2] = this.alphabet.size();
 		}
