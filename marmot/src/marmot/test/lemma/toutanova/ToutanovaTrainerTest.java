@@ -48,19 +48,27 @@ public class ToutanovaTrainerTest extends SimpleTrainerTest {
 
 		ToutanovaTrainer.Options options = ToutanovaTrainer.Options
 				.newInstance();
-		options.setNumIterations(10).setUsePos(true).setFilterAlphabet(5)
-				.setAlignerTrainer(new EditTreeAlignerTrainer()).setSeed(3)
-				.setDecoder(ZeroOrderDecoder.class).setUseContextFeature(true);
+		options.setNumIterations(10)
+				.setUsePos(true)
+				.setFilterAlphabet(5)
+				.setSeed(3)
+				.setAlignerTrainer(
+						new EditTreeAlignerTrainer(options.getSeed()))
+				.setDecoder(ZeroOrderDecoder.class).setUseContextFeature(true).setMaxCount(1);
+
 		// 90.75 88.46 HA
 		// 93.90 90.72 SA
 		// 83.57 81.03 ETA
-		
+
 		//
 		// 99.84 92.85 SA
 		// 99.84 91.14 ETA seed=5, shuffle in builder
 		// 99.89 90.23 ETA seed=4, shuffle in builder
 		// 99.84 90.57 ETA seed=3, shuffle in builder
-
+		
+		// 99.84 90.43 25s
+		// 99.84 90.41 21s
+		
 		LemmatizerTrainer btrainer = new BackupLemmatizerTrainer(
 				simple_trainer, new ToutanovaTrainer(options));
 		runModerateTest(btrainer, 1., 1.);

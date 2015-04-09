@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import marmot.util.Counter;
 
@@ -13,12 +14,14 @@ public class EditTreeBuilder {
 	private Counter<String> counter_;
 	private Map<String, EditTree> cache_;
 	private StringBuilder sb_;
+	private Random random_;
 	private final static char SEPARATOR = ' ';
 	
-	public EditTreeBuilder() {
+	public EditTreeBuilder(long seed) {
 		counter_ = new Counter<>();
 		cache_ = new HashMap<>();
 		sb_ = new StringBuilder();
+		random_ = new Random(seed);
 	}
 	
 	public EditTree build(String input, String output) {
@@ -146,7 +149,7 @@ public class EditTreeBuilder {
 			}
 		}
 
-		Collections.shuffle(longest_matches);
+		Collections.shuffle(longest_matches, random_);
 		return longest_matches;
 	}
 

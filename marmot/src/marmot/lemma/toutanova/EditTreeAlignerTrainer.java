@@ -8,9 +8,15 @@ import marmot.util.edit.EditTreeBuilderTrainer;
 
 public class EditTreeAlignerTrainer implements AlignerTrainer {
 
+	private long seed_;
+
+	public EditTreeAlignerTrainer(long seed) {
+		seed_ = seed;
+	}
+	
 	@Override
 	public Aligner train(List<Instance> instances) {
-		EditTreeBuilder builder = new EditTreeBuilderTrainer().train(instances);
+		EditTreeBuilder builder = new EditTreeBuilderTrainer(seed_).train(instances);
 		return new EditTreeAligner(builder);
 	}
 

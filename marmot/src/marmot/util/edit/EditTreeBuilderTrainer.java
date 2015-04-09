@@ -7,14 +7,17 @@ import marmot.util.Counter;
 
 public class EditTreeBuilderTrainer {
 	
-	public EditTreeBuilderTrainer() {
+	long seed_;
+	
+	public EditTreeBuilderTrainer(long seed) {
+		seed_ = seed;
 	}
 
 	public EditTreeBuilder train(List<Instance> instances) {
 		
 		Counter<String> counter = new Counter<>();
 		
-		EditTreeBuilder builder = new EditTreeBuilder();
+		EditTreeBuilder builder = new EditTreeBuilder(seed_);
 		
 		for (Instance instance : instances) {
 			

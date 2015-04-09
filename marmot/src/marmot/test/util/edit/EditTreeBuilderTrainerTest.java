@@ -2,7 +2,6 @@ package marmot.test.util.edit;
 
 import static org.junit.Assert.*;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,7 +10,6 @@ import marmot.lemma.Instance;
 import marmot.lemma.cmd.Trainer;
 import marmot.lemma.toutanova.Aligner.Pair;
 import marmot.lemma.toutanova.EditTreeAligner;
-import marmot.lemma.toutanova.HackyAligner;
 import marmot.morph.io.SentenceReader;
 import marmot.util.edit.EditTreeBuilder;
 import marmot.util.edit.EditTreeBuilderTrainer;
@@ -27,7 +25,7 @@ public class EditTreeBuilderTrainerTest {
 		
 		List<Instance> instances = Trainer.getInstances(new SentenceReader(trainfile));
 		
-		EditTreeBuilderTrainer trainer = new EditTreeBuilderTrainer();
+		EditTreeBuilderTrainer trainer = new EditTreeBuilderTrainer(42);
 		EditTreeBuilder builder =  trainer.train(instances);
 		
 		EditTreeAligner aligner = new EditTreeAligner(builder);
