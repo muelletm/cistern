@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import marmot.lemma.Instance;
-import marmot.lemma.cmd.Trainer;
 import marmot.lemma.toutanova.Aligner.Pair;
 import marmot.lemma.toutanova.EditTreeAligner;
 import marmot.morph.io.SentenceReader;
@@ -23,7 +22,7 @@ public class EditTreeBuilderTrainerTest {
 		String indexes = "form-index=4,lemma-index=5,tag-index=2,";
 		String trainfile = indexes+ getResourceFile("trn_mod.tsv");
 		
-		List<Instance> instances = Trainer.getInstances(new SentenceReader(trainfile));
+		List<Instance> instances = Instance.getInstances(new SentenceReader(trainfile));
 		
 		EditTreeBuilderTrainer trainer = new EditTreeBuilderTrainer(42);
 		EditTreeBuilder builder =  trainer.train(instances);

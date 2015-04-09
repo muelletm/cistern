@@ -7,10 +7,10 @@ import java.util.List;
 import junit.framework.AssertionFailedError;
 import marmot.lemma.Instance;
 import marmot.lemma.Lemmatizer;
+import marmot.lemma.Lemmatizer.Result;
 import marmot.lemma.LemmatizerTrainer;
 import marmot.lemma.SimpleLemmatizerTrainer;
 import marmot.lemma.SimpleLemmatizerTrainer.Options;
-import marmot.lemma.cmd.Trainer;
 import marmot.morph.io.SentenceReader;
 import marmot.util.Numerics;
 
@@ -66,30 +66,21 @@ public class SimpleTrainerTest {
 		String trainfile = indexes+ getResourceFile(trainfile_name);
 		String testfile = indexes + getResourceFile("dev.tsv");
 		
-		List<Instance> training_instances = Trainer.getInstances(new SentenceReader(trainfile));
+		List<Instance> training_instances = Instance.getInstances(new SentenceReader(trainfile));
 		Lemmatizer lemmatizer = trainer.train(training_instances, null);
 			
 		assertAccuracy(lemmatizer, training_instances, train_acc);
-		List<Instance> instances = Trainer.getInstances(new SentenceReader(testfile));
+		List<Instance> instances = Instance.getInstances(new SentenceReader(testfile));
 		assertAccuracy(lemmatizer, instances, test_acc);
 	}
 
 	protected void assertAccuracy(Lemmatizer lemmatizer, Collection<Instance> instances, double min_accuracy) {
-		int correct = 0;
-		int total = 0;
+		Result result = Lemmatizer.Result.test(lemmatizer, instances);
 		
-		for (Instance instance : instances) {
-			String predicted_lemma = lemmatizer.lemmatize(instance);
-			
-			if (predicted_lemma != null && predicted_lemma.equals(instance.getLemma())) {
-				correct += instance.getCount();
-			}
-			total += instance.getCount();
-		}
+		double accuracy = result.getTokenAccuracy();
 		
-		double accuracy = correct * 100. / total;
-		
-		System.err.println(accuracy);
+		result.logAccuracy();
+		//result.logErrors(100);
 		
 		if (!Numerics.approximatelyGreaterEqual(accuracy, min_accuracy)) {
 			throw new AssertionFailedError(String.format("%g > %g", accuracy, min_accuracy));

@@ -12,7 +12,6 @@ import marmot.lemma.Instance;
 import marmot.lemma.Lemmatizer;
 import marmot.lemma.LemmatizerTrainer;
 import marmot.lemma.SimpleLemmatizerTrainer;
-import marmot.lemma.cmd.Trainer;
 import marmot.morph.io.SentenceReader;
 
 public class ToutanovaTrainer implements LemmatizerTrainer {
@@ -351,42 +350,20 @@ public class ToutanovaTrainer implements LemmatizerTrainer {
 		Lemmatizer simple_model = new BackupLemmatizer(train(simple_trainer, trainfile, tokens), model);
 
 		logger.info("baseline");
-		test(baseline, testfile);
+		Lemmatizer.Result.logTest(baseline, testfile, 200);
 		logger.info("model");
-		test(model, testfile);
+		Lemmatizer.Result.logTest(model, testfile, 200);
 		logger.info("simple + model");
-		test(simple_model, testfile);
+		Lemmatizer.Result.logTest(simple_model, testfile, 200);
 		
 	}
 
 	private static Lemmatizer train(LemmatizerTrainer trainer,
 			String trainfile, int tokens) {
-		List<Instance> training_instances = Trainer.getInstances(
+		List<Instance> training_instances = Instance.getInstances(
 				new SentenceReader(trainfile), tokens);
 		return trainer.train(training_instances, null);
 	}
 
-	private static void test(Lemmatizer lemmatizer, String testfile) {
-
-		int correct = 0;
-		int total = 0;
-
-		List<Instance> test_instances = Trainer
-				.getInstances(new SentenceReader(testfile));
-
-		for (Instance instance : test_instances) {
-			String predicted_lemma = lemmatizer.lemmatize(instance);
-
-			if (predicted_lemma != null
-					&& predicted_lemma.equals(instance.getLemma())) {
-				correct += instance.getCount();
-			}
-			total += instance.getCount();
-		}
-
-		double accuracy = correct * 100. / total;
-
-		System.err.println(accuracy);
-	}
 
 }

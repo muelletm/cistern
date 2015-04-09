@@ -7,10 +7,8 @@ import marmot.lemma.Instance;
 import marmot.lemma.Lemmatizer;
 import marmot.lemma.LemmatizerTrainer;
 import marmot.lemma.SimpleLemmatizerTrainer;
-import marmot.lemma.cmd.Trainer;
 import marmot.lemma.toutanova.EditTreeAlignerTrainer;
 import marmot.lemma.toutanova.HackyAlignerTrainer;
-import marmot.lemma.toutanova.SimpleAlignerTrainer;
 import marmot.lemma.toutanova.ToutanovaTrainer;
 import marmot.lemma.toutanova.ZeroOrderDecoder;
 import marmot.morph.io.SentenceReader;
@@ -28,11 +26,10 @@ public class ToutanovaTrainerTest extends SimpleTrainerTest {
 		String trainfile = indexes + getResourceFile("trn_sml.tsv");
 		String testfile = indexes + getResourceFile("dev_sml.tsv");
 
-		List<Instance> training_instances = getCopyInstances(Trainer
-				.getInstances(new SentenceReader(trainfile)));
+		List<Instance> training_instances = getCopyInstances(Instance.getInstances(new SentenceReader(trainfile)));
 		Lemmatizer lemmatizer = trainer.train(training_instances, null);
 
-		List<Instance> instances = Trainer.getInstances(new SentenceReader(
+		List<Instance> instances = Instance.getInstances(new SentenceReader(
 				testfile));
 		assertAccuracy(lemmatizer, getCopyInstances(instances), 99.1935);
 	}
