@@ -1,4 +1,6 @@
-Copyright 2013
+For documentation and more information please have a look at [CISTERN](http://cistern.cis.lmu.de/).
+
+Copyright 2015
 
 Thomas Müller
 Center for Information and Language Processing
@@ -23,6 +25,5 @@ You can build MarMoT by running:
 
 $ ant
 
-For documentation on how to use MarMoT have a look at https://github.com/muelletm/cistern/blob/wiki/marmot.md
 
 
