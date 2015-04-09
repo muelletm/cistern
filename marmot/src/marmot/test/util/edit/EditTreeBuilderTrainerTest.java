@@ -1,12 +1,16 @@
 package marmot.test.util.edit;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.logging.Logger;
 
 import marmot.lemma.Instance;
 import marmot.lemma.toutanova.Aligner.Pair;
@@ -81,8 +85,55 @@ public class EditTreeBuilderTrainerTest {
 			
 		}
 		
+		applyTest(map, instances, false);
+		applyTest(map, Instance.getInstances(indexes + getResourceFile("dev.tsv")), true);
+		
 	}
 	
+	private void applyTest(Map<EditTree, List<Instance>> map,
+			List<Instance> instances, boolean log_missed_outputs) {
+		
+		Logger logger = Logger.getLogger(getClass().getName());
+		
+		int num_trees = 0;
+		int num_outputs = 0;
+		int missed_outputs = 0;
+				
+		for (Instance instance : instances) {
+			
+			String input = instance.getForm();
+			String output = instance.getLemma();
+			
+			Set<String> outputs = new HashSet<>();
+			
+			for (EditTree tree : map.keySet()) {
+				
+				String poutput = tree.apply(input, 0, input.length());
+				
+				if (poutput != null) {
+					num_trees++;
+					
+								
+					outputs.add(poutput);
+				}
+				
+			}
+			
+			if (!outputs.contains(output)) {
+				missed_outputs ++;
+				logger.info(String.format("Missed: %s", instance));
+			}
+			
+			assertTrue(outputs.contains(input));
+			
+			num_outputs += outputs.size();	
+		}
+		
+		logger.info("trees: " + num_trees + " " + instances.size() + " " + num_trees * 1.0 / instances.size());
+		logger.info("outputs " + num_outputs + " " + instances.size() + " " + num_outputs * 1.0 / instances.size());
+		logger.info("coverage " + missed_outputs + " " + instances.size() + " " + missed_outputs * 1.0 / instances.size());
+	}
+
 	private void testHashAndEquals(EditTreeBuilder builder, String input_a,
 			String output_a, String input_b, String output_b, boolean result) {
 		

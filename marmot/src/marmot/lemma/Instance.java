@@ -141,4 +141,8 @@ public class Instance {
 		return instances;
 	}
 
+	public static List<Instance> getInstances(String file) {
+		return getInstances(new SentenceReader(file));
+	}
+
 }

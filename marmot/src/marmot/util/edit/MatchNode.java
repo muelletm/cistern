@@ -115,7 +115,13 @@ public class MatchNode implements EditTree {
 		String left = "";
 		if (left_ != null) {
 			left_length = left_.getInputLength();
+			
+			if (start + left_length > end) {
+				return null;
+			}
+			
 			left = left_.apply(input, start, start + left_length);
+			
 			if (left == null) {
 				return null;
 			}
@@ -125,6 +131,11 @@ public class MatchNode implements EditTree {
 		String right = "";
 		if (right_ != null) {
 			right_length = right_.getInputLength();
+			
+			if (end - right_length < start) {
+				return null;
+			}
+			
 			right = right_.apply(input, end - right_length, end);
 			if (right == null) {
 				return null;
