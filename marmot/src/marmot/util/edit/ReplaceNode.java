@@ -38,5 +38,56 @@ public class ReplaceNode implements EditTree {
 	public void increment(Counter<String> counter) {
 		counter.increment(toString(), 1.0);
 	}
+
+	@Override
+	public String apply(String input, int start, int end) {
+		int length = end - start;
+		
+		if (length != input_.length()) {
+			return null;
+		}
+		
+		if (!input.substring(start, end).equals(input_)) {
+			return null;
+		}
+		
+		return output_;
+		
+	}
+
+	@Override
+	public void prepareHashing() {
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((input_ == null) ? 0 : input_.hashCode());
+		result = prime * result + ((output_ == null) ? 0 : output_.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ReplaceNode other = (ReplaceNode) obj;
+		if (input_ == null) {
+			if (other.input_ != null)
+				return false;
+		} else if (!input_.equals(other.input_))
+			return false;
+		if (output_ == null) {
+			if (other.output_ != null)
+				return false;
+		} else if (!output_.equals(other.output_))
+			return false;
+		return true;
+	}
 	
 }

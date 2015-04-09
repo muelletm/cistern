@@ -19,6 +19,11 @@ public class Instance {
 	String tag_;
 	String mtag_;
 	
+	@Override
+	public String toString() {
+		return String.format("%s %s : %s", form_, tag_, lemma_);
+	}
+	
 	public Instance(String form, String lemma, String tag, String mtag) {
 		count_ = 1;
 		form_ = form;
