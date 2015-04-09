@@ -21,7 +21,10 @@ public class EditTreeBuilder {
 		counter_ = new Counter<>();
 		cache_ = new HashMap<>();
 		sb_ = new StringBuilder();
-		random_ = new Random(seed);
+		
+		if (seed >= 0) {
+			random_ = new Random(seed);
+		}
 	}
 	
 	public EditTree build(String input, String output) {
@@ -61,7 +64,10 @@ public class EditTreeBuilder {
 						match.getOutputEnd(), output_end);
 			}
 
-			EditTree tree = new MatchNode(match, left, right);
+			int left_input_length = match.getInputStart() - input_start;
+			int right_input_length = input_end - match.getInputEnd();
+			
+			EditTree tree = new MatchNode(left, right, left_input_length, right_input_length);
 			
 			if (best_tree == null || tree.getCost(this) < best_tree.getCost(this)) {
 				best_tree = tree;
@@ -149,7 +155,9 @@ public class EditTreeBuilder {
 			}
 		}
 
-		Collections.shuffle(longest_matches, random_);
+		if (random_ != null) {
+			Collections.shuffle(longest_matches, random_);
+		}
 		return longest_matches;
 	}
 

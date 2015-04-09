@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 
 import marmot.util.edit.EditTree;
 import marmot.util.edit.EditTreeBuilder;
-import marmot.util.edit.Match;
 import marmot.util.edit.MatchNode;
 import marmot.util.edit.ReplaceNode;
 
@@ -50,18 +49,24 @@ public class EditTreeAligner implements Aligner {
 		int output_length = 0;
 
 		EditTree left = match_node.getLeft();
+		
+		int match_length = input_end - input_start - match_node.getLeftInputLength() - match_node.getRightnputLength();
+		
+		
 		if (left != null) {
-			input_length += left.getInputLength();
-			output_length += left.getOutputLength();
+			int left_input_length = match_node.getLeftInputLength();
+			int left_output_length = match_node.getLeftInputLength() - left.getFixedInputLength() + left.getFixedOutputLength() ;
+
+			input_length += left_input_length;
+			output_length += left_output_length;
 			readAlignment(left, list, input_start, input_start + input_length,
 					output_start, output_start + output_length);
 		}
 
-		Match match = match_node.getMatch();
-		input_length += match.getLength();
-		output_length += match.getLength();
+		input_length += match_length;
+		output_length += match_length;
 
-		for (int i = 0; i < match.getLength(); i++) {
+		for (int i = 0; i < match_length; i++) {
 			list.add(1);
 			list.add(1);
 		}

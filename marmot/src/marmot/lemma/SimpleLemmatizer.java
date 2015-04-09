@@ -5,7 +5,7 @@ import java.util.Map;
 
 import marmot.lemma.SimpleLemmatizerTrainer.Options;
 
-public class SimpleLemmatizer implements Lemmatizer {
+public class SimpleLemmatizer implements LemmatizerGenerator {
 
 	private static final String SEPARATOR = "%|%|%";
 	Map<String, List<String>> map_;
@@ -59,6 +59,22 @@ public class SimpleLemmatizer implements Lemmatizer {
 
 	public static String toSimpleKey(Instance instance) {
 		return instance.getForm();
+	}
+
+	@Override
+	public List<String> getCandidates(Instance instance) {
+		String key = toSimpleKey(instance);
+		List<String> lemmas;
+		
+		if (key != null) {
+				lemmas = map_.get(key);
+				if (lemmas != null && (!options_.getAbstainIfAmbigous() || lemmas.size() == 1 )) {
+					return lemmas;
+				}
+			
+		}
+		
+		return null;
 	}
 
 }

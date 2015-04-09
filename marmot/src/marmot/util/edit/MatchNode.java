@@ -5,10 +5,13 @@ import marmot.util.Counter;
 public class MatchNode implements EditTree {
 	private EditTree left_;
 	private EditTree right_;
-	private Match match_;
+	
+	private int left_length_;
+	private int right_length_;
 
-	public MatchNode(Match m, EditTree left, EditTree right) {
-		match_ = m;
+	public MatchNode(EditTree left, EditTree right, int left_length, int right_length) {
+		left_length_ = left_length;
+		right_length_ = right_length;
 		left_ = left;
 		right_ = right;
 	}
@@ -21,6 +24,7 @@ public class MatchNode implements EditTree {
 		sb.append('(');
 		
 		if (left_ != null) {
+			sb.append(left_length_);
 			sb.append(left_);
 		}
 		
@@ -28,17 +32,9 @@ public class MatchNode implements EditTree {
 			sb.append(" ");
 		}
 		
-		if (match_ == null) {
-			sb.append("M");	
-		} else {
-			sb.append(String.format("M(%d)", match_.getLength()));
-		}
-		
-		
-		
-		
 		if (right_ != null) {
 			sb.append(" ");
+			sb.append(right_length_);
 			sb.append(right_);
 		}
 		
@@ -70,38 +66,6 @@ public class MatchNode implements EditTree {
 		return right_;
 	}
 	
-	public Match getMatch() {
-		return match_;
-	}
-
-	@Override
-	public int getInputLength() {
-		int length = 0;
-		if (left_ != null)
-			length += left_.getInputLength();
-		
-		length += match_.getLength();
-		
-		if (right_ != null)
-			length += right_.getInputLength();
-		
-		return length;
-	}
-
-	@Override
-	public int getOutputLength() {
-		int length = 0;
-		if (left_ != null)
-			length += left_.getOutputLength();
-		
-		length += match_.getLength();
-		
-		if (right_ != null)
-			length += right_.getOutputLength();
-		
-		return length;
-	}
-	
 	public void increment(Counter<String> counter) {
 		if (left_ != null)
 			left_.increment(counter);
@@ -111,59 +75,87 @@ public class MatchNode implements EditTree {
 
 	@Override
 	public String apply(String input, int start, int end) {
-		int left_length = 0;
 		String left = "";
 		if (left_ != null) {
-			left_length = left_.getInputLength();
 			
-			if (start + left_length > end) {
+			if (start + left_length_ > end) {
 				return null;
 			}
 			
-			left = left_.apply(input, start, start + left_length);
+			left = left_.apply(input, start, start + left_length_);
 			
 			if (left == null) {
 				return null;
 			}
 		}
 		
-		int right_length = 0;
 		String right = "";
 		if (right_ != null) {
-			right_length = right_.getInputLength();
-			
-			if (end - right_length < start) {
+			if (end - right_length_ < start) {
 				return null;
 			}
 			
-			right = right_.apply(input, end - right_length, end);
+			right = right_.apply(input, end - right_length_, end);
 			if (right == null) {
 				return null;
 			}
 		}
 		
-		int middle_length = end - start - left_length - right_length;
+		int middle_length = end - start - left_length_ - right_length_;
 		if (middle_length <= 0) {
 			return null;
 		}
 		
-		String middle = input.substring(start + left_length, start + left_length + middle_length);
+		String middle = input.substring(start + left_length_, start + left_length_ + middle_length);
 		return left + middle + right;
 	}
 
-	@Override
-	public void prepareHashing() {
-		match_ = null;
+	public int getLeftInputLength() {
+		return left_length_;
+	}
+
+	public int getRightnputLength() {
+		return right_length_;
 	}
 
 	@Override
+	public int getFixedInputLength() {
+		int fixed_length = 0;
+		if (left_ != null) {
+			fixed_length += left_.getFixedInputLength();
+		}
+		if (right_ != null) {
+			fixed_length += right_.getFixedInputLength();
+		}
+		return fixed_length;
+	}
+
+	@Override
+	public int getFixedOutputLength() {
+		int fixed_length = 0;
+		if (left_ != null) {
+			fixed_length += left_.getFixedOutputLength();
+		}
+		if (right_ != null) {
+			fixed_length += right_.getFixedOutputLength();
+		}
+		return fixed_length;
+	}
+
+	int hash_code_ = 0;
+	
+	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((left_ == null) ? 0 : left_.hashCode());
-		result = prime * result + ((match_ == null) ? 0 : match_.hashCode());
-		result = prime * result + ((right_ == null) ? 0 : right_.hashCode());
-		return result;
+		if (hash_code_ == 0) {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((left_ == null) ? 0 : left_.hashCode());
+			result = prime * result + left_length_;
+			result = prime * result + ((right_ == null) ? 0 : right_.hashCode());
+			result = prime * result + right_length_;
+			hash_code_ = result;
+		}
+		return hash_code_;
 	}
 
 	@Override
@@ -180,18 +172,16 @@ public class MatchNode implements EditTree {
 				return false;
 		} else if (!left_.equals(other.left_))
 			return false;
-		if (match_ == null) {
-			if (other.match_ != null)
-				return false;
-		} else if (!match_.equals(other.match_))
+		if (left_length_ != other.left_length_)
 			return false;
 		if (right_ == null) {
 			if (other.right_ != null)
 				return false;
 		} else if (!right_.equals(other.right_))
 			return false;
+		if (right_length_ != other.right_length_)
+			return false;
 		return true;
 	}
-
 
 }

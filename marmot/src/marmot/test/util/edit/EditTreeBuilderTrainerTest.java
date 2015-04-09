@@ -1,7 +1,6 @@
 package marmot.test.util.edit;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,6 +15,7 @@ import marmot.lemma.Instance;
 import marmot.lemma.toutanova.Aligner.Pair;
 import marmot.lemma.toutanova.EditTreeAligner;
 import marmot.morph.io.SentenceReader;
+import marmot.util.Numerics;
 import marmot.util.edit.EditTree;
 import marmot.util.edit.EditTreeBuilder;
 import marmot.util.edit.EditTreeBuilderTrainer;
@@ -48,7 +48,7 @@ public class EditTreeBuilderTrainerTest {
 		
 		List<Instance> instances = Instance.getInstances(new SentenceReader(trainfile));
 		
-		EditTreeBuilderTrainer trainer = new EditTreeBuilderTrainer(42);
+		EditTreeBuilderTrainer trainer = new EditTreeBuilderTrainer(-1, 1);
 		EditTreeBuilder builder =  trainer.train(instances);
 	
 		testHashAndEquals(builder, "loves", "love", "hates", "hate", true);
@@ -64,7 +64,6 @@ public class EditTreeBuilderTrainerTest {
 			
 			EditTree tree = builder.build(input, output);
 
-			tree.prepareHashing();
 			String p_output = tree.apply(input, 0, input.length());
 			assertEquals(output, p_output);
 			
@@ -77,26 +76,17 @@ public class EditTreeBuilderTrainerTest {
 			list.add(instance);
 		}
 
-		System.err.println(map.size());
+		assertEquals(215, map.size());
 		
-		for (Map.Entry<EditTree, List<Instance>> entry : map.entrySet()) {
-			
-			System.err.println(entry.getKey() + " " + entry.getValue());
-			
-		}
-		
-		applyTest(map, instances, false);
-		applyTest(map, Instance.getInstances(indexes + getResourceFile("dev.tsv")), true);
-		
+		applyTest(map, instances, false, 0.0);
+		applyTest(map, Instance.getInstances(indexes + getResourceFile("dev.tsv")), false, 0.02526);
 	}
 	
 	private void applyTest(Map<EditTree, List<Instance>> map,
-			List<Instance> instances, boolean log_missed_outputs) {
+			List<Instance> instances, boolean log_missed_outputs, double expected_miss_rate) {
 		
 		Logger logger = Logger.getLogger(getClass().getName());
 		
-		int num_trees = 0;
-		int num_outputs = 0;
 		int missed_outputs = 0;
 				
 		for (Instance instance : instances) {
@@ -111,9 +101,6 @@ public class EditTreeBuilderTrainerTest {
 				String poutput = tree.apply(input, 0, input.length());
 				
 				if (poutput != null) {
-					num_trees++;
-					
-								
 					outputs.add(poutput);
 				}
 				
@@ -121,26 +108,23 @@ public class EditTreeBuilderTrainerTest {
 			
 			if (!outputs.contains(output)) {
 				missed_outputs ++;
-				logger.info(String.format("Missed: %s", instance));
+				if (log_missed_outputs)
+					logger.info(String.format("Missed: %s", instance));
 			}
 			
 			assertTrue(outputs.contains(input));
-			
-			num_outputs += outputs.size();	
 		}
 		
-		logger.info("trees: " + num_trees + " " + instances.size() + " " + num_trees * 1.0 / instances.size());
-		logger.info("outputs " + num_outputs + " " + instances.size() + " " + num_outputs * 1.0 / instances.size());
-		logger.info("coverage " + missed_outputs + " " + instances.size() + " " + missed_outputs * 1.0 / instances.size());
+		double missed_rate = missed_outputs * 1.0 / instances.size();
+		logger.info(Double.toString(missed_rate));
+		assertTrue(Numerics.approximatelyLesserEqual(missed_rate, expected_miss_rate));
 	}
 
 	private void testHashAndEquals(EditTreeBuilder builder, String input_a,
 			String output_a, String input_b, String output_b, boolean result) {
 		
 		EditTree tree_a = builder.build(input_a, output_a);
-		tree_a.prepareHashing();
 		EditTree tree_b = builder.build(input_b, output_b);
-		tree_b.prepareHashing();
 		
 		assertEquals(result, tree_a.equals(tree_b));
 		assertEquals(result, tree_a.hashCode() == tree_b.hashCode());

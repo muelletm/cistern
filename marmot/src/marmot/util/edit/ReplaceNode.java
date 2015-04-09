@@ -25,16 +25,6 @@ public class ReplaceNode implements EditTree {
 	}
 
 	@Override
-	public int getInputLength() {
-		return input_.length();
-	}
-
-	@Override
-	public int getOutputLength() {
-		return output_.length();
-	}
-
-	@Override
 	public void increment(Counter<String> counter) {
 		counter.increment(toString(), 1.0);
 	}
@@ -56,10 +46,6 @@ public class ReplaceNode implements EditTree {
 		
 		return output_;
 		
-	}
-
-	@Override
-	public void prepareHashing() {
 	}
 
 	@Override
@@ -91,6 +77,16 @@ public class ReplaceNode implements EditTree {
 		} else if (!output_.equals(other.output_))
 			return false;
 		return true;
+	}
+
+	@Override
+	public int getFixedInputLength() {
+		return input_.length();
+	}
+
+	@Override
+	public int getFixedOutputLength() {
+		return output_.length();
 	}
 	
 }

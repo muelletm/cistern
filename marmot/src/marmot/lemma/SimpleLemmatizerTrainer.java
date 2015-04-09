@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class SimpleLemmatizerTrainer implements LemmatizerTrainer {
+public class SimpleLemmatizerTrainer implements LemmatizerTrainer, LemmaCandidateGeneratorTrainer {
 
 	public static class Options {
 		
@@ -70,7 +70,7 @@ public class SimpleLemmatizerTrainer implements LemmatizerTrainer {
 	}
 	
 	@Override
-	public Lemmatizer train(List<Instance> instances,
+	public LemmatizerGenerator train(List<Instance> instances,
 			List<Instance> dev_instances) {
 		
 		Map<String, List<String>> map = new HashMap<>();
