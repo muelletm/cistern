@@ -12,6 +12,7 @@ import marmot.lemma.LemmatizerTrainer;
 import marmot.lemma.SimpleLemmatizerTrainer;
 import marmot.lemma.SimpleLemmatizerTrainer.Options;
 import marmot.morph.io.SentenceReader;
+import marmot.util.Copy;
 import marmot.util.Numerics;
 
 import org.junit.Test;
@@ -61,8 +62,10 @@ public class SimpleTrainerTest {
 		runTest(trainer, train_acc, test_acc, "trn_mod.tsv");
 	}
 	
+	private final static String indexes = "form-index=4,lemma-index=5,tag-index=2,";
+	
 	protected void runTest(LemmatizerTrainer trainer, double train_acc, double test_acc, String trainfile_name) {	
-		String indexes = "form-index=4,lemma-index=5,tag-index=2,";
+		
 		String trainfile = indexes+ getResourceFile(trainfile_name);
 		String testfile = indexes + getResourceFile("dev.tsv");
 		
@@ -72,6 +75,11 @@ public class SimpleTrainerTest {
 		assertAccuracy(lemmatizer, training_instances, train_acc);
 		List<Instance> instances = Instance.getInstances(new SentenceReader(testfile));
 		assertAccuracy(lemmatizer, instances, test_acc);
+	}
+	
+	protected void testIfLemmatizerIsSerializable(LemmatizerTrainer trainer) {
+		String trainfile = indexes+ getResourceFile("trn_sml.tsv");
+		Copy.clone(trainer.train(Instance.getInstances(trainfile), null));
 	}
 
 	protected void assertAccuracy(Lemmatizer lemmatizer, Collection<Instance> instances, double min_accuracy) {

@@ -1,6 +1,10 @@
 package marmot.lemma.toutanova;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,10 +18,11 @@ import marmot.lemma.Lemmatizer;
 import marmot.lemma.SimpleLemmatizerTrainer;
 import marmot.lemma.toutanova.Aligner.Pair;
 import marmot.lemma.toutanova.ToutanovaTrainer.Options;
+import marmot.util.DynamicWeights;
 import marmot.util.Encoder;
 import marmot.util.SymbolTable;
 
-public class Model {
+public class Model implements Serializable {
 
 	private String alphabet_[];
 	private SymbolTable<String> output_table_;
@@ -25,8 +30,8 @@ public class Model {
 	private int max_input_segment_length_;
 	private int num_output_bits;
 	private SymbolTable<Character> char_table;
-	private Encoder encoder;
-	private double[] weights_;
+	transient private Encoder encoder;
+
 	private int num_char_bits;
 	private int num_pos_bits;
 
@@ -37,6 +42,7 @@ public class Model {
 	private boolean use_zero_order_;
 	private int max_input_segment_length_bits_;
 	private boolean add_context_feature_;
+	private DynamicWeights weights_;
 
 	private final static int FEATURE_BITS = Encoder.bitsNeeded(2);
 	private final static int TRANS_FEAT = 0;
@@ -86,23 +92,35 @@ public class Model {
 		if (pos_table_ != null)
 			num_pos_bits = Encoder.bitsNeeded(pos_table_.size());
 
-		SymbolTable<Feature> feature_map = new SymbolTable<>();
 		encoder = new Encoder(10);
-		weights_ = new double[10000000];
-		Random random = new Random(options.getSeed());
-		for (int i = 0; i < weights_.length; i++) {
-			weights_[i] = random.nextGaussian();
-		}
 
-		scorer_ = new IndexScorer(weights_);
-		scorer_.setFeatureMap(feature_map).setPosBits(num_pos_bits);
-		updater_ = new IndexUpdater(weights_);
-		updater_.setFeatureMap(feature_map).setPosBits(num_pos_bits);
+		weights_ = new DynamicWeights(new Random(options.getSeed()));
+
+		SymbolTable<Feature> feature_map = new SymbolTable<>();
+		scorer_ = new IndexScorer(weights_, feature_map, num_pos_bits);
+		updater_ = new IndexUpdater(weights_, feature_map, num_pos_bits);
 
 		use_zero_order_ = options.getDecoderClass() == ZeroOrderDecoder.class;
 		logger.info(String.format("Use zero order decoder: %s\n",
 				use_zero_order_));
 		add_context_feature_ = options.getUseContextFeature();
+
+		use_zero_order_ = options.getDecoderClass() == ZeroOrderDecoder.class;
+		logger.info(String.format("Use zero order decoder: %s\n",
+				use_zero_order_));
+		add_context_feature_ = options.getUseContextFeature();
+
+		setupTemp();
+	}
+
+	private void setupTemp() {
+		encoder = new Encoder(10);
+	}
+
+	private void readObject(ObjectInputStream ois)
+			throws ClassNotFoundException, IOException {
+		ois.defaultReadObject();
+		setupTemp();
 	}
 
 	private Lemmatizer createSimpleLemmatizer(Options options,
@@ -241,7 +259,8 @@ public class Model {
 	}
 
 	public void consumeTransitionFeature(IndexConsumer consumer,
-			ToutanovaInstance instance, int l_start, int l_end, int last_o, int o) {
+			ToutanovaInstance instance, int l_start, int l_end, int last_o,
+			int o) {
 		if (last_o < 0) {
 			return;
 		}
@@ -286,7 +305,7 @@ public class Model {
 			}
 			encoder.append(c, num_char_bits);
 		}
-		
+
 		consumer.consume(instance, encoder);
 	}
 
@@ -401,13 +420,11 @@ public class Model {
 	}
 
 	public double[] getWeights() {
-		return weights_;
+		return weights_.getWeights();
 	}
 
 	public void setWeights(double[] weights) {
-		weights_ = weights;
-		scorer_.setWeights(weights);
-		updater_.setWeights(weights);
+		weights_.setWeights(weights);
 	}
 
 }

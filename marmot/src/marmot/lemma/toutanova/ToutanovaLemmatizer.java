@@ -2,21 +2,25 @@ package marmot.lemma.toutanova;
 
 import marmot.lemma.Instance;
 import marmot.lemma.Lemmatizer;
+import marmot.lemma.toutanova.ToutanovaTrainer.Options;
 
 public class ToutanovaLemmatizer implements Lemmatizer {
 
 	private Model model_;
-	private Decoder decoder_;
+	private transient Decoder decoder_;
+	private Options options_;
 
-	public ToutanovaLemmatizer(ToutanovaTrainer.Options options, Model model) {
+	public ToutanovaLemmatizer(Options options, Model model) {
 		model_ = model;
-		
-		decoder_ = options.getDecoderInstance();
-		decoder_.init(model_);
 	}
 
 	@Override
 	public String lemmatize(Instance instance) {
+		if (decoder_ == null) {
+			decoder_ = options_.getDecoderInstance();
+			decoder_.init(model_);
+		}
+		
 		Lemmatizer lemmatizer = model_.getSimpleLemmatizer();
 		if (lemmatizer != null) {
 			String lemma = lemmatizer.lemmatize(instance);

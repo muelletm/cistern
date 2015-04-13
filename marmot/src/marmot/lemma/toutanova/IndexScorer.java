@@ -1,13 +1,17 @@
 package marmot.lemma.toutanova;
 
+import marmot.core.Feature;
+import marmot.util.DynamicWeights;
+import marmot.util.SymbolTable;
+
 public class IndexScorer extends IndexConsumer {
 
-	double score_;
-	double[] weights_;
-	
-	public IndexScorer(double[] weights) {
-		weights_ = weights;
+	public IndexScorer(DynamicWeights weights,
+			SymbolTable<Feature> feature_map, int num_pos_bits) {
+		super(weights, feature_map, num_pos_bits);
 	}
+
+	double score_;
 	
 	public void reset() {
 		score_ = 0.0;
@@ -16,7 +20,7 @@ public class IndexScorer extends IndexConsumer {
 	@Override
 	public void consume(int index) {
 		if (index >= 0) {
-			score_ += weights_[index];
+			score_ += weights_.getWeight(index);
 		}
 	}
 
@@ -27,10 +31,6 @@ public class IndexScorer extends IndexConsumer {
 	@Override
 	protected boolean getInsert() {
 		return false;
-	}
-
-	public void setWeights(double[] weights) {
-		weights_ = weights;
 	}
 
 }

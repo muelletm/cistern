@@ -8,7 +8,7 @@ import marmot.lemma.SimpleLemmatizerTrainer.Options;
 public class SimpleLemmatizer implements LemmatizerGenerator {
 
 	private static final String SEPARATOR = "%|%|%";
-	Map<String, List<String>> map_;
+	private Map<String, List<String>> map_;
 	private Options options_;
 
 	public SimpleLemmatizer(Options options, Map<String, List<String>> map) {

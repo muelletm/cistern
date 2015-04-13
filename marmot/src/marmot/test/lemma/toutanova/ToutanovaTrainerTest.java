@@ -18,6 +18,14 @@ import org.junit.Test;
 public class ToutanovaTrainerTest extends SimpleTrainerTest {
 
 	@Test
+	public void isSerializable() {
+		
+		testIfLemmatizerIsSerializable(new SimpleLemmatizerTrainer());
+		testIfLemmatizerIsSerializable(new ToutanovaTrainer());
+		
+	}
+	
+	@Test
 	public void copyTest() {
 		LemmatizerTrainer trainer = new ToutanovaTrainer(
 				ToutanovaTrainer.Options.newInstance());

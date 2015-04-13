@@ -1,5 +1,6 @@
 package marmot.lemma;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -7,7 +8,7 @@ import java.util.Map;
 
 public class SimpleLemmatizerTrainer implements LemmatizerTrainer, LemmaCandidateGeneratorTrainer {
 
-	public static class Options {
+	public static class Options implements Serializable {
 		
 		private boolean handle_unseen_;
 		private boolean use_pos_;
@@ -64,6 +65,10 @@ public class SimpleLemmatizerTrainer implements LemmatizerTrainer, LemmaCandidat
 	}
 
 	private Options options_;
+
+	public SimpleLemmatizerTrainer() {
+		this(Options.newInstance());
+	}
 	
 	public SimpleLemmatizerTrainer(Options options) {
 		options_ = options;

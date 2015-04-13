@@ -1,5 +1,6 @@
 package marmot.lemma.toutanova;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -16,7 +17,7 @@ import marmot.morph.io.SentenceReader;
 
 public class ToutanovaTrainer implements LemmatizerTrainer {
 
-	public static class Options {
+	public static class Options implements Serializable {
 
 		private int num_iterations_;
 		private boolean use_pos_;
@@ -167,6 +168,10 @@ public class ToutanovaTrainer implements LemmatizerTrainer {
 	public ToutanovaTrainer(Options options) {
 		options_ = options;
 		random_ = new Random(options_.getSeed());
+	}
+
+	public ToutanovaTrainer() {
+		this(Options.newInstance());
 	}
 
 	public static List<ToutanovaInstance> createToutanovaInstances(
