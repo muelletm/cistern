@@ -1,10 +1,11 @@
 package marmot.lemma.toutanova;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-public interface Aligner {
+public interface Aligner extends Serializable {
 
 	public static class StaticMethods {
 		

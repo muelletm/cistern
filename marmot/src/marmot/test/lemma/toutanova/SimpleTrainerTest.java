@@ -67,14 +67,20 @@ public class SimpleTrainerTest {
 	protected void runTest(LemmatizerTrainer trainer, double train_acc, double test_acc, String trainfile_name) {	
 		
 		String trainfile = indexes+ getResourceFile(trainfile_name);
-		String testfile = indexes + getResourceFile("dev.tsv");
+		
 		
 		List<Instance> training_instances = Instance.getInstances(new SentenceReader(trainfile));
 		Lemmatizer lemmatizer = trainer.train(training_instances, null);
 			
 		assertAccuracy(lemmatizer, training_instances, train_acc);
+		
+		String testfile = indexes + getResourceFile("dev.tsv");
 		List<Instance> instances = Instance.getInstances(new SentenceReader(testfile));
 		assertAccuracy(lemmatizer, instances, test_acc);
+		
+		testfile = indexes + getResourceFile("dev.tsv.morfette");
+		instances = Instance.getInstances(new SentenceReader(testfile));
+		assertAccuracy(lemmatizer, instances, 1.);
 	}
 	
 	protected void testIfLemmatizerIsSerializable(LemmatizerTrainer trainer) {

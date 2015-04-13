@@ -34,7 +34,7 @@ public class EditTreeBuilderTrainerTest {
 		EditTreeBuilderTrainer trainer = new EditTreeBuilderTrainer(42);
 		EditTreeBuilder builder =  trainer.train(instances);
 		
-		EditTreeAligner aligner = new EditTreeAligner(builder);
+		EditTreeAligner aligner = new EditTreeAligner(builder, true);
 		
 		testAligner(aligner, "umgezogen", "umziehen", Arrays.asList("u", "m", "ge", "z", "og", "e", "n"), Arrays.asList("u", "m", "", "z", "ieh", "e", "n"));
 		testAligner(aligner, "gebissen", "beißen", Arrays.asList("ge", "b", "i", "ss", "e", "n" ), Arrays.asList("", "be", "i", "ß", "e", "n" ));

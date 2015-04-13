@@ -12,9 +12,12 @@ import marmot.util.edit.ReplaceNode;
 public class EditTreeAligner implements Aligner {
 
 	private EditTreeBuilder builder_;
+	private boolean merge_empty_input_segments_;
 
-	public EditTreeAligner(EditTreeBuilder builder) {
+	public EditTreeAligner(EditTreeBuilder builder,
+			boolean merge_empty_input_segments) {
 		builder_ = builder;
+		merge_empty_input_segments_ = merge_empty_input_segments;
 	}
 
 	@Override
@@ -23,16 +26,20 @@ public class EditTreeAligner implements Aligner {
 		List<Integer> list = new LinkedList<>();
 		readAlignment(tree, list, 0, input.length(), 0, output.length());
 
-		List<Integer> merged_list = Aligner.StaticMethods
-				.mergeEmptyInputSegments(list);
+		if (merge_empty_input_segments_) {
+			List<Integer> merged_list = Aligner.StaticMethods
+					.mergeEmptyInputSegments(list);
 
-		if (!merged_list.equals(list)) {
-			Logger.getLogger(getClass().getName()).info(
-					String.format("Merging: %s %s %s -> %s", input, output,
-							list, merged_list));
+			if (!merged_list.equals(list)) {
+				Logger.getLogger(getClass().getName()).info(
+						String.format("Merging: %s %s %s -> %s", input, output,
+								list, merged_list));
+			}
+			
+			list = merged_list;
 		}
 
-		return merged_list;
+		return list;
 	}
 
 	private void readAlignment(EditTree tree, List<Integer> list,
@@ -49,13 +56,15 @@ public class EditTreeAligner implements Aligner {
 		int output_length = 0;
 
 		EditTree left = match_node.getLeft();
-		
-		int match_length = input_end - input_start - match_node.getLeftInputLength() - match_node.getRightnputLength();
-		
-		
+
+		int match_length = input_end - input_start
+				- match_node.getLeftInputLength()
+				- match_node.getRightnputLength();
+
 		if (left != null) {
 			int left_input_length = match_node.getLeftInputLength();
-			int left_output_length = match_node.getLeftInputLength() - left.getFixedInputLength() + left.getFixedOutputLength() ;
+			int left_output_length = match_node.getLeftInputLength()
+					- left.getFixedInputLength() + left.getFixedOutputLength();
 
 			input_length += left_input_length;
 			output_length += left_output_length;
