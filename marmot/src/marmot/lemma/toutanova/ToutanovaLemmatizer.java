@@ -30,4 +30,8 @@ public class ToutanovaLemmatizer implements Lemmatizer {
 		return decoder_.decode(tinstance).getOutput();
 	}
 
+	public Model getModel() {
+		return model_;
+	}
+
 }

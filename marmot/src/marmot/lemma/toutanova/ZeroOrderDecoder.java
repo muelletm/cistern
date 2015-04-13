@@ -18,6 +18,7 @@ public class ZeroOrderDecoder implements Decoder {
 	private ToutanovaInstance instance_;
 
 	public void init(Model model) {
+		assert model != null;
 		model_ = model;
 		num_output_symbols_ = model_.getOutputTable().size();	
 	}

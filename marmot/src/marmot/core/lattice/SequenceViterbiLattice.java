@@ -15,6 +15,7 @@ import java.util.Set;
 
 import marmot.core.State;
 import marmot.core.Transition;
+import marmot.util.HashableIntArray;
 
 
 public class SequenceViterbiLattice implements ViterbiLattice {
@@ -87,11 +88,12 @@ public class SequenceViterbiLattice implements ViterbiLattice {
 
 	public Hypothesis getViterbiSequence() {
 		init();
-		int[] signature = new int[candidates_.size() - 1];
+		int[] signature_array = new int[candidates_.size() - 1];
+		HashableIntArray signature = new HashableIntArray(signature_array);
 		return getSequenceBySignature(signature);
 	}
 
-	public Hypothesis getSequenceBySignature(int[] signature) {
+	public Hypothesis getSequenceBySignature(HashableIntArray signature) {
 		init();
 		List<Integer> list = new LinkedList<Integer>();
 		int index = candidates_.size() - 1;
@@ -99,8 +101,10 @@ public class SequenceViterbiLattice implements ViterbiLattice {
 		list.add(0);
 		Double score = null;
 
+		int[] signature_array = signature.getArray();
+		
 		while (index >= 1) {
-			int rank = signature[index - 1];
+			int rank = signature_array[index - 1];
 
 			if (rank >= lattice_[index][state_index].length) {
 				return null;
@@ -137,9 +141,9 @@ public class SequenceViterbiLattice implements ViterbiLattice {
 		init();
 		List<Hypothesis> list = new LinkedList<Hypothesis>();
 
-		int[] signature = new int[candidates_.size() - 1];
+		HashableIntArray signature = new HashableIntArray(new int[candidates_.size() - 1]);
 		PriorityQueue<Hypothesis> queue = new PriorityQueue<Hypothesis>();
-		Set<int[]> used_signatures = new HashSet<int[]>();
+		Set<HashableIntArray> used_signatures = new HashSet<>();
 		queue.add(getSequenceBySignature(signature));
 		used_signatures.add(signature);
 
@@ -152,17 +156,18 @@ public class SequenceViterbiLattice implements ViterbiLattice {
 
 			list.add(h);
 			signature = h.getSignature();
+			int [] signature_array = signature.getArray();
 
-			for (int index = 0; index < signature.length; index++) {
-				int[] new_signature = new int[signature.length];
-				System.arraycopy(signature, 0, new_signature, 0,
-						signature.length);
-				new_signature[index]++;
+			for (int index = 0; index < signature_array.length; index++) {
+				int[] new_signature_array = new int[signature_array.length];
+				System.arraycopy(signature, 0, new_signature_array, 0,
+						signature_array.length);
+				new_signature_array[index]++;
+				
+				HashableIntArray new_signature = new HashableIntArray(new_signature_array);
+
 				if (!used_signatures.contains(new_signature)) {
 					used_signatures.add(new_signature);
-
-					//System.err.println(Arrays.toString(new_signature));
-
 					h = getSequenceBySignature(new_signature);
 					if (h != null) {
 						queue.add(h);
