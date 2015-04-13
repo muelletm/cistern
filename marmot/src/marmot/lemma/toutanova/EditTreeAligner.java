@@ -87,4 +87,8 @@ public class EditTreeAligner implements Aligner {
 		}
 	}
 
+	public EditTreeBuilder getBuilder() {
+		return builder_;
+	}
+
 }

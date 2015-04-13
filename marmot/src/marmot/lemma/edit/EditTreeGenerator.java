@@ -18,10 +18,11 @@ public class EditTreeGenerator implements LemmaCandidateGenerator {
 	@Override
 	public void addCandidates(Instance instance, LemmaCandidateSet set) {
 		String form = instance.getForm();
+		
 		for (EditTree tree : trees_) {
 			String lemma = tree.apply(form, 0, form.length());
 			if (lemma != null) {
-				set.getCandidate(lemma).addFeature(this, tree);
+				set.getCandidate(lemma);
 			}
 		}
 	}

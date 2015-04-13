@@ -14,11 +14,14 @@ import marmot.lemma.LemmaCandidateSet;
 import marmot.lemma.LemmatizerGenerator;
 import marmot.lemma.LemmatizerGeneratorTrainer;
 import marmot.lemma.toutanova.Aligner;
+import marmot.lemma.toutanova.EditTreeAligner;
 import marmot.lemma.toutanova.EditTreeAlignerTrainer;
+import marmot.util.DynamicWeights;
 
 public class RerankerTrainer implements LemmatizerGeneratorTrainer {
 
 	private Collection<? extends LemmaCandidateGeneratorTrainer> generator_trainers_;
+	private boolean averaging = true;
 
 	public RerankerTrainer(
 			Collection<? extends LemmaCandidateGeneratorTrainer> generators_trainers) {
@@ -61,17 +64,25 @@ public class RerankerTrainer implements LemmatizerGeneratorTrainer {
 
 		Model model = new Model();
 
-		Aligner aligner = new EditTreeAlignerTrainer(random, false)
+		EditTreeAligner aligner = (EditTreeAligner) new EditTreeAlignerTrainer(random, false)
 				.train(simple_instances);
 
 		model.init(instances, random, aligner);
 
+		DynamicWeights weights = model.getWeights();
+		DynamicWeights sum_weights = null;
+		if (averaging) {
+			sum_weights = new DynamicWeights(null);
+		}
+
+		
 		for (int iter = 0; iter < 10; iter++) {
 
 			double error = 0;
 			double total = 0;
+			int number = 0;
 			
-			Collections.shuffle(instances);
+			Collections.shuffle(instances, random);
 			for (RerankerInstance instance : instances) {
 
 				String lemma = model.select(instance);
@@ -81,12 +92,33 @@ public class RerankerTrainer implements LemmatizerGeneratorTrainer {
 					model.update(instance, lemma, -1);
 					model.update(instance, instance.getInstance().getLemma(), +1);
 
+					if (sum_weights != null) {
+						double amount = instances.size() - number;
+						assert amount > 0;
+						model.setWeights(sum_weights);
+						model.update(instance, lemma, -amount);
+						model.update(instance, instance.getInstance().getLemma(), +amount);						
+						model.setWeights(weights);
+					}
+					
 					error += instance.getInstance().getCount();
 					
 				} 
 				
 				total += instance.getInstance().getCount();
+				number ++;
+			}
+			
+			if (sum_weights != null) {
 
+				double weights_scaling = 1. / ((iter + 1.) * instances
+						.size());
+				double sum_weights_scaling = (iter + 2.) / (iter + 1.);
+
+				for (int i = 0; i < weights.getLength(); i++) {
+					weights.set(i, sum_weights.get(i) * weights_scaling);
+					sum_weights.set(i, sum_weights.get(i) * sum_weights_scaling);
+				}
 			}
 			
 			logger.info(String.format("Train Accuracy: %g / %g = %g", total - error,

@@ -1,5 +1,7 @@
 package marmot.test.lemma;
 
+import java.util.Random;
+
 import marmot.lemma.BackupLemmatizerTrainer;
 import marmot.lemma.Instance;
 import marmot.lemma.LemmaCandidateGenerator;
@@ -20,7 +22,7 @@ public class GeneratorTest {
 		String train = "trn_mod.tsv";
 		String dev = "dev.tsv";
 		
-		LemmaCandidateGeneratorTrainer trainer = new EditTreeGeneratorTrainer(2);
+		LemmaCandidateGeneratorTrainer trainer = new EditTreeGeneratorTrainer(new Random(42), 2);
 		testGeneratorTrainer(trainer, train, dev);
 		
 		trainer = new SimpleLemmatizerTrainer();

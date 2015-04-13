@@ -3,6 +3,7 @@ package marmot.lemma.edit;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import marmot.lemma.Instance;
 import marmot.lemma.LemmaCandidateGenerator;
@@ -16,16 +17,18 @@ import marmot.util.edit.EditTreeBuilderTrainer;
 public class EditTreeGeneratorTrainer implements LemmaCandidateGeneratorTrainer {
 
 	private double min_count_;
+	private Random random_;
 	
-	public EditTreeGeneratorTrainer(int min_count) {
+	public EditTreeGeneratorTrainer(Random random, int min_count) {
 		min_count_ = min_count;
+		random_ = random;
 	}
 
 	@Override
 	public LemmaCandidateGenerator train(List<Instance> instances,
 			List<Instance> dev_instances) {
 		
-		EditTreeBuilder builder = new EditTreeBuilderTrainer(42).train(instances);
+		EditTreeBuilder builder = new EditTreeBuilderTrainer(random_).train(instances);
 		
 		Counter<EditTree> counter = new Counter<>();
 		

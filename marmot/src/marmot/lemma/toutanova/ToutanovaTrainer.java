@@ -42,7 +42,7 @@ public class ToutanovaTrainer implements LemmatizerGeneratorTrainer {
 			averaging_ = false;
 			decoder_class_ = FirstOrderDecoder.class;
 			use_context_feature_ = false;
-			nbest_rank_ = 10;
+			nbest_rank_ = 50;
 		}
 
 		public Options setNumIterations(int iters) {

@@ -67,9 +67,8 @@ public class ToutanovaLemmatizer implements Lemmatizer, LemmatizerGenerator {
 		if (results == null)
 			return;
 		
-		int rank = 0;
 		for (marmot.lemma.toutanova.Result result : results) {
-			set.getCandidate(result.getOutput()).addFeature(this, rank++);
+			set.getCandidate(result.getOutput());
 		}
 	}
 

@@ -2,8 +2,10 @@ package marmot.lemma;
 
 import java.util.List;
 
-import marmot.lemma.toutanova.Aligner;
+import marmot.lemma.toutanova.EditTreeAligner;
 import marmot.util.SymbolTable;
+import marmot.util.edit.EditTree;
+import marmot.util.edit.EditTreeBuilder;
 
 public class LemmaCandidate {
 
@@ -11,13 +13,8 @@ public class LemmaCandidate {
 	private int[] feature_indexes_;
 	private int[] lemma_chars_;
 	private List<Integer> alignment_;
-
-	public LemmaCandidate() {
-	}
-
-	public void addFeature(Object generator, Object feature) {
-	}
-
+	private Integer tree_index_;
+	
 	public void setScore(double score) {
 		score_ = score;
 	}
@@ -45,11 +42,19 @@ public class LemmaCandidate {
 		return lemma_chars_;
 	}
 
-	public List<Integer> getAlignment(Aligner aligner, String form, String lemma) {
+	public List<Integer> getAlignment(EditTreeAligner aligner, String form, String lemma) {
 		if (alignment_ == null) {
 			alignment_ = aligner.align(form, lemma);
 		}
 		return alignment_;
+	}
+
+	public Integer getTreeIndex(EditTreeBuilder builder, String form, String lemma, SymbolTable<EditTree> tree_table, boolean insert) {
+		if (tree_index_ == null) {
+			EditTree tree = builder.build(form, lemma);
+			tree_index_ = tree_table.toIndex(tree, -1, insert);	
+		}
+		return tree_index_;
 	}
 	
 }

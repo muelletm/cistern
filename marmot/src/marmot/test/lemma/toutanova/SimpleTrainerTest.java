@@ -94,7 +94,7 @@ public class SimpleTrainerTest {
 		double accuracy = result.getTokenAccuracy();
 		
 		result.logAccuracy();
-		//result.logErrors(100);
+		//result.logErrors(50);
 		
 		if (!Numerics.approximatelyGreaterEqual(accuracy, min_accuracy)) {
 			throw new AssertionFailedError(String.format("%g > %g", accuracy, min_accuracy));
