@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,7 +13,7 @@ import java.util.logging.Logger;
 
 import marmot.core.Feature;
 import marmot.lemma.Instance;
-import marmot.lemma.Lemmatizer;
+import marmot.lemma.LemmatizerGenerator;
 import marmot.lemma.SimpleLemmatizerTrainer;
 import marmot.lemma.toutanova.Aligner.Pair;
 import marmot.lemma.toutanova.ToutanovaTrainer.Options;
@@ -35,7 +34,7 @@ public class Model implements Serializable {
 	private int num_char_bits;
 	private int num_pos_bits;
 
-	private Lemmatizer simple_lemmatizer_;
+	private LemmatizerGenerator simple_lemmatizer_;
 
 	private IndexScorer scorer_;
 	private IndexUpdater updater_;
@@ -123,7 +122,7 @@ public class Model implements Serializable {
 		setupTemp();
 	}
 
-	private Lemmatizer createSimpleLemmatizer(Options options,
+	private LemmatizerGenerator createSimpleLemmatizer(Options options,
 			List<ToutanovaInstance> train_instances) {
 		List<Instance> instances = new LinkedList<>();
 		for (ToutanovaInstance instance : train_instances) {
@@ -395,7 +394,7 @@ public class Model implements Serializable {
 		}
 	}
 
-	public Lemmatizer getSimpleLemmatizer() {
+	public LemmatizerGenerator getSimpleLemmatizer() {
 		return simple_lemmatizer_;
 	}
 

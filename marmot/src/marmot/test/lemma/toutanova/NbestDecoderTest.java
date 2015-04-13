@@ -10,6 +10,7 @@ import junit.framework.AssertionFailedError;
 import marmot.lemma.Instance;
 import marmot.lemma.toutanova.Decoder;
 import marmot.lemma.toutanova.Model;
+import marmot.lemma.toutanova.NbestDecoder;
 import marmot.lemma.toutanova.Result;
 import marmot.lemma.toutanova.ToutanovaInstance;
 import marmot.lemma.toutanova.ToutanovaLemmatizer;
@@ -46,7 +47,7 @@ public class NbestDecoderTest {
 		
 		Decoder decoder = new ZeroOrderDecoder();
 		decoder.init(model);
-		ZeroOrderNbestDecoder nbest_decoder = new ZeroOrderNbestDecoder(rank_max);
+		NbestDecoder nbest_decoder = new ZeroOrderNbestDecoder(rank_max);
 		nbest_decoder.init(model);
 		
 		List<Instance> test_instances = Instance.getInstances(new SentenceReader(devfile));

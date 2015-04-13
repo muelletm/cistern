@@ -12,7 +12,7 @@ import java.util.Set;
 import marmot.util.HashableIntArray;
 import marmot.util.Numerics;
 
-public class ZeroOrderNbestDecoder {
+public class ZeroOrderNbestDecoder implements NbestDecoder {
 
 	private static class State implements Comparable<State> {
 		private double score;
@@ -43,12 +43,14 @@ public class ZeroOrderNbestDecoder {
 		result_queue_ = new PriorityQueue<>();
 		used_signatures_ = new HashSet<>();
 	}
-
+	
+	@Override
 	public void init(Model model) {
 		model_ = model;
 		num_output_symbols_ = model_.getOutputTable().size();
 	}
 
+	@Override
 	public List<Result> decode(ToutanovaInstance instance) {
 		assert model_ != null;
 		assert num_output_symbols_ > 0;

@@ -29,6 +29,7 @@ public class ToutanovaTrainer implements LemmatizerTrainer {
 		private Class<?> decoder_class_;
 		private boolean use_context_feature_;
 		private int max_count_;
+		private int nbest_rank_;
 
 		private Options() {
 			max_count_ = Integer.MAX_VALUE;
@@ -40,6 +41,7 @@ public class ToutanovaTrainer implements LemmatizerTrainer {
 			averaging_ = false;
 			decoder_class_ = FirstOrderDecoder.class;
 			use_context_feature_ = false;
+			nbest_rank_ = 10;
 		}
 
 		public Options setNumIterations(int iters) {
@@ -158,6 +160,10 @@ public class ToutanovaTrainer implements LemmatizerTrainer {
 
 		public int getMaxCount() {
 			return max_count_;
+		}
+
+		public int getNbestRank() {
+			return nbest_rank_;
 		}
 
 	}

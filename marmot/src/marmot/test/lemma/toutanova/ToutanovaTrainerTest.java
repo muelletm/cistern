@@ -76,7 +76,7 @@ public class ToutanovaTrainerTest extends SimpleTrainerTest {
 		
 		LemmatizerTrainer btrainer = new BackupLemmatizerTrainer(
 				simple_trainer, new ToutanovaTrainer(options));
-		runModerateTest(btrainer, 1., 1.);
+		runModerateTest(btrainer, 99.84, 90.41);
 	}
 
 	@Test

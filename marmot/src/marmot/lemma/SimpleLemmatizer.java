@@ -18,11 +18,12 @@ public class SimpleLemmatizer implements LemmatizerGenerator {
 
 	public static String toKey(Instance instance) {
 		String pos_tag = instance.getPosTag();
-		String form = instance.getForm();
-		if (pos_tag != null) {
-			return String.format("%s%s%s", form, SEPARATOR, pos_tag);
+		if (pos_tag == null) {
+			return null;
 		}
-		return null;
+		
+		String form = instance.getForm();
+		return String.format("%s%s%s", form, SEPARATOR, pos_tag);
 	}
 
 	@Override
@@ -62,19 +63,28 @@ public class SimpleLemmatizer implements LemmatizerGenerator {
 	}
 
 	@Override
-	public List<String> getCandidates(Instance instance) {
+	public void addCandidates(Instance instance, LemmaCandidateSet set) {
 		String key = toSimpleKey(instance);
-		List<String> lemmas;
-		
 		if (key != null) {
-				lemmas = map_.get(key);
-				if (lemmas != null && (!options_.getAbstainIfAmbigous() || lemmas.size() == 1 )) {
-					return lemmas;
+			List<String> lemmas = map_.get(key);
+			if (lemmas != null) {
+				for (String lemma : lemmas) {
+					LemmaCandidate candidate = set.getCandidate(lemma);
+					candidate.addFeature(this, false);
 				}
-			
+			}
 		}
 		
-		return null;
+		key = toKey(instance);
+		if (key != null) {
+			List<String> lemmas = map_.get(key);
+			if (lemmas != null) {
+				for (String lemma : lemmas) {
+					LemmaCandidate candidate = set.getCandidate(lemma);
+					candidate.addFeature(this, true);
+				}
+			}
+		}
 	}
 
 }

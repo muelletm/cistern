@@ -1,9 +1,10 @@
 package marmot.lemma;
 
-import java.util.List;
+import java.io.Serializable;
 
-public interface LemmaCandidateGenerator {
 
-	List<String> getCandidates(Instance instance);  
+public interface LemmaCandidateGenerator extends Serializable {
+
+	void addCandidates(Instance instance, LemmaCandidateSet set);  
 	
 }
