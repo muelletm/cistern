@@ -418,12 +418,14 @@ public class Model implements Serializable {
 		}
 	}
 
-	public double[] getWeights() {
-		return weights_.getWeights();
+	public DynamicWeights getWeights() {
+		return weights_;
 	}
 
-	public void setWeights(double[] weights) {
-		weights_.setWeights(weights);
+	public void setWeights(DynamicWeights weights) {
+		weights_ = weights;
+		scorer_.setWeights(weights);
+		updater_.setWeights(weights);
 	}
 
 }

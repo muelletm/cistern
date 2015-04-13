@@ -6,7 +6,6 @@ public class LemmaCandidate {
 	}
 
 	public void addFeature(Object generator, Object feature) {
-		
 	}
 	
 }

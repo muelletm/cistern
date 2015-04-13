@@ -16,7 +16,7 @@ public abstract class IndexConsumer implements Serializable {
 	public abstract void consume(int index);
 
 	public IndexConsumer(DynamicWeights weights, SymbolTable<Feature> feature_map, int num_pos_bits) {
-		weights_ = weights;
+		setWeights(weights);
 		feature_map_ = feature_map;
 		num_pos_bits_ = num_pos_bits;
 	}
@@ -34,4 +34,8 @@ public abstract class IndexConsumer implements Serializable {
 	
 	protected abstract boolean getInsert();
 
+	public void setWeights(DynamicWeights weights) {
+		weights_ = weights;
+	}
+	
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import marmot.lemma.Instance;
 import marmot.lemma.Lemmatizer;
 import marmot.lemma.LemmatizerTrainer;
+import marmot.lemma.Result;
 import marmot.morph.io.SentenceReader;
 
 public class Trainer {
@@ -28,7 +29,7 @@ public class Trainer {
 		List<Instance> training_instances = Instance.getInstances(new SentenceReader(train_file));
 		List<Instance> test_instances = Instance.getInstances(new SentenceReader(test_file));
 		Lemmatizer lemmatizer = trainer.train(training_instances, test_instances);
-		Lemmatizer.Result.logTest(lemmatizer, test_file, 200);
+		Result.logTest(lemmatizer, test_file, 200);
 		
 		return lemmatizer;
 	}

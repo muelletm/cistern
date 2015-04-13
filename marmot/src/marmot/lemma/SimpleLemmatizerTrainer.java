@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class SimpleLemmatizerTrainer implements LemmatizerTrainer, LemmaCandidateGeneratorTrainer {
+public class SimpleLemmatizerTrainer implements LemmatizerGeneratorTrainer {
 
 	public static class Options implements Serializable {
 		

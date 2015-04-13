@@ -1,7 +1,6 @@
 package marmot.lemma.toutanova;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,11 +10,13 @@ import java.util.logging.Logger;
 import marmot.lemma.BackupLemmatizer;
 import marmot.lemma.Instance;
 import marmot.lemma.Lemmatizer;
-import marmot.lemma.LemmatizerTrainer;
+import marmot.lemma.LemmatizerGenerator;
+import marmot.lemma.LemmatizerGeneratorTrainer;
 import marmot.lemma.SimpleLemmatizerTrainer;
 import marmot.morph.io.SentenceReader;
+import marmot.util.DynamicWeights;
 
-public class ToutanovaTrainer implements LemmatizerTrainer {
+public class ToutanovaTrainer implements LemmatizerGeneratorTrainer {
 
 	public static class Options implements Serializable {
 
@@ -166,6 +167,19 @@ public class ToutanovaTrainer implements LemmatizerTrainer {
 			return nbest_rank_;
 		}
 
+		public static Options newZeroOrderInstance() {
+			Options options = newInstance();
+			options.setNumIterations(10)
+			.setUsePos(true)
+			.setFilterAlphabet(5)
+			.setAlignerTrainer(new EditTreeAlignerTrainer(options.getSeed()))
+			.setDecoder(ZeroOrderDecoder.class)
+			.setUseContextFeature(true)
+			.setMaxCount(1)
+			.setAveraging(true);
+			return options;
+		}
+
 	}
 
 	private Options options_;
@@ -177,7 +191,7 @@ public class ToutanovaTrainer implements LemmatizerTrainer {
 	}
 
 	public ToutanovaTrainer() {
-		this(Options.newInstance());
+		this(Options.newZeroOrderInstance());
 	}
 
 	public static List<ToutanovaInstance> createToutanovaInstances(
@@ -200,7 +214,7 @@ public class ToutanovaTrainer implements LemmatizerTrainer {
 	}
 
 	@Override
-	public Lemmatizer train(List<Instance> train_instances,
+	public LemmatizerGenerator train(List<Instance> train_instances,
 			List<Instance> dev_instances) {
 
 		AlignerTrainer aligner_trainer = options_.getAligner();
@@ -217,7 +231,7 @@ public class ToutanovaTrainer implements LemmatizerTrainer {
 		return trainAligned(new_train_instances, new_dev_instances);
 	}
 
-	public Lemmatizer trainAligned(List<ToutanovaInstance> train_instances,
+	public LemmatizerGenerator trainAligned(List<ToutanovaInstance> train_instances,
 			List<ToutanovaInstance> dev_instances) {
 
 		Logger logger = Logger.getLogger(getClass().getName());
@@ -225,11 +239,10 @@ public class ToutanovaTrainer implements LemmatizerTrainer {
 		Model model = new Model();
 		model.init(options_, train_instances, dev_instances);
 
-		double[] weights = model.getWeights();
-		double[] sum_weights = null;
+		DynamicWeights weights = model.getWeights();
+		DynamicWeights sum_weights = null;
 		if (options_.getAveraging()) {
-			sum_weights = new double[weights.length];
-			Arrays.fill(sum_weights, 0.0);
+			sum_weights = new DynamicWeights(null);
 		}
 
 		Decoder decoder = (Decoder) options_.getDecoderInstance();
@@ -273,9 +286,11 @@ public class ToutanovaTrainer implements LemmatizerTrainer {
 						double amount = token_instances.size() - number;
 						assert amount > 0;
 						model.setWeights(sum_weights);
+						sum_weights = model.getWeights();
 						model.update(instance, result, -amount);
 						model.update(instance, instance.getResult(), +amount);
 						model.setWeights(weights);
+						weights = model.getWeights();
 					}
 
 				} else {
@@ -297,9 +312,9 @@ public class ToutanovaTrainer implements LemmatizerTrainer {
 						.size());
 				double sum_weights_scaling = (iter + 2.) / (iter + 1.);
 
-				for (int i = 0; i < weights.length; i++) {
-					weights[i] = sum_weights[i] * weights_scaling;
-					sum_weights[i] = sum_weights[i] * sum_weights_scaling;
+				for (int i = 0; i < weights.getLength(); i++) {
+					weights.set(i, sum_weights.get(i) * weights_scaling);
+					sum_weights.set(i, sum_weights.get(i) * sum_weights_scaling);
 				}
 			}
 
@@ -320,7 +335,7 @@ public class ToutanovaTrainer implements LemmatizerTrainer {
 		
 		SimpleLemmatizerTrainer.Options soptions = SimpleLemmatizerTrainer.Options.newInstance();
 		soptions.setHandleUnseen(true).setHandleUnseen(true).setUseBackup(true).setUsePos(true);
-		LemmatizerTrainer trainer = new SimpleLemmatizerTrainer(soptions);
+		LemmatizerGeneratorTrainer trainer = new SimpleLemmatizerTrainer(soptions);
 		Lemmatizer baseline = train(trainer, trainfile, tokens);
 
 		Options options = Options.newInstance();
@@ -352,24 +367,24 @@ public class ToutanovaTrainer implements LemmatizerTrainer {
 		logger.info(options.report());
 		
 		trainer = new ToutanovaTrainer(options);
-		Lemmatizer model = train(trainer, trainfile, tokens);
+		LemmatizerGenerator model = train(trainer, trainfile, tokens);
 		
 		
 		soptions = SimpleLemmatizerTrainer.Options.newInstance();
 		soptions.setHandleUnseen(false).setUseBackup(false).setUsePos(true).setAbstainIfAmbigous(true);
-		LemmatizerTrainer simple_trainer = new SimpleLemmatizerTrainer(soptions);
+		LemmatizerGeneratorTrainer simple_trainer = new SimpleLemmatizerTrainer(soptions);
 		Lemmatizer simple_model = new BackupLemmatizer(train(simple_trainer, trainfile, tokens), model);
 
 		logger.info("baseline");
-		Lemmatizer.Result.logTest(baseline, testfile, 200);
+		marmot.lemma.Result.logTest(baseline, testfile, 200);
 		logger.info("model");
-		Lemmatizer.Result.logTest(model, testfile, 200);
+		marmot.lemma.Result.logTest(model, testfile, 200);
 		logger.info("simple + model");
-		Lemmatizer.Result.logTest(simple_model, testfile, 200);
+		marmot.lemma.Result.logTest(simple_model, testfile, 200);
 		
 	}
 
-	private static Lemmatizer train(LemmatizerTrainer trainer,
+	private static LemmatizerGenerator train(LemmatizerGeneratorTrainer trainer,
 			String trainfile, int tokens) {
 		List<Instance> training_instances = Instance.getInstances(
 				new SentenceReader(trainfile), tokens);

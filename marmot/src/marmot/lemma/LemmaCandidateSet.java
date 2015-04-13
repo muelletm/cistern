@@ -7,10 +7,13 @@ import java.util.Map.Entry;
 
 public class LemmaCandidateSet implements Iterable<Map.Entry<String, LemmaCandidate>>{
 
+	final static int IDENTITY = 0;
+	
 	private Map<String, LemmaCandidate> map_;
 	
-	public LemmaCandidateSet() {
+	public LemmaCandidateSet(String form) {
 		map_ = new HashMap<>();
+		getCandidate(form).addFeature(this, IDENTITY);
 	}
 	
 	public LemmaCandidate getCandidate(String lemma) {

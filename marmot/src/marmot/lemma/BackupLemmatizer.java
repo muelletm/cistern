@@ -1,11 +1,11 @@
 package marmot.lemma;
 
-public class BackupLemmatizer implements Lemmatizer {
+public class BackupLemmatizer implements Lemmatizer, LemmatizerGenerator {
 
-	private Lemmatizer lemmatizer_;
-	private Lemmatizer backup_;
+	private LemmatizerGenerator lemmatizer_;
+	private LemmatizerGenerator backup_;
 
-	public BackupLemmatizer(Lemmatizer lemmatizer, Lemmatizer backup) {
+	public BackupLemmatizer(LemmatizerGenerator lemmatizer, LemmatizerGenerator backup) {
 		lemmatizer_ = lemmatizer;
 		backup_ = backup;
 	}
@@ -18,6 +18,12 @@ public class BackupLemmatizer implements Lemmatizer {
 		}
 		
 		return backup_.lemmatize(instance);
+	}
+
+	@Override
+	public void addCandidates(Instance instance, LemmaCandidateSet set) {
+		lemmatizer_.addCandidates(instance, set);
+		backup_.addCandidates(instance, set);
 	}
 
 }

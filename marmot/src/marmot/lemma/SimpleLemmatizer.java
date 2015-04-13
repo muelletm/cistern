@@ -10,6 +10,8 @@ public class SimpleLemmatizer implements LemmatizerGenerator {
 	private static final String SEPARATOR = "%|%|%";
 	private Map<String, List<String>> map_;
 	private Options options_;
+	private final static int POS_CANDIDATE = 0;
+	private final static int GENERAL_CANDIDATE = 1;
 
 	public SimpleLemmatizer(Options options, Map<String, List<String>> map) {
 		map_ = map;
@@ -63,28 +65,31 @@ public class SimpleLemmatizer implements LemmatizerGenerator {
 	}
 
 	@Override
-	public void addCandidates(Instance instance, LemmaCandidateSet set) {
-		String key = toSimpleKey(instance);
+	public void addCandidates(Instance instance, LemmaCandidateSet set) {	
+		String key = toKey(instance);
 		if (key != null) {
 			List<String> lemmas = map_.get(key);
 			if (lemmas != null) {
 				for (String lemma : lemmas) {
 					LemmaCandidate candidate = set.getCandidate(lemma);
-					candidate.addFeature(this, false);
+					candidate.addFeature(this, POS_CANDIDATE);
 				}
 			}
 		}
 		
-		key = toKey(instance);
+		key = toSimpleKey(instance);
 		if (key != null) {
 			List<String> lemmas = map_.get(key);
 			if (lemmas != null) {
 				for (String lemma : lemmas) {
 					LemmaCandidate candidate = set.getCandidate(lemma);
-					candidate.addFeature(this, true);
+					candidate.addFeature(this, GENERAL_CANDIDATE);
 				}
 			}
 		}
+
+		
+		
 	}
 
 }

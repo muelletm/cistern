@@ -22,7 +22,7 @@ public class DynamicWeights implements Serializable {
 		weights_ = weight;
 	}
 
-	public double getWeight(int index) {
+	public double get(int index) {
 		checkCapacity(index);
 		return weights_[index];
 	}
@@ -32,14 +32,26 @@ public class DynamicWeights implements Serializable {
 			int old_length = weights_.length;
 			weights_ = Arrays.copyOf(weights_,
 					Math.max(index + 10, (weights_.length * 2) / 3));
-			for (int i = old_length; i < weights_.length; i++) {
-				weights_[i] = random_.nextGaussian();
+			if (random_ != null) {
+				for (int i = old_length; i < weights_.length; i++) {
+					weights_[i] = random_.nextGaussian();
+				}
 			}
 		}
 	}
 
-	public void incrementWeight(int index, double update) {
+	public void incremen(int index, double update) {
 		checkCapacity(index);
 		weights_[index] += update;
 	}
+	
+	public void set(int index, double update) {
+		checkCapacity(index);
+		weights_[index] = update;
+	}
+
+	public int getLength() {
+		return weights_.length;
+	}
+
 }

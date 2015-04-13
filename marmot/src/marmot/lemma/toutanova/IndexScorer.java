@@ -20,7 +20,7 @@ public class IndexScorer extends IndexConsumer {
 	@Override
 	public void consume(int index) {
 		if (index >= 0) {
-			score_ += weights_.getWeight(index);
+			score_ += weights_.get(index);
 		}
 	}
 

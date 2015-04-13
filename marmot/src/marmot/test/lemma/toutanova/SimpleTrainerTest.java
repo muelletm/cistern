@@ -7,8 +7,8 @@ import java.util.List;
 import junit.framework.AssertionFailedError;
 import marmot.lemma.Instance;
 import marmot.lemma.Lemmatizer;
-import marmot.lemma.Lemmatizer.Result;
 import marmot.lemma.LemmatizerTrainer;
+import marmot.lemma.Result;
 import marmot.lemma.SimpleLemmatizerTrainer;
 import marmot.lemma.SimpleLemmatizerTrainer.Options;
 import marmot.morph.io.SentenceReader;
@@ -83,7 +83,7 @@ public class SimpleTrainerTest {
 	}
 
 	protected void assertAccuracy(Lemmatizer lemmatizer, Collection<Instance> instances, double min_accuracy) {
-		Result result = Lemmatizer.Result.test(lemmatizer, instances);
+		Result result = Result.test(lemmatizer, instances);
 		
 		double accuracy = result.getTokenAccuracy();
 		

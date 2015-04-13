@@ -5,6 +5,7 @@ import java.util.List;
 import marmot.lemma.BackupLemmatizerTrainer;
 import marmot.lemma.Instance;
 import marmot.lemma.Lemmatizer;
+import marmot.lemma.LemmatizerGeneratorTrainer;
 import marmot.lemma.LemmatizerTrainer;
 import marmot.lemma.SimpleLemmatizerTrainer;
 import marmot.lemma.toutanova.EditTreeAlignerTrainer;
@@ -49,17 +50,17 @@ public class ToutanovaTrainerTest extends SimpleTrainerTest {
 				.newInstance();
 		soptions.setHandleUnseen(false).setUseBackup(false).setUsePos(true)
 				.setAbstainIfAmbigous(true);
-		LemmatizerTrainer simple_trainer = new SimpleLemmatizerTrainer(soptions);
+		LemmatizerGeneratorTrainer simple_trainer = new SimpleLemmatizerTrainer(soptions);
 
 		ToutanovaTrainer.Options options = ToutanovaTrainer.Options
 				.newInstance();
 		options.setNumIterations(10)
 				.setUsePos(true)
 				.setFilterAlphabet(5)
-				.setSeed(3)
+				.setSeed(10)
 				.setAlignerTrainer(
 						new EditTreeAlignerTrainer(options.getSeed()))
-				.setDecoder(ZeroOrderDecoder.class).setUseContextFeature(true).setMaxCount(1);
+				.setDecoder(ZeroOrderDecoder.class).setUseContextFeature(true).setMaxCount(1).setAveraging(true);
 
 		// 90.75 88.46 HA
 		// 93.90 90.72 SA
@@ -76,7 +77,7 @@ public class ToutanovaTrainerTest extends SimpleTrainerTest {
 		
 		LemmatizerTrainer btrainer = new BackupLemmatizerTrainer(
 				simple_trainer, new ToutanovaTrainer(options));
-		runModerateTest(btrainer, 99.84, 90.41);
+		runModerateTest(btrainer, 99.89, 92.74);
 	}
 
 	@Test
