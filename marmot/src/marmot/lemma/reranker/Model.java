@@ -142,7 +142,7 @@ public class Model implements Serializable {
 			addAlignmentIndexes(form_chars, lemma_chars, pos_index, alignment,
 					encoder, list, insert);
 			
-			int tree_index = candidate.getTreeIndex(aligner_.getBuilder(), form, lemma, tree_table_, true);
+			int tree_index = candidate.getTreeIndex(aligner_.getBuilder(), form, lemma, tree_table_, insert);
 			
 			if (tree_index >= 0) {
 				encoder.append(tree_feature_, feature_bits_);
