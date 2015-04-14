@@ -19,27 +19,18 @@ import marmot.util.edit.EditTree;
 
 public class Model implements Serializable {
 
-	private DynamicWeights weights_;
+	private double[] weights_;
 	private SymbolTable<String> form_table_;
 	private SymbolTable<String> lemma_table_;
 	private SymbolTable<String> pos_table_;
 	private SymbolTable<Feature> feature_table_;
 	private SymbolTable<Character> char_table_;
 	private SymbolTable<EditTree> tree_table_;
-
-	private int lemma_bits_;
-	private int form_bits_;
-	private int pos_bits_;
-	private int char_bits_;
-	private int tree_bits_;
-	private int length_bits_;
-	
 	private EditTreeAligner aligner_;
 	
-	private static final int max_window = 3;
+	private static final int max_window = 5;
 	private static final int window_bits_ = Encoder.bitsNeeded(max_window);
-
-	private static final int max_affix_length_ = 5;
+	private static final int max_affix_length_ = 10;
 	
 	private static final int lemma_feature_ = 0;
 	private static final int lemma_form_feature_ = 1;
@@ -49,12 +40,20 @@ public class Model implements Serializable {
 	private static final int tree_feature_ = 5;
 	private static final int affix_feature_ = 6;
 	private static final int feature_bits_ = Encoder.bitsNeeded(6);
+	
+	private int lemma_bits_;
+	private int form_bits_;
+	private int pos_bits_;
+	private int char_bits_;
+	private int tree_bits_;
+	private static final int length_bits_ = Encoder.bitsNeeded(2 * max_window + 10);
+
 
 	public void init(List<RerankerInstance> instances, Random random,
 			EditTreeAligner aligner) {
 		aligner_ = aligner;
 		
-		weights_ = new DynamicWeights(random);
+		
 
 		form_table_ = new SymbolTable<>();
 		lemma_table_ = new SymbolTable<>();
@@ -71,12 +70,13 @@ public class Model implements Serializable {
 		lemma_bits_ = Encoder.bitsNeeded(lemma_table_.size() - 1);
 		pos_bits_ = Encoder.bitsNeeded(pos_table_.size() - 1);
 		char_bits_ = Encoder.bitsNeeded(char_table_.size());
-		length_bits_ = Encoder.bitsNeeded(10);
 		tree_bits_ = Encoder.bitsNeeded(tree_table_.size() -1);
 
 		for (RerankerInstance instance : instances) {
 			addIndexes(instance, instance.getCandidateSet(), true);
 		}
+		
+		weights_ = new double[feature_table_.size()];
 	}
 
 	private void fillTables(RerankerInstance instance, LemmaCandidateSet set) {
@@ -148,6 +148,16 @@ public class Model implements Serializable {
 				encoder.append(tree_feature_, feature_bits_);
 				encoder.append(tree_index, tree_bits_);
 				addFeature(encoder, list, insert, pos_index);
+				
+				encoder.append(tree_feature_, feature_bits_);
+				encoder.append(tree_index, tree_bits_);
+				addPrefixFeatures(form_chars, encoder, list, insert, pos_index);
+				encoder.reset();
+				
+				encoder.append(tree_feature_, feature_bits_);
+				encoder.append(tree_index, tree_bits_);
+				addSuffixFeatures(form_chars, encoder, list, insert, pos_index);
+				encoder.reset();
 			}
 			
 			addAffixIndexes(lemma_chars, encoder, list, insert, pos_index);
@@ -156,21 +166,38 @@ public class Model implements Serializable {
 		}
 	}
 
-	private void addAffixIndexes(int[] lemma_chars, Encoder encoder, List<Integer> list,
-			boolean insert, int pos_index) {
-		
-		encoder.append(affix_feature_, feature_bits_);
-		for (int i=lemma_chars.length - 1; i >= Math.max(0, lemma_chars.length - max_affix_length_); i--) {
-			int c = lemma_chars[i];
-			
+	private void addPrefixFeatures(int[] chars, Encoder encoder, List<Integer> list, boolean insert, int pos_index) {
+		encoder.append(false);
+		for (int i=0; i < Math.min(chars.length, max_affix_length_); i++) {
+			int c = chars[i];
 			if (c < 0)
 				return;
-			
 			encoder.append(c, char_bits_);
 			addFeature(encoder, list, insert, pos_index, false);
 		}
+	}
+	
+	private void addSuffixFeatures(int[] chars, Encoder encoder, List<Integer> list, boolean insert, int pos_index) {
+		encoder.append(true);
+		for (int i=chars.length - 1; i >= Math.max(0, chars.length - max_affix_length_); i--) {
+			int c = chars[i];
+			if (c < 0)
+				return;
+			encoder.append(c, char_bits_);
+			addFeature(encoder, list, insert, pos_index, false);
+		}
+	}
 		
+	private void addAffixIndexes(int[] lemma_chars, Encoder encoder, List<Integer> list,
+			boolean insert, int pos_index) {
+		encoder.append(affix_feature_, feature_bits_);
+		addPrefixFeatures(lemma_chars, encoder, list, insert, pos_index);	
 		encoder.reset();
+		
+		encoder.append(affix_feature_, feature_bits_);
+		addSuffixFeatures(lemma_chars, encoder, list, insert, pos_index);
+		encoder.reset();
+		
 	}
 
 	private void addAlignmentIndexes(int[] form_chars, int[] lemma_chars,
@@ -305,11 +332,11 @@ public class Model implements Serializable {
 		return best_pair.getKey();
 	}
 
-	private double score(LemmaCandidate candidate) {
+	public double score(LemmaCandidate candidate) {
 		assert candidate != null;
 		double score = 0.0;
 		for (int index : candidate.getFeatureIndexes()) {
-			score += weights_.get(index);
+			score += weights_[index];
 		}
 		return score;
 	}
@@ -322,15 +349,15 @@ public class Model implements Serializable {
 
 	private void update(LemmaCandidate candidate, double update) {
 		for (int index : candidate.getFeatureIndexes()) {
-			weights_.incremen(index, update);
+			weights_[index] += update;
 		}
 	}
 
-	public DynamicWeights getWeights() {
+	public double[] getWeights() {
 		return weights_;
 	}
 
-	public void setWeights(DynamicWeights weights) {
+	public void setWeights(double[] weights) {
 		weights_ = weights;
 	}
 

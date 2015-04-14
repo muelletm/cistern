@@ -38,7 +38,7 @@ public class Encoder {
 
 	public void append(int value, int bits_needed) {
 		assert value >= 0;
-		assert bitsNeeded(value) <= bits_needed;
+		assert bitsNeeded(value) <= bits_needed : value;
 
 		while (bits_needed != 0) {
 			if (current_bit_index_ == Integer.SIZE) {

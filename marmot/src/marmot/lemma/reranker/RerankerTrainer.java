@@ -1,11 +1,12 @@
 package marmot.lemma.reranker;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import marmot.lemma.Instance;
@@ -17,23 +18,36 @@ import marmot.lemma.LemmatizerGeneratorTrainer;
 import marmot.lemma.Options;
 import marmot.lemma.SimpleLemmatizerTrainer;
 import marmot.lemma.edit.EditTreeGeneratorTrainer;
-import marmot.lemma.toutanova.Aligner;
 import marmot.lemma.toutanova.EditTreeAligner;
 import marmot.lemma.toutanova.EditTreeAlignerTrainer;
-import marmot.util.DynamicWeights;
+import cc.mallet.optimize.LimitedMemoryBFGS;
+import cc.mallet.optimize.Optimizable.ByGradientValue;
+
 
 public class RerankerTrainer implements LemmatizerGeneratorTrainer {
 
 	public static class RerankerTrainerOptions extends Options {
 		
 		public static final String GENERATOR_TRAINERS = "generator-trainers";
+		public static final String USE_PERCEPTRON = "use-perceptron";
+		public static String QUADRATIC_PENALTY = "quadratic-penalty";
 
 		public RerankerTrainerOptions() {
 			map_.put(GENERATOR_TRAINERS, Arrays.asList(SimpleLemmatizerTrainer.class, EditTreeGeneratorTrainer.class));
+			map_.put(USE_PERCEPTRON, true);
+			map_.put(QUADRATIC_PENALTY, 0.00);
 		}
 
 		public List<Object> getGeneratorTrainers() {
 			return (List<Object>) getOption(GENERATOR_TRAINERS);
+		}
+
+		public boolean getUsePerceptron() {
+			return (Boolean) getOption(USE_PERCEPTRON);
+		}
+
+		public double getQuadraticPenalty() {
+			return (Double) getOption(QUADRATIC_PENALTY);
 		}
 		
 	} 
@@ -61,7 +75,7 @@ public class RerankerTrainer implements LemmatizerGeneratorTrainer {
 			List<LemmaCandidateGenerator> generators,
 			List<Instance> simple_instances) {
 
-		Logger logger = Logger.getLogger(getClass().getName());
+		
 		
 		List<RerankerInstance> instances = new LinkedList<>();
 		for (Instance instance : simple_instances) {
@@ -77,19 +91,54 @@ public class RerankerTrainer implements LemmatizerGeneratorTrainer {
 			instances.add(new RerankerInstance(instance, set));
 		}
 
-		Random random = new Random(42);
-
 		Model model = new Model();
 
-		EditTreeAligner aligner = (EditTreeAligner) new EditTreeAlignerTrainer(random, false)
+		EditTreeAligner aligner = (EditTreeAligner) new EditTreeAlignerTrainer(options_.getRandom(), false)
 				.train(simple_instances);
 
-		model.init(instances, random, aligner);
+		Logger logger = Logger.getLogger(getClass().getName());
+		logger.info("Extracting features");
+		model.init(instances, options_.getRandom(), aligner);
+			
+		if (options_.getUsePerceptron()) {
+			runPerceptron(model, instances);	
+		} else {
+			runMaxEnt(model, instances);
+		}
+		
+		
 
-		DynamicWeights weights = model.getWeights();
-		DynamicWeights sum_weights = null;
+
+
+		return new Reranker(model, generators);
+	}
+
+	private void runMaxEnt(Model model, List<RerankerInstance> instances) {
+		ByGradientValue objective = new RankerObjective(options_, model, instances);
+		
+		LimitedMemoryBFGS optimizer = new LimitedMemoryBFGS(objective);
+		Logger.getLogger(LimitedMemoryBFGS.class.getName()).setLevel(Level.OFF);
+		
+		Logger logger =Logger.getLogger(getClass().getName());
+		
+		logger.info("Start optimization");
+
+		objective.setParameters(model.getWeights());		
+        try {
+            optimizer.optimize(200);
+        } catch (IllegalArgumentException e) {
+        }
+        
+        logger.info("Finished optimization");
+	}
+
+	private void runPerceptron(Model model, List<RerankerInstance> instances) {
+		Logger logger = Logger.getLogger(getClass().getName());
+		
+		double[] weights = model.getWeights();
+		double[] sum_weights = null;
 		if (options_.getAveraging()) {
-			sum_weights = new DynamicWeights(null);
+			sum_weights = new double[weights.length];
 		}
 
 		
@@ -99,7 +148,7 @@ public class RerankerTrainer implements LemmatizerGeneratorTrainer {
 			double total = 0;
 			int number = 0;
 			
-			Collections.shuffle(instances, random);
+			Collections.shuffle(instances, options_.getRandom());
 			for (RerankerInstance instance : instances) {
 
 				String lemma = model.select(instance);
@@ -132,9 +181,9 @@ public class RerankerTrainer implements LemmatizerGeneratorTrainer {
 						.size());
 				double sum_weights_scaling = (iter + 2.) / (iter + 1.);
 
-				for (int i = 0; i < weights.getLength(); i++) {
-					weights.set(i, sum_weights.get(i) * weights_scaling);
-					sum_weights.set(i, sum_weights.get(i) * sum_weights_scaling);
+				for (int i = 0; i < weights.length; i++) {
+					weights[i] = sum_weights[i] * weights_scaling;
+					sum_weights[i] = sum_weights[i] * sum_weights_scaling;
 				}
 			}
 			
@@ -142,8 +191,6 @@ public class RerankerTrainer implements LemmatizerGeneratorTrainer {
 					total, (total - error) * 100. / total));
 			
 		}
-
-		return new Reranker(model, generators);
 	}
 
 	@Override

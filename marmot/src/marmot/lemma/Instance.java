@@ -110,8 +110,8 @@ public class Instance {
 				number ++;
 				
 				Word word = (Word) token;
-				String form = word.getWordForm();
-				String lemma = word.getLemma();			
+				String form = word.getWordForm().toLowerCase();
+				String lemma = word.getLemma().toLowerCase();			
 				Instance instance = new Instance(form, lemma, word.getPosTag(), word.getMorphTag());
 				
 				Mutable<Integer> mi = map.get(instance);

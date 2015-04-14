@@ -30,12 +30,16 @@ public class DynamicWeights implements Serializable {
 	private void checkCapacity(int index) {
 		if (index >= weights_.length) {
 			int old_length = weights_.length;
-			weights_ = Arrays.copyOf(weights_,
-					Math.max(index + 10, (weights_.length * 2) / 3));
-			if (random_ != null) {
-				for (int i = old_length; i < weights_.length; i++) {
-					weights_[i] = random_.nextGaussian();
-				}
+			int new_length = Math.max(index + 10, (weights_.length * 2) / 3);		
+			expandArray(old_length, new_length);
+		}
+	}
+
+	private void expandArray(int old_length, int new_length) {
+		weights_ = Arrays.copyOf(weights_, new_length);
+		if (random_ != null) {
+			for (int i = old_length; i < weights_.length; i++) {
+				weights_[i] = random_.nextGaussian();
 			}
 		}
 	}
@@ -52,6 +56,10 @@ public class DynamicWeights implements Serializable {
 
 	public int getLength() {
 		return weights_.length;
+	}
+
+	public void setLength(int new_length) {
+		expandArray(weights_.length, new_length);
 	}
 
 }
