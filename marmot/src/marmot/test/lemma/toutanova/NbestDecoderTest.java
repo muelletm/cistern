@@ -30,15 +30,11 @@ public class NbestDecoderTest {
 		
 		// Train a standard Toutanova model.
 		List<Instance> train_instances = Instance.getInstances(new SentenceReader(trainfile));
-		ToutanovaTrainer.Options options = ToutanovaTrainer.Options.newInstance();
-		options.setDecoder(ZeroOrderDecoder.class).setNumIterations(num_iters).setFilterAlphabet(5).setUsePos(true).setUseContextFeature(true);
-		ToutanovaTrainer trainer = new ToutanovaTrainer(options);
-		ToutanovaLemmatizer lemmatizer = (ToutanovaLemmatizer) trainer.train(train_instances, null);
+		ToutanovaTrainer trainer = new ToutanovaTrainer();
 
+		ToutanovaLemmatizer lemmatizer = (ToutanovaLemmatizer) trainer.train(train_instances, null);
+		
 		testDecoder(lemmatizer, devfile, rank_max);
-		testDecoder(lemmatizer, devfile, rank_max * 10);
-		
-		
 	}
 	
 	private void testDecoder(ToutanovaLemmatizer lemmatizer, String devfile, int rank_max) {

@@ -107,7 +107,7 @@ public interface Aligner extends Serializable {
 				String input_segment = input.substring(i_start_index, i_end_index);
 				assert input_segment.length() > 0;
 				String output_segment = output.substring(o_start_index, o_end_index);
-				assert output_segment.length() > 0;
+				// assert output_segment.length() > 0;
 				Pair pair = new Pair(input_segment, output_segment);
 				
 				pairs.add(pair);

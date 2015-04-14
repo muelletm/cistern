@@ -3,15 +3,15 @@ package marmot.lemma;
 import java.util.List;
 import java.util.Map;
 
-import marmot.lemma.SimpleLemmatizerTrainer.Options;
+import marmot.lemma.SimpleLemmatizerTrainer.SimpleLemmatizerTrainerOptions;
 
 public class SimpleLemmatizer implements LemmatizerGenerator {
 
 	private static final String SEPARATOR = "%|%|%";
 	private Map<String, List<String>> map_;
-	private Options options_;
+	private SimpleLemmatizerTrainerOptions options_;
 
-	public SimpleLemmatizer(Options options, Map<String, List<String>> map) {
+	public SimpleLemmatizer(SimpleLemmatizerTrainerOptions options, Map<String, List<String>> map) {
 		map_ = map;
 		options_ = options;
 	}

@@ -16,6 +16,7 @@ import com.google.common.primitives.Ints;
 
 import marmot.lemma.Instance;
 import marmot.lemma.Lemmatizer;
+import marmot.lemma.Options;
 import marmot.lemma.transducer.exceptions.LabelBiasException;
 import marmot.lemma.transducer.exceptions.NegativeContext;
 import marmot.util.Numerics;
@@ -502,6 +503,11 @@ public class WFST extends Transducer {
 		return new LemmatizerWFST();
 		
 		
+	}
+
+	@Override
+	public Options getOptions() {
+		return null;
 	}
 
 }

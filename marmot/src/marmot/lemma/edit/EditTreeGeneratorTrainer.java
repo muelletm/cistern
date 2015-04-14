@@ -3,11 +3,11 @@ package marmot.lemma.edit;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import marmot.lemma.Instance;
 import marmot.lemma.LemmaCandidateGenerator;
 import marmot.lemma.LemmaCandidateGeneratorTrainer;
+import marmot.lemma.Options;
 import marmot.util.Counter;
 import marmot.util.Numerics;
 import marmot.util.edit.EditTree;
@@ -17,18 +17,27 @@ import marmot.util.edit.EditTreeBuilderTrainer;
 public class EditTreeGeneratorTrainer implements LemmaCandidateGeneratorTrainer {
 
 	private double min_count_;
-	private Random random_;
+	private EditTreeGeneratorTrainerOptions options_;
 	
-	public EditTreeGeneratorTrainer(Random random, int min_count) {
-		min_count_ = min_count;
-		random_ = random;
+	public static class EditTreeGeneratorTrainerOptions extends Options {
+		
+		private static final String MIN_COUNT = "min-count";
+
+		public EditTreeGeneratorTrainerOptions() {
+			map_.put(MIN_COUNT, 1);
+		}
+		
+	}
+	
+	public EditTreeGeneratorTrainer() {
+		options_ = new EditTreeGeneratorTrainerOptions();
 	}
 
 	@Override
 	public LemmaCandidateGenerator train(List<Instance> instances,
 			List<Instance> dev_instances) {
 		
-		EditTreeBuilder builder = new EditTreeBuilderTrainer(random_).train(instances);
+		EditTreeBuilder builder = new EditTreeBuilderTrainer(options_.getRandom()).train(instances);
 		
 		Counter<EditTree> counter = new Counter<>();
 		
@@ -51,6 +60,11 @@ public class EditTreeGeneratorTrainer implements LemmaCandidateGeneratorTrainer 
 		}
 		
 		return new EditTreeGenerator(trees);
+	}
+
+	@Override
+	public Options getOptions() {
+		return options_;
 	}
 
 

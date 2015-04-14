@@ -10,7 +10,6 @@ import java.util.Random;
 import marmot.core.Feature;
 import marmot.lemma.LemmaCandidate;
 import marmot.lemma.LemmaCandidateSet;
-import marmot.lemma.toutanova.Aligner;
 import marmot.lemma.toutanova.EditTreeAligner;
 import marmot.util.Converter;
 import marmot.util.DynamicWeights;
@@ -163,6 +162,10 @@ public class Model implements Serializable {
 		encoder.append(affix_feature_, feature_bits_);
 		for (int i=lemma_chars.length - 1; i >= Math.max(0, lemma_chars.length - max_affix_length_); i--) {
 			int c = lemma_chars[i];
+			
+			if (c < 0)
+				return;
+			
 			encoder.append(c, char_bits_);
 			addFeature(encoder, list, insert, pos_index, false);
 		}
@@ -255,6 +258,9 @@ public class Model implements Serializable {
 				c = char_table_.size();
 			}
 
+			if (c < 0)
+				return;
+			
 			encoder.append(c, char_bits_);
 		}
 	}

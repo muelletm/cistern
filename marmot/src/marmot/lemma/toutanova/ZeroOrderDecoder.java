@@ -103,4 +103,9 @@ public class ZeroOrderDecoder implements Decoder {
 		}
 	}
 
+	@Override
+	public int getOrder() {
+		return 0;
+	}
+
 }

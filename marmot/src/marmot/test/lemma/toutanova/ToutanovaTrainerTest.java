@@ -7,10 +7,15 @@ import marmot.lemma.Instance;
 import marmot.lemma.Lemmatizer;
 import marmot.lemma.LemmatizerGeneratorTrainer;
 import marmot.lemma.LemmatizerTrainer;
+import marmot.lemma.Options;
 import marmot.lemma.SimpleLemmatizerTrainer;
+import marmot.lemma.SimpleLemmatizerTrainer.SimpleLemmatizerTrainerOptions;
 import marmot.lemma.toutanova.EditTreeAlignerTrainer;
+import marmot.lemma.toutanova.FirstOrderDecoder;
 import marmot.lemma.toutanova.HackyAlignerTrainer;
+import marmot.lemma.toutanova.SimpleAlignerTrainer;
 import marmot.lemma.toutanova.ToutanovaTrainer;
+import marmot.lemma.toutanova.ToutanovaTrainer.ToutanovaOptions;
 import marmot.lemma.toutanova.ZeroOrderDecoder;
 import marmot.morph.io.SentenceReader;
 
@@ -28,8 +33,7 @@ public class ToutanovaTrainerTest extends SimpleTrainerTest {
 	
 	@Test
 	public void copyTest() {
-		LemmatizerTrainer trainer = new ToutanovaTrainer(
-				ToutanovaTrainer.Options.newInstance());
+		LemmatizerTrainer trainer = new ToutanovaTrainer();
 
 		String indexes = "form-index=4,lemma-index=5,";
 		String trainfile = indexes + getResourceFile("trn_sml.tsv");
@@ -46,22 +50,23 @@ public class ToutanovaTrainerTest extends SimpleTrainerTest {
 	@Test
 	public void moderateZeroOrderAlignerPosTest() {
 
-		SimpleLemmatizerTrainer.Options soptions = SimpleLemmatizerTrainer.Options
-				.newInstance();
-		soptions.setHandleUnseen(false).setUseBackup(false).setUsePos(true)
-				.setAbstainIfAmbigous(true);
-		LemmatizerGeneratorTrainer simple_trainer = new SimpleLemmatizerTrainer(soptions);
-
-		ToutanovaTrainer.Options options = ToutanovaTrainer.Options
-				.newInstance();
-		options.setNumIterations(10)
-				.setUsePos(true)
-				.setFilterAlphabet(5)
-				.setSeed(10)
-				.setAlignerTrainer(
-						new EditTreeAlignerTrainer(options.getSeed()))
-				.setDecoder(ZeroOrderDecoder.class).setUseContextFeature(true).setMaxCount(1).setAveraging(true);
-
+		LemmatizerGeneratorTrainer simple_trainer = new SimpleLemmatizerTrainer();
+		simple_trainer.getOptions().setOption(SimpleLemmatizerTrainerOptions.HANDLE_UNSEEN, false);
+		simple_trainer.getOptions().setOption(SimpleLemmatizerTrainerOptions.USE_BACKUP, false);
+		simple_trainer.getOptions().setOption(Options.USE_POS, true);
+		simple_trainer.getOptions().setOption(SimpleLemmatizerTrainerOptions.ABSTAIN_IF_AMBIGIOUS, true);
+		
+		ToutanovaTrainer trainer = new ToutanovaTrainer();
+		trainer.getOptions().setOption(ToutanovaOptions.NUM_ITERATIONS, 10);
+		trainer.getOptions().setOption(ToutanovaOptions.USE_POS, true);
+		trainer.getOptions().setOption(ToutanovaOptions.FILTER_ALPHABET, 5);
+		trainer.getOptions().setOption(ToutanovaOptions.AVERAGING, true);
+		trainer.getOptions().setOption(ToutanovaOptions.DECODER, FirstOrderDecoder.class);
+		trainer.getOptions().setOption(ToutanovaOptions.SEED, 10L);
+		trainer.getOptions().setOption(ToutanovaOptions.ALIGNER_TRAINER, EditTreeAlignerTrainer.class);
+		trainer.getOptions().setOption(ToutanovaOptions.MAX_COUNT, 1);
+		trainer.getOptions().setOption(ToutanovaOptions.USE_CONSTEXT_FEATURE, true);
+		
 		// 90.75 88.46 HA
 		// 93.90 90.72 SA
 		// 83.57 81.03 ETA
@@ -75,55 +80,46 @@ public class ToutanovaTrainerTest extends SimpleTrainerTest {
 		// 99.84 90.43 25s
 		// 99.84 90.41 21s
 		
-		LemmatizerTrainer btrainer = new BackupLemmatizerTrainer(
-				simple_trainer, new ToutanovaTrainer(options));
-		runModerateTest(btrainer, 99.89, 92.74);
-	}
-
-	@Test
-	public void moderateAlignerPosTest() {
-		ToutanovaTrainer.Options options = ToutanovaTrainer.Options
-				.newInstance();
-		options.setNumIterations(10).setUsePos(true).setFilterAlphabet(5)
-				.setAlignerTrainer(new HackyAlignerTrainer()).setSeed(3)
-				.setUseContextFeature(false);
-		// 88.17 86.09 42
-		// 83.51 80.09 10
-		// 91.18 89.38 3
-		runModerateTest(new ToutanovaTrainer(options), 91.18, 89.38);
-	}
-
-	@Test
-	public void moderateAveragingAlignerPosTest() {
-		ToutanovaTrainer.Options options = ToutanovaTrainer.Options
-				.newInstance();
-		options.setNumIterations(10).setUsePos(true).setFilterAlphabet(5)
-				.setAlignerTrainer(new HackyAlignerTrainer()).setSeed(10)
-				.setAveraging(true);
-		runModerateTest(new ToutanovaTrainer(options), 91.03, 89.60);
-		// 91.15 89.67 3
-		// 91.03 89.60 10
+		LemmatizerTrainer btrainer = new BackupLemmatizerTrainer(simple_trainer, trainer);
+		runModerateTest(btrainer, 1., 92.72);
 	}
 
 	@Test
 	public void smallTest() {
-		ToutanovaTrainer.Options options = ToutanovaTrainer.Options
-				.newInstance();
-		options.setNumIterations(10);
-		options.setFilterAlphabet(1);
-		runSmallTest(new ToutanovaTrainer(options), 76.02, 68.31);
+		LemmatizerGeneratorTrainer simple_trainer = new SimpleLemmatizerTrainer();
+		simple_trainer.getOptions().setOption(SimpleLemmatizerTrainerOptions.HANDLE_UNSEEN, false);
+		simple_trainer.getOptions().setOption(SimpleLemmatizerTrainerOptions.USE_BACKUP, false);
+		simple_trainer.getOptions().setOption(Options.USE_POS, true);
+		simple_trainer.getOptions().setOption(SimpleLemmatizerTrainerOptions.ABSTAIN_IF_AMBIGIOUS, true);
+
+		ToutanovaTrainer trainer = new ToutanovaTrainer();
+		trainer.getOptions().setOption(ToutanovaOptions.NUM_ITERATIONS, 10);
+		trainer.getOptions().setOption(ToutanovaOptions.USE_POS, false);
+		trainer.getOptions().setOption(ToutanovaOptions.FILTER_ALPHABET, 1);
+		trainer.getOptions().setOption(ToutanovaOptions.AVERAGING, false);
+		trainer.getOptions().setOption(ToutanovaOptions.DECODER, FirstOrderDecoder.class);
+		
+		LemmatizerTrainer btrainer = new BackupLemmatizerTrainer(simple_trainer, trainer);
+		runSmallTest(btrainer, 1., 79.56);
 	}
 
 	@Test
 	public void smallPosTest() {
-		ToutanovaTrainer.Options options = ToutanovaTrainer.Options
-				.newInstance();
-		options.setNumIterations(10).setUsePos(true).setFilterAlphabet(1)
-				.setAveraging(true);
-		// .setAlignerTrainer(new EditTreeAlignerTrainer());
-		// 89.33 80.79 SA
-		// 88.48 81.80 ETA
-		runSmallTest(new ToutanovaTrainer(options), 1., 1.);
+		LemmatizerGeneratorTrainer simple_trainer = new SimpleLemmatizerTrainer();
+		simple_trainer.getOptions().setOption(SimpleLemmatizerTrainerOptions.HANDLE_UNSEEN, false);
+		simple_trainer.getOptions().setOption(SimpleLemmatizerTrainerOptions.USE_BACKUP, false);
+		simple_trainer.getOptions().setOption(Options.USE_POS, true);
+		simple_trainer.getOptions().setOption(SimpleLemmatizerTrainerOptions.ABSTAIN_IF_AMBIGIOUS, true);
+		
+		ToutanovaTrainer trainer = new ToutanovaTrainer();
+		trainer.getOptions().setOption(ToutanovaOptions.NUM_ITERATIONS, 10);
+		trainer.getOptions().setOption(ToutanovaOptions.USE_POS, true);
+		trainer.getOptions().setOption(ToutanovaOptions.FILTER_ALPHABET, 1);
+		trainer.getOptions().setOption(ToutanovaOptions.AVERAGING, true);
+		trainer.getOptions().setOption(ToutanovaOptions.DECODER, FirstOrderDecoder.class);
+		
+		LemmatizerTrainer btrainer = new BackupLemmatizerTrainer(simple_trainer, trainer);
+		runSmallTest(btrainer, 1., 84.88);
 	}
 
 }

@@ -5,18 +5,13 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.logging.Logger;
 
 import marmot.core.Feature;
-import marmot.lemma.Instance;
-import marmot.lemma.LemmatizerGenerator;
-import marmot.lemma.SimpleLemmatizerTrainer;
 import marmot.lemma.toutanova.Aligner.Pair;
-import marmot.lemma.toutanova.ToutanovaTrainer.Options;
+import marmot.lemma.toutanova.ToutanovaTrainer.ToutanovaOptions;
 import marmot.util.DynamicWeights;
 import marmot.util.Encoder;
 import marmot.util.SymbolTable;
@@ -34,13 +29,11 @@ public class Model implements Serializable {
 	private int num_char_bits;
 	private int num_pos_bits;
 
-	private LemmatizerGenerator simple_lemmatizer_;
-
 	private IndexScorer scorer_;
 	private IndexUpdater updater_;
 	private boolean use_zero_order_;
 	private int max_input_segment_length_bits_;
-	private boolean add_context_feature_;
+	private boolean use_context_feature_;
 	private DynamicWeights weights_;
 
 	private final static int FEATURE_BITS = Encoder.bitsNeeded(2);
@@ -50,7 +43,7 @@ public class Model implements Serializable {
 
 	private final static String COPY_SYMBOL = "<COPY>";
 
-	public void init(Options options, List<ToutanovaInstance> train_instances,
+	public void init(ToutanovaOptions options, List<ToutanovaInstance> train_instances,
 			List<ToutanovaInstance> test_instances) {
 		Logger logger = Logger.getLogger(getClass().getName());
 
@@ -64,9 +57,6 @@ public class Model implements Serializable {
 			logger.info("Output alphabet size: " + output_table_.size());
 			logger.info("Max input segment length: "
 					+ max_input_segment_length_);
-			simple_lemmatizer_ = createSimpleLemmatizer(options,
-					train_instances);
-
 		}
 
 		char_table = new SymbolTable<>();
@@ -93,22 +83,15 @@ public class Model implements Serializable {
 
 		encoder = new Encoder(10);
 
-		weights_ = new DynamicWeights(new Random(options.getSeed()));
+		weights_ = new DynamicWeights(options.getRandom());
 
 		SymbolTable<Feature> feature_map = new SymbolTable<>();
 		scorer_ = new IndexScorer(weights_, feature_map, num_pos_bits);
 		updater_ = new IndexUpdater(weights_, feature_map, num_pos_bits);
 
-		use_zero_order_ = options.getDecoderClass() == ZeroOrderDecoder.class;
-		logger.info(String.format("Use zero order decoder: %s\n",
-				use_zero_order_));
-		add_context_feature_ = options.getUseContextFeature();
-
-		use_zero_order_ = options.getDecoderClass() == ZeroOrderDecoder.class;
-		logger.info(String.format("Use zero order decoder: %s\n",
-				use_zero_order_));
-		add_context_feature_ = options.getUseContextFeature();
-
+		use_context_feature_ = options.getUseContextFeature();
+		use_zero_order_ = options.getDecoderInstance().getOrder() < 1;
+		
 		setupTemp();
 	}
 
@@ -122,35 +105,7 @@ public class Model implements Serializable {
 		setupTemp();
 	}
 
-	private LemmatizerGenerator createSimpleLemmatizer(Options options,
-			List<ToutanovaInstance> train_instances) {
-		List<Instance> instances = new LinkedList<>();
-		for (ToutanovaInstance instance : train_instances) {
-			if (instance.isRare()) {
-				instances.add(instance.getInstance());
-			}
-		}
-
-		if (instances.isEmpty()) {
-			return null;
-		}
-
-		Logger logger = Logger.getLogger(getClass().getName());
-		logger.info(String.format(
-				"Creating lemmatizer from %d out of %d instances.",
-				instances.size(), train_instances.size()));
-
-		SimpleLemmatizerTrainer.Options simple_options = SimpleLemmatizerTrainer.Options
-				.newInstance();
-		simple_options.setHandleUnseen(false);
-		simple_options.setUsePos(options.getUsePos());
-		simple_options.setUseBackup(!options.getUsePos());
-
-		return new SimpleLemmatizerTrainer(simple_options).train(instances,
-				null);
-	}
-
-	private void createOutputTable(Options options,
+	private void createOutputTable(ToutanovaOptions options,
 			List<ToutanovaInstance> train_instances) {
 		output_table_ = new SymbolTable<>(true);
 		output_table_.insert(COPY_SYMBOL);
@@ -207,7 +162,7 @@ public class Model implements Serializable {
 				.bitsNeeded(max_input_segment_length_);
 	}
 
-	private void filterRareOutputSymbols(Options options,
+	private void filterRareOutputSymbols(ToutanovaOptions options,
 			List<ToutanovaInstance> train_instances) {
 
 		Logger logger = Logger.getLogger(getClass().getName());
@@ -267,7 +222,7 @@ public class Model implements Serializable {
 		encoder.append(TRANS_FEAT, FEATURE_BITS);
 		encoder.append(last_o, num_output_bits);
 		encoder.append(o, num_output_bits);
-		if (add_context_feature_) {
+		if (use_context_feature_) {
 			encoder.append(l_start == 0);
 			encoder.append(l_end == instance.getFormCharIndexes().length);
 		}
@@ -279,7 +234,7 @@ public class Model implements Serializable {
 		encoder.reset();
 		encoder.append(OUTPUT_FEAT, FEATURE_BITS);
 		encoder.append(o, num_output_bits);
-		if (add_context_feature_) {
+		if (use_context_feature_) {
 			encoder.append(l_start == 0);
 			encoder.append(l_end == instance.getFormCharIndexes().length);
 		}
@@ -293,7 +248,7 @@ public class Model implements Serializable {
 		encoder.append(PAIR_FEAT, FEATURE_BITS);
 		encoder.append(o, num_output_bits);
 		encoder.append(l_end - l_start, max_input_segment_length_bits_);
-		if (add_context_feature_) {
+		if (use_context_feature_) {
 			encoder.append(l_start == 0);
 			encoder.append(l_end == instance.getFormCharIndexes().length);
 		}
@@ -392,10 +347,6 @@ public class Model implements Serializable {
 		for (ToutanovaInstance instance : instances) {
 			addIndexes(instance, insert);
 		}
-	}
-
-	public LemmatizerGenerator getSimpleLemmatizer() {
-		return simple_lemmatizer_;
 	}
 
 	public void addIndexes(ToutanovaInstance instance, boolean insert) {

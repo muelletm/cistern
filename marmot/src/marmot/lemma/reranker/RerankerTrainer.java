@@ -1,5 +1,6 @@
 package marmot.lemma.reranker;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -13,6 +14,9 @@ import marmot.lemma.LemmaCandidateGeneratorTrainer;
 import marmot.lemma.LemmaCandidateSet;
 import marmot.lemma.LemmatizerGenerator;
 import marmot.lemma.LemmatizerGeneratorTrainer;
+import marmot.lemma.Options;
+import marmot.lemma.SimpleLemmatizerTrainer;
+import marmot.lemma.edit.EditTreeGeneratorTrainer;
 import marmot.lemma.toutanova.Aligner;
 import marmot.lemma.toutanova.EditTreeAligner;
 import marmot.lemma.toutanova.EditTreeAlignerTrainer;
@@ -20,12 +24,24 @@ import marmot.util.DynamicWeights;
 
 public class RerankerTrainer implements LemmatizerGeneratorTrainer {
 
-	private Collection<? extends LemmaCandidateGeneratorTrainer> generator_trainers_;
-	private boolean averaging = true;
+	public static class RerankerTrainerOptions extends Options {
+		
+		public static final String GENERATOR_TRAINERS = "generator-trainers";
 
-	public RerankerTrainer(
-			Collection<? extends LemmaCandidateGeneratorTrainer> generators_trainers) {
-		generator_trainers_ = generators_trainers;
+		public RerankerTrainerOptions() {
+			map_.put(GENERATOR_TRAINERS, Arrays.asList(SimpleLemmatizerTrainer.class, EditTreeGeneratorTrainer.class));
+		}
+
+		public List<Object> getGeneratorTrainers() {
+			return (List<Object>) getOption(GENERATOR_TRAINERS);
+		}
+		
+	} 
+	
+	private RerankerTrainerOptions options_;
+	
+	public RerankerTrainer() {
+		options_ = new RerankerTrainerOptions();
 	}
 
 	@Override
@@ -33,7 +49,8 @@ public class RerankerTrainer implements LemmatizerGeneratorTrainer {
 			List<Instance> test_instances) {
 
 		List<LemmaCandidateGenerator> generators = new LinkedList<>();
-		for (LemmaCandidateGeneratorTrainer trainer : generator_trainers_) {
+		for (Object trainer_class  : options_.getGeneratorTrainers()) {
+			LemmaCandidateGeneratorTrainer trainer = (LemmaCandidateGeneratorTrainer) options_.toInstance((Class<?>) trainer_class);
 			generators.add(trainer.train(train_instances, test_instances));
 		}
 
@@ -71,12 +88,12 @@ public class RerankerTrainer implements LemmatizerGeneratorTrainer {
 
 		DynamicWeights weights = model.getWeights();
 		DynamicWeights sum_weights = null;
-		if (averaging) {
+		if (options_.getAveraging()) {
 			sum_weights = new DynamicWeights(null);
 		}
 
 		
-		for (int iter = 0; iter < 10; iter++) {
+		for (int iter = 0; iter < options_.getNumIterations(); iter++) {
 
 			double error = 0;
 			double total = 0;
@@ -127,6 +144,11 @@ public class RerankerTrainer implements LemmatizerGeneratorTrainer {
 		}
 
 		return new Reranker(model, generators);
+	}
+
+	@Override
+	public Options getOptions() {
+		return options_;
 	}
 
 }

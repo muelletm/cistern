@@ -32,7 +32,7 @@ public class ReplaceNode implements EditTree {
 	@Override
 	public String apply(String input, int start, int end) {
 		assert start >= 0;
-		assert end < input.length();
+		assert end <= input.length();
 		
 		int length = end - start;
 		

@@ -6,4 +6,6 @@ public interface Decoder {
 
 	public void init(Model model_);
 
+	public int getOrder();
+
 }

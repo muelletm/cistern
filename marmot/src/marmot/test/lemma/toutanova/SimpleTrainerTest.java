@@ -10,7 +10,7 @@ import marmot.lemma.Lemmatizer;
 import marmot.lemma.LemmatizerTrainer;
 import marmot.lemma.Result;
 import marmot.lemma.SimpleLemmatizerTrainer;
-import marmot.lemma.SimpleLemmatizerTrainer.Options;
+import marmot.lemma.SimpleLemmatizerTrainer.SimpleLemmatizerTrainerOptions;
 import marmot.morph.io.SentenceReader;
 import marmot.util.Copy;
 import marmot.util.Numerics;
@@ -21,23 +21,22 @@ public class SimpleTrainerTest {
 
 	@Test
 	public void moderateTest() {
-		Options options = SimpleLemmatizerTrainer.Options.newInstance();
-		runModerateTest(new SimpleLemmatizerTrainer(options), 98.41, 64.47);
+		runModerateTest(new SimpleLemmatizerTrainer(), 98.41, 64.47);
 	}
 	
 	@Test
 	public void moderateUnseenTest() {
-		Options options = SimpleLemmatizerTrainer.Options.newInstance();
-		options.setHandleUnseen(true);
-		runModerateTest(new SimpleLemmatizerTrainer(options), 98.41, 86.19);
+		SimpleLemmatizerTrainer trainer = new SimpleLemmatizerTrainer();
+		trainer.getOptions().setOption(SimpleLemmatizerTrainerOptions.HANDLE_UNSEEN, true);
+		runModerateTest(trainer, 98.41, 86.19);
 	}
 	
 	@Test
 	public void moderateUnseenPosTest() {
-		Options options = SimpleLemmatizerTrainer.Options.newInstance();
-		options.setHandleUnseen(true);
-		options.setUsePos(true);
-		runModerateTest(new SimpleLemmatizerTrainer(options), 99.84, 86.82);
+		SimpleLemmatizerTrainer trainer = new SimpleLemmatizerTrainer();
+		trainer.getOptions().setOption(SimpleLemmatizerTrainerOptions.HANDLE_UNSEEN, true);
+		trainer.getOptions().setOption(SimpleLemmatizerTrainerOptions.USE_POS, true);
+		runModerateTest(trainer, 99.84, 86.82);
 	}
 	
 	protected String getResourceFile(String name) {

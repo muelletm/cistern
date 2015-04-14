@@ -140,4 +140,9 @@ public class FirstOrderDecoder implements Decoder {
 		}
 	}
 
+	@Override
+	public int getOrder() {
+		return 1;
+	}
+
 }

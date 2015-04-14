@@ -6,16 +6,16 @@ import marmot.lemma.Instance;
 import marmot.lemma.LemmaCandidateSet;
 import marmot.lemma.Lemmatizer;
 import marmot.lemma.LemmatizerGenerator;
-import marmot.lemma.toutanova.ToutanovaTrainer.Options;
+import marmot.lemma.toutanova.ToutanovaTrainer.ToutanovaOptions;
 
 public class ToutanovaLemmatizer implements Lemmatizer, LemmatizerGenerator {
 
 	private Model model_;
 	private transient Decoder decoder_;
 	private transient NbestDecoder nbest_decoder_;
-	private Options options_;
+	private ToutanovaOptions options_;
 
-	public ToutanovaLemmatizer(Options options, Model model) {
+	public ToutanovaLemmatizer(ToutanovaOptions options, Model model) {
 		model_ = model;
 		options_ = options;
 	}
@@ -25,14 +25,6 @@ public class ToutanovaLemmatizer implements Lemmatizer, LemmatizerGenerator {
 		if (decoder_ == null) {
 			decoder_ = options_.getDecoderInstance();
 			decoder_.init(model_);
-		}
-		
-		Lemmatizer lemmatizer = model_.getSimpleLemmatizer();
-		if (lemmatizer != null) {
-			String lemma = lemmatizer.lemmatize(instance);
-			if (lemma != null) {
-				return lemma;
-			}
 		}
 		
 		ToutanovaInstance tinstance = getToutanovaInstance(instance);
@@ -52,11 +44,6 @@ public class ToutanovaLemmatizer implements Lemmatizer, LemmatizerGenerator {
 	@Override
 	public void addCandidates(Instance instance, LemmaCandidateSet set) {
 		ToutanovaInstance tinstance = getToutanovaInstance(instance);
-		
-		LemmatizerGenerator lemmatizer = model_.getSimpleLemmatizer();
-		if (lemmatizer != null) {
-			lemmatizer.addCandidates(instance, set);
-		}
 		
 		if (nbest_decoder_ == null) {
 			nbest_decoder_ = new ZeroOrderNbestDecoder(options_.getNbestRank());

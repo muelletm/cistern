@@ -12,9 +12,8 @@ public class EditTreeAlignerTrainer implements AlignerTrainer {
 	private Random random_;
 	private boolean merge_empty_input_segments_;
 
-	public EditTreeAlignerTrainer(long seed) {
-		this(new Random(seed), true);
-		
+	public EditTreeAlignerTrainer() {
+		this(new Random(42), true);
 	}
 	
 	public EditTreeAlignerTrainer(Random random, boolean merge_empty_input_segments) {
@@ -27,7 +26,5 @@ public class EditTreeAlignerTrainer implements AlignerTrainer {
 		EditTreeBuilder builder = new EditTreeBuilderTrainer(random_).train(instances);
 		return new EditTreeAligner(builder, merge_empty_input_segments_);
 	}
-
-	
 	
 }

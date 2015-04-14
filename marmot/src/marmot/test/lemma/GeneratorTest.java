@@ -1,17 +1,14 @@
 package marmot.test.lemma;
 
-import java.util.Random;
-
 import marmot.lemma.BackupLemmatizerTrainer;
+import marmot.lemma.BackupLemmatizerTrainer.BackupLemmatizerTrainerOptions;
 import marmot.lemma.Instance;
 import marmot.lemma.LemmaCandidateGenerator;
 import marmot.lemma.LemmaCandidateGeneratorTrainer;
-import marmot.lemma.LemmatizerGeneratorTrainer;
 import marmot.lemma.Result;
 import marmot.lemma.SimpleLemmatizerTrainer;
 import marmot.lemma.edit.EditTreeGeneratorTrainer;
 import marmot.lemma.toutanova.ToutanovaTrainer;
-import marmot.lemma.toutanova.ToutanovaTrainer.Options;
 
 import org.junit.Test;
 
@@ -22,13 +19,19 @@ public class GeneratorTest {
 		String train = "trn_mod.tsv";
 		String dev = "dev.tsv";
 		
-		LemmaCandidateGeneratorTrainer trainer = new EditTreeGeneratorTrainer(new Random(42), 2);
+		LemmaCandidateGeneratorTrainer trainer = new EditTreeGeneratorTrainer();
 		testGeneratorTrainer(trainer, train, dev);
 		
 		trainer = new SimpleLemmatizerTrainer();
 		testGeneratorTrainer(trainer, train, dev);
 		
-		trainer = new BackupLemmatizerTrainer((LemmatizerGeneratorTrainer) trainer, new ToutanovaTrainer(Options.newZeroOrderInstance()));
+		trainer = new BackupLemmatizerTrainer();
+		
+		BackupLemmatizerTrainerOptions options = (BackupLemmatizerTrainerOptions) trainer.getOptions();
+		
+		options.setOption(BackupLemmatizerTrainerOptions.LEMMATIZER_TRAINER, SimpleLemmatizerTrainer.class.getName());
+		options.setOption(BackupLemmatizerTrainerOptions.BACKUP_TRAINER, ToutanovaTrainer.class.getName());
+		
 		testGeneratorTrainer(trainer, train, dev);
 	}
 	
