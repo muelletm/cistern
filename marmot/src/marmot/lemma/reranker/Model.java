@@ -483,6 +483,13 @@ public class Model implements Serializable {
 			if (context_.insert) {
 				real_capacity_ = Math.max(real_capacity_, feature_.getCurrentLength());
 				index = feature_table_.toIndex(feature_, true);
+				
+
+				if (feature_table_.size() % 500000 == 0) {
+					Logger logger = Logger.getLogger(getClass().getName());
+					logger.info(String.format("num features: %d", feature_table_.size()));
+				}
+				
 				feature_ = new Feature(encoder_capacity_);
 			}
 			
