@@ -1,19 +1,23 @@
 package marmot.lemma.reranker;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
+import java.util.logging.Logger;
 
 import marmot.core.Feature;
 import marmot.lemma.LemmaCandidate;
 import marmot.lemma.LemmaCandidateSet;
+import marmot.lemma.reranker.RerankerTrainer.RerankerTrainerOptions;
 import marmot.lemma.toutanova.EditTreeAligner;
 import marmot.util.Converter;
-import marmot.util.DynamicWeights;
 import marmot.util.Encoder;
+import marmot.util.Lexicon;
+import marmot.util.LineIterator;
+import marmot.util.StringUtils.Mode;
 import marmot.util.SymbolTable;
 import marmot.util.edit.EditTree;
 
@@ -27,11 +31,11 @@ public class Model implements Serializable {
 	private SymbolTable<Character> char_table_;
 	private SymbolTable<EditTree> tree_table_;
 	private EditTreeAligner aligner_;
-	
+
 	private static final int max_window = 5;
 	private static final int window_bits_ = Encoder.bitsNeeded(max_window);
 	private static final int max_affix_length_ = 10;
-	
+
 	private static final int lemma_feature_ = 0;
 	private static final int lemma_form_feature_ = 1;
 	private static final int align_feature_ = 2;
@@ -39,44 +43,155 @@ public class Model implements Serializable {
 	private static final int align_window_feature_ = 4;
 	private static final int tree_feature_ = 5;
 	private static final int affix_feature_ = 6;
-	private static final int feature_bits_ = Encoder.bitsNeeded(6);
-	
+	private static final int lexicon_feature_ = 7;
+	private static final int feature_bits_ = Encoder.bitsNeeded(7);
+	private static final int unigram_count_bin_bits_ = Encoder.bitsNeeded(4);
+
 	private int lemma_bits_;
 	private int form_bits_;
 	private int pos_bits_;
 	private int char_bits_;
 	private int tree_bits_;
-	private static final int length_bits_ = Encoder.bitsNeeded(2 * max_window + 10);
+	private Lexicon unigram_lexicon_;
+	private RerankerTrainerOptions options_;
+	private SymbolTable<String> morph_table_;
+	private int morph_bits_;
 
+	private static class Context {
+		public int pos_index;
+		public List<Integer> morph_indexes;
+		public List<Integer> list;
+		public boolean insert;
+	}
+	
+	private static final int length_bits_ = Encoder
+			.bitsNeeded(2 * max_window + 10);
 
-	public void init(List<RerankerInstance> instances, Random random,
-			EditTreeAligner aligner) {
+	public void init(RerankerTrainerOptions options,
+			List<RerankerInstance> instances, EditTreeAligner aligner) {
+		options_ = options;
 		aligner_ = aligner;
-		
-		
 
 		form_table_ = new SymbolTable<>();
 		lemma_table_ = new SymbolTable<>();
-		pos_table_ = new SymbolTable<>();
-		feature_table_ = new SymbolTable<>();
 		char_table_ = new SymbolTable<>();
 		tree_table_ = new SymbolTable<>();
-
+		
+		if (options_.getUsePos()) {
+			pos_table_ = new SymbolTable<>();
+		}
+		
+		if (options_.getUseMorph()) {
+			morph_table_ = new SymbolTable<>();
+		}
+		
 		for (RerankerInstance instance : instances) {
 			fillTables(instance, instance.getCandidateSet());
 		}
 
 		form_bits_ = Encoder.bitsNeeded(form_table_.size() - 1);
 		lemma_bits_ = Encoder.bitsNeeded(lemma_table_.size() - 1);
-		pos_bits_ = Encoder.bitsNeeded(pos_table_.size() - 1);
 		char_bits_ = Encoder.bitsNeeded(char_table_.size());
-		tree_bits_ = Encoder.bitsNeeded(tree_table_.size() -1);
+		tree_bits_ = Encoder.bitsNeeded(tree_table_.size() - 1);
+		
+		if (pos_table_ != null) {
+			pos_bits_ = Encoder.bitsNeeded(pos_table_.size());
+		}
+		
+		if (morph_table_ != null) {
+			morph_bits_ = Encoder.bitsNeeded(morph_table_.size());
+		}
+		
+		prepareUnigramFeature(options.getUnigramFile());
 
+		feature_table_ = new SymbolTable<>();
+		
 		for (RerankerInstance instance : instances) {
 			addIndexes(instance, instance.getCandidateSet(), true);
 		}
-		
+
 		weights_ = new double[feature_table_.size()];
+	}
+
+	private void prepareUnigramFeature(String unigram_file) {
+		Logger logger = Logger.getLogger(getClass().getName());
+
+		if (unigram_file == null) {
+			return;
+		}
+
+		String filename = null;
+		int min_count = 0;
+		for (String argument : unigram_file.split(",")) {
+
+			int index = argument.indexOf('=');
+
+			if (index >= 0) {
+
+				String argname = argument.substring(0, index);
+				String value = argument.substring(index + 1);
+
+				if (argname.equalsIgnoreCase("min-count")) {
+					min_count = Integer.valueOf(value);
+				} else {
+					throw new RuntimeException(String.format(
+							"Unknown option: %s", argname));
+				}
+
+			} else {
+				filename = argument;
+			}
+
+		}
+
+		if (filename == null) {
+			throw new RuntimeException(String.format(
+					"No filename specified: %s", unigram_file));
+		}
+
+		logger.info(String
+				.format("Creating unigram lexicon from file: %s and with min-count %d.",
+						filename, min_count));
+
+		LineIterator iterator = new LineIterator(filename);
+
+		unigram_lexicon_ = new Lexicon(Mode.lower);
+
+		while (iterator.hasNext()) {
+
+			List<String> line = iterator.next();
+
+			if (line.isEmpty())
+				continue;
+
+			checkUnigramLine(line.size() == 2, unigram_file, line);
+
+			String word = line.get(0);
+
+			int count = 0;
+			try {
+				String count_string = line.get(1);
+				count = Integer.valueOf(count_string);
+			} catch (NumberFormatException e) {
+				checkUnigramLine(false, unigram_file, line);
+			}
+
+			if (count >= min_count)
+				unigram_lexicon_.addEntry(word, count);
+		}
+
+		logger.info(String.format("Created unigram lexicon with %7d entries.",
+				unigram_lexicon_.size()));
+	}
+
+	private void checkUnigramLine(boolean condition, String unigram_file,
+			List<String> line) {
+		if (!condition) {
+			throw new RuntimeException(
+					String.format(
+							"Line in file %s should be of format <WORD> <COUNT>, but is \"%s\"",
+							unigram_file, line));
+		}
 	}
 
 	private void fillTables(RerankerInstance instance, LemmaCandidateSet set) {
@@ -86,19 +201,40 @@ public class Model implements Serializable {
 		instance.getFormChars(char_table_, true);
 
 		String postag = instance.getInstance().getPosTag();
-		pos_table_.insert(postag);
+		if (postag != null && pos_table_ != null )
+			pos_table_.insert(postag);
 
+		String morphtag = instance.getInstance().getMorphTag();
+		if (morphtag != null && morph_table_ != null) {			
+			getMorphFeatures(morphtag, true);
+		}
+		
 		for (Map.Entry<String, LemmaCandidate> candidate_pair : set) {
 			String lemma = candidate_pair.getKey();
 			LemmaCandidate candidate = candidate_pair.getValue();
-			
+
 			candidate.getLemmaChars(char_table_, lemma, true);
 			candidate.getAlignment(aligner_, form, lemma);
-			candidate.getTreeIndex(aligner_.getBuilder(), form, lemma, tree_table_, true);
-			
-			
+			candidate.getTreeIndex(aligner_.getBuilder(), form, lemma,
+					tree_table_, true);
+
 			lemma_table_.insert(lemma);
 		}
+	}
+
+	private List<Integer> getMorphFeatures(String morphtag, boolean insert) {
+		if (morphtag == null || morph_table_ == null || morphtag.equals('_')) {
+			return Collections.emptyList();
+		}
+		
+		List<Integer> list = new LinkedList<>();
+		for (String feat : morphtag.split("|") ) {
+			int index = morph_table_.toIndex(feat, -1, insert);
+			if (index >= 0) {
+				list.add(index);
+			}
+		}
+		return list;
 	}
 
 	public void addIndexes(RerankerInstance instance, LemmaCandidateSet set,
@@ -106,103 +242,130 @@ public class Model implements Serializable {
 		String form = instance.getInstance().getForm();
 		int form_index = form_table_.toIndex(form, -1);
 		String postag = instance.getInstance().getPosTag();
-		int pos_index = pos_table_.toIndex(postag, -1);
+		String morphtag = instance.getInstance().getMorphTag();
+		
+		Context c = new Context();
+		c.insert = insert;
+		
+		c.pos_index = -1;
+		if (pos_table_ != null && postag != null)
+			c.pos_index = pos_table_.toIndex(postag, -1, false);
+		
+		c.morph_indexes = Collections.emptyList();
+		if (morph_table_ != null && morphtag != null)
+			c.morph_indexes = getMorphFeatures(morphtag, false);
+		
 
-		int[] form_chars = instance.getFormChars(char_table_, insert);
+		int[] form_chars = instance.getFormChars(char_table_, false);
 
 		Encoder encoder = new Encoder(10);
 
 		for (Map.Entry<String, LemmaCandidate> candidate_pair : set) {
+			c.list = new LinkedList<>();
+			
 			String lemma = candidate_pair.getKey();
-			int lemma_index = lemma_table_.toIndex(lemma, -1);
+			int lemma_index = lemma_table_.toIndex(lemma, -1, false);
 
 			LemmaCandidate candidate = candidate_pair.getValue();
 
-			int[] lemma_chars = candidate.getLemmaChars(char_table_, lemma,
-					insert);
-
-			List<Integer> list = new LinkedList<>();
+			int[] lemma_chars = candidate.getLemmaChars(char_table_, lemma, false);
 
 			if (lemma_index >= 0) {
 				encoder.append(lemma_feature_, feature_bits_);
 				encoder.append(lemma_index, lemma_bits_);
-				addFeature(encoder, list, insert, pos_index);
+				addFeature(encoder, c);
 			}
 
 			if (lemma_index >= 0 && form_index >= 0) {
 				encoder.append(lemma_form_feature_, feature_bits_);
 				encoder.append(lemma_index, lemma_bits_);
 				encoder.append(form_index, form_bits_);
-				addFeature(encoder, list, insert, pos_index);
+				addFeature(encoder, c);
 			}
 
-			List<Integer> alignment = candidate.getAlignment(aligner_, form,
-					lemma);
+			List<Integer> alignment = candidate.getAlignment(aligner_, form, lemma);
 
-			addAlignmentIndexes(form_chars, lemma_chars, pos_index, alignment,
-					encoder, list, insert);
-			
-			int tree_index = candidate.getTreeIndex(aligner_.getBuilder(), form, lemma, tree_table_, insert);
-			
+			addAlignmentIndexes(c, form_chars, lemma_chars, alignment, encoder);
+
+			int tree_index = candidate.getTreeIndex(aligner_.getBuilder(), form, lemma, tree_table_, false);
+
 			if (tree_index >= 0) {
 				encoder.append(tree_feature_, feature_bits_);
 				encoder.append(tree_index, tree_bits_);
-				addFeature(encoder, list, insert, pos_index);
-				
+				addFeature(encoder, c);
+
 				encoder.append(tree_feature_, feature_bits_);
 				encoder.append(tree_index, tree_bits_);
-				addPrefixFeatures(form_chars, encoder, list, insert, pos_index);
+				addPrefixFeatures(c, form_chars, encoder);
 				encoder.reset();
-				
+
 				encoder.append(tree_feature_, feature_bits_);
 				encoder.append(tree_index, tree_bits_);
-				addSuffixFeatures(form_chars, encoder, list, insert, pos_index);
+				addSuffixFeatures(c, form_chars, encoder);
 				encoder.reset();
 			}
-			
-			addAffixIndexes(lemma_chars, encoder, list, insert, pos_index);
 
-			candidate.setFeatureIndexes(Converter.toIntArray(list));
+			addAffixIndexes(c, lemma_chars, encoder);
+
+			if (unigram_lexicon_ != null) {
+				int count = unigram_lexicon_.getCount(lemma);
+
+				int bin = 0;
+				if (count == 0) {
+					bin = 0;
+				} else if (count < 5) {
+					bin = 1;
+				} else {
+					assert count >= 5;
+					bin = 2;
+				}
+
+				encoder.append(lexicon_feature_, feature_bits_);
+				encoder.append(bin, unigram_count_bin_bits_);
+				addFeature(encoder, c);
+			}
+
+			candidate.setFeatureIndexes(Converter.toIntArray(c.list));
+			c.list = null;
 		}
 	}
 
-	private void addPrefixFeatures(int[] chars, Encoder encoder, List<Integer> list, boolean insert, int pos_index) {
+	private void addPrefixFeatures(Context context, int[] chars, Encoder encoder) {
 		encoder.append(false);
-		for (int i=0; i < Math.min(chars.length, max_affix_length_); i++) {
+		for (int i = 0; i < Math.min(chars.length, max_affix_length_); i++) {
 			int c = chars[i];
 			if (c < 0)
 				return;
 			encoder.append(c, char_bits_);
-			addFeature(encoder, list, insert, pos_index, false);
+			addFeature(encoder, context, false);
 		}
-	}
-	
-	private void addSuffixFeatures(int[] chars, Encoder encoder, List<Integer> list, boolean insert, int pos_index) {
-		encoder.append(true);
-		for (int i=chars.length - 1; i >= Math.max(0, chars.length - max_affix_length_); i--) {
-			int c = chars[i];
-			if (c < 0)
-				return;
-			encoder.append(c, char_bits_);
-			addFeature(encoder, list, insert, pos_index, false);
-		}
-	}
-		
-	private void addAffixIndexes(int[] lemma_chars, Encoder encoder, List<Integer> list,
-			boolean insert, int pos_index) {
-		encoder.append(affix_feature_, feature_bits_);
-		addPrefixFeatures(lemma_chars, encoder, list, insert, pos_index);	
-		encoder.reset();
-		
-		encoder.append(affix_feature_, feature_bits_);
-		addSuffixFeatures(lemma_chars, encoder, list, insert, pos_index);
-		encoder.reset();
-		
 	}
 
-	private void addAlignmentIndexes(int[] form_chars, int[] lemma_chars,
-			int pos_index, List<Integer> alignment, Encoder encoder,
-			List<Integer> list, boolean insert) {
+	private void addSuffixFeatures(Context context, int[] chars, Encoder encoder) {
+		encoder.append(true);
+		for (int i = chars.length - 1; i >= Math.max(0, chars.length
+				- max_affix_length_); i--) {
+			int c = chars[i];
+			if (c < 0)
+				return;
+			encoder.append(c, char_bits_);
+			addFeature(encoder, context, false);
+		}
+	}
+
+	private void addAffixIndexes(Context c, int[] lemma_chars, Encoder encoder) {
+		encoder.append(affix_feature_, feature_bits_);
+		addPrefixFeatures(c, lemma_chars, encoder);
+		encoder.reset();
+
+		encoder.append(affix_feature_, feature_bits_);
+		addSuffixFeatures(c, lemma_chars, encoder);
+		encoder.reset();
+
+	}
+
+	private void addAlignmentIndexes(Context c, int[] form_chars, int[] lemma_chars,
+			List<Integer> alignment, Encoder encoder) {
 
 		Iterator<Integer> iterator = alignment.iterator();
 
@@ -215,29 +378,28 @@ public class Model implements Serializable {
 			int input_end = input_start + input_length;
 			int output_end = output_start + output_length;
 
-			addAlignmentIndexes(form_chars, lemma_chars, pos_index, encoder,
-					input_start, input_end, output_start, output_end, list,
-					insert);
+			addAlignmentSegmentIndexes(c, form_chars, lemma_chars, encoder,
+					input_start, input_end, output_start, output_end);
 
 			input_start = input_end;
 			output_start = output_end;
 		}
 	}
 
-	private void addAlignmentIndexes(int[] form_chars, int[] lemma_chars,
-			int pos_index, Encoder encoder, int input_start, int input_end,
-			int output_start, int output_end, List<Integer> list, boolean insert) {
+	private void addAlignmentSegmentIndexes(Context c, int[] form_chars, int[] lemma_chars,
+			Encoder encoder, int input_start, int input_end,
+			int output_start, int output_end) {
 
 		if (isCopySegment(form_chars, lemma_chars, input_start, input_end,
 				output_start, output_end)) {
 			encoder.append(align_copy_feature_, feature_bits_);
-			addFeature(encoder, list, insert, pos_index);
+			addFeature(encoder, c);
 		} else {
 
 			encoder.append(align_feature_, feature_bits_);
 			addSegment(form_chars, input_start, input_end, encoder);
 			addSegment(form_chars, output_start, output_end, encoder);
-			addFeature(encoder, list, insert, pos_index);
+			addFeature(encoder, c);
 
 			for (int window = 1; window <= max_window; window++) {
 
@@ -247,7 +409,7 @@ public class Model implements Serializable {
 				addSegment(form_chars, input_start - window,
 						input_end + window, encoder);
 				addSegment(form_chars, output_start, output_end, encoder);
-				addFeature(encoder, list, insert, pos_index);
+				addFeature(encoder, c);
 
 				encoder.append(align_window_feature_, feature_bits_);
 				encoder.append(window, window_bits_);
@@ -255,7 +417,7 @@ public class Model implements Serializable {
 				addSegment(form_chars, input_start, input_end, encoder);
 				addSegment(form_chars, output_start - window, output_end
 						+ window, encoder);
-				addFeature(encoder, list, insert, pos_index);
+				addFeature(encoder, c);
 
 			}
 		}
@@ -287,33 +449,44 @@ public class Model implements Serializable {
 
 			if (c < 0)
 				return;
-			
+
 			encoder.append(c, char_bits_);
 		}
 	}
 
-	private void addFeature(Encoder encoder, List<Integer> list,
-			boolean insert, int pos_index, boolean reset) {
-		int index = feature_table_.toIndex(encoder.getFeature(), -1, insert);
+	private void addFeature(Encoder encoder, Context c, boolean reset) {
+		int index = feature_table_.toIndex(encoder.getFeature(), -1, c.insert);
 		if (index >= 0) {
-			list.add(index);
+			c.list.add(index);
 
-			if (pos_index >= 0) {
-				encoder.append(pos_index, pos_bits_);
+			if (c.pos_index >= 0) {
+				encoder.append(c.pos_index, pos_bits_);
 				index = feature_table_
-						.toIndex(encoder.getFeature(), -1, insert);
+						.toIndex(encoder.getFeature(), -1, c.insert);
 				if (index >= 0) {
-					list.add(index);
+					c.list.add(index);
 				}
 			}
+			
+			if (morph_table_ != null && !c.morph_indexes.isEmpty()) {
+				encoder.storeState();
+				for (int morph_index : c.morph_indexes) {
+					encoder.append(morph_index, morph_bits_);
+					index = feature_table_
+							.toIndex(encoder.getFeature(), -1, c.insert);
+					if (index >= 0) {
+						c.list.add(index);
+					}
+				}
+			}
+			
 		}
 		if (reset)
 			encoder.reset();
 	}
-	
-	private void addFeature(Encoder encoder, List<Integer> list,
-			boolean insert, int pos_index) {
-		addFeature(encoder, list, insert, pos_index, true);
+
+	private void addFeature(Encoder encoder, Context c) {
+		addFeature(encoder, c, true);
 	}
 
 	public String select(RerankerInstance instance) {

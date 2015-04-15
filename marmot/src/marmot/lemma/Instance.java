@@ -16,19 +16,19 @@ public class Instance {
 	double count_;
 	String form_;
 	String lemma_;
-	String tag_;
+	String ptag_;
 	String mtag_;
 	
 	@Override
 	public String toString() {
-		return String.format("%s %s : %s", form_, tag_, lemma_);
+		return String.format("%s %s %s : %s", form_, ptag_, mtag_, lemma_);
 	}
 	
 	public Instance(String form, String lemma, String tag, String mtag) {
 		count_ = 1;
 		form_ = form;
 		lemma_ = lemma;
-		tag_ = tag;
+		ptag_ = tag;
 		mtag_ = mtag;
 	}
 
@@ -41,7 +41,7 @@ public class Instance {
 	}
 
 	public String getPosTag() {
-		return tag_;
+		return ptag_;
 	}
 	
 	public void setCount(double count) {
@@ -59,7 +59,7 @@ public class Instance {
 		result = prime * result + ((form_ == null) ? 0 : form_.hashCode());
 		result = prime * result + ((lemma_ == null) ? 0 : lemma_.hashCode());
 		result = prime * result + ((mtag_ == null) ? 0 : mtag_.hashCode());
-		result = prime * result + ((tag_ == null) ? 0 : tag_.hashCode());
+		result = prime * result + ((ptag_ == null) ? 0 : ptag_.hashCode());
 		return result;
 	}
 
@@ -87,10 +87,10 @@ public class Instance {
 				return false;
 		} else if (!mtag_.equals(other.mtag_))
 			return false;
-		if (tag_ == null) {
-			if (other.tag_ != null)
+		if (ptag_ == null) {
+			if (other.ptag_ != null)
 				return false;
-		} else if (!tag_.equals(other.tag_))
+		} else if (!ptag_.equals(other.ptag_))
 			return false;
 		return true;
 	}
@@ -143,6 +143,10 @@ public class Instance {
 
 	public static List<Instance> getInstances(String file) {
 		return getInstances(new SentenceReader(file));
+	}
+
+	public String getMorphTag() {
+		return mtag_;
 	}
 
 }

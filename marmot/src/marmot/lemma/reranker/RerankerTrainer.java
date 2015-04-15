@@ -31,11 +31,20 @@ public class RerankerTrainer implements LemmatizerGeneratorTrainer {
 		public static final String GENERATOR_TRAINERS = "generator-trainers";
 		public static final String USE_PERCEPTRON = "use-perceptron";
 		public static String QUADRATIC_PENALTY = "quadratic-penalty";
+		public static String UNIGRAM_FILE = "unigram-file";
 
 		public RerankerTrainerOptions() {
 			map_.put(GENERATOR_TRAINERS, Arrays.asList(SimpleLemmatizerTrainer.class, EditTreeGeneratorTrainer.class));
 			map_.put(USE_PERCEPTRON, true);
 			map_.put(QUADRATIC_PENALTY, 0.00);
+			map_.put(UNIGRAM_FILE, "");
+		}
+		
+		public String getUnigramFile() {
+			String value = (String) getOption(UNIGRAM_FILE);
+			if (value.isEmpty())
+				return null;
+			return value;
 		}
 
 		public List<Object> getGeneratorTrainers() {
@@ -98,7 +107,7 @@ public class RerankerTrainer implements LemmatizerGeneratorTrainer {
 
 		Logger logger = Logger.getLogger(getClass().getName());
 		logger.info("Extracting features");
-		model.init(instances, options_.getRandom(), aligner);
+		model.init(options_, instances, aligner);
 			
 		if (options_.getUsePerceptron()) {
 			runPerceptron(model, instances);	

@@ -17,6 +17,7 @@ public abstract class Options implements Serializable {
 	public static final String USE_POS = "use-pos";
 	public static final String AVERAGING = "averaging";
 	public static final String LIMIT = "limit";
+	private static final String USE_MORPH = "use-morph";
 	
 	private Random random_;
 
@@ -28,6 +29,7 @@ public abstract class Options implements Serializable {
 		map_.put(VERBOSITY, 0);
 		map_.put(AVERAGING, true);
 		map_.put(USE_POS, true);
+		map_.put(USE_MORPH, false);
 		map_.put(LIMIT, -1);
 		
 	}
@@ -50,6 +52,10 @@ public abstract class Options implements Serializable {
 	public boolean getUsePos() {
 		return (Boolean) getOption(USE_POS);
 	}
+	
+	public boolean getUseMorph() {
+		return (Boolean) getOption(USE_MORPH);
+	}
 
 	public boolean getAveraging() {
 		return (Boolean) getOption(AVERAGING);
@@ -63,11 +69,19 @@ public abstract class Options implements Serializable {
 		return current_value;
 	}
 
+	private static final String BSLASH_SYM = "%%BSLASH%%";
+	private static final String COMMA_SYM = "%%COMMA%%"; 
+	private static final String SEMICOL_SYM = "%%SEMICOL%%";
+	
 	public void readArguments(String options_string) {
 		if (options_string.equals("_"))
 			return;
 		
+		options_string = options_string.replace("\\,", COMMA_SYM).replace("\\;", SEMICOL_SYM).replace("\\\\", BSLASH_SYM);
+		
 		for (String option : options_string.split(",")) {
+			option = option.replace(COMMA_SYM, ",").replace(SEMICOL_SYM, ";").replace(BSLASH_SYM, "\\");
+			
 			int index = option.indexOf('=');
 			if (index < 0) {
 				throw new RuntimeException(String.format("Not = in " + option));

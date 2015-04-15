@@ -23,10 +23,17 @@ public class RerankerTrainerTest extends SimpleTrainerTest {
 	public void smallTest() {
 		RerankerTrainer trainer = new RerankerTrainer();
 		
-		((RerankerTrainerOptions) trainer.getOptions()).setOption(RerankerTrainerOptions.GENERATOR_TRAINERS, Arrays.asList(EditTreeGeneratorTrainer.class, SimpleLemmatizerTrainer.class, ToutanovaTrainer.class));
+		//((RerankerTrainerOptions) trainer.getOptions()).setOption(RerankerTrainerOptions.GENERATOR_TRAINERS, Arrays.asList(EditTreeGeneratorTrainer.class, SimpleLemmatizerTrainer.class, ToutanovaTrainer.class));
 		
 		trainer.getOptions().setOption(RerankerTrainerOptions.USE_PERCEPTRON, false).setOption(RerankerTrainerOptions.QUADRATIC_PENALTY, 0.005);
+		trainer.getOptions().setOption(RerankerTrainerOptions.UNIGRAM_FILE, "min-count=0,/mounts/data/proj/marmot/lemmatizer/data/de/unigrams.txt");
+		
 		runModerateTest(trainer, 1., 95.86);
+		
+		// 38.80s 95.76
+		// 75.92s 96.27
+		// 51.95s 96.46
+		// 54.35s 95.56
 		
 		// 95.68
 		// 95.75
