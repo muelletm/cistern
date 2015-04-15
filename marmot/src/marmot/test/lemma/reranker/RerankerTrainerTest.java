@@ -25,8 +25,10 @@ public class RerankerTrainerTest extends SimpleTrainerTest {
 		//trainer.getOptions().setOption(RerankerTrainerOptions.UNIGRAM_FILE, "min-count=5,/mounts/data/proj/marmot/lemmatizer/data/de/unigrams.txt");
 		trainer.getOptions().setOption(Options.USE_MORPH, true);
 		
-		runSmallTest(trainer, 1., 1., true);
+		runModerateTest(trainer, 1., 1., true);
 		
+		// MEMORY 5500000 tokens: (25187721) instances: 1270 /3812 = 19832 
+		// MEMORY 1500000 tokens: ( 4948460) instances: 3723 /3812 =  1329
 		
 		// 25s 87.49 86.97
 		

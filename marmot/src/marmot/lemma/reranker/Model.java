@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import sun.font.CreatedFontTracker;
-
 import marmot.core.Feature;
 import marmot.lemma.LemmaCandidate;
 import marmot.lemma.LemmaCandidateSet;
@@ -21,7 +19,6 @@ import marmot.util.LineIterator;
 import marmot.util.StringUtils.Mode;
 import marmot.util.SymbolTable;
 import marmot.util.edit.EditTree;
-import marmot.util.Runtime;
 
 public class Model implements Serializable {
 
@@ -50,11 +47,6 @@ public class Model implements Serializable {
 	private static final int unigram_count_bin_bits_ = Encoder.bitsNeeded(4);
 	private static final int max_weights_length_ = 100_000_000;
 	
-	private int real_capacity_ = 0;
-	private int num_instances_ = 0;
-	
-	private int extracted_features_ = 0;
-	
 	private static final int encoder_capacity_ = 6;
 	
 	private int lemma_bits_;
@@ -70,8 +62,8 @@ public class Model implements Serializable {
 	private Feature feature_;
 	private Encoder encoder_;
 	private Context context_;
-	private int current_instance_;
-
+	private int real_capacity_;
+	
 	private static class Context {
 		public int pos_index;
 		public List<Integer> morph_indexes;
@@ -113,11 +105,13 @@ public class Model implements Serializable {
 		if (pos_table_ != null) {
 			pos_bits_ = Encoder.bitsNeeded(pos_table_.size());
 			logger.info(String.format("Number of POS features: %d", pos_table_.size()));
+			logger.info(String.format("POS features: %s", pos_table_.keySet()));
 		}
 		
 		if (morph_table_ != null) {
 			morph_bits_ = Encoder.bitsNeeded(morph_table_.size());
 			logger.info(String.format("Number of morph features: %d", morph_table_.size()));
+			logger.info(String.format("Morph features: %s", morph_table_.keySet()));
 		}
 		
 		prepareUnigramFeature(options.getUnigramFile());
@@ -133,11 +127,8 @@ public class Model implements Serializable {
 		
 		logger.info("Starting feature index extraction.");
 		
-		current_instance_ = 0;
-		num_instances_ = instances.size();
 		for (RerankerInstance instance : instances) {
 			addIndexes(instance, instance.getCandidateSet(), true);
-			current_instance_ ++;
 		}
 
 		int length = Math.min(feature_table_.size(), max_weights_length_ );
@@ -261,7 +252,7 @@ public class Model implements Serializable {
 			return;
 		}
 		
-		for (String feat : morphtag.split("|") ) {
+		for (String feat : morphtag.split("\\|") ) {
 			int index = morph_table_.toIndex(feat, -1, insert);
 			if (index >= 0 && list != null) {
 				list.add(index);
@@ -354,7 +345,6 @@ public class Model implements Serializable {
 			}
 
 			candidate.setFeatureIndexes(Converter.toIntArray(context_.list));
-			extracted_features_ += context_.list.size();
 		}
 	}
 
@@ -494,13 +484,6 @@ public class Model implements Serializable {
 			if (context_.insert) {
 				real_capacity_ = Math.max(real_capacity_, feature_.getCurrentLength());
 				index = feature_table_.toIndex(feature_, true);
-				
-
-				if (feature_table_.size() % 500000 == 0) {
-					Logger logger = Logger.getLogger(getClass().getName());
-					logger.info(String.format("num features:: types: %d tokens: (%d) instances: %d /%d", feature_table_.size(), extracted_features_, current_instance_, num_instances_));
-				}
-				
 				feature_ = new Feature(encoder_capacity_);
 			}
 			
