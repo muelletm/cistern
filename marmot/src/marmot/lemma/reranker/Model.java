@@ -122,9 +122,10 @@ public class Model implements Serializable {
 		encoder_ = new Encoder(encoder_capacity_);
 		feature_ = new Feature(encoder_capacity_);
 		
-		int index = 0;
+		
+		logger.info("Starting feature index extraction.");
 		for (RerankerInstance instance : instances) {
-			addIndexes(index++, instances.size(), instance, instance.getCandidateSet(), true);
+			addIndexes(instance, instance.getCandidateSet(), true);
 		}
 
 		int length = Math.min(feature_table_.size(), max_weights_length_ );
@@ -254,7 +255,7 @@ public class Model implements Serializable {
 		}
 	}
 
-	public void addIndexes(int index, int num_instances, RerankerInstance instance, LemmaCandidateSet set,
+	public void addIndexes(RerankerInstance instance, LemmaCandidateSet set,
 			boolean insert) {
 		String form = instance.getInstance().getForm();
 		int form_index = form_table_.toIndex(form, -1);

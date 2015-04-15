@@ -22,7 +22,7 @@ public class Reranker implements LemmatizerGenerator {
 		LemmaCandidateSet set = new LemmaCandidateSet(instance.getForm());
 		addCandidates(instance, set);;
 		RerankerInstance rinstance = new RerankerInstance(instance, set);
-		model_.addIndexes(0, 0, rinstance, set, false);
+		model_.addIndexes(rinstance, set, false);
 		return model_.select(rinstance);
 	}
 
