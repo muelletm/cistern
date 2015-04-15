@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import sun.font.CreatedFontTracker;
+
 import marmot.core.Feature;
 import marmot.lemma.LemmaCandidate;
 import marmot.lemma.LemmaCandidateSet;
@@ -49,6 +51,9 @@ public class Model implements Serializable {
 	private static final int max_weights_length_ = 100_000_000;
 	
 	private int real_capacity_ = 0;
+	private int num_instances_ = 0;
+	
+	private int extracted_features_ = 0;
 	
 	private static final int encoder_capacity_ = 6;
 	
@@ -65,6 +70,7 @@ public class Model implements Serializable {
 	private Feature feature_;
 	private Encoder encoder_;
 	private Context context_;
+	private int current_instance_;
 
 	private static class Context {
 		public int pos_index;
@@ -126,8 +132,12 @@ public class Model implements Serializable {
 		
 		
 		logger.info("Starting feature index extraction.");
+		
+		current_instance_ = 0;
+		num_instances_ = instances.size();
 		for (RerankerInstance instance : instances) {
 			addIndexes(instance, instance.getCandidateSet(), true);
+			current_instance_ ++;
 		}
 
 		int length = Math.min(feature_table_.size(), max_weights_length_ );
@@ -344,6 +354,7 @@ public class Model implements Serializable {
 			}
 
 			candidate.setFeatureIndexes(Converter.toIntArray(context_.list));
+			extracted_features_ += context_.list.size();
 		}
 	}
 
@@ -487,7 +498,7 @@ public class Model implements Serializable {
 
 				if (feature_table_.size() % 500000 == 0) {
 					Logger logger = Logger.getLogger(getClass().getName());
-					logger.info(String.format("num features: %d", feature_table_.size()));
+					logger.info(String.format("num features:: types: %d tokens: (%d) instances: %d /%d", feature_table_.size(), extracted_features_, current_instance_, num_instances_));
 				}
 				
 				feature_ = new Feature(encoder_capacity_);
