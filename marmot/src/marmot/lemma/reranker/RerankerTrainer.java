@@ -127,7 +127,7 @@ public class RerankerTrainer implements LemmatizerGeneratorTrainer {
 		Logger logger =Logger.getLogger(getClass().getName());
 		
 		double memory_used_before_optimization = Runtime.getUsedMemoryInMegaBytes();
-		double memory_usage_of_one_weights_array = model.getWeights().length * Double.SIZE / (8. * 1024. * 1024.);
+		double memory_usage_of_one_weights_array = (double) model.getWeights().length * (double) Double.SIZE / (8. * 1024. * 1024.);
 		logger.info(String.format("Memory usage of weights array: %g (%g) MB", Runtime.getUsedMemoryInMegaBytes(model.getWeights(), false), memory_usage_of_one_weights_array));
 		logger.info(String.format("Memory usage: %g / %g MB", memory_used_before_optimization , Runtime.getMaxHeapSizeInMegaBytes()));
 
