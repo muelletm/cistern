@@ -17,7 +17,7 @@ public abstract class Options implements Serializable {
 	public static final String USE_POS = "use-pos";
 	public static final String AVERAGING = "averaging";
 	public static final String LIMIT = "limit";
-	private static final String USE_MORPH = "use-morph";
+	public static final String USE_MORPH = "use-morph";
 	
 	private Random random_;
 

@@ -20,6 +20,7 @@ import marmot.util.LineIterator;
 import marmot.util.StringUtils.Mode;
 import marmot.util.SymbolTable;
 import marmot.util.edit.EditTree;
+import marmot.util.Runtime;
 
 public class Model implements Serializable {
 
@@ -46,7 +47,10 @@ public class Model implements Serializable {
 	private static final int lexicon_feature_ = 7;
 	private static final int feature_bits_ = Encoder.bitsNeeded(7);
 	private static final int unigram_count_bin_bits_ = Encoder.bitsNeeded(4);
-
+	private static final int max_weights_length_ = 100_000_000;
+	
+	private static final int encoder_size_ = 11;
+	
 	private int lemma_bits_;
 	private int form_bits_;
 	private int pos_bits_;
@@ -56,6 +60,8 @@ public class Model implements Serializable {
 	private RerankerTrainerOptions options_;
 	private SymbolTable<String> morph_table_;
 	private int morph_bits_;
+	
+	
 
 	private static class Context {
 		public int pos_index;
@@ -69,6 +75,7 @@ public class Model implements Serializable {
 
 	public void init(RerankerTrainerOptions options,
 			List<RerankerInstance> instances, EditTreeAligner aligner) {
+		Logger logger = Logger.getLogger(getClass().getName());
 		options_ = options;
 		aligner_ = aligner;
 
@@ -96,21 +103,26 @@ public class Model implements Serializable {
 		
 		if (pos_table_ != null) {
 			pos_bits_ = Encoder.bitsNeeded(pos_table_.size());
+			logger.info(String.format("Number of POS features: %d", pos_table_.size()));
 		}
 		
 		if (morph_table_ != null) {
 			morph_bits_ = Encoder.bitsNeeded(morph_table_.size());
+			logger.info(String.format("Number of morph features: %d", morph_table_.size()));
 		}
 		
 		prepareUnigramFeature(options.getUnigramFile());
 
 		feature_table_ = new SymbolTable<>();
 		
+		int index = 0;
 		for (RerankerInstance instance : instances) {
-			addIndexes(instance, instance.getCandidateSet(), true);
+			addIndexes(index++, instances.size(), instance, instance.getCandidateSet(), true);
 		}
 
-		weights_ = new double[feature_table_.size()];
+		int length = Math.min(feature_table_.size(), max_weights_length_ );
+		weights_ = new double[length];
+		logger.info(String.format("Number of features: %d", feature_table_.size()));
 	}
 
 	private void prepareUnigramFeature(String unigram_file) {
@@ -237,8 +249,14 @@ public class Model implements Serializable {
 		return list;
 	}
 
-	public void addIndexes(RerankerInstance instance, LemmaCandidateSet set,
+	public void addIndexes(int index, int num_instances, RerankerInstance instance, LemmaCandidateSet set,
 			boolean insert) {
+		
+		if (index % 1000 == 0) {
+			Logger logger = Logger.getLogger(getClass().getName());
+			logger.info(String.format("%5d / %5d :: Memory usage: %g / %g MB", index, num_instances, Runtime.getUsedMemoryInMegaBytes() , Runtime.getMaxHeapSizeInMegaBytes()));
+		}
+		
 		String form = instance.getInstance().getForm();
 		int form_index = form_table_.toIndex(form, -1);
 		String postag = instance.getInstance().getPosTag();
@@ -258,7 +276,7 @@ public class Model implements Serializable {
 
 		int[] form_chars = instance.getFormChars(char_table_, false);
 
-		Encoder encoder = new Encoder(10);
+		Encoder encoder = new Encoder(encoder_size_);
 
 		for (Map.Entry<String, LemmaCandidate> candidate_pair : set) {
 			c.list = new LinkedList<>();
@@ -453,29 +471,39 @@ public class Model implements Serializable {
 			encoder.append(c, char_bits_);
 		}
 	}
+	
+	private int getFeatureIndex(Context c, Encoder encoder) {
+		if (feature_table_ != null) {
+			return feature_table_.toIndex(encoder.getFeature(), -1, c.insert);	 
+		}		
+		return encoder.hashCode();
+	}
 
 	private void addFeature(Encoder encoder, Context c, boolean reset) {
-		int index = feature_table_.toIndex(encoder.getFeature(), -1, c.insert);
+		int index = getFeatureIndex(c, encoder);
 		if (index >= 0) {
 			c.list.add(index);
 
 			if (c.pos_index >= 0) {
+				encoder.storeState();
 				encoder.append(c.pos_index, pos_bits_);
-				index = feature_table_
-						.toIndex(encoder.getFeature(), -1, c.insert);
+				index = getFeatureIndex(c, encoder);
+				encoder.restoreState();
+				
 				if (index >= 0) {
 					c.list.add(index);
 				}
-			}
-			
-			if (morph_table_ != null && !c.morph_indexes.isEmpty()) {
-				encoder.storeState();
-				for (int morph_index : c.morph_indexes) {
-					encoder.append(morph_index, morph_bits_);
-					index = feature_table_
-							.toIndex(encoder.getFeature(), -1, c.insert);
-					if (index >= 0) {
-						c.list.add(index);
+				
+				if (morph_table_ != null && !c.morph_indexes.isEmpty()) {
+					for (int morph_index : c.morph_indexes) {
+						encoder.append(c.pos_index, pos_bits_);
+						encoder.append(morph_index, morph_bits_);
+						index = getFeatureIndex(c, encoder);
+						encoder.restoreState();
+						
+						if (index >= 0) {
+							c.list.add(index);
+						}
 					}
 				}
 			}
@@ -509,7 +537,7 @@ public class Model implements Serializable {
 		assert candidate != null;
 		double score = 0.0;
 		for (int index : candidate.getFeatureIndexes()) {
-			score += weights_[index];
+			score += weights_[index % weights_.length];
 		}
 		return score;
 	}
@@ -522,7 +550,7 @@ public class Model implements Serializable {
 
 	private void update(LemmaCandidate candidate, double update) {
 		for (int index : candidate.getFeatureIndexes()) {
-			weights_[index] += update;
+			weights_[index % weights_.length] += update;
 		}
 	}
 

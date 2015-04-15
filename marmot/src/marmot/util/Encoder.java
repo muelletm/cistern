@@ -3,17 +3,21 @@
 
 package marmot.util;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 import marmot.core.Feature;
 
 
 
-public class Encoder {
+public class Encoder implements Serializable {
+	
 	private int[] bytes_;
 	private short current_array_length_;
 	private short current_bit_index_;
-	private short stored_curent_array_length_;
+	private short stored_array_length_;
+	private short stored_bit_index_;
+	private int stored_byte_;
 
 	public Encoder(int capacity) {
 		bytes_ = new int[capacity];
@@ -68,7 +72,7 @@ public class Encoder {
 	public void reset() {
 		current_array_length_ = 0;
 		current_bit_index_ = Integer.SIZE;
-		stored_curent_array_length_ = 0;
+		storeState();
 		Arrays.fill(bytes_, 0);
 	}
 
@@ -77,16 +81,60 @@ public class Encoder {
 	}
 
 	public void storeState() {
-		stored_curent_array_length_ = current_array_length_;
-		current_array_length_ ++;
-		current_bit_index_ = Integer.SIZE;
+		stored_array_length_ = current_array_length_;
+		stored_bit_index_ = current_bit_index_;
+		if (current_array_length_ > 0)
+			stored_byte_ = bytes_[current_array_length_  - 1];
+		else
+			stored_byte_ = 0;
 	}
 
 	public void restoreState() {
-		Arrays.fill(bytes_, stored_curent_array_length_ , current_array_length_ - 1, 0);
-		current_array_length_ = stored_curent_array_length_;
-		current_array_length_++;
-		current_bit_index_ = Integer.SIZE;
+		Arrays.fill(bytes_, stored_array_length_ , current_array_length_, 0);
+		current_array_length_ = stored_array_length_;
+		current_bit_index_ = stored_bit_index_;
+		if (current_array_length_ > 0)
+			bytes_[current_array_length_ - 1] = stored_byte_;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(bytes_);
+		result = prime * result + current_array_length_;
+		result = prime * result + current_bit_index_;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Encoder other = (Encoder) obj;
+		if (!Arrays.equals(bytes_, other.bytes_))
+			return false;
+		if (current_array_length_ != other.current_array_length_)
+			return false;
+		if (current_bit_index_ != other.current_bit_index_)
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "Encoder [bytes_=" + Arrays.toString(bytes_)
+				+ ", current_array_length_=" + current_array_length_
+				+ ", current_bit_index_=" + current_bit_index_
+				+ ", stored_array_length_=" + stored_array_length_
+				+ ", stored_bit_index_=" + stored_bit_index_
+				+ ", stored_byte_=" + stored_byte_ + "]";
+	}
+
+	
+	
 }

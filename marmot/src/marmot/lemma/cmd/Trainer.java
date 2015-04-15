@@ -1,7 +1,7 @@
 package marmot.lemma.cmd;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
 import marmot.lemma.Instance;
 import marmot.lemma.Lemmatizer;
@@ -14,7 +14,16 @@ public class Trainer {
 	
 	public static void main(String[] args) {
 		
-		System.err.println(Arrays.toString(args));
+//		Logger logger = Logger.getLogger(Trainer.class.getName());
+//		logger.info("Sleeping");
+//		
+//		try {
+//			Thread.sleep(100000);
+//		} catch (InterruptedException e) {
+//			throw new RuntimeException(e);
+//		}
+//		
+//		logger.info("Let's go!");
 		
 		String model_type = args[0];
 		String options_string = args[1];
@@ -41,6 +50,9 @@ public class Trainer {
 		
 		Options options = trainer.getOptions();	
 		options.readArguments(options_string);
+		
+		Logger logger = Logger.getLogger(Trainer.class.getName());
+		logger.info(options.report());
 
 		List<Instance> training_instances = Instance.getInstances(new SentenceReader(train_file), options.getLimit());
 		Lemmatizer lemmatizer = trainer.train(training_instances, null);

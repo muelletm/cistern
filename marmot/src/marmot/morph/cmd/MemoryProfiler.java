@@ -14,10 +14,10 @@ public class MemoryProfiler {
 
 	public static void main(String[] args) {
 		MorphTagger tagger = FileUtils.loadFromFile(args[0]);
-		long tagger_size = Runtime.getUsedMemory(tagger, compress);
+		long tagger_size = Runtime.getUsedMemoryInBytes(tagger, compress);
 		System.out.format("Tagger: %d bits\n", tagger_size);
 		MorphWeightVector vector = (MorphWeightVector) tagger.getWeightVector();
-		long weights_size = Runtime.getUsedMemory(vector.getWeights(), compress);
+		long weights_size = Runtime.getUsedMemoryInBytes(vector.getWeights(), compress);
 		System.out.format("Weights : %d bits = %g%%\n", weights_size, weights_size * 100. / tagger_size);
 	}
 }

@@ -54,16 +54,35 @@ public class SimpleTrainerTest {
 	}
 	
 	protected void runSmallTest(LemmatizerTrainer trainer, double train_acc, double test_acc) {
-		runTest(trainer, train_acc, test_acc, "trn_sml.tsv");
+		runSmallTest(trainer, train_acc, test_acc, false);
+	}
+	
+	protected void runSmallTest(LemmatizerTrainer trainer, double train_acc, double test_acc, boolean add_morph_indexes) {
+		runTest(trainer, train_acc, test_acc, "trn_sml.tsv", add_morph_indexes);
 	}
 	
 	protected void runModerateTest(LemmatizerTrainer trainer, double train_acc, double test_acc) {
-		runTest(trainer, train_acc, test_acc, "trn_mod.tsv");
+		runModerateTest(trainer, train_acc, test_acc, false);
 	}
 	
-	private final static String indexes = "form-index=4,lemma-index=5,tag-index=2,";
+	protected void runModerateTest(LemmatizerTrainer trainer, double train_acc, double test_acc, boolean add_morph_indexes) {
+		runTest(trainer, train_acc, test_acc, "trn_mod.tsv", add_morph_indexes);
+	}
 	
-	protected void runTest(LemmatizerTrainer trainer, double train_acc, double test_acc, String trainfile_name) {	
+	private final static String pos_indexes = "form-index=4,lemma-index=5,tag-index=2,";
+	private final static String morph_indexes = "form-index=4,lemma-index=5,tag-index=2,morph-index=3,";
+	
+	protected void runTest(LemmatizerTrainer trainer, double train_acc, double test_acc, String trainfile_name) {
+		runTest(trainer, train_acc, test_acc, trainfile_name, false);
+	}
+	
+	protected void runTest(LemmatizerTrainer trainer, double train_acc, double test_acc, String trainfile_name, boolean add_morph_indexes) {	
+		
+		String indexes = pos_indexes;
+		if (add_morph_indexes) {
+			indexes = morph_indexes;
+		}
+		
 		
 		String trainfile = indexes+ getResourceFile(trainfile_name);
 		
@@ -83,7 +102,7 @@ public class SimpleTrainerTest {
 	}
 	
 	protected void testIfLemmatizerIsSerializable(LemmatizerTrainer trainer) {
-		String trainfile = indexes+ getResourceFile("trn_sml.tsv");
+		String trainfile = pos_indexes + getResourceFile("trn_sml.tsv");
 		Copy.clone(trainer.train(Instance.getInstances(trainfile), null));
 	}
 

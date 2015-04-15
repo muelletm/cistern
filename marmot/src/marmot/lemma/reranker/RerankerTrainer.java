@@ -20,8 +20,11 @@ import marmot.lemma.SimpleLemmatizerTrainer;
 import marmot.lemma.edit.EditTreeGeneratorTrainer;
 import marmot.lemma.toutanova.EditTreeAligner;
 import marmot.lemma.toutanova.EditTreeAlignerTrainer;
+import marmot.util.Runtime;
+import cc.mallet.optimize.ConjugateGradient;
 import cc.mallet.optimize.LimitedMemoryBFGS;
 import cc.mallet.optimize.Optimizable.ByGradientValue;
+import cc.mallet.optimize.Optimizer;
 
 
 public class RerankerTrainer implements LemmatizerGeneratorTrainer {
@@ -123,17 +126,29 @@ public class RerankerTrainer implements LemmatizerGeneratorTrainer {
 	}
 
 	private void runMaxEnt(Model model, List<RerankerInstance> instances) {
-		ByGradientValue objective = new RankerObjective(options_, model, instances);
-		
-		LimitedMemoryBFGS optimizer = new LimitedMemoryBFGS(objective);
-		Logger.getLogger(LimitedMemoryBFGS.class.getName()).setLevel(Level.OFF);
-		
 		Logger logger =Logger.getLogger(getClass().getName());
 		
-		logger.info("Start optimization");
+		double memory_used_before_optimization = Runtime.getUsedMemoryInMegaBytes();
+		double memory_usage_of_one_weights_array = model.getWeights().length * Double.SIZE / (8. * 1024. * 1024.);
+		logger.info(String.format("Memory usage of weights array: %g (%g) MB", Runtime.getUsedMemoryInMegaBytes(model.getWeights(), false), memory_usage_of_one_weights_array));
+		logger.info(String.format("Memory usage: %g / %g MB", memory_used_before_optimization , Runtime.getMaxHeapSizeInMegaBytes()));
 
-		objective.setParameters(model.getWeights());		
+		logger.info("Start optimization");
+		ByGradientValue objective = new RankerObjective(options_, model, instances);
+		Optimizer optimizer = new LimitedMemoryBFGS(objective);
+		//Optimizer optimizer = new ConjugateGradient(objective);
+		
+		
+		Logger.getLogger(optimizer.getClass().getName()).setLevel(Level.OFF);
+		objective.setParameters(model.getWeights());
+		
         try {
+        	optimizer.optimize(1);
+        	
+        	double memory_usage_during_optimization = Runtime.getUsedMemoryInMegaBytes();
+        	logger.info(String.format("Memory usage: %g / %g MB", memory_usage_during_optimization, Runtime.getMaxHeapSizeInMegaBytes()));
+        	logger.info(String.format("Additional weight arrays: %g", (memory_usage_during_optimization - memory_used_before_optimization) / memory_usage_of_one_weights_array));
+        	
             optimizer.optimize(200);
         } catch (IllegalArgumentException e) {
         }

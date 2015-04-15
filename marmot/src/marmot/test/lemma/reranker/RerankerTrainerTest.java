@@ -1,12 +1,8 @@
 package marmot.test.lemma.reranker;
 
-import java.util.Arrays;
-
-import marmot.lemma.SimpleLemmatizerTrainer;
-import marmot.lemma.edit.EditTreeGeneratorTrainer;
+import marmot.lemma.Options;
 import marmot.lemma.reranker.RerankerTrainer;
 import marmot.lemma.reranker.RerankerTrainer.RerankerTrainerOptions;
-import marmot.lemma.toutanova.ToutanovaTrainer;
 import marmot.test.lemma.toutanova.SimpleTrainerTest;
 
 import org.junit.Test;
@@ -21,34 +17,43 @@ public class RerankerTrainerTest extends SimpleTrainerTest {
 
 	@Test
 	public void smallTest() {
+		try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+		
+		System.err.println("Let's go!");
+		
 		RerankerTrainer trainer = new RerankerTrainer();
 		
 		//((RerankerTrainerOptions) trainer.getOptions()).setOption(RerankerTrainerOptions.GENERATOR_TRAINERS, Arrays.asList(EditTreeGeneratorTrainer.class, SimpleLemmatizerTrainer.class, ToutanovaTrainer.class));
 		
-		trainer.getOptions().setOption(RerankerTrainerOptions.USE_PERCEPTRON, false).setOption(RerankerTrainerOptions.QUADRATIC_PENALTY, 0.005);
-		trainer.getOptions().setOption(RerankerTrainerOptions.UNIGRAM_FILE, "min-count=0,/mounts/data/proj/marmot/lemmatizer/data/de/unigrams.txt");
+		trainer.getOptions().setOption(RerankerTrainerOptions.USE_PERCEPTRON, false).setOption(RerankerTrainerOptions.QUADRATIC_PENALTY, 1.0);
+		trainer.getOptions().setOption(RerankerTrainerOptions.UNIGRAM_FILE, "min-count=5,/mounts/data/proj/marmot/lemmatizer/data/de/unigrams.txt");
+		trainer.getOptions().setOption(Options.USE_MORPH, true);
 		
-		runModerateTest(trainer, 1., 95.86);
+		runSmallTest(trainer, 1., 1., true);
+				
+		// POS
+		// CG    19.00s 88.59
+		// CG    22.00s 89.53
 		
-		// 38.80s 95.76
-		// 75.92s 96.27
-		// 51.95s 96.46
-		// 54.35s 95.56
+		// MORPH
+		// CG    69.00s 89.18
 		
-		// 95.68
-		// 95.75
+		// POS
+		// LBFGS 22.81s 88.89 
+		// LBFGS XX.XXs 89.10
 		
-		// 95.89
+		// MORPH 
+		// LBFGS 53.14s 89.43 c2=0.005
+		// LBFGS 52.27s 89.62 c2=0.100
+        // LBFGS 60.24s 89.55 c2=1.000
 		
-		// 99.89 95.74  0.0
-		// 99.89 95.78  0.0001
-		// 99.89 95.76  0.005
-		// 99.89 95.79  0.001
-		// 99.89 95.76  0.01
-		         
-		// 99.89 95.60  0.5
-		// 99.89 95.53    1
-		// 99.64 94.92   10
+		// POS
+		// LBFGS 67.52s 96.51	95.59 (8)
+		// CG    63.33s 96.22   95.30 (4)
 	}
 
 }
