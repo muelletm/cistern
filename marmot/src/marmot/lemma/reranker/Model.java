@@ -1,9 +1,8 @@
 package marmot.lemma.reranker;
 
 import java.io.Serializable;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -49,7 +48,7 @@ public class Model implements Serializable {
 	private static final int unigram_count_bin_bits_ = Encoder.bitsNeeded(4);
 	private static final int max_weights_length_ = 100_000_000;
 	
-	private static final int encoder_size_ = 11;
+	private static final int encoder_capacity_ = 11;
 	
 	private int lemma_bits_;
 	private int form_bits_;
@@ -61,7 +60,9 @@ public class Model implements Serializable {
 	private SymbolTable<String> morph_table_;
 	private int morph_bits_;
 	
-	
+	private Feature feature_;
+	private Encoder encoder_;
+	private Context context_;
 
 	private static class Context {
 		public int pos_index;
@@ -114,6 +115,12 @@ public class Model implements Serializable {
 		prepareUnigramFeature(options.getUnigramFile());
 
 		feature_table_ = new SymbolTable<>();
+		
+		context_ = new Context();
+		context_.list = new ArrayList<>();
+		context_.morph_indexes = new ArrayList<>();
+		encoder_ = new Encoder(encoder_capacity_);
+		feature_ = new Feature(encoder_capacity_);
 		
 		int index = 0;
 		for (RerankerInstance instance : instances) {
@@ -218,7 +225,7 @@ public class Model implements Serializable {
 
 		String morphtag = instance.getInstance().getMorphTag();
 		if (morphtag != null && morph_table_ != null) {			
-			getMorphFeatures(morphtag, true);
+			getMorphFeatures(morphtag, true, null);
 		}
 		
 		for (Map.Entry<String, LemmaCandidate> candidate_pair : set) {
@@ -234,52 +241,40 @@ public class Model implements Serializable {
 		}
 	}
 
-	private List<Integer> getMorphFeatures(String morphtag, boolean insert) {
+	private void getMorphFeatures(String morphtag, boolean insert, List<Integer> list) {
 		if (morphtag == null || morph_table_ == null || morphtag.equals('_')) {
-			return Collections.emptyList();
+			return;
 		}
 		
-		List<Integer> list = new LinkedList<>();
 		for (String feat : morphtag.split("|") ) {
 			int index = morph_table_.toIndex(feat, -1, insert);
-			if (index >= 0) {
+			if (index >= 0 && list != null) {
 				list.add(index);
 			}
 		}
-		return list;
 	}
 
 	public void addIndexes(int index, int num_instances, RerankerInstance instance, LemmaCandidateSet set,
 			boolean insert) {
-		
-		if (index % 1000 == 0) {
-			Logger logger = Logger.getLogger(getClass().getName());
-			logger.info(String.format("%5d / %5d :: Memory usage: %g / %g MB", index, num_instances, Runtime.getUsedMemoryInMegaBytes() , Runtime.getMaxHeapSizeInMegaBytes()));
-		}
-		
 		String form = instance.getInstance().getForm();
 		int form_index = form_table_.toIndex(form, -1);
+		
+		context_.insert = insert;
+		
+		context_.pos_index = -1;
 		String postag = instance.getInstance().getPosTag();
-		String morphtag = instance.getInstance().getMorphTag();
-		
-		Context c = new Context();
-		c.insert = insert;
-		
-		c.pos_index = -1;
 		if (pos_table_ != null && postag != null)
-			c.pos_index = pos_table_.toIndex(postag, -1, false);
+			context_.pos_index = pos_table_.toIndex(postag, -1, false);
 		
-		c.morph_indexes = Collections.emptyList();
+		String morphtag = instance.getInstance().getMorphTag();
+		context_.morph_indexes.clear();
 		if (morph_table_ != null && morphtag != null)
-			c.morph_indexes = getMorphFeatures(morphtag, false);
+			getMorphFeatures(morphtag, false, context_.morph_indexes);
 		
-
 		int[] form_chars = instance.getFormChars(char_table_, false);
 
-		Encoder encoder = new Encoder(encoder_size_);
-
 		for (Map.Entry<String, LemmaCandidate> candidate_pair : set) {
-			c.list = new LinkedList<>();
+			context_.list.clear();
 			
 			String lemma = candidate_pair.getKey();
 			int lemma_index = lemma_table_.toIndex(lemma, -1, false);
@@ -289,41 +284,41 @@ public class Model implements Serializable {
 			int[] lemma_chars = candidate.getLemmaChars(char_table_, lemma, false);
 
 			if (lemma_index >= 0) {
-				encoder.append(lemma_feature_, feature_bits_);
-				encoder.append(lemma_index, lemma_bits_);
-				addFeature(encoder, c);
+				encoder_.append(lemma_feature_, feature_bits_);
+				encoder_.append(lemma_index, lemma_bits_);
+				addFeature();
 			}
 
 			if (lemma_index >= 0 && form_index >= 0) {
-				encoder.append(lemma_form_feature_, feature_bits_);
-				encoder.append(lemma_index, lemma_bits_);
-				encoder.append(form_index, form_bits_);
-				addFeature(encoder, c);
+				encoder_.append(lemma_form_feature_, feature_bits_);
+				encoder_.append(lemma_index, lemma_bits_);
+				encoder_.append(form_index, form_bits_);
+				addFeature();
 			}
 
 			List<Integer> alignment = candidate.getAlignment(aligner_, form, lemma);
 
-			addAlignmentIndexes(c, form_chars, lemma_chars, alignment, encoder);
+			addAlignmentIndexes(context_, form_chars, lemma_chars, alignment, encoder_);
 
 			int tree_index = candidate.getTreeIndex(aligner_.getBuilder(), form, lemma, tree_table_, false);
 
 			if (tree_index >= 0) {
-				encoder.append(tree_feature_, feature_bits_);
-				encoder.append(tree_index, tree_bits_);
-				addFeature(encoder, c);
+				encoder_.append(tree_feature_, feature_bits_);
+				encoder_.append(tree_index, tree_bits_);
+				addFeature();
 
-				encoder.append(tree_feature_, feature_bits_);
-				encoder.append(tree_index, tree_bits_);
-				addPrefixFeatures(c, form_chars, encoder);
-				encoder.reset();
+				encoder_.append(tree_feature_, feature_bits_);
+				encoder_.append(tree_index, tree_bits_);
+				addPrefixFeatures(context_, form_chars, encoder_);
+				encoder_.reset();
 
-				encoder.append(tree_feature_, feature_bits_);
-				encoder.append(tree_index, tree_bits_);
-				addSuffixFeatures(c, form_chars, encoder);
-				encoder.reset();
+				encoder_.append(tree_feature_, feature_bits_);
+				encoder_.append(tree_index, tree_bits_);
+				addSuffixFeatures(context_, form_chars, encoder_);
+				encoder_.reset();
 			}
 
-			addAffixIndexes(c, lemma_chars, encoder);
+			addAffixIndexes(context_, lemma_chars, encoder_);
 
 			if (unigram_lexicon_ != null) {
 				int count = unigram_lexicon_.getCount(lemma);
@@ -338,13 +333,12 @@ public class Model implements Serializable {
 					bin = 2;
 				}
 
-				encoder.append(lexicon_feature_, feature_bits_);
-				encoder.append(bin, unigram_count_bin_bits_);
-				addFeature(encoder, c);
+				encoder_.append(lexicon_feature_, feature_bits_);
+				encoder_.append(bin, unigram_count_bin_bits_);
+				addFeature();
 			}
 
-			candidate.setFeatureIndexes(Converter.toIntArray(c.list));
-			c.list = null;
+			candidate.setFeatureIndexes(Converter.toIntArray(context_.list));
 		}
 	}
 
@@ -355,7 +349,7 @@ public class Model implements Serializable {
 			if (c < 0)
 				return;
 			encoder.append(c, char_bits_);
-			addFeature(encoder, context, false);
+			addFeature(false);
 		}
 	}
 
@@ -367,7 +361,7 @@ public class Model implements Serializable {
 			if (c < 0)
 				return;
 			encoder.append(c, char_bits_);
-			addFeature(encoder, context, false);
+			addFeature(false);
 		}
 	}
 
@@ -411,13 +405,13 @@ public class Model implements Serializable {
 		if (isCopySegment(form_chars, lemma_chars, input_start, input_end,
 				output_start, output_end)) {
 			encoder.append(align_copy_feature_, feature_bits_);
-			addFeature(encoder, c);
+			addFeature();
 		} else {
 
 			encoder.append(align_feature_, feature_bits_);
 			addSegment(form_chars, input_start, input_end, encoder);
 			addSegment(form_chars, output_start, output_end, encoder);
-			addFeature(encoder, c);
+			addFeature();
 
 			for (int window = 1; window <= max_window; window++) {
 
@@ -427,7 +421,7 @@ public class Model implements Serializable {
 				addSegment(form_chars, input_start - window,
 						input_end + window, encoder);
 				addSegment(form_chars, output_start, output_end, encoder);
-				addFeature(encoder, c);
+				addFeature();
 
 				encoder.append(align_window_feature_, feature_bits_);
 				encoder.append(window, window_bits_);
@@ -435,7 +429,7 @@ public class Model implements Serializable {
 				addSegment(form_chars, input_start, input_end, encoder);
 				addSegment(form_chars, output_start - window, output_end
 						+ window, encoder);
-				addFeature(encoder, c);
+				addFeature();
 
 			}
 		}
@@ -472,37 +466,50 @@ public class Model implements Serializable {
 		}
 	}
 	
-	private int getFeatureIndex(Context c, Encoder encoder) {
+	private int getFeatureIndex() {
 		if (feature_table_ != null) {
-			return feature_table_.toIndex(encoder.getFeature(), -1, c.insert);	 
+			
+			encoder_.copyToFeature(feature_);
+			
+			int index = feature_table_.toIndex(feature_, -1, false);
+			if (index >= 0)
+				return index;
+			
+			if (context_.insert) {
+				index = feature_table_.toIndex(feature_, true);
+				feature_ = new Feature(encoder_capacity_);
+			}
+			
+			return index;	 
 		}		
-		return encoder.hashCode();
+		return encoder_.hashCode();
 	}
 
-	private void addFeature(Encoder encoder, Context c, boolean reset) {
-		int index = getFeatureIndex(c, encoder);
+	private void addFeature(boolean reset) {
+		int index = getFeatureIndex();
+		
 		if (index >= 0) {
-			c.list.add(index);
+			context_.list.add(index);
 
-			if (c.pos_index >= 0) {
-				encoder.storeState();
-				encoder.append(c.pos_index, pos_bits_);
-				index = getFeatureIndex(c, encoder);
-				encoder.restoreState();
+			if (context_.pos_index >= 0) {
+				encoder_.storeState();
+				encoder_.append(context_.pos_index, pos_bits_);
+				index = getFeatureIndex();
+				encoder_.restoreState();
 				
 				if (index >= 0) {
-					c.list.add(index);
+					context_.list.add(index);
 				}
 				
-				if (morph_table_ != null && !c.morph_indexes.isEmpty()) {
-					for (int morph_index : c.morph_indexes) {
-						encoder.append(c.pos_index, pos_bits_);
-						encoder.append(morph_index, morph_bits_);
-						index = getFeatureIndex(c, encoder);
-						encoder.restoreState();
+				if (morph_table_ != null && !context_.morph_indexes.isEmpty()) {
+					for (int morph_index : context_.morph_indexes) {
+						encoder_.append(context_.pos_index, pos_bits_);
+						encoder_.append(morph_index, morph_bits_);
+						index = getFeatureIndex();
+						encoder_.restoreState();
 						
 						if (index >= 0) {
-							c.list.add(index);
+							context_.list.add(index);
 						}
 					}
 				}
@@ -510,11 +517,11 @@ public class Model implements Serializable {
 			
 		}
 		if (reset)
-			encoder.reset();
+			encoder_.reset();
 	}
 
-	private void addFeature(Encoder encoder, Context c) {
-		addFeature(encoder, c, true);
+	private void addFeature() {
+		addFeature(true);
 	}
 
 	public String select(RerankerInstance instance) {

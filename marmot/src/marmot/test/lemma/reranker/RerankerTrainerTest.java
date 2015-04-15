@@ -17,24 +17,19 @@ public class RerankerTrainerTest extends SimpleTrainerTest {
 
 	@Test
 	public void smallTest() {
-		try {
-			Thread.sleep(10000);
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
-		}
-		
-		System.err.println("Let's go!");
-		
 		RerankerTrainer trainer = new RerankerTrainer();
 		
 		//((RerankerTrainerOptions) trainer.getOptions()).setOption(RerankerTrainerOptions.GENERATOR_TRAINERS, Arrays.asList(EditTreeGeneratorTrainer.class, SimpleLemmatizerTrainer.class, ToutanovaTrainer.class));
 		
 		trainer.getOptions().setOption(RerankerTrainerOptions.USE_PERCEPTRON, false).setOption(RerankerTrainerOptions.QUADRATIC_PENALTY, 1.0);
-		trainer.getOptions().setOption(RerankerTrainerOptions.UNIGRAM_FILE, "min-count=5,/mounts/data/proj/marmot/lemmatizer/data/de/unigrams.txt");
+		//trainer.getOptions().setOption(RerankerTrainerOptions.UNIGRAM_FILE, "min-count=5,/mounts/data/proj/marmot/lemmatizer/data/de/unigrams.txt");
 		trainer.getOptions().setOption(Options.USE_MORPH, true);
 		
-		runSmallTest(trainer, 1., 1., true);
-				
+		runSmallTest(trainer, 1., 1., false);
+		
+		
+		// 25s 87.49 86.97
+		
 		// POS
 		// CG    19.00s 88.59
 		// CG    22.00s 89.53

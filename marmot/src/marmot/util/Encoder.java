@@ -64,9 +64,9 @@ public class Encoder implements Serializable {
 	}
 
 	public Feature getFeature() {
-		int[] bytes = new int[bytes_.length];
-		System.arraycopy(bytes_, 0, bytes, 0, current_array_length_);
-		return new Feature(bytes, current_array_length_, current_bit_index_);
+		Feature feature = new Feature(bytes_.length);
+		copyToFeature(feature);
+		return feature;
 	}
 
 	public void reset() {
@@ -133,6 +133,16 @@ public class Encoder implements Serializable {
 				+ ", stored_array_length_=" + stored_array_length_
 				+ ", stored_bit_index_=" + stored_bit_index_
 				+ ", stored_byte_=" + stored_byte_ + "]";
+	}
+
+	public int getCapacity() {
+		return bytes_.length;
+	}
+
+	public void copyToFeature(Feature feature) {
+		System.arraycopy(bytes_, 0, feature.getBytes(), 0, bytes_.length);
+		feature.setArrayLength(current_array_length_);
+		feature.setBitIndex(current_bit_index_);
 	}
 
 	
