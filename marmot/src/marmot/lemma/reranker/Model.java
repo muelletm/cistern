@@ -48,7 +48,9 @@ public class Model implements Serializable {
 	private static final int unigram_count_bin_bits_ = Encoder.bitsNeeded(4);
 	private static final int max_weights_length_ = 100_000_000;
 	
-	private static final int encoder_capacity_ = 11;
+	private int real_capacity_ = 0;
+	
+	private static final int encoder_capacity_ = 6;
 	
 	private int lemma_bits_;
 	private int form_bits_;
@@ -131,6 +133,8 @@ public class Model implements Serializable {
 		int length = Math.min(feature_table_.size(), max_weights_length_ );
 		weights_ = new double[length];
 		logger.info(String.format("Number of features: %d", feature_table_.size()));
+		
+		logger.info(String.format("Real encoder capacity: %d", real_capacity_));
 	}
 
 	private void prepareUnigramFeature(String unigram_file) {
@@ -477,6 +481,7 @@ public class Model implements Serializable {
 				return index;
 			
 			if (context_.insert) {
+				real_capacity_ = Math.max(real_capacity_, feature_.getCurrentLength());
 				index = feature_table_.toIndex(feature_, true);
 				feature_ = new Feature(encoder_capacity_);
 			}
