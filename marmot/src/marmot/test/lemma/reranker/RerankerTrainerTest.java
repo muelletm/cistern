@@ -27,30 +27,13 @@ public class RerankerTrainerTest extends SimpleTrainerTest {
 		
 		runModerateTest(trainer, 1., 1., true);
 		
-		// MEMORY 5500000 tokens: (25187721) instances: 1270 /3812 = 19832 
-		// MEMORY 1500000 tokens: ( 4948460) instances: 3723 /3812 =  1329
+		// MORPH 88.09
+		// POS   87.40
 		
-		// 25s 87.49 86.97
+		// MORPH 88.06 78.32
+		// POS   87.39 86.91
 		
-		// POS
-		// CG    19.00s 88.59
-		// CG    22.00s 89.53
-		
-		// MORPH
-		// CG    69.00s 89.18
-		
-		// POS
-		// LBFGS 22.81s 88.89 
-		// LBFGS XX.XXs 89.10
-		
-		// MORPH 
-		// LBFGS 53.14s 89.43 c2=0.005
-		// LBFGS 52.27s 89.62 c2=0.100
-        // LBFGS 60.24s 89.55 c2=1.000
-		
-		// POS
-		// LBFGS 67.52s 96.51	95.59 (8)
-		// CG    63.33s 96.22   95.30 (4)
+		// 97.11
 	}
 
 }

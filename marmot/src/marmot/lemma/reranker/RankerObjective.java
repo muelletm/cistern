@@ -36,14 +36,18 @@ public class RankerObjective implements ByGradientValue {
 
 		for (RerankerInstance instance : instances_) {
 
+			int pos_index_ = instance.getPosIndex(model_.getPosTable(), false);
+			int[] morph_indexes_ = instance.getMorphIndexes(model_.getMorphTable(), false);
+			
 			model_.setWeights(weights_);
 
 			double logSum = Double.NEGATIVE_INFINITY;
 
+			
 			LemmaCandidateSet set = instance.getCandidateSet();
 			for (Map.Entry<String, LemmaCandidate> entry : set) {
 				LemmaCandidate candidate = entry.getValue();
-				double score = model_.score(candidate);
+				double score = model_.score(candidate, pos_index_, morph_indexes_);
 				candidate.setScore(score);
 				logSum = Numerics.sumLogProb(logSum, score);
 			}
