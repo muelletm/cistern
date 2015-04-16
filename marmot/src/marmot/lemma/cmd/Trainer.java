@@ -9,29 +9,22 @@ import marmot.lemma.LemmatizerTrainer;
 import marmot.lemma.Options;
 import marmot.lemma.Result;
 import marmot.morph.io.SentenceReader;
+import marmot.util.FileUtils;
 
 public class Trainer {
 	
 	public static void main(String[] args) {
 		
-//		Logger logger = Logger.getLogger(Trainer.class.getName());
-//		logger.info("Sleeping");
-//		
-//		try {
-//			Thread.sleep(100000);
-//		} catch (InterruptedException e) {
-//			throw new RuntimeException(e);
-//		}
-//		
-//		logger.info("Let's go!");
-		
 		String model_type = args[0];
 		String options_string = args[1];
-		String train_file = args[2];
-		String test_file = args[3];
-		String test_file2 = args[4];
+		String output_file = args[2];
+		String train_file = args[3];
+		String test_file = args[4];
+		String test_file2 = args[5];
 		
 		Lemmatizer lemmatizer = train(model_type, options_string, train_file);
+		
+		FileUtils.saveToFile(lemmatizer, output_file);
 		
 		test(lemmatizer, test_file);
 		test(lemmatizer, test_file2);

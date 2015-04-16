@@ -98,15 +98,15 @@ public class Model implements Serializable {
 		lemma_bits_ = Encoder.bitsNeeded(lemma_table_.size() - 1);
 		char_bits_ = Encoder.bitsNeeded(char_table_.size());
 		tree_bits_ = Encoder.bitsNeeded(tree_table_.size() - 1);
-		logger.info(String.format("Number of edit trees: %d", tree_table_.size()));
+		logger.info(String.format("Number of edit trees: %5d", tree_table_.size()));
 		
 		if (pos_table_ != null) {
-			logger.info(String.format("Number of POS features: %d", pos_table_.size()));
+			logger.info(String.format("Number of POS features: %3d", pos_table_.size()));
 			logger.info(String.format("POS features: %s", pos_table_.keySet()));
 		}
 		
 		if (morph_table_ != null) {
-			logger.info(String.format("Number of morph features: %d", morph_table_.size()));
+			logger.info(String.format("Number of morph features: %3d", morph_table_.size()));
 			logger.info(String.format("Morph features: %s", morph_table_.keySet()));
 		}
 		
@@ -131,15 +131,15 @@ public class Model implements Serializable {
 		long morph_length = (morph_table_ == null)? 1 : morph_table_.size() + 1;
 		
 		long actual_length = feat_length_ * pos_length_ * morph_length;
-		logger.info(String.format("Actual weights length: %d", actual_length));
+		logger.info(String.format("Actual weights length: %12d", actual_length));
 		
 		int length = (int) Math.min(actual_length, max_weights_length_);
 		
 		weights_ = new double[length];
-		logger.info(String.format("Number of features: %d", feature_table_.size()));
-		logger.info(String.format("Weights length: %d", weights_.length));
+		logger.info(String.format("Number of features: %10d", feature_table_.size()));
+		logger.info(String.format("Weights length: %6d", weights_.length));
 		
-		logger.info(String.format("Real encoder capacity: %d", real_capacity_));
+		logger.info(String.format("Real encoder capacity: %2d", real_capacity_));
 	}
 
 	private void prepareUnigramFeature(String unigram_file) {

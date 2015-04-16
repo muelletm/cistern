@@ -22,6 +22,7 @@ import marmot.util.Runtime;
 import cc.mallet.optimize.ConjugateGradient;
 import cc.mallet.optimize.LimitedMemoryBFGS;
 import cc.mallet.optimize.Optimizable.ByGradientValue;
+import cc.mallet.optimize.OptimizationException;
 import cc.mallet.optimize.Optimizer;
 
 
@@ -144,11 +145,16 @@ public class RerankerTrainer implements LemmatizerGeneratorTrainer {
         	optimizer.optimize(1);
         	
         	double memory_usage_during_optimization = Runtime.getUsedMemoryInMegaBytes();
-        	logger.info(String.format("Memory usage: %g / %g MB", memory_usage_during_optimization, Runtime.getMaxHeapSizeInMegaBytes()));
-        	logger.info(String.format("Additional weight arrays: %g", (memory_usage_during_optimization - memory_used_before_optimization) / memory_usage_of_one_weights_array));
+        	logger.info(String.format("Memory usage after first iteration: %g / %g MB", memory_usage_during_optimization, Runtime.getMaxHeapSizeInMegaBytes()));
+
+        	for (int i=0; i< 200 && !optimizer.isConverged(); i++) {
+                optimizer.optimize(1);
+                logger.info(String.format("Iteration: %3d / %3d", i + 1, 200));
+        	}
         	
-            optimizer.optimize(200);
+
         } catch (IllegalArgumentException e) {
+        } catch (OptimizationException e) {
         }
         
         logger.info("Finished optimization");
