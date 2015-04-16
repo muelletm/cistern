@@ -47,7 +47,7 @@ public class Model implements Serializable {
 	private static final int unigram_count_bin_bits_ = Encoder.bitsNeeded(4);
 	private static final int max_weights_length_ = 100_000_000;
 	
-	private static final int encoder_capacity_ = 6;
+	private static final int encoder_capacity_ = 8;
 	
 	private int lemma_bits_;
 	private int form_bits_;
