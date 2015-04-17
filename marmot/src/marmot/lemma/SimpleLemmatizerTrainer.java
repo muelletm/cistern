@@ -9,6 +9,7 @@ public class SimpleLemmatizerTrainer implements LemmatizerGeneratorTrainer {
 
 	public static class SimpleLemmatizerTrainerOptions extends Options {
 		
+		private static final long serialVersionUID = 1L;
 		public static final String HANDLE_UNSEEN = "handle-unseen";
 		public static final String USE_BACKUP = "use-backup";
 		public static final String ABSTAIN_IF_AMBIGIOUS = "abstain-if-ambigious";

@@ -1,4 +1,4 @@
-package marmot.lemma.reranker;
+package marmot.lemma.ranker;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,10 +24,11 @@ import cc.mallet.optimize.OptimizationException;
 import cc.mallet.optimize.Optimizer;
 
 
-public class RerankerTrainer implements LemmatizerGeneratorTrainer {
+public class RankerTrainer implements LemmatizerGeneratorTrainer {
 
 	public static class RerankerTrainerOptions extends Options {
 		
+		private static final long serialVersionUID = 1L;
 		public static final String GENERATOR_TRAINERS = "generator-trainers";
 		public static final String USE_PERCEPTRON = "use-perceptron";
 		public static String QUADRATIC_PENALTY = "quadratic-penalty";
@@ -47,6 +48,7 @@ public class RerankerTrainer implements LemmatizerGeneratorTrainer {
 			return value;
 		}
 
+		@SuppressWarnings("unchecked")
 		public List<Object> getGeneratorTrainers() {
 			return (List<Object>) getOption(GENERATOR_TRAINERS);
 		}
@@ -74,7 +76,7 @@ public class RerankerTrainer implements LemmatizerGeneratorTrainer {
 	
 	private RerankerTrainerOptions options_;
 	
-	public RerankerTrainer() {
+	public RankerTrainer() {
 		options_ = new RerankerTrainerOptions();
 	}
 
@@ -91,9 +93,9 @@ public class RerankerTrainer implements LemmatizerGeneratorTrainer {
 			List<LemmaCandidateGenerator> generators,
 			List<Instance> simple_instances) {
 
-		List<RerankerInstance> instances = RerankerInstance.getInstances(simple_instances, generators);
+		List<RankerInstance> instances = RankerInstance.getInstances(simple_instances, generators);
 				
-		Model model = new Model();
+		RankerModel model = new RankerModel();
 
 		EditTreeAligner aligner = (EditTreeAligner) new EditTreeAlignerTrainer(options_.getRandom(), false)
 				.train(simple_instances);
@@ -112,10 +114,10 @@ public class RerankerTrainer implements LemmatizerGeneratorTrainer {
 
 
 
-		return new Reranker(model, generators);
+		return new Ranker(model, generators);
 	}
 
-	private void runMaxEnt(Model model, List<RerankerInstance> instances) {
+	private void runMaxEnt(RankerModel model, List<RankerInstance> instances) {
 		Logger logger =Logger.getLogger(getClass().getName());
 		
 		double memory_used_before_optimization = Runtime.getUsedMemoryInMegaBytes();
@@ -151,7 +153,7 @@ public class RerankerTrainer implements LemmatizerGeneratorTrainer {
         logger.info("Finished optimization");
 	}
 
-	private void runPerceptron(Model model, List<RerankerInstance> instances) {
+	private void runPerceptron(RankerModel model, List<RankerInstance> instances) {
 		Logger logger = Logger.getLogger(getClass().getName());
 		
 		double[] weights = model.getWeights();
@@ -168,7 +170,7 @@ public class RerankerTrainer implements LemmatizerGeneratorTrainer {
 			int number = 0;
 			
 			Collections.shuffle(instances, options_.getRandom());
-			for (RerankerInstance instance : instances) {
+			for (RankerInstance instance : instances) {
 
 				String lemma = model.select(instance);
 

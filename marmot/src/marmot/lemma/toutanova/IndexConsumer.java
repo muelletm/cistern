@@ -9,6 +9,7 @@ import marmot.util.SymbolTable;
 
 public abstract class IndexConsumer implements Serializable {
 
+	private static final long serialVersionUID = 1L;
 	private SymbolTable<Feature> feature_map_;
 	private int num_pos_bits_;
 	protected DynamicWeights weights_;

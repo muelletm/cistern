@@ -7,7 +7,8 @@ import marmot.lemma.SimpleLemmatizerTrainer.SimpleLemmatizerTrainerOptions;
 
 public class SimpleLemmatizer implements LemmatizerGenerator {
 
-	private static final String SEPARATOR = "%|%|%";
+	private static final long serialVersionUID = 1L;
+	private static final String SEPARATOR = "\t";
 	private Map<String, List<String>> map_;
 	private SimpleLemmatizerTrainerOptions options_;
 

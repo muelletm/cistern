@@ -3,6 +3,7 @@ package marmot.util.edit;
 import marmot.util.Counter;
 
 public class MatchNode implements EditTree {
+	private static final long serialVersionUID = 1L;
 	private EditTree left_;
 	private EditTree right_;
 	

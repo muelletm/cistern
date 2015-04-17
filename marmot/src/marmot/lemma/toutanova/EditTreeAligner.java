@@ -11,6 +11,7 @@ import marmot.util.edit.ReplaceNode;
 
 public class EditTreeAligner implements Aligner {
 
+	private static final long serialVersionUID = 1L;
 	private EditTreeBuilder builder_;
 	private boolean merge_empty_input_segments_;
 

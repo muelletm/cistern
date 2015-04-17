@@ -12,6 +12,7 @@ import marmot.core.Feature;
 
 public class Encoder implements Serializable {
 	
+	private static final long serialVersionUID = 1L;
 	private int[] bytes_;
 	private short current_array_length_;
 	private short current_bit_index_;

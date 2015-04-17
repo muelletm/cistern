@@ -12,6 +12,7 @@ import java.io.Serializable;
 
 public class Copy {
 
+	@SuppressWarnings("unchecked")
 	public static <T extends Serializable> T clone(T object) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ObjectOutputStream oos = null;

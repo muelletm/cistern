@@ -4,6 +4,7 @@ import marmot.util.Counter;
 
 public class ReplaceNode implements EditTree {
 
+	private static final long serialVersionUID = 1L;
 	private String input_;
 	private String output_;
 

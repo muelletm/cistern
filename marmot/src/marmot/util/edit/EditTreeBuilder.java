@@ -12,6 +12,7 @@ import marmot.util.Counter;
 
 public class EditTreeBuilder implements Serializable {
 
+	private static final long serialVersionUID = 1L;
 	private Counter<String> counter_;
 	private transient Map<String, EditTree> cache_;
 	private transient StringBuilder sb_;

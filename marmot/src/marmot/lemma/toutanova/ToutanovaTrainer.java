@@ -15,6 +15,7 @@ public class ToutanovaTrainer implements LemmatizerGeneratorTrainer {
 
 	public static class ToutanovaOptions extends Options {
 
+		private static final long serialVersionUID = 1L;
 		public static final String FILTER_ALPHABET = "filter-alphabet";
 		public static final String ALIGNER_TRAINER = "aligner-trainer";
 		public static final String DECODER = "decoder";
@@ -111,7 +112,7 @@ public class ToutanovaTrainer implements LemmatizerGeneratorTrainer {
 
 		Logger logger = Logger.getLogger(getClass().getName());
 
-		Model model = new Model();
+		ToutanovaModel model = new ToutanovaModel();
 		model.init(options_, train_instances, dev_instances);
 
 		DynamicWeights weights = model.getWeights();

@@ -21,6 +21,7 @@ public class EditTreeGeneratorTrainer implements LemmaCandidateGeneratorTrainer 
 	
 	public static class EditTreeGeneratorTrainerOptions extends Options {
 		
+		private static final long serialVersionUID = 1L;
 		private static final String MIN_COUNT = "min-count";
 
 		public EditTreeGeneratorTrainerOptions() {

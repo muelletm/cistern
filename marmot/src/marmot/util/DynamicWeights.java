@@ -6,6 +6,7 @@ import java.util.Random;
 
 public class DynamicWeights implements Serializable {
 
+	private static final long serialVersionUID = 1L;
 	private double[] weights_;
 	private Random random_;
 

@@ -9,6 +9,7 @@ import java.util.Random;
 
 public abstract class Options implements Serializable {
 
+	private static final long serialVersionUID = 1L;
 	protected Map<String, Object> map_;
 
 	public final static String SEED = "seed";
@@ -93,6 +94,7 @@ public abstract class Options implements Serializable {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	protected Object getValue(Object current_value, Object value) {
 		Object new_value = null;
 

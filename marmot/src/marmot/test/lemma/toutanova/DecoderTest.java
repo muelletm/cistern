@@ -9,7 +9,7 @@ import java.util.List;
 import marmot.lemma.Instance;
 import marmot.lemma.toutanova.Decoder;
 import marmot.lemma.toutanova.FirstOrderDecoder;
-import marmot.lemma.toutanova.Model;
+import marmot.lemma.toutanova.ToutanovaModel;
 import marmot.lemma.toutanova.Result;
 import marmot.lemma.toutanova.ToutanovaInstance;
 import marmot.lemma.toutanova.ToutanovaTrainer;
@@ -21,7 +21,7 @@ public class DecoderTest {
 	@Test
 	public void test() {
 		
-		Model model = new Model();
+		ToutanovaModel model = new ToutanovaModel();
 		
 		List<ToutanovaInstance> train_instances = new LinkedList<>();
 		

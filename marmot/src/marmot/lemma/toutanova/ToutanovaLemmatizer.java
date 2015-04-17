@@ -10,12 +10,13 @@ import marmot.lemma.toutanova.ToutanovaTrainer.ToutanovaOptions;
 
 public class ToutanovaLemmatizer implements Lemmatizer, LemmatizerGenerator {
 
-	private Model model_;
+	private static final long serialVersionUID = 1L;
+	private ToutanovaModel model_;
 	private transient Decoder decoder_;
 	private transient NbestDecoder nbest_decoder_;
 	private ToutanovaOptions options_;
 
-	public ToutanovaLemmatizer(ToutanovaOptions options, Model model) {
+	public ToutanovaLemmatizer(ToutanovaOptions options, ToutanovaModel model) {
 		model_ = model;
 		options_ = options;
 	}
@@ -37,7 +38,7 @@ public class ToutanovaLemmatizer implements Lemmatizer, LemmatizerGenerator {
 		return tinstance;
 	}
 
-	public Model getModel() {
+	public ToutanovaModel getModel() {
 		return model_;
 	}
 

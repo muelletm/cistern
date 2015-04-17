@@ -21,7 +21,15 @@ public class Instance {
 	
 	@Override
 	public String toString() {
-		return String.format("%s %s %s : %s", form_, ptag_, mtag_, lemma_);
+		String ptag = "_";
+		if (ptag_ != null)
+			ptag = ptag_;
+		
+		String mtag = "_";
+		if (mtag_ != null)
+			mtag = mtag_;
+		
+		return String.format("%s\t%s\t%s\t%s", form_, ptag, mtag, lemma_);
 	}
 	
 	public Instance(String form, String lemma, String tag, String mtag) {
@@ -100,11 +108,11 @@ public class Instance {
 	}
 	
 	public static List<Instance> getInstances(Iterable<Sequence> reader, int limit) {
-		return getInstances(reader, limit, false, false);
+		return getInstances(reader, limit, true, true);
 	}
 	
 	public static List<Instance> getInstances(Iterable<Sequence> reader, boolean use_ptag, boolean use_mtag) {
-		return getInstances(reader, -1, false, false);
+		return getInstances(reader, -1, true, true);
 	}
 	
 	public static List<Instance> getInstances(Iterable<Sequence> reader, int limit, boolean use_postag, boolean use_mtag) {
@@ -117,10 +125,7 @@ public class Instance {
 				
 				number ++;
 				
-				Word word = (Word) token;
-				String form = word.getWordForm().toLowerCase();
-				String lemma = word.getLemma().toLowerCase();			
-				Instance instance = new Instance(form, lemma, (use_postag)? word.getPosTag() : null, (use_mtag) ? word.getMorphTag() : null);
+				Instance instance = Instance.getInstance((Word) token, use_postag, use_mtag);
 				
 				Mutable<Integer> mi = map.get(instance);
 				if (mi == null) {
@@ -155,6 +160,16 @@ public class Instance {
 
 	public String getMorphTag() {
 		return mtag_;
+	}
+
+	public static Instance getInstance(Word word, boolean use_postag, boolean use_mtag) {
+		String form = word.getWordForm().toLowerCase();
+		String lemma = word.getLemma().toLowerCase();			
+		return  new Instance(form, lemma, (use_postag)? word.getPosTag() : null, (use_mtag) ? word.getMorphTag() : null);	
+	}
+	
+	public static Instance getInstance(Word word) {
+		return getInstance(word, true, true);	
 	}
 
 }

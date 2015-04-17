@@ -6,6 +6,8 @@ import marmot.util.SymbolTable;
 
 public class IndexUpdater extends IndexConsumer {
 
+	private static final long serialVersionUID = 1L;
+
 	public IndexUpdater(DynamicWeights weights,
 			SymbolTable<Feature> feature_map, int num_pos_bits) {
 		super(weights, feature_map, num_pos_bits);

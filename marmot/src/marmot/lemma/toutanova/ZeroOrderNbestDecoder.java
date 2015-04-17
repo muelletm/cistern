@@ -25,7 +25,7 @@ public class ZeroOrderNbestDecoder implements NbestDecoder {
 		}
 	}
 
-	private Model model_;
+	private ToutanovaModel model_;
 	private int num_output_symbols_;
 	private int input_length_;
 	private ToutanovaInstance instance_;
@@ -45,7 +45,7 @@ public class ZeroOrderNbestDecoder implements NbestDecoder {
 	}
 	
 	@Override
-	public void init(Model model) {
+	public void init(ToutanovaModel model) {
 		model_ = model;
 		num_output_symbols_ = model_.getOutputTable().size();
 	}

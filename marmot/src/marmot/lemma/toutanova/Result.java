@@ -9,12 +9,12 @@ public class Result implements Comparable<Result> {
 
 	private List<Integer> outputs_;
 	private List<Integer> inputs_;
-	private Model model_;
+	private ToutanovaModel model_;
 	private double score_;
 	private String form_;
 	private HashableIntArray signature_;
 
-	public Result(Model model, List<Integer> outputs, List<Integer> inputs, String form, double score) {
+	public Result(ToutanovaModel model, List<Integer> outputs, List<Integer> inputs, String form, double score) {
 		model_ = model;
 		outputs_ = outputs;
 		inputs_ = inputs;
@@ -22,7 +22,7 @@ public class Result implements Comparable<Result> {
 		form_ = form;
 	}
 	
-	public Result(Model model, List<Integer> outputs, List<Integer> inputs, String form) {
+	public Result(ToutanovaModel model, List<Integer> outputs, List<Integer> inputs, String form) {
 		this(model, outputs, inputs, form, Double.NEGATIVE_INFINITY);
 	}
 

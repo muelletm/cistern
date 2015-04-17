@@ -7,7 +7,7 @@ import java.util.List;
 
 public class ZeroOrderDecoder implements Decoder {
 
-	private Model model_;
+	private ToutanovaModel model_;
 
 	private double[] score_array_;
 	private int[] output_array_;
@@ -17,7 +17,7 @@ public class ZeroOrderDecoder implements Decoder {
 	private int input_length_;
 	private ToutanovaInstance instance_;
 
-	public void init(Model model) {
+	public void init(ToutanovaModel model) {
 		assert model != null;
 		model_ = model;
 		num_output_symbols_ = model_.getOutputTable().size();	

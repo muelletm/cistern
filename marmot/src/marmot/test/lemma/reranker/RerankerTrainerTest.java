@@ -1,8 +1,8 @@
 package marmot.test.lemma.reranker;
 
 import marmot.lemma.Options;
-import marmot.lemma.reranker.RerankerTrainer;
-import marmot.lemma.reranker.RerankerTrainer.RerankerTrainerOptions;
+import marmot.lemma.ranker.RankerTrainer;
+import marmot.lemma.ranker.RankerTrainer.RerankerTrainerOptions;
 import marmot.test.lemma.toutanova.SimpleTrainerTest;
 
 import org.junit.Test;
@@ -11,13 +11,13 @@ public class RerankerTrainerTest extends SimpleTrainerTest {
 
 	@Test
 	public void isSerializable() {
-		testIfLemmatizerIsSerializable(new RerankerTrainer());
+		testIfLemmatizerIsSerializable(new RankerTrainer());
 	}
 	
 
 	@Test
 	public void smallTest() {
-		RerankerTrainer trainer = new RerankerTrainer();
+		RankerTrainer trainer = new RankerTrainer();
 		
 		//((RerankerTrainerOptions) trainer.getOptions()).setOption(RerankerTrainerOptions.GENERATOR_TRAINERS, Arrays.asList(EditTreeGeneratorTrainer.class, SimpleLemmatizerTrainer.class, ToutanovaTrainer.class));
 		

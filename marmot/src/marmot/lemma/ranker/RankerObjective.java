@@ -1,4 +1,4 @@
-package marmot.lemma.reranker;
+package marmot.lemma.ranker;
 
 import java.util.Arrays;
 import java.util.List;
@@ -6,21 +6,21 @@ import java.util.Map;
 
 import marmot.lemma.LemmaCandidate;
 import marmot.lemma.LemmaCandidateSet;
-import marmot.lemma.reranker.RerankerTrainer.RerankerTrainerOptions;
+import marmot.lemma.ranker.RankerTrainer.RerankerTrainerOptions;
 import marmot.util.Numerics;
 import cc.mallet.optimize.Optimizable.ByGradientValue;
 
 public class RankerObjective implements ByGradientValue {
 
-	private Model model_;
-	private List<RerankerInstance> instances_;
+	private RankerModel model_;
+	private List<RankerInstance> instances_;
 	private double value_;
 	private double[] gradient_;
 	private double[] weights_;
 	private double penalty_;
 
-	public RankerObjective(RerankerTrainerOptions options, Model model,
-			List<RerankerInstance> instances) {
+	public RankerObjective(RerankerTrainerOptions options, RankerModel model,
+			List<RankerInstance> instances) {
 		model_ = model;
 		instances_ = instances;
 		weights_ = model.getWeights();
@@ -34,7 +34,7 @@ public class RankerObjective implements ByGradientValue {
 		value_ = 0.;
 		Arrays.fill(gradient_, 0.);
 
-		for (RerankerInstance instance : instances_) {
+		for (RankerInstance instance : instances_) {
 
 			int pos_index_ = instance.getPosIndex(model_.getPosTable(), false);
 			int[] morph_indexes_ = instance.getMorphIndexes(model_.getMorphTable(), false);

@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 import junit.framework.AssertionFailedError;
 import marmot.lemma.Instance;
 import marmot.lemma.toutanova.Decoder;
-import marmot.lemma.toutanova.Model;
+import marmot.lemma.toutanova.ToutanovaModel;
 import marmot.lemma.toutanova.NbestDecoder;
 import marmot.lemma.toutanova.Result;
 import marmot.lemma.toutanova.ToutanovaInstance;
@@ -39,7 +39,7 @@ public class NbestDecoderTest {
 	
 	private void testDecoder(ToutanovaLemmatizer lemmatizer, String devfile, int rank_max) {
 		
-		Model model = lemmatizer.getModel();
+		ToutanovaModel model = lemmatizer.getModel();
 		
 		Decoder decoder = new ZeroOrderDecoder();
 		decoder.init(model);

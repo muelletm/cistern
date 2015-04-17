@@ -1,4 +1,4 @@
-package marmot.lemma.reranker;
+package marmot.lemma.ranker;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -9,7 +9,7 @@ import marmot.lemma.LemmaCandidateSet;
 import marmot.util.Converter;
 import marmot.util.SymbolTable;
 
-public class RerankerInstance {
+public class RankerInstance {
 
 	private static final int[] EMPTY_ARRAY = {};
 
@@ -19,7 +19,7 @@ public class RerankerInstance {
 	private int pos_index_;
 	private int[] morph_indexes_;
 
-	public RerankerInstance(Instance instance, LemmaCandidateSet set) {
+	public RankerInstance(Instance instance, LemmaCandidateSet set) {
 		instance_ = instance;
 		set_ = set;
 		form_chars_ = null;
@@ -91,18 +91,23 @@ public class RerankerInstance {
 		}
 	}
 
-	public static List<RerankerInstance> getInstances(List<Instance> instances,
+	public static List<RankerInstance> getInstances(List<Instance> instances,
 			List<LemmaCandidateGenerator> generators) {
-		List<RerankerInstance> rinstances = new LinkedList<>();
+		List<RankerInstance> rinstances = new LinkedList<>();
 		for (Instance instance : instances) {
-			LemmaCandidateSet set = new LemmaCandidateSet(instance.getForm());
-			for (LemmaCandidateGenerator generator : generators) {
-				generator.addCandidates(instance, set);
-			}
-			set.getCandidate(instance.getLemma());
-			rinstances.add(new RerankerInstance(instance, set));
+			rinstances.add(getInstance(instance, generators));	
 		}
 		return rinstances;
+	}
+
+	public static RankerInstance getInstance(Instance instance,
+			List<LemmaCandidateGenerator> generators) {
+		LemmaCandidateSet set = new LemmaCandidateSet(instance.getForm());
+		for (LemmaCandidateGenerator generator : generators) {
+			generator.addCandidates(instance, set);
+		}
+		set.getCandidate(instance.getLemma());
+		return new RankerInstance(instance, set);
 	}
 
 }

@@ -28,8 +28,9 @@ import marmot.core.TrainerFactory;
 import marmot.core.WeightVector;
 import marmot.lemma.Instance;
 import marmot.lemma.LemmaCandidateGenerator;
-import marmot.lemma.reranker.RerankerInstance;
-import marmot.lemma.reranker.RerankerTrainer.RerankerTrainerOptions;
+import marmot.lemma.ranker.RankerInstance;
+import marmot.lemma.ranker.RankerModel;
+import marmot.lemma.ranker.RankerTrainer.RerankerTrainerOptions;
 import marmot.lemma.toutanova.EditTreeAligner;
 import marmot.lemma.toutanova.EditTreeAlignerTrainer;
 import marmot.morph.analyzer.Analyzer;
@@ -77,6 +78,10 @@ public class MorphModel extends Model {
 	private Mode normalize_forms_;
 
 	private Analyzer analyzer_;
+
+	private RankerModel lemma_model_;
+
+	private List<LemmaCandidateGenerator> generators_;
 
 	public void init(MorphOptions options, Collection<Sequence> sentences) {
 		verbose_ = options.getVerbose();
@@ -170,24 +175,42 @@ public class MorphModel extends Model {
 			}
 		}
 		
-//		if (options.getLemmatizer()) {
-//			
-//			marmot.lemma.reranker.Model lemma_model = new marmot.lemma.reranker.Model();
-//			RerankerTrainerOptions roptions = new RerankerTrainerOptions();
-//			
-//			List<Instance> instances = Instance.getInstances(sentences, false, false);
-//			List<LemmaCandidateGenerator> generators = roptions.getGenerators(instances);
-//			
-//			EditTreeAlignerTrainer trainer = new EditTreeAlignerTrainer(roptions.getRandom(), false);
-//			EditTreeAligner aligner = (EditTreeAligner) trainer.train(instances);
-//			
-//			List<RerankerInstance> rinstances = RerankerInstance.getInstances(instances, generators);
-//			
-//			lemma_model.init(roptions, rinstances, aligner);
-//			
-//			// TODO: add RInstances to Tokens, add lemma_model to
-//			// 
-//		}
+		if (options.getLemmatizer()) {
+			RerankerTrainerOptions roptions = new RerankerTrainerOptions();
+			
+			List<Instance> instances = Instance.getInstances(sentences, false, false);
+			generators_ = roptions.getGenerators(instances);
+			
+			EditTreeAlignerTrainer trainer = new EditTreeAlignerTrainer(roptions.getRandom(), false);
+			EditTreeAligner aligner = (EditTreeAligner) trainer.train(instances);
+			
+			List<RankerInstance> rinstances = RankerInstance.getInstances(instances, generators_);
+			
+			SymbolTable<String> pos_table = tag_tables_.get(POS_INDEX_);
+			SymbolTable<String> morph_table = null;
+			if (MORPH_INDEX_< subtag_tables_.size()) {
+				morph_table = subtag_tables_.get(MORPH_INDEX_);
+			}
+			
+			lemma_model_ = new RankerModel();
+			lemma_model_.init(roptions, rinstances, aligner, pos_table, morph_table);
+			
+			Map<String, RankerInstance> map = new HashMap<>();
+			for (RankerInstance instance : rinstances) {
+				String key = String.format("%s\t%s", instance.getInstance().getForm(), instance.getInstance().getLemma());
+				assert map.get(key) == null;
+				map.put(key, instance);
+			}
+			
+			for (Sequence sequence : sentences) {
+				for (Token token : sequence) {
+					Word word = (Word) token;
+					String key = String.format("%s\t%s", word.getWordForm(), word.getLemma());
+					word.setInstance(map.get(key));
+				}
+			}
+			
+		}
 		
 	}
 
@@ -606,6 +629,13 @@ public class MorphModel extends Model {
 		int word_index = word_table_.toIndex(normalized_form, -1, insert);
 		word.setWordIndex(word_index);
 		addCharIndexes(word, normalized_form, insert);
+		
+		if (lemma_model_ != null) {
+			Instance instance = Instance.getInstance(word, false, false);
+			RankerInstance rinstance = RankerInstance.getInstance(instance, generators_);
+			lemma_model_.addIndexes(rinstance, rinstance.getCandidateSet(), false);
+			word.setInstance(rinstance);
+		}
 	}
 
 	private int[] getSubTags(String morph, int level, boolean insert,

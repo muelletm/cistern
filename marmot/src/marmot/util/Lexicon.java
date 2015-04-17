@@ -7,7 +7,8 @@ import java.util.Map;
 import marmot.util.StringUtils.Mode;
 
 public class Lexicon implements Serializable {
-	
+
+	private static final long serialVersionUID = 1L;
 	private Map<Integer, Integer> map_;
 	private Mode mode_;
 

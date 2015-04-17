@@ -16,8 +16,9 @@ import marmot.util.DynamicWeights;
 import marmot.util.Encoder;
 import marmot.util.SymbolTable;
 
-public class Model implements Serializable {
+public class ToutanovaModel implements Serializable {
 
+	private static final long serialVersionUID = 1L;
 	private String alphabet_[];
 	private SymbolTable<String> output_table_;
 	private SymbolTable<String> pos_table_;

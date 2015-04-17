@@ -1,4 +1,4 @@
-package marmot.lemma.reranker;
+package marmot.lemma.ranker;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 import marmot.core.Feature;
 import marmot.lemma.LemmaCandidate;
 import marmot.lemma.LemmaCandidateSet;
-import marmot.lemma.reranker.RerankerTrainer.RerankerTrainerOptions;
+import marmot.lemma.ranker.RankerTrainer.RerankerTrainerOptions;
 import marmot.lemma.toutanova.EditTreeAligner;
 import marmot.util.Converter;
 import marmot.util.Encoder;
@@ -20,8 +20,9 @@ import marmot.util.StringUtils.Mode;
 import marmot.util.SymbolTable;
 import marmot.util.edit.EditTree;
 
-public class Model implements Serializable {
+public class RankerModel implements Serializable {
 
+	private static final long serialVersionUID = 1L;
 	private double[] weights_;
 	private SymbolTable<String> form_table_;
 	private SymbolTable<String> lemma_table_;
@@ -53,12 +54,13 @@ public class Model implements Serializable {
 	private int char_bits_;
 	private int tree_bits_;
 	private Lexicon unigram_lexicon_;
-	private RerankerTrainerOptions options_;
+	//private RerankerTrainerOptions options_;
 	private SymbolTable<String> morph_table_;
 	
-	private Feature feature_;
-	private Encoder encoder_;
-	private Context context_;
+	private transient Feature feature_;
+	private transient Encoder encoder_;
+	private transient Context context_;
+	
 	private int real_capacity_;
 	private long pos_length_;
 	private long feat_length_;
@@ -66,15 +68,34 @@ public class Model implements Serializable {
 	private static class Context {
 		public List<Integer> list;
 		public boolean insert;
+		
+		public Context() {
+			list = new ArrayList<>();
+		}
 	}
 	
 	private static final int length_bits_ = Encoder
 			.bitsNeeded(2 * max_window + 10);
 
 	public void init(RerankerTrainerOptions options,
-			List<RerankerInstance> instances, EditTreeAligner aligner) {
+			List<RankerInstance> instances, EditTreeAligner aligner) {
+
+		SymbolTable<String> pos_table = null;
+		if (options.getUsePos()) {
+			pos_table = new SymbolTable<>();
+		}
+		
+		SymbolTable<String> morph_table = null;
+		if (options.getUseMorph()) {
+			morph_table = new SymbolTable<>();
+		}
+		
+		init(options, instances, aligner, pos_table, morph_table);
+	}
+	
+	public void init(RerankerTrainerOptions options,
+			List<RankerInstance> instances, EditTreeAligner aligner, SymbolTable<String> pos_table, SymbolTable<String> morph_table) {
 		Logger logger = Logger.getLogger(getClass().getName());
-		options_ = options;
 		aligner_ = aligner;
 
 		form_table_ = new SymbolTable<>();
@@ -82,15 +103,10 @@ public class Model implements Serializable {
 		char_table_ = new SymbolTable<>();
 		tree_table_ = new SymbolTable<>();
 		
-		if (options_.getUsePos()) {
-			pos_table_ = new SymbolTable<>();
-		}
+		pos_table_ = pos_table;
+		morph_table_ = morph_table;
 		
-		if (options_.getUseMorph()) {
-			morph_table_ = new SymbolTable<>();
-		}
-		
-		for (RerankerInstance instance : instances) {
+		for (RankerInstance instance : instances) {
 			fillTables(instance, instance.getCandidateSet());
 		}
 
@@ -114,15 +130,9 @@ public class Model implements Serializable {
 
 		feature_table_ = new SymbolTable<>();
 		
-		context_ = new Context();
-		context_.list = new ArrayList<>();
-		encoder_ = new Encoder(encoder_capacity_);
-		feature_ = new Feature(encoder_capacity_);
-		
-		
 		logger.info("Starting feature index extraction.");
 		
-		for (RerankerInstance instance : instances) {
+		for (RankerInstance instance : instances) {
 			addIndexes(instance, instance.getCandidateSet(), true);
 		}
 
@@ -223,7 +233,7 @@ public class Model implements Serializable {
 		}
 	}
 
-	private void fillTables(RerankerInstance instance, LemmaCandidateSet set) {
+	private void fillTables(RankerInstance instance, LemmaCandidateSet set) {
 		String form = instance.getInstance().getForm();
 		form_table_.insert(form);
 
@@ -247,8 +257,14 @@ public class Model implements Serializable {
 		
 	}
 
-	public void addIndexes(RerankerInstance instance, LemmaCandidateSet set,
+	public void addIndexes(RankerInstance instance, LemmaCandidateSet set,
 			boolean insert) {
+		if (context_ == null || encoder_ == null || feature_ == null) {
+			context_ = new Context();
+			encoder_ = new Encoder(encoder_capacity_);
+			feature_ = new Feature(encoder_capacity_);
+		}
+		
 		String form = instance.getInstance().getForm();
 		int form_index = form_table_.toIndex(form, -1);
 		
@@ -482,7 +498,7 @@ public class Model implements Serializable {
 		addFeature(true);
 	}
 
-	public String select(RerankerInstance instance) {
+	public String select(RankerInstance instance) {
 		Map.Entry<String, LemmaCandidate> best_pair = null;
 		for (Map.Entry<String, LemmaCandidate> candidate_pair : instance
 				.getCandidateSet()) {
@@ -507,7 +523,7 @@ public class Model implements Serializable {
 		return score;
 	}
 
-	public void update(RerankerInstance instance, String lemma, double update) {
+	public void update(RankerInstance instance, String lemma, double update) {
 		LemmaCandidate candidate = instance.getCandidateSet().getCandidate(
 				lemma);
 		update(candidate, instance.getPosIndex(pos_table_, false), instance.getMorphIndexes(morph_table_, false), update);

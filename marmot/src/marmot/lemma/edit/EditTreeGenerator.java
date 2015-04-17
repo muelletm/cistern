@@ -9,6 +9,7 @@ import marmot.util.edit.EditTree;
 
 public class EditTreeGenerator implements LemmaCandidateGenerator {
 
+	private static final long serialVersionUID = 1L;
 	private Collection<EditTree> trees_;
 	
 	public EditTreeGenerator(Collection<EditTree> trees) {

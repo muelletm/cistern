@@ -12,11 +12,8 @@ import marmot.lemma.SimpleLemmatizerTrainer;
 import marmot.lemma.SimpleLemmatizerTrainer.SimpleLemmatizerTrainerOptions;
 import marmot.lemma.toutanova.EditTreeAlignerTrainer;
 import marmot.lemma.toutanova.FirstOrderDecoder;
-import marmot.lemma.toutanova.HackyAlignerTrainer;
-import marmot.lemma.toutanova.SimpleAlignerTrainer;
 import marmot.lemma.toutanova.ToutanovaTrainer;
 import marmot.lemma.toutanova.ToutanovaTrainer.ToutanovaOptions;
-import marmot.lemma.toutanova.ZeroOrderDecoder;
 import marmot.morph.io.SentenceReader;
 
 import org.junit.Test;

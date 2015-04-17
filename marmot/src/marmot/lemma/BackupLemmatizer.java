@@ -2,6 +2,7 @@ package marmot.lemma;
 
 public class BackupLemmatizer implements Lemmatizer, LemmatizerGenerator {
 
+	private static final long serialVersionUID = 1L;
 	private LemmatizerGenerator lemmatizer_;
 	private LemmatizerGenerator backup_;
 

@@ -1,8 +1,7 @@
 package marmot.test.lemma;
 
-import static org.junit.Assert.*;
 import marmot.lemma.cmd.Trainer;
-import marmot.lemma.reranker.RerankerTrainer;
+import marmot.lemma.ranker.RankerTrainer;
 
 import org.junit.Test;
 
@@ -11,7 +10,7 @@ public class TrainerTest {
 	@Test
 	public void test() {
 		
-		String[] args = {RerankerTrainer.class.getName(), "generator-trainers=marmot.lemma.SimpleLemmatizerTrainer;marmot.lemma.edit.EditTreeGeneratorTrainer;marmot.lemma.toutanova.ToutanovaTrainer",  getResourceFile("trn_sml.tsv"), getResourceFile("dev.tsv"), getResourceFile("dev.tsv.morfette")};
+		String[] args = {RankerTrainer.class.getName(), "generator-trainers=marmot.lemma.SimpleLemmatizerTrainer;marmot.lemma.edit.EditTreeGeneratorTrainer;marmot.lemma.toutanova.ToutanovaTrainer",  getResourceFile("trn_sml.tsv"), getResourceFile("dev.tsv"), getResourceFile("dev.tsv.morfette")};
 		
 		Trainer.main(args);
 		

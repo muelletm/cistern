@@ -8,6 +8,7 @@ public class BackupLemmatizerTrainer implements LemmatizerGeneratorTrainer {
 
 	public static class BackupLemmatizerTrainerOptions extends Options {
 		
+		private static final long serialVersionUID = 1L;
 		public static final String LEMMATIZER_TRAINER = "lemmatizer-trainer";
 		public static final String BACKUP_TRAINER = "backup-trainer";
 
