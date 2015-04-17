@@ -11,7 +11,7 @@ import marmot.util.SymbolTable;
 
 public class RankerInstance {
 
-	private static final int[] EMPTY_ARRAY = {};
+	public static final int[] EMPTY_ARRAY = {};
 
 	private Instance instance_;
 	private LemmaCandidateSet set_;

@@ -85,7 +85,6 @@ public class CrfTrainer implements Trainer {
 
 				SumLattice lattice = tagger.getSumLattice(true, sequence);
 				
-				
 				if (very_verbose_) {
 					System.err.format("vv %d %d %d %d\n", number, lattice.getOrder() + lattice.getLevel() * (tagger.getModel().getOrder() + 1), lattice.getLevel(), lattice.getOrder() );
 				}

@@ -1020,4 +1020,8 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 	public void setFloatWeights(double[] weights) {
 		float_weights_ = weights;
 	}
+
+	public MorphModel getModel() {
+		return model_;
+	}
 }

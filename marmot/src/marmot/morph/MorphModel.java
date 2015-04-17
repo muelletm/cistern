@@ -27,7 +27,10 @@ import marmot.core.Trainer;
 import marmot.core.TrainerFactory;
 import marmot.core.WeightVector;
 import marmot.lemma.Instance;
+import marmot.lemma.LemmaCandidate;
 import marmot.lemma.LemmaCandidateGenerator;
+import marmot.lemma.LemmaCandidateSet;
+import marmot.lemma.ranker.RankerCandidate;
 import marmot.lemma.ranker.RankerInstance;
 import marmot.lemma.ranker.RankerModel;
 import marmot.lemma.ranker.RankerTrainer.RerankerTrainerOptions;
@@ -970,6 +973,63 @@ public class MorphModel extends Model {
 	public static Tagger train(MorphOptions options,
 			List<Sequence> train_sequences) {
 		return train(options, train_sequences, null);
+	}
+
+	@Override
+	public void setLemmaCandidates(Token token, State state) {
+		if (lemma_model_ == null)
+			return;
+		
+		Word word = (Word) token;
+		RankerInstance instance = word.getInstance();
+		
+		LemmaCandidateSet set = instance.getCandidateSet();
+		List<RankerCandidate> candidates = new ArrayList<>(set.size());
+		
+		assert state.getLevel() == 0;
+		int pos_index = state.getIndex();
+		int[] morph_indexes = RankerInstance.EMPTY_ARRAY;
+		
+		for (Map.Entry<String, LemmaCandidate> entry : set) {
+			String plemma = instance.getInstance().getLemma();
+			boolean is_correct = entry.getKey().equals(plemma);
+			LemmaCandidate candidate = entry.getValue();
+			double score = lemma_model_.score(candidate, pos_index, morph_indexes);
+			candidates.add(new RankerCandidate(candidate, is_correct, score));
+		}
+		
+		state.setLemmaCandidates(candidates);
+		state.setLemmaScoreSum();
+	}
+
+	@Override
+	public void setLemmaCandidates(State previous_state, State state) {
+		if (lemma_model_ == null)
+			return;
+		
+		List<RankerCandidate> prev_candidates = previous_state.getLemmaCandidates();
+		
+		List<RankerCandidate> candidates = new ArrayList<>(prev_candidates.size());
+		
+		assert previous_state.getLevel() == 0;
+		int pos_index = previous_state.getIndex();
+		assert previous_state == state.getSubLevelState();
+		
+		int morph_index = state.getIndex();
+		int[] morph_indexes = getTagToSubTags()[state.getLevel()][morph_index];
+		
+		for (RankerCandidate prev_candidate : prev_candidates) {
+			LemmaCandidate l_candidate = prev_candidate.getCandidate();
+			double score = lemma_model_.score(l_candidate, pos_index, morph_indexes);
+			candidates.add(new RankerCandidate(l_candidate, prev_candidate.isCorrect(), score));
+		}
+		
+		state.setLemmaCandidates(candidates);
+		state.setLemmaScoreSum();
+	}
+
+	public RankerModel getLemmaModel() {
+		return lemma_model_;
 	}
 
 }

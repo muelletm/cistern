@@ -10,6 +10,7 @@ import java.util.List;
 import marmot.core.State;
 import marmot.core.Transition;
 import marmot.core.WeightVector;
+import marmot.lemma.ranker.RankerCandidate;
 import marmot.util.Numerics;
 
 
@@ -220,15 +221,28 @@ public class SequenceSumLattice implements SumLattice {
 
 				state_sum = Numerics.sumLogProb(state_sum, state_score);
 				double p = Math.exp(state_score - score_sum);
-//				state_p_sum += p;
 
+				double value = -p;
 				if (is_gold_sequence_state) {
 					ll += state.getScore();
-					state.incrementEstimatedCounts((1.0 - p) * step_width);
-				} else {
-					state.incrementEstimatedCounts((- p) * step_width);
+					value += 1.0;
 				}
+				
+				state.incrementEstimatedCounts(value * step_width);
 
+				State zero_order_state = state.getZeroOrderState(); 
+				if (zero_order_state.getLemmaCandidates() != null) {
+					double new_state_score = state_score - zero_order_state.getScore() + zero_order_state.getRealScore(); 
+					for (RankerCandidate candidate : zero_order_state.getLemmaCandidates()) {
+						double score = new_state_score + candidate.getScore();
+						p = Math.exp(score - score_sum);
+						value = -p;
+						if (is_gold_sequence_state && candidate.isCorrect()) {
+							value += 1.0;
+						}
+						candidate.incrementEstimatedCounts(value * step_width);
+					}
+				}
 				
 				state_index++;
 			}

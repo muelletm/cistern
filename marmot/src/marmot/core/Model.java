@@ -67,4 +67,9 @@ public abstract class Model implements Serializable {
 	}
 	
 	abstract public int[] getTagCandidates(Sequence sequence, int index, State state);
+
+	public abstract void setLemmaCandidates(Token token, State state);
+
+	public abstract void setLemmaCandidates(State state, State new_state);
+	
 }
