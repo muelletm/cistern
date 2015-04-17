@@ -10,7 +10,6 @@ import java.util.logging.Logger;
 import marmot.lemma.Instance;
 import marmot.lemma.LemmaCandidateGenerator;
 import marmot.lemma.LemmaCandidateGeneratorTrainer;
-import marmot.lemma.LemmaCandidateSet;
 import marmot.lemma.LemmatizerGenerator;
 import marmot.lemma.LemmatizerGeneratorTrainer;
 import marmot.lemma.Options;
@@ -19,7 +18,6 @@ import marmot.lemma.edit.EditTreeGeneratorTrainer;
 import marmot.lemma.toutanova.EditTreeAligner;
 import marmot.lemma.toutanova.EditTreeAlignerTrainer;
 import marmot.util.Runtime;
-import cc.mallet.optimize.ConjugateGradient;
 import cc.mallet.optimize.LimitedMemoryBFGS;
 import cc.mallet.optimize.Optimizable.ByGradientValue;
 import cc.mallet.optimize.OptimizationException;
@@ -61,6 +59,17 @@ public class RerankerTrainer implements LemmatizerGeneratorTrainer {
 			return (Double) getOption(QUADRATIC_PENALTY);
 		}
 		
+		public List<LemmaCandidateGenerator> getGenerators(List<Instance> instances) {
+
+			List<LemmaCandidateGenerator> generators = new LinkedList<>();
+			for (Object trainer_class  : getGeneratorTrainers()) {
+				LemmaCandidateGeneratorTrainer trainer = (LemmaCandidateGeneratorTrainer) toInstance((Class<?>) trainer_class);
+				generators.add(trainer.train(instances, null));
+			}
+			
+			return generators;
+		}
+		
 	} 
 	
 	private RerankerTrainerOptions options_;
@@ -73,11 +82,7 @@ public class RerankerTrainer implements LemmatizerGeneratorTrainer {
 	public LemmatizerGenerator train(List<Instance> train_instances,
 			List<Instance> test_instances) {
 
-		List<LemmaCandidateGenerator> generators = new LinkedList<>();
-		for (Object trainer_class  : options_.getGeneratorTrainers()) {
-			LemmaCandidateGeneratorTrainer trainer = (LemmaCandidateGeneratorTrainer) options_.toInstance((Class<?>) trainer_class);
-			generators.add(trainer.train(train_instances, test_instances));
-		}
+		List<LemmaCandidateGenerator> generators = options_.getGenerators(train_instances);
 
 		return trainReranker(generators, train_instances);
 	}
@@ -86,22 +91,8 @@ public class RerankerTrainer implements LemmatizerGeneratorTrainer {
 			List<LemmaCandidateGenerator> generators,
 			List<Instance> simple_instances) {
 
-		
-		
-		List<RerankerInstance> instances = new LinkedList<>();
-		for (Instance instance : simple_instances) {
-
-			LemmaCandidateSet set = new LemmaCandidateSet(instance.getForm());
-
-			for (LemmaCandidateGenerator generator : generators) {
-				generator.addCandidates(instance, set);
-			}
-
-			set.getCandidate(instance.getLemma());
-
-			instances.add(new RerankerInstance(instance, set));
-		}
-
+		List<RerankerInstance> instances = RerankerInstance.getInstances(simple_instances, generators);
+				
 		Model model = new Model();
 
 		EditTreeAligner aligner = (EditTreeAligner) new EditTreeAlignerTrainer(options_.getRandom(), false)

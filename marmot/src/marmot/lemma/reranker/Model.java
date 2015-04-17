@@ -513,7 +513,7 @@ public class Model implements Serializable {
 		update(candidate, instance.getPosIndex(pos_table_, false), instance.getMorphIndexes(morph_table_, false), update);
 	}
 
-	private void update(LemmaCandidate candidate, int pos_index, int[] morph_indexes, double update) {
+	public void update(LemmaCandidate candidate, int pos_index, int[] morph_indexes, double update) {
 		for (int index : candidate.getFeatureIndexes()) {			
 			updateScore(index, pos_index, morph_indexes, update);
 		}

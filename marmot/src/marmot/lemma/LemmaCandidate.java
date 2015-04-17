@@ -56,5 +56,9 @@ public class LemmaCandidate {
 		}
 		return tree_index_;
 	}
+
+	public boolean isCorrect() {
+		throw new UnsupportedOperationException();
+	}
 	
 }

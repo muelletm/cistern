@@ -4,12 +4,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 import marmot.lemma.Instance;
+import marmot.lemma.LemmaCandidateGenerator;
 import marmot.lemma.LemmaCandidateSet;
 import marmot.util.Converter;
 import marmot.util.SymbolTable;
 
 public class RerankerInstance {
-	
+
 	private static final int[] EMPTY_ARRAY = {};
 
 	private Instance instance_;
@@ -49,11 +50,11 @@ public class RerankerInstance {
 	public int getPosIndex(SymbolTable<String> pos_table, boolean insert) {
 		if (pos_table == null)
 			return -1;
-		
+
 		if (pos_index_ == -2) {
 			pos_index_ = pos_table.toIndex(instance_.getPosTag(), -1, insert);
 		}
-		
+
 		return pos_index_;
 	}
 
@@ -61,32 +62,47 @@ public class RerankerInstance {
 		if (morph_table == null) {
 			return EMPTY_ARRAY;
 		}
-			
+
 		if (morph_indexes_ == null) {
-			
+
 			List<Integer> list = new LinkedList<>();
 			setMorphFeatures(morph_table, instance_.getMorphTag(), insert, list);
-			
+
 			if (list.isEmpty())
 				morph_indexes_ = EMPTY_ARRAY;
 			else
 				morph_indexes_ = Converter.toIntArray(list);
 		}
-		
+
 		return morph_indexes_;
 	}
-	
-	private void setMorphFeatures(SymbolTable<String> morph_table, String morphtag, boolean insert, List<Integer> list) {
+
+	private void setMorphFeatures(SymbolTable<String> morph_table,
+			String morphtag, boolean insert, List<Integer> list) {
 		if (morphtag == null || morph_table == null || morphtag.equals('_')) {
 			return;
 		}
-		
-		for (String feat : morphtag.split("\\|") ) {
+
+		for (String feat : morphtag.split("\\|")) {
 			int index = morph_table.toIndex(feat, -1, insert);
 			if (index >= 0 && list != null) {
 				list.add(index);
 			}
 		}
+	}
+
+	public static List<RerankerInstance> getInstances(List<Instance> instances,
+			List<LemmaCandidateGenerator> generators) {
+		List<RerankerInstance> rinstances = new LinkedList<>();
+		for (Instance instance : instances) {
+			LemmaCandidateSet set = new LemmaCandidateSet(instance.getForm());
+			for (LemmaCandidateGenerator generator : generators) {
+				generator.addCandidates(instance, set);
+			}
+			set.getCandidate(instance.getLemma());
+			rinstances.add(new RerankerInstance(instance, set));
+		}
+		return rinstances;
 	}
 
 }

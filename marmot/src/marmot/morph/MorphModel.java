@@ -26,6 +26,12 @@ import marmot.core.Token;
 import marmot.core.Trainer;
 import marmot.core.TrainerFactory;
 import marmot.core.WeightVector;
+import marmot.lemma.Instance;
+import marmot.lemma.LemmaCandidateGenerator;
+import marmot.lemma.reranker.RerankerInstance;
+import marmot.lemma.reranker.RerankerTrainer.RerankerTrainerOptions;
+import marmot.lemma.toutanova.EditTreeAligner;
+import marmot.lemma.toutanova.EditTreeAlignerTrainer;
 import marmot.morph.analyzer.Analyzer;
 import marmot.morph.signature.Trie;
 import marmot.util.Copy;
@@ -163,6 +169,26 @@ public class MorphModel extends Model {
 				addShape(word, word.getWordForm(), true);
 			}
 		}
+		
+//		if (options.getLemmatizer()) {
+//			
+//			marmot.lemma.reranker.Model lemma_model = new marmot.lemma.reranker.Model();
+//			RerankerTrainerOptions roptions = new RerankerTrainerOptions();
+//			
+//			List<Instance> instances = Instance.getInstances(sentences, false, false);
+//			List<LemmaCandidateGenerator> generators = roptions.getGenerators(instances);
+//			
+//			EditTreeAlignerTrainer trainer = new EditTreeAlignerTrainer(roptions.getRandom(), false);
+//			EditTreeAligner aligner = (EditTreeAligner) trainer.train(instances);
+//			
+//			List<RerankerInstance> rinstances = RerankerInstance.getInstances(instances, generators);
+//			
+//			lemma_model.init(roptions, rinstances, aligner);
+//			
+//			// TODO: add RInstances to Tokens, add lemma_model to
+//			// 
+//		}
+		
 	}
 
 	private int getBiIndex(int word, int level, int tag) {

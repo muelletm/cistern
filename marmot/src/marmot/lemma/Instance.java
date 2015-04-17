@@ -95,11 +95,19 @@ public class Instance {
 		return true;
 	}
 	
-	public static List<Instance> getInstances(SentenceReader reader) {
+	public static List<Instance> getInstances(Iterable<Sequence> reader) {
 		return getInstances(reader, -1);
 	}
 	
-	public static List<Instance> getInstances(SentenceReader reader, int limit) {
+	public static List<Instance> getInstances(Iterable<Sequence> reader, int limit) {
+		return getInstances(reader, limit, false, false);
+	}
+	
+	public static List<Instance> getInstances(Iterable<Sequence> reader, boolean use_ptag, boolean use_mtag) {
+		return getInstances(reader, -1, false, false);
+	}
+	
+	public static List<Instance> getInstances(Iterable<Sequence> reader, int limit, boolean use_postag, boolean use_mtag) {
 		 
 		Map<Instance, Mutable<Integer>> map = new HashMap<>();
 		
@@ -112,7 +120,7 @@ public class Instance {
 				Word word = (Word) token;
 				String form = word.getWordForm().toLowerCase();
 				String lemma = word.getLemma().toLowerCase();			
-				Instance instance = new Instance(form, lemma, word.getPosTag(), word.getMorphTag());
+				Instance instance = new Instance(form, lemma, (use_postag)? word.getPosTag() : null, (use_mtag) ? word.getMorphTag() : null);
 				
 				Mutable<Integer> mi = map.get(instance);
 				if (mi == null) {
