@@ -2,6 +2,7 @@ package marmot.lemma.transducer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -43,6 +44,7 @@ public abstract class Transducer implements LemmatizerTrainer {
 	protected List<Instance> devData;
 	
 	protected Map<Character,Integer> alphabet;
+	protected Map<Integer,Character> contextToCharacter;
 	
 	public Transducer(Map<Character,Integer> alphabet, int c1, int c2, int c3, int c4) throws NegativeContext {
 		this.c1 = c1;
@@ -109,23 +111,33 @@ public abstract class Transducer implements LemmatizerTrainer {
 		// TERMINATION SYMBOL
 		this.alphabet.put('$',0);
 				
+		Set<Character> bad = new HashSet<Character>();
+		bad.add('1');
+		bad.add('2');
+		bad.add('3');
+		bad.add('4');
+		bad.add('5');
+		bad.add('6');
+
 		int max1 = 0;
 		int max2 = 0;
 				
 		int alphabetCounter = 1;
 		for (Instance instance : this.trainingData) {
-				max1 = Math.max(max1,instance.getForm().length()+1);
-				max2 = Math.max(max2,instance.getLemma().length()+1);	
+				max1 = Math.max(max1,instance.getFormPadded().length()+1);
+				max2 = Math.max(max2,instance.getLemmaPadded().length()+1);	
 						
 				//extract alphabet
-				for (Character c : instance.getForm().toCharArray()) {
-					if (!this.alphabet.keySet().contains(c)) {
+				for (Character c : instance.getFormPadded().toCharArray()) {
+					
+					if (!this.alphabet.keySet().contains(c) && !bad.contains(c)) {
+						
 						this.alphabet.put(c,alphabetCounter);
 						alphabetCounter += 1;
 					}
 				}
-				for (Character c : instance.getLemma().toCharArray()) {
-					if (!this.alphabet.keySet().contains(c)) {
+				for (Character c : instance.getLemmaPadded().toCharArray()) {
+					if (!this.alphabet.keySet().contains(c) && !bad.contains(c)) {
 						this.alphabet.put(c,alphabetCounter);
 						alphabetCounter += 1;
 					}
@@ -133,18 +145,18 @@ public abstract class Transducer implements LemmatizerTrainer {
 		}
 		
 		for (Instance instance : this.devData) {
-			max1 = Math.max(max1,instance.getForm().length()+1);
-			max2 = Math.max(max2,instance.getLemma().length()+1);
+			max1 = Math.max(max1,instance.getFormPadded().length()+1);
+			max2 = Math.max(max2,instance.getLemmaPadded().length()+1);
 			
 			//extract alphabet
-			for (Character c : instance.getForm().toCharArray()) {
-				if (!this.alphabet.keySet().contains(c)) {
+			for (Character c : instance.getFormPadded().toCharArray()) {
+				if (!this.alphabet.keySet().contains(c) && !bad.contains(c)) {
 					this.alphabet.put(c,alphabetCounter);
 					alphabetCounter += 1;
 				}
 			}
-			for (Character c : instance.getLemma().toCharArray()) {
-				if (!this.alphabet.keySet().contains(c)) {
+			for (Character c : instance.getLemmaPadded().toCharArray()) {
+				if (!this.alphabet.keySet().contains(c) && !bad.contains(c)) {
 					this.alphabet.put(c,alphabetCounter);
 					alphabetCounter += 1;
 				}
@@ -168,7 +180,7 @@ public abstract class Transducer implements LemmatizerTrainer {
 		
 		for (Instance instance : instances) {
 			
-			String upper = instance.getForm();
+			String upper = instance.getFormPadded();
 			
 			contexts[instanceI] = new int[upper.length()+1];
 			
@@ -225,8 +237,8 @@ public abstract class Transducer implements LemmatizerTrainer {
 		
 		for (Instance instance : instances) {
 			
-			String upper = instance.getForm();
-			String lower = instance.getLemma();
+			String upper = instance.getFormPadded();
+			String lower = instance.getLemmaPadded();
 			
 			contexts[instanceI] = new int[upper.length()+1][lower.length()+1];
 			
@@ -241,6 +253,7 @@ public abstract class Transducer implements LemmatizerTrainer {
 				String ul = upper.substring(ul_limit, pointI);
 				String ur = upper.substring(pointI, ur_limit);
 
+				
 				// pad
 				while (ul.length() < c1) {
 					ul = END_SYMBOL + ul;
@@ -282,8 +295,11 @@ public abstract class Transducer implements LemmatizerTrainer {
 					*/
 					if (!hash.keySet().contains(contextString)) {
 						hash.put(contextString, counter);
+						this.contextToCharacter.put(counter,ur.charAt(0));
+
 						++counter;
 					}
+					
 					
 					contexts[instanceI][i][j] = hash.get(contextString);
 

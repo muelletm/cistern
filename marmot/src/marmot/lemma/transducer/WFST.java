@@ -175,10 +175,7 @@ public class WFST extends Transducer {
 		
 		//forward
 		for (int i = 0; i < upper.length() + 1; ++i) {
-			for (int j = 0; j <  lower.length() + 1 + this.insertionLimit; ++j) {
-				
-		
-				
+			for (int j = 0; j <  lower.length() + 1 + this.insertionLimit; ++j) {	
 				// all combinations of c3 + c4 characters
 				for (List<Integer> productC3 : Sets.cartesianProduct(cartesianProductArgsC3)) {
 					// check if valid

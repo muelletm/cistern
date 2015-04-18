@@ -16,6 +16,7 @@ public class Instance {
 		mtag_ = mtag;
 	}
 
+	
 	public String getForm() {
 		return form_;
 	}
@@ -23,7 +24,16 @@ public class Instance {
 	public String getLemma() {
 		return lemma_;
 	}
+	
+	public String getFormPadded() {
+		return "123" + form_ + "456";
+	}
+	
+	public String getLemmaPadded() {
+		return lemma_;
+	}
 
+	
 	public String getPosTag() {
 		return tag_;
 	}
