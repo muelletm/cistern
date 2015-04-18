@@ -1,9 +1,9 @@
 package marmot.lemma;
 
-public interface Lemmatizer {
+import java.io.Serializable;
 
-	String lemmatize(Instance instance);
-	
-	
-	
+public interface Lemmatizer extends Serializable {
+
+	public String lemmatize(Instance instance);
+
 }

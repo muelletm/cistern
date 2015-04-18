@@ -1,32 +1,41 @@
 package marmot.util.edit;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import marmot.util.Counter;
 
-public class EditTreeBuilder {
+public class EditTreeBuilder implements Serializable {
 
+	private static final long serialVersionUID = 1L;
 	private Counter<String> counter_;
-	private Map<String, EditTree> cache_;
-	private StringBuilder sb_;
+	private transient Map<String, EditTree> cache_;
+	private transient StringBuilder sb_;
+	private Random random_;
 	private final static char SEPARATOR = ' ';
 	
-	public EditTreeBuilder() {
-		counter_ = new Counter<>();
-		cache_ = new HashMap<>();
-		sb_ = new StringBuilder();
+	public EditTreeBuilder(long seed) {	
+		this(seed >= 0 ? new Random(seed) : null);
 	}
 	
+	public EditTreeBuilder(Random random) {
+		counter_ = new Counter<>();
+		random_ = random;
+	}
+
 	public EditTree build(String input, String output) {
 		clearCache();
 		return build(input, 0, input.length(), output, 0, output.length());
 	}
 
 	private void clearCache() {
+		if (cache_ == null)
+			cache_ = new HashMap<>();
 		cache_.clear();
 	}
 
@@ -58,7 +67,10 @@ public class EditTreeBuilder {
 						match.getOutputEnd(), output_end);
 			}
 
-			EditTree tree = new MatchNode(match, left, right);
+			int left_input_length = match.getInputStart() - input_start;
+			int right_input_length = input_end - match.getInputEnd();
+			
+			EditTree tree = new MatchNode(left, right, left_input_length, right_input_length);
 			
 			if (best_tree == null || tree.getCost(this) < best_tree.getCost(this)) {
 				best_tree = tree;
@@ -87,6 +99,8 @@ public class EditTreeBuilder {
 
 	private String getCacheKey(int input_start, int input_end,
 			int output_start, int output_end) {
+		if (sb_ == null)
+			sb_ = new StringBuilder();
 		sb_.setLength(0);
 		sb_.append(Integer.toHexString(input_start));
 		sb_.append(SEPARATOR);
@@ -146,7 +160,9 @@ public class EditTreeBuilder {
 			}
 		}
 
-		Collections.shuffle(longest_matches);
+		if (random_ != null) {
+			Collections.shuffle(longest_matches, random_);
+		}
 		return longest_matches;
 	}
 

@@ -1,189 +1,103 @@
 package marmot.lemma.toutanova;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 import java.util.logging.Logger;
 
-import marmot.lemma.BackupLemmatizer;
 import marmot.lemma.Instance;
-import marmot.lemma.Lemmatizer;
-import marmot.lemma.LemmatizerTrainer;
-import marmot.lemma.SimpleLemmatizerTrainer;
-import marmot.lemma.cmd.Trainer;
-import marmot.morph.io.SentenceReader;
+import marmot.lemma.LemmatizerGenerator;
+import marmot.lemma.LemmatizerGeneratorTrainer;
+import marmot.lemma.Options;
+import marmot.util.DynamicWeights;
 
-public class ToutanovaTrainer implements LemmatizerTrainer {
+public class ToutanovaTrainer implements LemmatizerGeneratorTrainer {
 
-	public static class Options {
+	public static class ToutanovaOptions extends Options {
+
+		private static final long serialVersionUID = 1L;
+		public static final String FILTER_ALPHABET = "filter-alphabet";
+		public static final String ALIGNER_TRAINER = "aligner-trainer";
+		public static final String DECODER = "decoder";
+		public static final String USE_CONSTEXT_FEATURE = "use-context-feature";
+		public static final String MAX_COUNT = "max-count";
+		public static final String NBEST_RANK = "nbest-rank";
 		
-		private int num_iterations_;
-		private boolean use_pos_;
-		private long seed_;
-		private int filter_alphabet_;
-		private AlignerTrainer aligner_trainer_;
-		private boolean averaging_;
-		private int verbosity_;
-		private Class<?> decoder_class_;
-		private boolean use_context_feature_;
-
-		private Options() {
-			num_iterations_ = 1;
-			use_pos_ = false;
-			seed_ = 42;
-			filter_alphabet_ = 0;
-			aligner_trainer_ = new SimpleAlignerTrainer();
-			averaging_ = false;
-			decoder_class_ = FirstOrderDecoder.class;
-			use_context_feature_ = false;
-		}
-		
-		public Options setNumIterations(int iters) {
-			num_iterations_ = iters;
-			return this;
-		}
-		
-		public static Options newInstance() {
-			return new Options();
+		public ToutanovaOptions() {
+			super();
+			
+			map_.put(FILTER_ALPHABET, 5);
+			map_.put(ALIGNER_TRAINER, EditTreeAlignerTrainer.class);
+			map_.put(DECODER, ZeroOrderDecoder.class);
+			map_.put(USE_CONSTEXT_FEATURE, true);
+			map_.put(MAX_COUNT, 1);
+			map_.put(NBEST_RANK, 50);
 		}
 
-		public int getNumIterations() {
-			return num_iterations_;
-		}
-
-		public Options setUsePos(boolean b) {
-			use_pos_ = b;
-			return this;
-		}
-
-		public boolean getUsePos() {
-			return use_pos_;
-		}
-		
-		public long getSeed() {
-			return seed_;
-		}
-		
-		public Options setSeed(long s) {
-			seed_ = s;
-			return this;
+		public static ToutanovaOptions newInstance() {
+			return new ToutanovaOptions();
 		}
 
 		public int getFilterAlphabet() {
-			return filter_alphabet_;
-		}
-
-		public Options setFilterAlphabet(int i) {
-			filter_alphabet_ = i;
-			return this;
-		}
-
-		public Options setAlignerTrainer(AlignerTrainer trainer) {
-			aligner_trainer_ = trainer;
-			return this;
+			return (Integer) getOption(FILTER_ALPHABET);
 		}
 
 		public AlignerTrainer getAligner() {
-			return aligner_trainer_;
-		}
-		
-		public boolean getAveraging() {
-			return averaging_;
-		}
-
-		public Options setAveraging(boolean b) {
-			averaging_ = b;
-			return this;
-		}
-
-		public Options setVerbosity(int i) {
-			verbosity_ = i;
-			return this;
-		}
-
-		public int getVerbosity() {
-			return verbosity_;
+			return (AlignerTrainer) getInstance(ALIGNER_TRAINER);
 		}
 
 		public Decoder getDecoderInstance() {
-			try {
-				return (Decoder) decoder_class_.newInstance();
-			} catch (InstantiationException e) {
-				throw new RuntimeException(e);
-			} catch (IllegalAccessException e) {
-				throw new RuntimeException(e);
-			} 
-		}
-
-		public Options setDecoder(Class<?> klass) {
-			decoder_class_ = klass;
-			return this;
-		}
-
-		public Class<?> getDecoderClass() {
-			return decoder_class_;
+			return (Decoder) getInstance(DECODER);
 		}
 
 		public boolean getUseContextFeature() {
-			return use_context_feature_;
+			return (Boolean) getOption(USE_CONSTEXT_FEATURE);
 		}
 
-		public void setUseContextFeature(boolean b) {
-			use_context_feature_ = b;
+		public int getMaxCount() {
+			return (Integer) getOption(MAX_COUNT);
 		}
 
-		public String report() {
-			StringBuilder sb = new StringBuilder();
-			sb.append(String.format("num_iterations: %s\n", num_iterations_));
-			sb.append(String.format("use_pos: %s\n", use_pos_));
-			sb.append(String.format("seed: %s\n", seed_));
-			sb.append(String.format("filter alphabet: %s\n", filter_alphabet_));
-			sb.append(String.format("aligner: %s\n", aligner_trainer_));
-			sb.append(String.format("averaging: %s\n", averaging_));
-			sb.append(String.format("decoder: %s\n", decoder_class_));
-			sb.append(String.format("use context feature: %s\n", use_context_feature_));
-			return sb.toString();
+		public int getNbestRank() {
+			return (Integer) getOption(NBEST_RANK);
 		}
-		
+
 	}
 
-	private Options options_;
-	private Random random_;
-	
-	public ToutanovaTrainer(Options options) {
-		options_ = options;
-		random_ = new Random(options_.getSeed());
+	private ToutanovaOptions options_;
+
+	public ToutanovaTrainer() {
+		options_ = new ToutanovaOptions();
 	}
-	
-	public static List<ToutanovaInstance> createToutanovaInstances(List<Instance> instances, Aligner aligner) {
+
+	public static List<ToutanovaInstance> createToutanovaInstances(
+			List<Instance> instances, Aligner aligner) {
 		List<ToutanovaInstance> new_instances = new LinkedList<>();
-		
+
 		for (Instance instance : instances) {
 			List<Integer> alignment = null;
-			
+
 			if (aligner != null) {
 				alignment = aligner.align(instance.getForm(),
-					instance.getLemma());
+						instance.getLemma());
 				assert alignment != null;
 			}
 
-			
 			new_instances.add(new ToutanovaInstance(instance, alignment));
 		}
-		
+
 		return new_instances;
-	} 
-	
+	}
+
 	@Override
-	public Lemmatizer train(List<Instance> train_instances,
+	public LemmatizerGenerator train(List<Instance> train_instances,
 			List<Instance> dev_instances) {
 
 		AlignerTrainer aligner_trainer = options_.getAligner();
 		Aligner aligner = aligner_trainer.train(train_instances);
 
-		List<ToutanovaInstance> new_train_instances = createToutanovaInstances(train_instances, aligner);
+		List<ToutanovaInstance> new_train_instances = createToutanovaInstances(
+				train_instances, aligner);
 
 		List<ToutanovaInstance> new_dev_instances = null;
 		if (dev_instances != null) {
@@ -193,21 +107,20 @@ public class ToutanovaTrainer implements LemmatizerTrainer {
 		return trainAligned(new_train_instances, new_dev_instances);
 	}
 
-	public Lemmatizer trainAligned(List<ToutanovaInstance> train_instances,
+	public LemmatizerGenerator trainAligned(List<ToutanovaInstance> train_instances,
 			List<ToutanovaInstance> dev_instances) {
-		
+
 		Logger logger = Logger.getLogger(getClass().getName());
 
-		Model model = new Model();
+		ToutanovaModel model = new ToutanovaModel();
 		model.init(options_, train_instances, dev_instances);
-		
-		double[] weights = model.getWeights();
-		double[] sum_weights = null;
+
+		DynamicWeights weights = model.getWeights();
+		DynamicWeights sum_weights = null;
 		if (options_.getAveraging()) {
-			sum_weights = new double[weights.length];
-			Arrays.fill(sum_weights, 0.0);
+			sum_weights = new DynamicWeights(null);
 		}
-		
+
 		Decoder decoder = (Decoder) options_.getDecoderInstance();
 		decoder.init(model);
 
@@ -218,21 +131,23 @@ public class ToutanovaTrainer implements LemmatizerTrainer {
 		List<ToutanovaInstance> token_instances = new LinkedList<>();
 		for (ToutanovaInstance instance : train_instances) {
 			if (!instance.isRare()) {
-				for (int i=0; i<instance.getInstance().getCount(); i++) {
+				for (int i = 0; i < Math.min(options_.getMaxCount(), instance
+						.getInstance().getCount()); i++) {
 					token_instances.add(instance);
 				}
 			}
 		}
-		
+
 		for (int iter = 0; iter < options_.getNumIterations(); iter++) {
 
-			logger.info(String.format("Iter: %3d / %3d", iter + 1, options_.getNumIterations()));
-			
+			logger.info(String.format("Iter: %3d / %3d", iter + 1,
+					options_.getNumIterations()));
+
 			correct = 0;
 			total = 0;
 			number = 0;
 
-			Collections.shuffle(token_instances, random_);
+			Collections.shuffle(token_instances, options_.getRandom());
 			for (ToutanovaInstance instance : token_instances) {
 
 				Result result = decoder.decode(instance);
@@ -242,127 +157,55 @@ public class ToutanovaTrainer implements LemmatizerTrainer {
 
 					model.update(instance, result, -1.);
 					model.update(instance, instance.getResult(), +1.);
-					
+
 					if (sum_weights != null) {
 						double amount = token_instances.size() - number;
 						assert amount > 0;
 						model.setWeights(sum_weights);
+						sum_weights = model.getWeights();
 						model.update(instance, result, -amount);
 						model.update(instance, instance.getResult(), +amount);
 						model.setWeights(weights);
+						weights = model.getWeights();
 					}
-					
+
 				} else {
-					correct ++;
+					correct++;
 				}
-				
-				
-				total ++;
-				number ++;
+
+				total++;
+				number++;
 				if (number % 1000 == 0 && options_.getVerbosity() > 0) {
 					logger.info(String.format("Processed: %3d / %3d", number,
 							token_instances.size()));
 				}
 
 			}
-			
+
 			if (sum_weights != null) {
-				
-				double weights_scaling = 1. / ((iter + 1.) * token_instances.size());
+
+				double weights_scaling = 1. / ((iter + 1.) * token_instances
+						.size());
 				double sum_weights_scaling = (iter + 2.) / (iter + 1.);
-				
-				for (int i = 0; i < weights.length; i++) {
-					weights[i] = sum_weights[i] * weights_scaling;
-					sum_weights[i] = sum_weights[i] * sum_weights_scaling;
+
+				for (int i = 0; i < weights.getLength(); i++) {
+					weights.set(i, sum_weights.get(i) * weights_scaling);
+					sum_weights.set(i, sum_weights.get(i) * sum_weights_scaling);
 				}
 			}
-			
-			logger.info(String.format("Train Accuracy: %g / %g = %g", correct, total, correct * 100. / total));
+
+			logger.info(String.format("Train Accuracy: %g / %g = %g", correct,
+					total, correct * 100. / total));
 
 		}
 
 		return new ToutanovaLemmatizer(options_, model);
 	}
-	
-	public static void main(String[] args) {
-		String trainfile = args[0];
-		String testfile = args[1];
-		String mode = args[2];
-		
-		int tokens = 100000;
-		
-		SimpleLemmatizerTrainer.Options soptions = SimpleLemmatizerTrainer.Options.newInstance();
-		soptions.setHandleUnseen(true).setHandleUnseen(true).setUseBackup(true).setUsePos(true);
-		LemmatizerTrainer trainer = new SimpleLemmatizerTrainer(soptions);
-		Lemmatizer baseline = train(trainer, trainfile, tokens);
 
-		Options options = Options.newInstance();
-		
-		Logger logger = Logger.getLogger(ToutanovaTrainer.class.getName());
-		
-		for (String arg : mode.split(",")) {
-			
-			if (arg.equals("_")) {
-				continue;
-			} else if (arg.equalsIgnoreCase("hacky")) {
-				options.setAlignerTrainer(new HackyAlignerTrainer());		
-			} else if (arg.equalsIgnoreCase("zero")) {
-				options.setDecoder(ZeroOrderDecoder.class).setUseContextFeature(true);
-			} else {
-				logger.warning(String.format("Unknown option: %s", arg));
-			}
-			
-		}
-		
-		options.setAveraging(true).setFilterAlphabet(10).setNumIterations(10).setUsePos(true).setVerbosity(0);
-		
-		logger.info(options.report());
-		
-		trainer = new ToutanovaTrainer(options);
-		Lemmatizer model = train(trainer, trainfile, tokens);
-		
-		
-		soptions = SimpleLemmatizerTrainer.Options.newInstance();
-		soptions.setHandleUnseen(false).setUseBackup(false).setUsePos(true).setAbstainIfAmbigous(true);
-		LemmatizerTrainer simple_trainer = new SimpleLemmatizerTrainer(soptions);
-		Lemmatizer simple_model = new BackupLemmatizer(train(simple_trainer, trainfile, tokens), model);
-
-		logger.info("baseline");
-		test(baseline, testfile);
-		logger.info("model");
-		test(model, testfile);
-		logger.info("simple + model");
-		test(simple_model, testfile);
-		
-	}
-	
-	private static Lemmatizer train(LemmatizerTrainer trainer, String trainfile, int tokens) {
-		List<Instance> training_instances = Trainer.getInstances(new SentenceReader(trainfile), tokens);
-		return trainer.train(training_instances, null);
+	@Override
+	public Options getOptions() {
+		return options_;
 	}
 
-	private static void test(Lemmatizer lemmatizer, String testfile) {
-		
-		
-		
-		
-		int correct = 0;
-		int total = 0;
-		
-		List<Instance> test_instances = Trainer.getInstances(new SentenceReader(testfile));
-		
-		for (Instance instance : test_instances) {
-			String predicted_lemma = lemmatizer.lemmatize(instance);
-			
-			if (predicted_lemma != null && predicted_lemma.equals(instance.getLemma())) {
-				correct += instance.getCount();
-			}
-			total += instance.getCount();
-		}
-		
-		double accuracy = correct * 100. / total;
-		
-		System.err.println(accuracy);
-	}
 
 }

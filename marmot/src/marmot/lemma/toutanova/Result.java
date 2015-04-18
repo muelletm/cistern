@@ -3,15 +3,18 @@ package marmot.lemma.toutanova;
 import java.util.Iterator;
 import java.util.List;
 
-public class Result {
+import marmot.util.HashableIntArray;
+
+public class Result implements Comparable<Result> {
 
 	private List<Integer> outputs_;
 	private List<Integer> inputs_;
-	private Model model_;
+	private ToutanovaModel model_;
 	private double score_;
 	private String form_;
+	private HashableIntArray signature_;
 
-	public Result(Model model, List<Integer> outputs, List<Integer> inputs, String form, double score) {
+	public Result(ToutanovaModel model, List<Integer> outputs, List<Integer> inputs, String form, double score) {
 		model_ = model;
 		outputs_ = outputs;
 		inputs_ = inputs;
@@ -19,7 +22,7 @@ public class Result {
 		form_ = form;
 	}
 	
-	public Result(Model model, List<Integer> outputs, List<Integer> inputs, String form) {
+	public Result(ToutanovaModel model, List<Integer> outputs, List<Integer> inputs, String form) {
 		this(model, outputs, inputs, form, Double.NEGATIVE_INFINITY);
 	}
 
@@ -59,8 +62,22 @@ public class Result {
 		return inputs_;
 	}
 	
-	double getScore() {
+	public double getScore() {
 		return score_;
+	}
+
+	@Override
+	public int compareTo(Result result) {
+		return - Double.compare(score_, result.score_);
+	}
+	
+	public Result setSignature(HashableIntArray signature) {
+		signature_ = signature;
+		return this;
+	}
+
+	public HashableIntArray getSignature() {
+		return signature_;
 	}
 
 }

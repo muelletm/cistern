@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 
 public class HackyAligner implements Aligner {
 
+	private static final long serialVersionUID = 1L;
 	private int max_segment_length_;
 	private double[] cost_array_; 
 	private int[] index_array_i_; 

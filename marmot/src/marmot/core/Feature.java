@@ -18,6 +18,12 @@ public class Feature implements Serializable {
 		current_bit_index_ = current_bit_index;
 	}
 
+	public Feature(int length) {
+		bytes_ = new int[length];
+		current_length_ = 0;
+		current_bit_index_ = Integer.SIZE;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -56,6 +62,14 @@ public class Feature implements Serializable {
 
 	public short getCurrentLength() {
 		return current_length_;
+	}
+
+	public void setBitIndex(short current_bit_index) {
+		current_bit_index_ = current_bit_index;
+	}
+
+	public void setArrayLength(short current_array_length) {
+		current_length_ = current_array_length;
 	}
 	
 }

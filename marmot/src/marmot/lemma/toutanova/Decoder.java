@@ -4,6 +4,8 @@ public interface Decoder {
 
 	public Result decode(ToutanovaInstance instance);
 
-	public void init(Model model_);
+	public void init(ToutanovaModel model_);
+
+	public int getOrder();
 
 }

@@ -1,33 +1,63 @@
 package marmot.lemma.toutanova;
 
+import java.util.Collection;
+
 import marmot.lemma.Instance;
+import marmot.lemma.LemmaCandidateSet;
 import marmot.lemma.Lemmatizer;
+import marmot.lemma.LemmatizerGenerator;
+import marmot.lemma.toutanova.ToutanovaTrainer.ToutanovaOptions;
 
-public class ToutanovaLemmatizer implements Lemmatizer {
+public class ToutanovaLemmatizer implements Lemmatizer, LemmatizerGenerator {
 
-	private Model model_;
-	private Decoder decoder_;
+	private static final long serialVersionUID = 1L;
+	private ToutanovaModel model_;
+	private transient Decoder decoder_;
+	private transient NbestDecoder nbest_decoder_;
+	private ToutanovaOptions options_;
 
-	public ToutanovaLemmatizer(ToutanovaTrainer.Options options, Model model) {
+	public ToutanovaLemmatizer(ToutanovaOptions options, ToutanovaModel model) {
 		model_ = model;
-		
-		decoder_ = options.getDecoderInstance();
-		decoder_.init(model_);
+		options_ = options;
 	}
 
 	@Override
 	public String lemmatize(Instance instance) {
-		Lemmatizer lemmatizer = model_.getSimpleLemmatizer();
-		if (lemmatizer != null) {
-			String lemma = lemmatizer.lemmatize(instance);
-			if (lemma != null) {
-				return lemma;
-			}
+		if (decoder_ == null) {
+			decoder_ = options_.getDecoderInstance();
+			decoder_.init(model_);
 		}
 		
+		ToutanovaInstance tinstance = getToutanovaInstance(instance);
+		return decoder_.decode(tinstance).getOutput();
+	}
+
+	private ToutanovaInstance getToutanovaInstance(Instance instance) {
 		ToutanovaInstance tinstance = new ToutanovaInstance(instance, null);
 		model_.addIndexes(tinstance, false);
-		return decoder_.decode(tinstance).getOutput();
+		return tinstance;
+	}
+
+	public ToutanovaModel getModel() {
+		return model_;
+	}
+
+	@Override
+	public void addCandidates(Instance instance, LemmaCandidateSet set) {
+		ToutanovaInstance tinstance = getToutanovaInstance(instance);
+		
+		if (nbest_decoder_ == null) {
+			nbest_decoder_ = new ZeroOrderNbestDecoder(options_.getNbestRank());
+			nbest_decoder_.init(model_);
+		}
+		
+		Collection<marmot.lemma.toutanova.Result> results = nbest_decoder_.decode(tinstance);
+		if (results == null)
+			return;
+		
+		for (marmot.lemma.toutanova.Result result : results) {
+			set.getCandidate(result.getOutput());
+		}
 	}
 
 }

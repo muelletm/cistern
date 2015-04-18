@@ -197,6 +197,7 @@ public class SimpleTagger implements Tagger {
 				State state = new State(tag_index);
 				state.setVector(vector);
 				state.setScore(weight_vector_.dotProduct(state, vector));
+				model_.setLemmaCandidates(token, state);
 				states.add(state);
 			}
 			assert states.size() > 0;
@@ -270,18 +271,21 @@ public class SimpleTagger implements Tagger {
 					FeatureVector vector = weight_vector_
 							.extractStateFeatures(state);
 					assert state.getTransitions() == null;
-					int[] tag_classes = model_.getTagCandidates(sentence,
+					int[] tag_indexes = model_.getTagCandidates(sentence,
 							index, state);
-					for (int tag_class : tag_classes) {
+					for (int tag_index : tag_indexes) {
 
-						if (tag_class == -1) {
+						if (tag_index == -1) {
 							break;
 						}
 
-						State new_state = new State(tag_class, state);
+						assert state.getOrder() == 1;
+						
+						State new_state = new State(tag_index, state);
 						new_state.setVector(vector);
 						new_state.setScore(weight_vector_.dotProduct(new_state,
 								vector) + state.getScore());
+						model_.setLemmaCandidates(state, new_state);
 						new_current_states.add(new_state);
 					}
 				}

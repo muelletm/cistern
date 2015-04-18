@@ -9,6 +9,7 @@ import java.util.List;
 
 import marmot.core.State;
 import marmot.core.WeightVector;
+import marmot.lemma.ranker.RankerCandidate;
 import marmot.util.Check;
 import marmot.util.Numerics;
 
@@ -27,7 +28,6 @@ public class ZeroOrderSumLattice implements SumLattice {
 		log_threshold_ = Math.log(threshold);
 		initialized_ = false;
 		oracle_ = oracle;
-		
 	}
 
 	private void init() {
@@ -148,12 +148,27 @@ public class ZeroOrderSumLattice implements SumLattice {
 
 			double p = Math.exp(state.getScore() - score_sum);
 
+			double value = -p;
+			
 			if (candidate_index == gold_candidate_index) {
-				weights.updateWeights(state, (1.0 - p) * step_width,
-						false);
-			} else {
-				weights.updateWeights(state, -p * step_width, false);
+				value += 1.0;
 			}
+			
+			weights.updateWeights(state, value * step_width, false);
+			
+			if (state.getLemmaCandidates() != null) {
+				double new_score = state.getRealScore();
+				for (RankerCandidate candidate : state.getLemmaCandidates()) {
+					double score = candidate.getScore() + new_score; 
+					p = Math.exp(score  - score_sum);
+					value = -p;
+					if (candidate.isCorrect() && candidate_index == gold_candidate_index) {
+						value += 1.0;
+					}
+					candidate.update(state, weights, value * step_width);
+				}
+			}
+			
 			candidate_index++;
 		}
 	}

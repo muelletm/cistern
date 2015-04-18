@@ -1,10 +1,11 @@
 package marmot.lemma.toutanova;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-public interface Aligner {
+public interface Aligner extends Serializable {
 
 	public static class StaticMethods {
 		
@@ -106,7 +107,7 @@ public interface Aligner {
 				String input_segment = input.substring(i_start_index, i_end_index);
 				assert input_segment.length() > 0;
 				String output_segment = output.substring(o_start_index, o_end_index);
-				assert output_segment.length() > 0;
+				// assert output_segment.length() > 0;
 				Pair pair = new Pair(input_segment, output_segment);
 				
 				pairs.add(pair);

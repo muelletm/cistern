@@ -113,7 +113,7 @@ public class SentenceReader implements Iterable<Sequence> {
 					System.err.println("Warning: Found empty sentence!");
 				}
 
-				number_++;
+				number_+= tokens.size();
 
 				Sentence sentence = new Sentence(tokens);
 

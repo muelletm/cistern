@@ -5,13 +5,15 @@ package marmot.core.lattice;
 
 import java.util.List;
 
+import marmot.util.HashableIntArray;
+
 public class Hypothesis implements Comparable<Hypothesis> {
 
 	List<Integer> states_;
 	double score_;
-	int[] signature_;
+	HashableIntArray signature_;
 	
-	public Hypothesis(List<Integer> list, double score, int[] signature) {
+	public Hypothesis(List<Integer> list, double score, HashableIntArray signature) {
 		states_ = list;
 		score_ = score;
 		signature_ = signature;
@@ -27,7 +29,7 @@ public class Hypothesis implements Comparable<Hypothesis> {
 		return score_ + " " + states_;
 	}
 
-	public int[] getSignature() {
+	public HashableIntArray getSignature() {
 		return signature_;
 	}
 

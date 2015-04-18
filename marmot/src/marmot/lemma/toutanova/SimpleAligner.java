@@ -5,6 +5,8 @@ import java.util.List;
 
 public class SimpleAligner implements Aligner {
 
+	private static final long serialVersionUID = 1L;
+
 	@Override
 	public List<Integer> align(String input, String output) {
 	

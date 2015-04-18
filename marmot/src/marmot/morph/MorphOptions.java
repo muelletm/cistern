@@ -36,7 +36,7 @@ public class MorphOptions extends Options {
 	public static final String USE_HASH_VECTOR = "use-hash-vector";
 	public static final String FEATURE_TEMPLATES = "feature-templates";
 	public static final String MAX_AFFIX_LENGTH = "max-affix-length";
-
+	public static final String LEMMATIZE = "lemmatize";
 
 	
 	private static final Map<String, String> DEFALUT_VALUES_ = new HashMap<String, String>();
@@ -92,6 +92,8 @@ public class MorphOptions extends Options {
 		COMMENTS_.put(FEATURE_TEMPLATES, "Comma separated list, activates individual templates.");
 		DEFALUT_VALUES_.put(MAX_AFFIX_LENGTH, "10");
 		COMMENTS_.put(MAX_AFFIX_LENGTH, "Max affix length to use in feature extraction.");
+		DEFALUT_VALUES_.put(LEMMATIZE, "false");
+		COMMENTS_.put(LEMMATIZE, "Train joint tagger + lemmatizer.");
 
 	}
 
@@ -207,6 +209,10 @@ public class MorphOptions extends Options {
 
 	public int getMaxAffixLength() {
 		return Integer.parseInt(getProperty(MAX_AFFIX_LENGTH));
+	}
+	
+	public boolean getLemmatizer() {
+		return Boolean.valueOf(getProperty(LEMMATIZE));
 	}
 
 }

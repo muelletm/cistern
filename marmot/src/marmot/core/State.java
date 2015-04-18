@@ -3,6 +3,11 @@
 
 package marmot.core;
 
+import java.util.List;
+
+import marmot.lemma.ranker.RankerCandidate;
+import marmot.util.Check;
+import marmot.util.Numerics;
 
 public class State {
 	private FeatureVector vector_;
@@ -13,9 +18,12 @@ public class State {
 	private Transition[] transitions_;
 	private int index_;
 	private State sub_level_state_;
+	private List<RankerCandidate> candidates_;
+	private double candidate_score_sum_;
 	
 	public State() {
 		index_ = -1;
+		candidate_score_sum_ = Double.NEGATIVE_INFINITY;
 	}
 	
 	public State(int index) {
@@ -41,6 +49,10 @@ public class State {
 	}
 
 	public double getScore() {
+		if (candidates_ != null) {
+			return candidate_score_sum_;
+		}
+		
 		return score_;
 	}
 
@@ -84,6 +96,11 @@ public class State {
 		if (estimated_count_ != 0.0) {
 			weights.updateWeights(this, estimated_count_, true);
 			estimated_count_ = 0.0;
+		}
+		if (candidates_ != null) {
+			for (RankerCandidate candidate : candidates_) {
+				candidate.updateWeights(this, weights);
+			}
 		}
 	}
 
@@ -177,6 +194,40 @@ public class State {
 		State state = copy(new State());
 		assert state.index_ >= 0;
 		return state;
+	}
+
+	public void setLemmaCandidates(List<RankerCandidate> candidates) {
+		assert getOrder() == 1;
+		candidates_ = candidates;
+	}
+
+	public List<RankerCandidate> getLemmaCandidates() {
+		assert getOrder() == 1;
+		return candidates_;
+	}
+	
+	public void setLemmaScoreSum() {
+		assert getOrder() == 1;
+		assert getLemmaCandidates() != null;
+		
+		double score = getScore();
+		assert Check.isNormal(score);
+		
+		candidate_score_sum_ = Double.NEGATIVE_INFINITY;
+
+		for (RankerCandidate candidate : getLemmaCandidates()) {
+			double candidate_score = candidate.getScore();
+			assert Check.isNormal(candidate_score);
+			candidate_score_sum_ = Numerics.sumLogProb(candidate_score_sum_, score + candidate_score);
+		}
+
+		assert candidate_score_sum_ != Double.NEGATIVE_INFINITY;
+		assert Check.isNormal(candidate_score_sum_);
+	}
+
+	public double getRealScore() {
+		assert getOrder() == 1;
+		return score_;
 	}
 
 }

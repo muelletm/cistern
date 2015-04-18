@@ -17,6 +17,7 @@ import com.google.common.collect.Sets;
 
 import marmot.lemma.Instance;
 import marmot.lemma.Lemmatizer;
+import marmot.lemma.Options;
 import marmot.lemma.transducer.exceptions.LabelBiasException;
 import marmot.lemma.transducer.exceptions.NegativeContext;
 import marmot.util.Numerics;
@@ -592,6 +593,12 @@ public class PFST extends Transducer {
 		System.out.println(Numerics.approximatelyEqual(gradientVector, approxGradientVector, 0.001));
 		 
 		return new LemmatizerPFST();
+	}
+	
+	@Override
+	public Options getOptions() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 	

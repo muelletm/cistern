@@ -8,14 +8,20 @@ import java.io.IOException;
 import java.io.Serializable;
 
 public class Runtime {
+	
+	private static final long ONE_MEGA_BYTES_IN_BYTES = 1024 * 1024;
 
-	public static long getUsedMemory() {
+	public static long getUsedMemoryInBytes() {
 		java.lang.Runtime r = java.lang.Runtime.getRuntime();
 		r.gc();
 		return r.totalMemory() - r.freeMemory();
 	}
 	
-	public static long getUsedMemory(Serializable object, boolean compress) {
+	public static double getUsedMemoryInMegaBytes() {
+		return getUsedMemoryInBytes() / (double) ONE_MEGA_BYTES_IN_BYTES;
+	}
+	
+	public static long getUsedMemoryInBytes(Serializable object, boolean compress) {
 		try {
 			File file = File.createTempFile("memory","ser");
 			FileUtils.saveToFile(object, file, compress);			
@@ -25,6 +31,19 @@ public class Runtime {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public static long getMaxHeapSizeInBytes() {
+		java.lang.Runtime r = java.lang.Runtime.getRuntime();
+		return r.maxMemory();
+	}
+	
+	public static double getMaxHeapSizeInMegaBytes() {
+		return getMaxHeapSizeInBytes() / (double) ONE_MEGA_BYTES_IN_BYTES;
+	}
+
+	public static double getUsedMemoryInMegaBytes(Serializable object, boolean compress) {
+		return getUsedMemoryInBytes(object, compress) / (double) ONE_MEGA_BYTES_IN_BYTES;
 	}
 
 }
