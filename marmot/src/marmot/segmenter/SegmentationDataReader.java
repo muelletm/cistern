@@ -37,8 +37,10 @@ public class SegmentationDataReader {
 		this.devData = new ArrayList<Word>();
 		this.testData = new ArrayList<Word>();
 		
+		this.tag2int.put("START",0);
 		// read in training data
 		readFile(trainIn,trainingData);
+
 		this.numSegs = this.seg2int.size();
 		this.numTags = this.tag2int.size();
 
@@ -80,7 +82,11 @@ public class SegmentationDataReader {
 	            		if (counter == 0) {
 	            			Word word = new Word(value,seg2int,seg2count);
 	            			lst.add(word);
-	            			this.maxLength = Math.max(this.maxLength,word.getLength());
+	            			if (word.getLength() > this.maxLength) {
+	            				this.maxLength = word.getLength();
+	            			}
+
+
 	            			
 	            		} else if (counter == 1) {
 	            			for (String token : line.split(" ")) {
@@ -148,7 +154,7 @@ public class SegmentationDataReader {
 	}
 
 	public int getMaxLength() {
-		return maxLength;
+		return this.maxLength;
 	}
 
 

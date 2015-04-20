@@ -8,6 +8,7 @@ public class Cemino {
 	
 	private SegmentationDataReader sdr;
 	private double[] weights;
+	private double[] gradient;
 	
 	private Map<String,Integer> tag2int;
 	private Map<String,Integer> seg2int;
@@ -23,6 +24,7 @@ public class Cemino {
 	private int maxLength;
 
 	public Cemino(SegmentationDataReader sdr) {
+		
 		this.sdr = sdr;
 		this.tag2int = sdr.getTag2int();
 		this.seg2int = sdr.getSeg2int();
@@ -32,12 +34,15 @@ public class Cemino {
 		this.devData = sdr.getDevData();
 		this.testData = sdr.getTestData();
 	
-		tagtag2int = new int[this.numTags][this.numTags];
-		tagseg2int = new int[this.numTags][this.numSegs];
+		this.maxLength = sdr.getMaxLength();
+		this.numSegs = sdr.getNumSegs();
+		this.numTags = sdr.getNumTags();
+				
+		this.tagtag2int = new int[this.numTags][this.numTags];
+		this.tagseg2int = new int[this.numTags][this.numSegs];
 		
 		
-		
-		
+		this.gradient = new double[this.numTags * this.numSegs + this.numTags * this.numTags];
 		this.weights = new double[this.numTags * this.numSegs + this.numTags * this.numTags];
 		int counter = 0;
 		
@@ -54,8 +59,28 @@ public class Cemino {
 			}
 		}
 		
-		Segmenter segmenter = new Segmenter(this.maxLength,this.numTags);
-		segmenter.backward(trainingData.get(0), weights, tagtag2int, tagseg2int);
+		Segmenter segmenter = new Segmenter(this.maxLength,this.numTags, tagtag2int, tagseg2int);
+		double likelihood = segmenter.logLikelihood(trainingData.get(0), weights);
+		
+		segmenter.expectedCounts(gradient,trainingData.get(0), weights);
+		System.out.println(Math.exp(likelihood));
+		
+		// finite difference
+		double eps = 0.01;
+		double[] gradientTest = new double[this.gradient.length];
+		for (int i = 0; i < 8; ++i) {
+			this.weights[i] += eps;
+			double value1 = segmenter.logLikelihood(trainingData.get(0), weights);
+			this.weights[i] -= 2 * eps;
+			double value2 = segmenter.logLikelihood(trainingData.get(0), weights);
+			this.weights[i] += eps;
+			gradientTest[i] = (value1 - value2) / (2 * eps);
+		}
+		
+		
+		System.out.println(Arrays.toString(this.gradient));
+		System.out.println(Arrays.toString(gradientTest));
+
 	}
 	
 	public static void main(String[] args) {

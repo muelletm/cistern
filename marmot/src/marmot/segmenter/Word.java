@@ -14,7 +14,7 @@ public class Word {
 	
 	public Word (String word, Map<String,Integer> seg2int, Map<String,Integer> seg2count) {
 		this.word = word;
-		segment2Id = new int[word.length()][word.length()];
+		segment2Id = new int[word.length()+1][word.length()+1];
 		this.length = word.length();
 		this.extractSegmentIds(seg2int,seg2count);
 		
@@ -26,8 +26,8 @@ public class Word {
 	 * @param segmentIds
 	 */
 	private void extractSegmentIds(Map<String,Integer> seg2int, Map<String,Integer> seg2count) {
-		for (int i = 0; i < this.word.length(); ++i) {
-			for (int j = i + 1; j < this.word.length(); ++j) {
+		for (int i = 0; i < this.word.length() + 1; ++i) {
+			for (int j = i + 1; j < this.word.length() + 1; ++j) {
 				String segment = word.substring(i,j);
 				if (!seg2int.containsKey(segment)) {
 					seg2int.put(segment,seg2int.size());
@@ -40,12 +40,16 @@ public class Word {
 		}
 	}
 	
-	public int[][] segment2Id() {
+	public int[][] getSegment2Id() {
 		return this.segment2Id;
 	}
 	
 	public int getLength() {
 		return this.length;
+	}
+	
+	public String getWord() {
+		return this.word;
 	}
 
 }
