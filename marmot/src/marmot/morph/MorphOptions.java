@@ -38,7 +38,7 @@ public class MorphOptions extends Options {
 	public static final String MAX_AFFIX_LENGTH = "max-affix-length";
 	public static final String LEMMATIZE = "lemmatize";
 	public static final String LEMMA_UNIGRAM_FILE = "lemma-unigram-file";
-
+	public static final String GOLD_LEMMA = "gold-lemma";
 	
 	private static final Map<String, String> DEFALUT_VALUES_ = new HashMap<String, String>();
 	private static final Map<String, String> COMMENTS_ = new HashMap<String, String>();
@@ -97,7 +97,8 @@ public class MorphOptions extends Options {
 		COMMENTS_.put(LEMMATIZE, "Train joint tagger + lemmatizer.");
 		DEFALUT_VALUES_.put(LEMMA_UNIGRAM_FILE, "");
 		COMMENTS_.put(LEMMA_UNIGRAM_FILE, "Is passed to lemma ranker model.");
-
+		DEFALUT_VALUES_.put(GOLD_LEMMA, "false");
+		COMMENTS_.put(GOLD_LEMMA, "Use only gold lemma.");
 	}
 
 	public MorphOptions() {
@@ -211,7 +212,7 @@ public class MorphOptions extends Options {
 	}
 
 	public int getMaxAffixLength() {
-		return Integer.parseInt(getProperty(MAX_AFFIX_LENGTH));
+		return Integer.valueOf(getProperty(MAX_AFFIX_LENGTH));
 	}
 	
 	public boolean getLemmatizer() {
@@ -220,6 +221,10 @@ public class MorphOptions extends Options {
 	
 	public String getLemmaUnigramFile() {
 		return getProperty(LEMMA_UNIGRAM_FILE);
+	}
+	
+	public boolean getGoldLemma() {
+		return Boolean.valueOf(getProperty(GOLD_LEMMA));
 	}
 
 }

@@ -26,6 +26,7 @@ import marmot.core.Token;
 import marmot.core.Trainer;
 import marmot.core.TrainerFactory;
 import marmot.core.WeightVector;
+import marmot.lemma.GoldLemmaGenerator;
 import marmot.lemma.Instance;
 import marmot.lemma.LemmaCandidate;
 import marmot.lemma.LemmaCandidateGenerator;
@@ -184,7 +185,11 @@ public class MorphModel extends Model {
 			
 			List<Instance> instances = Instance.getInstances(sentences, false, false);
 			
-			generators_ = roptions.getGenerators(instances);
+			if (options.getGoldLemma()) {
+				generators_ = Collections.singletonList((LemmaCandidateGenerator) new GoldLemmaGenerator());
+			} else {
+				generators_ = roptions.getGenerators(instances);
+			}
 			
 			EditTreeAlignerTrainer trainer = new EditTreeAlignerTrainer(roptions.getRandom(), false);
 			EditTreeAligner aligner = (EditTreeAligner) trainer.train(instances);

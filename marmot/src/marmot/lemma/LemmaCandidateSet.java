@@ -1,3 +1,6 @@
+// Copyright 2015 Thomas Müller
+// This file is part of MarMoT, which is licensed under GPLv3.
+
 package marmot.lemma;
 
 import java.util.HashMap;
@@ -37,6 +40,10 @@ public class LemmaCandidateSet implements Iterable<Map.Entry<String, LemmaCandid
 
 	public boolean contains(String lemma) {
 		return map_.containsKey(lemma);
+	}
+	
+	public void clear() {
+		map_.clear();
 	}
 	
 }

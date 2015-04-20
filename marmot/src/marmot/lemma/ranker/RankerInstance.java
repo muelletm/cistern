@@ -1,3 +1,6 @@
+// Copyright 2015 Thomas Müller
+// This file is part of MarMoT, which is licensed under GPLv3.
+
 package marmot.lemma.ranker;
 
 import java.util.Arrays;
@@ -104,7 +107,7 @@ public class RankerInstance {
 	public static RankerInstance getInstance(Instance instance,
 			List<LemmaCandidateGenerator> generators) {
 		LemmaCandidateSet set = new LemmaCandidateSet(instance.getForm());
-		for (LemmaCandidateGenerator generator : generators) {
+		for (LemmaCandidateGenerator generator : generators) {			
 			generator.addCandidates(instance, set);
 		}
 		set.getCandidate(instance.getLemma());
