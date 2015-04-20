@@ -426,16 +426,16 @@ public class PipelineTest {
 				getSentences(options.getTestFile(), 100), train_acc, test_acc);
 	}
 	
-	public void realTestWithOptions(final MorphOptions options, double train_acc, double test_acc) {
+	public static void realTestWithOptions(final MorphOptions options, double train_acc, double test_acc) {
 		realTestWithOptions(options, train_acc, test_acc, 0.0, 0.0);
 	}
 	
-	public void realTestWithOptions(final MorphOptions options, double train_acc, double test_acc, double lemma_train_acc, double lemma_test_acc) {
+	public static void realTestWithOptions(final MorphOptions options, double train_acc, double test_acc, double lemma_train_acc, double lemma_test_acc) {
 		testWithOptions(options, getSentences(options.getTrainFile(), 100),
 				getSentences(options.getTestFile(), 100), train_acc, test_acc, lemma_train_acc, lemma_test_acc);
 	}
 
-	public void testWithOptions(MorphOptions options,
+	public static void testWithOptions(MorphOptions options,
 			List<Sequence> train_sentences, List<Sequence> test_sentences,
 			double train_threshold, double test_threshold, double train_lemma_threshold, double test_lemma_threshold) {
 
@@ -464,7 +464,7 @@ public class PipelineTest {
 		}
 	}
 	
-	public void testOptimizerWithOptions(MorphOptions options,
+	public static void testOptimizerWithOptions(MorphOptions options,
 			List<Sequence> train_sentences, List<Sequence> test_sentences,
 			double train_threshold, double test_threshold) {
 
@@ -476,8 +476,7 @@ public class PipelineTest {
 		}
 		
 		assert test_sentences != null;
-		Tagger tagger = MorphModel.trainOptimal(options, train_sentences,
-				test_sentences);
+		Tagger tagger = MorphModel.trainOptimal(options, train_sentences, null);
 
 		assertModelPerformanceOnTestset(caller + " Train", tagger, train_sentences, train_threshold);
 		assertModelPerformanceOnTestset(caller + " Test ", tagger, test_sentences, test_threshold);
@@ -495,12 +494,12 @@ public class PipelineTest {
 		}
 	}
 
-	private void assertModelPerformanceOnTestset(String name, Tagger tagger,
+	public static void assertModelPerformanceOnTestset(String name, Tagger tagger,
 			List<Sequence> sentences, double threshold) {
 		assertModelPerformanceOnTestset(name, tagger, sentences, threshold, 0.0);
 	}
 
-	private void assertModelPerformanceOnTestset(String name, Tagger tagger,
+	public static void assertModelPerformanceOnTestset(String name, Tagger tagger,
 			List<Sequence> sentences, double threshold, double lemma_threshold) {
 		MorphResult result = new MorphResult(tagger.getModel(), tagger.getNumLevels());
 		MorphModel model = (MorphModel) tagger.getModel();

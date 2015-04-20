@@ -177,8 +177,8 @@ public class State {
 		return sb.toString();
 	}
 
-	public void check() {
-		assert transitions_ == null;
+	public boolean check() {
+		return transitions_ == null;
 	}
 
 	public State copy(State state) {

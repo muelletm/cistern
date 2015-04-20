@@ -111,9 +111,8 @@ public class Transition extends State {
 	}
 	
 	@Override
-	public void check() {
-		previous_state_.check();
-		state_.check();
+	public boolean check() {
+		return previous_state_.check() && state_.check();
 	}
 	
 	@Override

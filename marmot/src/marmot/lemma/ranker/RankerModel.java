@@ -48,32 +48,32 @@ public class RankerModel implements Serializable {
 	private static final int unigram_count_bin_bits_ = Encoder.bitsNeeded(4);
 	private static final long max_weights_length_ = 10_000_000;
 	private static final int encoder_capacity_ = 8;
-	
+
 	private int lemma_bits_;
 	private int form_bits_;
 	private int char_bits_;
 	private int tree_bits_;
 	private Lexicon unigram_lexicon_;
-	//private RerankerTrainerOptions options_;
+	// private RerankerTrainerOptions options_;
 	private SymbolTable<String> morph_table_;
-	
+
 	private transient Feature feature_;
 	private transient Encoder encoder_;
 	private transient Context context_;
-	
+
 	private int real_capacity_;
 	private long pos_length_;
 	private long feat_length_;
-	
+
 	private static class Context {
 		public List<Integer> list;
 		public boolean insert;
-		
+
 		public Context() {
 			list = new ArrayList<>();
 		}
 	}
-	
+
 	private static final int length_bits_ = Encoder
 			.bitsNeeded(2 * max_window + 10);
 
@@ -84,17 +84,18 @@ public class RankerModel implements Serializable {
 		if (options.getUsePos()) {
 			pos_table = new SymbolTable<>();
 		}
-		
+
 		SymbolTable<String> morph_table = null;
 		if (options.getUseMorph()) {
 			morph_table = new SymbolTable<>();
 		}
-		
+
 		init(options, instances, aligner, pos_table, morph_table);
 	}
-	
+
 	public void init(RerankerTrainerOptions options,
-			List<RankerInstance> instances, EditTreeAligner aligner, SymbolTable<String> pos_table, SymbolTable<String> morph_table) {
+			List<RankerInstance> instances, EditTreeAligner aligner,
+			SymbolTable<String> pos_table, SymbolTable<String> morph_table) {
 		Logger logger = Logger.getLogger(getClass().getName());
 		aligner_ = aligner;
 
@@ -102,10 +103,10 @@ public class RankerModel implements Serializable {
 		lemma_table_ = new SymbolTable<>();
 		char_table_ = new SymbolTable<>();
 		tree_table_ = new SymbolTable<>();
-		
+
 		pos_table_ = pos_table;
 		morph_table_ = morph_table;
-		
+
 		for (RankerInstance instance : instances) {
 			fillTables(instance, instance.getCandidateSet());
 		}
@@ -114,41 +115,54 @@ public class RankerModel implements Serializable {
 		lemma_bits_ = Encoder.bitsNeeded(lemma_table_.size() - 1);
 		char_bits_ = Encoder.bitsNeeded(char_table_.size());
 		tree_bits_ = Encoder.bitsNeeded(tree_table_.size() - 1);
-		logger.info(String.format("Number of edit trees: %5d", tree_table_.size()));
-		
+		logger.info(String.format("Number of edit trees: %5d",
+				tree_table_.size()));
+
 		if (pos_table_ != null) {
-			logger.info(String.format("Number of POS features: %3d", pos_table_.size()));
+			logger.info(String.format("Number of POS features: %3d",
+					pos_table_.size()));
 			logger.info(String.format("POS features: %s", pos_table_.keySet()));
 		}
-		
+
 		if (morph_table_ != null) {
-			logger.info(String.format("Number of morph features: %3d", morph_table_.size()));
-			logger.info(String.format("Morph features: %s", morph_table_.keySet()));
+			logger.info(String.format("Number of morph features: %3d",
+					morph_table_.size()));
+			logger.info(String.format("Morph features: %s",
+					morph_table_.keySet()));
 		}
-		
+
+		int num_candidates = 0;
+		for (RankerInstance instance : instances) {
+			num_candidates += instance.getCandidateSet().size();
+		}
+		logger.info(String.format("Candidates per token: %g", num_candidates
+				/ (double) instances.size()));
+
 		prepareUnigramFeature(options.getUnigramFile());
 
 		feature_table_ = new SymbolTable<>();
-		
+
 		logger.info("Starting feature index extraction.");
-		
+
 		for (RankerInstance instance : instances) {
 			addIndexes(instance, instance.getCandidateSet(), true);
 		}
 
 		feat_length_ = feature_table_.size();
-		pos_length_ = (pos_table_ == null)? 1 : pos_table_.size() + 1;
-		long morph_length = (morph_table_ == null)? 1 : morph_table_.size() + 1;
-		
+		pos_length_ = (pos_table_ == null) ? 1 : pos_table_.size() + 1;
+		long morph_length = (morph_table_ == null) ? 1
+				: morph_table_.size() + 1;
+
 		long actual_length = feat_length_ * pos_length_ * morph_length;
 		logger.info(String.format("Actual weights length: %12d", actual_length));
-		
+
 		int length = (int) Math.min(actual_length, max_weights_length_);
-		
+
 		weights_ = new double[length];
-		logger.info(String.format("Number of features: %10d", feature_table_.size()));
+		logger.info(String.format("Number of features: %10d",
+				feature_table_.size()));
 		logger.info(String.format("Weights length: %6d", weights_.length));
-		
+
 		logger.info(String.format("Real encoder capacity: %2d", real_capacity_));
 	}
 
@@ -241,7 +255,7 @@ public class RankerModel implements Serializable {
 
 		instance.getPosIndex(pos_table_, true);
 		instance.getMorphIndexes(morph_table_, true);
-		
+
 		for (Map.Entry<String, LemmaCandidate> candidate_pair : set) {
 			String lemma = candidate_pair.getKey();
 			LemmaCandidate candidate = candidate_pair.getValue();
@@ -253,8 +267,7 @@ public class RankerModel implements Serializable {
 
 			lemma_table_.insert(lemma);
 		}
-		
-		
+
 	}
 
 	public void addIndexes(RankerInstance instance, LemmaCandidateSet set,
@@ -264,23 +277,24 @@ public class RankerModel implements Serializable {
 			encoder_ = new Encoder(encoder_capacity_);
 			feature_ = new Feature(encoder_capacity_);
 		}
-		
+
 		String form = instance.getInstance().getForm();
 		int form_index = form_table_.toIndex(form, -1);
-		
-		context_.insert = insert;	
-		
+
+		context_.insert = insert;
+
 		int[] form_chars = instance.getFormChars(char_table_, false);
 
 		for (Map.Entry<String, LemmaCandidate> candidate_pair : set) {
 			context_.list.clear();
-			
+
 			String lemma = candidate_pair.getKey();
 			int lemma_index = lemma_table_.toIndex(lemma, -1, false);
 
 			LemmaCandidate candidate = candidate_pair.getValue();
 
-			int[] lemma_chars = candidate.getLemmaChars(char_table_, lemma, false);
+			int[] lemma_chars = candidate.getLemmaChars(char_table_, lemma,
+					false);
 
 			if (lemma_index >= 0) {
 				encoder_.append(lemma_feature_, feature_bits_);
@@ -295,11 +309,14 @@ public class RankerModel implements Serializable {
 				addFeature();
 			}
 
-			List<Integer> alignment = candidate.getAlignment(aligner_, form, lemma);
+			List<Integer> alignment = candidate.getAlignment(aligner_, form,
+					lemma);
 
-			addAlignmentIndexes(context_, form_chars, lemma_chars, alignment, encoder_);
+			addAlignmentIndexes(context_, form_chars, lemma_chars, alignment,
+					encoder_);
 
-			int tree_index = candidate.getTreeIndex(aligner_.getBuilder(), form, lemma, tree_table_, false);
+			int tree_index = candidate.getTreeIndex(aligner_.getBuilder(),
+					form, lemma, tree_table_, false);
 
 			if (tree_index >= 0) {
 				encoder_.append(tree_feature_, feature_bits_);
@@ -375,8 +392,8 @@ public class RankerModel implements Serializable {
 
 	}
 
-	private void addAlignmentIndexes(Context c, int[] form_chars, int[] lemma_chars,
-			List<Integer> alignment, Encoder encoder) {
+	private void addAlignmentIndexes(Context c, int[] form_chars,
+			int[] lemma_chars, List<Integer> alignment, Encoder encoder) {
 
 		Iterator<Integer> iterator = alignment.iterator();
 
@@ -397,8 +414,8 @@ public class RankerModel implements Serializable {
 		}
 	}
 
-	private void addAlignmentSegmentIndexes(Context c, int[] form_chars, int[] lemma_chars,
-			Encoder encoder, int input_start, int input_end,
+	private void addAlignmentSegmentIndexes(Context c, int[] form_chars,
+			int[] lemma_chars, Encoder encoder, int input_start, int input_end,
 			int output_start, int output_end) {
 
 		if (isCopySegment(form_chars, lemma_chars, input_start, input_end,
@@ -464,29 +481,30 @@ public class RankerModel implements Serializable {
 			encoder.append(c, char_bits_);
 		}
 	}
-	
+
 	private int getFeatureIndex() {
 		if (feature_table_ != null) {
-			
+
 			encoder_.copyToFeature(feature_);
-			
+
 			int index = feature_table_.toIndex(feature_, -1, false);
 			if (index >= 0)
 				return index;
-			
+
 			if (context_.insert) {
-				real_capacity_ = Math.max(real_capacity_, feature_.getCurrentLength());
+				real_capacity_ = Math.max(real_capacity_,
+						feature_.getCurrentLength());
 				index = feature_table_.toIndex(feature_, true);
 				feature_ = new Feature(encoder_capacity_);
 			}
-			
-			return index;	 
-		}		
+
+			return index;
+		}
 		return encoder_.hashCode();
 	}
 
 	private void addFeature(boolean reset) {
-		int index = getFeatureIndex();	
+		int index = getFeatureIndex();
 		if (index >= 0) {
 			context_.list.add(index);
 		}
@@ -503,7 +521,9 @@ public class RankerModel implements Serializable {
 		for (Map.Entry<String, LemmaCandidate> candidate_pair : instance
 				.getCandidateSet()) {
 			LemmaCandidate candidate = candidate_pair.getValue();
-			double score = score(candidate, instance.getPosIndex(pos_table_, false), instance.getMorphIndexes(morph_table_, false));
+			double score = score(candidate,
+					instance.getPosIndex(pos_table_, false),
+					instance.getMorphIndexes(morph_table_, false));
 
 			candidate.setScore(score);
 
@@ -514,7 +534,8 @@ public class RankerModel implements Serializable {
 		return best_pair.getKey();
 	}
 
-	public double score(LemmaCandidate candidate, int pos_index, int[] morph_indexes) {
+	public double score(LemmaCandidate candidate, int pos_index,
+			int[] morph_indexes) {
 		assert candidate != null;
 		double score = 0.0;
 		for (int index : candidate.getFeatureIndexes()) {
@@ -526,11 +547,13 @@ public class RankerModel implements Serializable {
 	public void update(RankerInstance instance, String lemma, double update) {
 		LemmaCandidate candidate = instance.getCandidateSet().getCandidate(
 				lemma);
-		update(candidate, instance.getPosIndex(pos_table_, false), instance.getMorphIndexes(morph_table_, false), update);
+		update(candidate, instance.getPosIndex(pos_table_, false),
+				instance.getMorphIndexes(morph_table_, false), update);
 	}
 
-	public void update(LemmaCandidate candidate, int pos_index, int[] morph_indexes, double update) {
-		for (int index : candidate.getFeatureIndexes()) {			
+	public void update(LemmaCandidate candidate, int pos_index,
+			int[] morph_indexes, double update) {
+		for (int index : candidate.getFeatureIndexes()) {
 			updateScore(index, pos_index, morph_indexes, update);
 		}
 	}
@@ -538,20 +561,21 @@ public class RankerModel implements Serializable {
 	private double updateScore(long index, long pos_index, int[] morph_indexes,
 			double update) {
 		double score = 0.0;
-		
+
 		long f_index = index;
 		score += updateScore(f_index, update);
-		
+
 		if (pos_index >= 0) {
 			long p_index = f_index + feat_length_ * (pos_index + 1L);
 			score += updateScore(p_index, update);
-			
+
 			for (long morph_index : morph_indexes) {
-				long m_index = p_index + (morph_index + 1L) * feat_length_ * pos_length_;
+				long m_index = p_index + (morph_index + 1L) * feat_length_
+						* pos_length_;
 				score += updateScore(m_index, update);
 			}
 		}
-		
+
 		return score;
 	}
 

@@ -155,7 +155,7 @@ public class SimpleTagger implements Tagger {
 
 					new_states.add(t);
 					t.getSubOrderState().setTransitions(null);
-					t.check();
+					assert t.check();
 				}
 
 			}
@@ -256,7 +256,7 @@ public class SimpleTagger implements Tagger {
 		return null;
 	}
 
-	private List<List<State>> extendStates(List<List<State>> candidates,
+	private List<List<State>> increaseLevel(List<List<State>> candidates,
 			Sequence sentence) {
 		List<List<State>> new_candidates = new ArrayList<List<State>>(
 				candidates.size());
@@ -283,8 +283,7 @@ public class SimpleTagger implements Tagger {
 												
 						State new_state = new State(tag_index, state);
 						new_state.setVector(vector);
-						new_state.setScore(weight_vector_.dotProduct(new_state,
-								vector) + state.getRealScore());
+						new_state.setScore(weight_vector_.dotProduct(new_state, vector) + state.getRealScore());
 						model_.setLemmaCandidates(state, new_state);
 						new_current_states.add(new_state);
 					}
@@ -341,7 +340,7 @@ public class SimpleTagger implements Tagger {
 
 				int old_size = candidates.size();
 
-				candidates = extendStates(candidates, sentence);
+				candidates = increaseLevel(candidates, sentence);
 				if (candidate_buffer_ != null) {
 					candidate_buffer_.add(candidates);
 				}

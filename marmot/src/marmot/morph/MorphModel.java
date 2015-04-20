@@ -182,7 +182,6 @@ public class MorphModel extends Model {
 			RerankerTrainerOptions roptions = new RerankerTrainerOptions();
 			
 			List<Instance> instances = Instance.getInstances(sentences, false, false);
-			System.err.println(instances.size());
 			
 			generators_ = roptions.getGenerators(instances);
 			
