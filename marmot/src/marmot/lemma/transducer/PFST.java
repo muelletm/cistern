@@ -3,13 +3,17 @@ package marmot.lemma.transducer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.Timer;
 
 import org.javatuples.Pair;
+
+import com.google.common.collect.Sets;
 
 import marmot.lemma.Instance;
 import marmot.lemma.Lemmatizer;
@@ -30,13 +34,19 @@ public class PFST extends Transducer {
 
 	private Integer numContexts;
 
+	private HashSet<Integer> internedAlphabet;
+
+	private int[][] upperContexts;
+
+	private int insertion_limit;
+
 	/**
 	 * Don't ever call
 	 * @throws NegativeContext
 	 * @throws LabelBiasException 
 	 */
 	public PFST() throws NegativeContext, LabelBiasException {
-		this(null,1,2,0,0);
+		this(null,6,6,0,0);
 	}
 	public PFST(Map<Character,Integer> alphabet, int c1, int c2, int c3, int c4) throws LabelBiasException, NegativeContext {
 		super(alphabet, c1, c2, c3, c4);
@@ -77,28 +87,52 @@ public class PFST extends Transducer {
 		//this.gradient(gradientVector);
 		
 		for (int iteration = 0; iteration < numIterations; ++iteration) {
+			for (double[][] matrix : gradientVector) {
+				for (double[] row : matrix) {
+					Arrays.fill(row,0.0);
+				}
+			}
+			gradient(gradientVector);
+			double norm = 0.0;
+
+			for (int i = 0; i < gradientVector.length; ++i) {
+				for (int j = 0; j < gradientVector[i].length; ++j) {
+					for (int k = 0; k < gradientVector[i][j].length; ++k) {
+						//System.out.println(i + " , " + j + " , " + k + " , " + " : " + gradientVector[i][j][k]);
+						norm += Math.pow(gradientVector[i][j][k],2);
+						this.weights[i][j][k] += learningRate *  gradientVector[i][j][k];
+					}
+				}
+			}
+			System.out.println("NORM:" + norm);
+			System.out.println(this.logLikelihood());
+			/*
 			for (int instanceId = 0; instanceId < this.trainingData.size(); ++instanceId) {
 				//System.out.println(instanceId);
 				// fill up
-				/*for (double[][] matrix : gradientVector) {
+				//System.out.println(gradientVector.length);
+				for (double[][] matrix : gradientVector) {
 					for (double[] row : matrix) {
 						Arrays.fill(row,0.0);
 					}
-				}*/
+				}
 				this.gradient(gradientVector,instanceId);
+				double norm = 0.0;
 				// update weight vector
-				/*for (int i = 0; i < gradientVector.length; ++i) {
+				for (int i = 0; i < gradientVector.length; ++i) {
 					for (int j = 0; j < gradientVector[i].length; ++j) {
-						for (int k = 0; k < gradientVector[k].length; ++k) {
+						for (int k = 0; k < gradientVector[i][j].length; ++k) {
+							//System.out.println(i + " , " + j + " , " + k + " , " + " : " + gradientVector[i][j][k]);
+							norm += Math.pow(gradientVector[i][j][k],2);
 							this.weights[i][j][k] += learningRate *  gradientVector[i][j][k];
 						}
 					}
-				}*/
-				
-				//System.out.println(this.logLikelihood());
+				}
+				System.out.println("NORM:" + norm);
+				System.out.println(this.logLikelihood());
 
 			}
-
+			*/
 			learningRate *= scaleFactor;
 		}
 		
@@ -123,8 +157,8 @@ public class PFST extends Transducer {
 	protected void observedCounts(double[][][] gradient, double[] contextCounts, int instanceId) {
 		// get data instance
 		Instance instance = this.trainingData.get(instanceId);
-		String upper = instance.getForm();
-		String lower = instance.getLemma();
+		String upper = instance.getFormPadded();
+		String lower = instance.getLemmaPadded();
 				
 		//LOGGER.info("Starting observed count computation for pair (" + upper + "," + lower + ")...");
 		//zero out the relevant positions in the log-semiring
@@ -156,6 +190,7 @@ public class PFST extends Transducer {
 			}
 		}
 
+		
 		// partition function
 		double Z = Math.exp(betas[0][0]);
 
@@ -192,6 +227,17 @@ public class PFST extends Transducer {
 				}
 			}
 		}
+		/*
+		System.out.println("OBSERVED COUNTS");
+		for (int i = 0; i < gradient.length; ++i) {
+			for (int j = 0; j < gradient[i].length; ++j) {
+				for (int k = 0; k < gradient[i][j].length; ++k) {
+					System.out.println(i + " , " + j + " , " + k + " , " + " : " + gradient[i][j][k]);
+				}
+			}
+		}
+		System.exit(0);
+		*/
 	}
 	
 	@Override
@@ -207,8 +253,8 @@ public class PFST extends Transducer {
 	protected double logLikelihood(int instanceId) {
 		// get data instance
 		Instance instance = this.trainingData.get(instanceId);
-		String upper = instance.getForm();
-		String lower = instance.getLemma();
+		String upper = instance.getFormPadded();
+		String lower = instance.getLemmaPadded();
 		
 		zeroOut(betas,upper.length()+1, lower.length()+1);
 		betas[upper.length()][lower.length()] = 0.0;
@@ -257,51 +303,262 @@ public class PFST extends Transducer {
 		}
 	}
 	
+	public void decode (List<Instance> instances) {
+		//List<Set<Integer>> cartesianProductArgsC3 = new ArrayList<Set<Integer>>();
+		int instanceId = 0;
+		int correct = 0;
+		for (Instance instance : instances) {
+
+			String upper = instance.getFormPadded();
+			String lower = instance.getLemmaPadded();
+			
+			double[][] gammas = new double[upper.length() + 1][upper.length() + 1 + this.insertion_limit];
+
+			int[][] backpointers1 = new int[upper.length() + 1][upper.length() + 1 + this.insertion_limit];
+			int[][] backpointers2 = new int[upper.length() + 1][upper.length() + 1 + this.insertion_limit];
+			
+			char[][] values = new char[upper.length() + 1][upper.length() + 1 + this.insertion_limit];
+
+			for (int g = 0; g < gammas.length; ++g) {
+				Arrays.fill(gammas[g], Double.NEGATIVE_INFINITY);
+			}
+			gammas[0][0] = 0.0;
+			int maxFinalJ = -1;
+			double maxFinalJValue = Double.NEGATIVE_INFINITY;
+			
+	
+			//forward
+			for (int i = 0; i < upper.length() + 1; ++i) {
+				// insertion limit
+				for (int j = 0; j <  upper.length() + 1 + this.insertion_limit; ++j) {	
+					int contextId = contexts[instanceId][i][0];
+					/*
+					System.out.println(i + " , " + j);
+					System.out.println(Arrays.toString(distribution[contextId][0]));
+					System.out.println(Arrays.toString(distribution[contextId][1]));
+					System.out.println(Arrays.toString(distribution[contextId][2]));
+					
+					System.out.println("");
+					*/
+					for (Map.Entry<Character, Integer>  entry: this.alphabet.entrySet()) {
+						
+						// ins
+						if (j < upper.length() + this.insertion_limit) {
+							int outputId = entry.getValue();
+							double newValue = gammas[i][j] + Math.log(distribution[contextId][0][outputId]);
+							//System.out.println(i + " , " + j + " : " + contextId);
+							//System.out.println(newValue);
+							//System.out.println(gammas[i][j]);
+							
+							if (newValue >= gammas[i][j+1]) {
+
+								//System.out.println("HERE!");
+								//System.out.println(i);
+								//System.out.println(gammas[i][j+1]);
+								
+								gammas[i][j+1] = newValue;
+								backpointers1[i][j+1] = i;
+								backpointers2[i][j+1] = j;
+								values[i][j+1] = entry.getKey();
+								
+								
+							}
+							
+							if (i == upper.length() && maxFinalJValue <= newValue) {
+								maxFinalJValue = newValue;
+								maxFinalJ = j+1;
+							}
+							//gammas[i][j+1] = Math.max(gammas[i][j+1],gammas[i][j] + Math.log(distribution[contextId][0][outputId]));				
+	
+						}
+						// sub
+						if (j < upper.length() + this.insertion_limit && i < upper.length()) {
+							int outputId = entry.getValue();
+							double newValue = gammas[i][j] + Math.log(distribution[contextId][1][outputId]);
+							
+							if (newValue >= gammas[i+1][j+1]) {
+								gammas[i+1][j+1] = newValue;
+								backpointers1[i+1][j+1] = i;
+								backpointers2[i+1][j+1] = j;
+								values[i+1][j+1] = entry.getKey();
+								
+								
+
+							}
+							
+
+							if (i + 1 == upper.length() && maxFinalJValue <= newValue) {
+								maxFinalJValue = newValue;
+								maxFinalJ = j+1;
+							}
+							//gammas[i+1][j+1] = Math.max(gammas[i+1][j+1],gammas[i][j] + Math.log(distribution[contextId][1][outputId]));
+						}
+					}
+					// del
+					if (i < upper.length()) {
+						double newValue = gammas[i][j] + Math.log(distribution[contextId][2][0]);
+						if (newValue >= gammas[i+1][j]) {
+							gammas[i+1][j] = newValue;
+							backpointers1[i+1][j] = i;
+							backpointers2[i+1][j] = j;
+							values[i+1][j] = '\0';
+							
+						}
+							
+
+						if (i + 1 == upper.length() && maxFinalJValue <= newValue) {
+							maxFinalJValue = newValue;
+							maxFinalJ = j;
+						}
+							//gammas[i+1][j] = Math.max(gammas[i+1][j],gammas[i][j] + Math.log(distribution[contextId][2][0]));
+					}
+					
+
+				}
+			}
+		
+			//System.out.println("MAX FINAL J: " + maxFinalJ);
+			String s = "";
+			int backpointerI = upper.length();
+			int backpointerJ = maxFinalJ;
+			int lastBackpointerJ = -1;
+			while (backpointerI > 0 && backpointerJ > 0) {
+				if (lastBackpointerJ != backpointerJ &&  values[backpointerI][backpointerJ] != '\0') {
+					s = values[backpointerI][backpointerJ] + s;
+				}
+				int lastBackPointerJ = backpointerJ;
+				backpointerJ = backpointers2[backpointerI][lastBackPointerJ];
+
+				backpointerI = backpointers1[backpointerI][lastBackPointerJ];
+
+			}
+
+			
+			if (s.equals(lower)) {
+				correct += 1;
+			} else {
+
+				System.out.println(upper + "\t" + lower + "\t" + s + "\t" + Math.exp(this.logLikelihood(instanceId)));
+				
+			}
+			++instanceId;
+			
+			
+		}
+		
+		System.out.println("ACCURACY: " + correct + " - " +  instances.size());
+	}
 	@Override
 	public Lemmatizer train(List<Instance> instances,
 			List<Instance> dev_instances) {
 		
+		
 		this.trainingData = new ArrayList<Instance>(instances);
 		this.devData =  new ArrayList<Instance>(dev_instances);
+		
+		this.contextToCharacter = new HashMap<Integer,Character>();
 		
 		Pair<int[][][],Integer> result = preextractContexts(instances,this.c1,this.c2, this.c3, this.c4);
 		this.contexts = result.getValue0();
 		this.numContexts = result.getValue1();
 			
+		Pair<int[][],Integer> resultUpper = preextractUpperContexts(instances,this.c1,this.c2);
+		this.upperContexts = resultUpper.getValue0();
+		int numUpperContexts = resultUpper.getValue1();
+		
 		// get maximum input and output strings sizes
 		this.alphabet = new HashMap<Character,Integer>();
 		Pair<Integer,Integer> maxes = extractAlphabet();
-
-		
+			
 		// FOR DEBUGGING
 		/*
 		this.alphabet = new HashMap<Character,Integer>();
-		this.alphabet.put('$',0);
-		this.alphabet.put('p',1);
-		this.alphabet.put('e',2);
-		this.alphabet.put('r',3);
-		this.alphabet.put('o',4);
+		this.alphabet.put('v',0);
+		this.alphabet.put('e',1);
+		this.alphabet.put('r',2);
+		this.alphabet.put('m',3);
+		this.alphabet.put('u',4);
 		this.alphabet.put('t',5);
-		this.alphabet.put('f',6);
+		this.alphabet.put('n',6);
+
+		this.alphabet.put('$',7);
 		*/
 		
 		// weights and gradients
+		
+		this.internedAlphabet = new HashSet<Integer>();
+		
+		for (int a = 0; a < this.alphabet.size(); ++a) {
+			this.internedAlphabet.add(a);
+		}
+		
 		this.weights = new double[this.numContexts][3][this.alphabet.size()];
+	
 		this.distribution = new double[this.numContexts][3][this.alphabet.size()];
 		double[][][] gradientVector = new double[this.numContexts][3][this.alphabet.size()];
 		double[][][] approxGradientVector = new double[this.numContexts][3][this.alphabet.size()];
 
-		randomlyInitWeights();
-		
+		//randomlyInitWeights();
+		// most weight on substitution
+		for (int context = 0; context < this.weights.length; ++context) {
+			Character c = this.contextToCharacter.get(context);
+			if (!this.alphabet.keySet().contains(c)) {
+				continue;
+			}
+			int charId = this.alphabet.get(c);
+			if (c == '$') {
+				//this.weights[context][1][charId] = 100.0;
+
+			} else {
+				this.weights[context][1][charId] = 10.0;
+			}
+			
+			for (int d = 0; d < this.weights[context][1].length; ++d) {
+				if (d != charId) {
+					//this.weights[context][1][d] = -5.0;
+				}
+			}
+		}
 		this.alphas = new double[maxes.getValue0()][maxes.getValue1()];
 		this.betas = new double[maxes.getValue0()][maxes.getValue1()];
+		this.insertion_limit = 5;
 		
 		zeroOut(alphas);
 		zeroOut(betas);
-	
-		sgd(1.0,.99,1);
-
+		System.out.println(weights[0][2][0]);
+		this.renormalizeAll();
+		System.out.println("SGD START");
+		
+		sgd(1.0,.999,100);
+		this.renormalizeAll();
 		/*
+		System.out.println(Arrays.toString(weights[6][0]));
+
+		System.out.println(Arrays.toString(weights[6][1]));
+
+		System.out.println(Arrays.toString(weights[6][2]));
+		
+		for (int i = 0; i < 1; ++i) {
+			System.out.println("STEP:"+ i);
+			System.out.println(Arrays.toString(distribution[i][0]));
+			System.out.println(Arrays.toString(distribution[i][1]));
+
+			System.out.println(Arrays.toString(distribution[i][2]));
+		}
+		System.out.println(logLikelihood());
+		System.exit(0);
+		*/
+		/*System.out.println(distribution[5][2][0]);
+		System.out.println(distribution[5][2][1]);
+		System.out.println(distribution[5][2][2]);
+		System.out.println(distribution[5][2][3]);
+
+		System.exit(0);
+		*/
+		System.out.println("SGD DONE");
+		this.decode(instances);
+		System.exit(0);
+		this.gradient(gradientVector,5);
 		// finite difference check
 		double eps = 0.01;
 		for (int i = 0; i < result.getValue1(); ++i) {
@@ -330,9 +587,11 @@ public class PFST extends Transducer {
 			approxGradientVector[i][2][0] = (val1 - val2) / (2 * eps);
 
 		}
-	
+		System.out.println(Arrays.deepToString(gradientVector));
+
+		//System.out.println(Arrays.deepToString(approxGradientVector));
 		System.out.println(Numerics.approximatelyEqual(gradientVector, approxGradientVector, 0.001));
-		 */	
+		 
 		return new LemmatizerPFST();
 	}
 	
