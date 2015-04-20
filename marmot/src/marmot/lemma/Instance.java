@@ -112,7 +112,7 @@ public class Instance {
 	}
 	
 	public static List<Instance> getInstances(Iterable<Sequence> reader, boolean use_ptag, boolean use_mtag) {
-		return getInstances(reader, -1, true, true);
+		return getInstances(reader, -1, use_ptag, use_mtag);
 	}
 	
 	public static List<Instance> getInstances(Iterable<Sequence> reader, int limit, boolean use_postag, boolean use_mtag) {

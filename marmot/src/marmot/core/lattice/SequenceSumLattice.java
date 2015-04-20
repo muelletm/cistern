@@ -6,6 +6,7 @@ package marmot.core.lattice;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
 import marmot.core.State;
 import marmot.core.Transition;
@@ -127,6 +128,12 @@ public class SequenceSumLattice implements SumLattice {
 			}
 
 			assert score_sum != Double.NEGATIVE_INFINITY;
+			
+			if (Math.abs(score_sum - score_sum_forward) > 1e-5) {
+				Logger logger = Logger.getLogger(getClass().getName());
+				logger.warning(String.format("Difference in FB: %g %g", score_sum, score_sum_forward));
+			}
+			
 			assert Math.abs(score_sum - score_sum_forward) < 1e-5;
 
 			if (states.isEmpty()) {
@@ -230,19 +237,19 @@ public class SequenceSumLattice implements SumLattice {
 				
 				state.incrementEstimatedCounts(value * step_width);
 
-				State zero_order_state = state.getZeroOrderState(); 
-				if (zero_order_state.getLemmaCandidates() != null) {
-					double new_state_score = state_score - zero_order_state.getScore() + zero_order_state.getRealScore(); 
-					for (RankerCandidate candidate : zero_order_state.getLemmaCandidates()) {
-						double score = new_state_score + candidate.getScore();
-						p = Math.exp(score - score_sum);
-						value = -p;
-						if (is_gold_sequence_state && candidate.isCorrect()) {
-							value += 1.0;
-						}
-						candidate.incrementEstimatedCounts(value * step_width);
-					}
-				}
+//				State zero_order_state = state.getZeroOrderState(); 
+//				if (zero_order_state.getLemmaCandidates() != null) {
+//					double new_state_score = state_score - zero_order_state.getScore() + zero_order_state.getRealScore(); 
+//					for (RankerCandidate candidate : zero_order_state.getLemmaCandidates()) {
+//						double score = new_state_score + candidate.getScore();
+//						p = Math.exp(score - score_sum);
+//						value = -p;
+//						if (is_gold_sequence_state && candidate.isCorrect()) {
+//							value += 1.0;
+//						}
+//						candidate.incrementEstimatedCounts(value * step_width);
+//					}
+//				}
 				
 				state_index++;
 			}

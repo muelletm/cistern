@@ -1,5 +1,6 @@
 package marmot.lemma.ranker;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -109,5 +110,15 @@ public class RankerInstance {
 		set.getCandidate(instance.getLemma());
 		return new RankerInstance(instance, set);
 	}
+
+	@Override
+	public String toString() {
+		return "RankerInstance [instance=" + instance_ + ", set_=" + set_
+				+ ", form_chars=" + Arrays.toString(form_chars_)
+				+ ", pos_index=" + pos_index_ + ", morph_indexes="
+				+ Arrays.toString(morph_indexes_) + "]";
+	}
+	
+	
 
 }

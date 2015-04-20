@@ -280,7 +280,7 @@ public class SimpleTagger implements Tagger {
 						}
 
 						assert state.getOrder() == 1;
-						
+												
 						State new_state = new State(tag_index, state);
 						new_state.setVector(vector);
 						new_state.setScore(weight_vector_.dotProduct(new_state,
@@ -350,7 +350,6 @@ public class SimpleTagger implements Tagger {
 				for (List<State> states : candidates) {
 					assert !states.isEmpty();
 				}
-
 			}
 
 			lattice = new ZeroOrderSumLattice(candidates, threshs_[level][0],

@@ -201,15 +201,17 @@ public class MorphModel extends Model {
 			Map<String, RankerInstance> map = new HashMap<>();
 			for (RankerInstance instance : rinstances) {
 				String key = String.format("%s\t%s", instance.getInstance().getForm(), instance.getInstance().getLemma());
-				assert map.get(key) == null;
+				assert ! map.containsKey(key);
 				map.put(key, instance);
 			}
 			
 			for (Sequence sequence : sentences) {
 				for (Token token : sequence) {
 					Word word = (Word) token;
-					String key = String.format("%s\t%s", word.getWordForm(), word.getLemma());
-					word.setInstance(map.get(key));
+					String key = String.format("%s\t%s", word.getWordForm().toLowerCase(), word.getLemma().toLowerCase());
+					RankerInstance instance = map.get(key);
+					assert instance != null;
+					word.setInstance(instance);
 				}
 			}
 			
@@ -633,10 +635,13 @@ public class MorphModel extends Model {
 		word.setWordIndex(word_index);
 		addCharIndexes(word, normalized_form, insert);
 		
-		if (lemma_model_ != null) {
+		if (lemma_model_ != null && word.getInstance() != null) {
 			Instance instance = Instance.getInstance(word, false, false);
 			RankerInstance rinstance = RankerInstance.getInstance(instance, generators_);
 			lemma_model_.addIndexes(rinstance, rinstance.getCandidateSet(), false);
+			
+			//System.err.println(rinstance);
+			
 			word.setInstance(rinstance);
 		}
 	}
@@ -982,6 +987,7 @@ public class MorphModel extends Model {
 		
 		Word word = (Word) token;
 		RankerInstance instance = word.getInstance();
+		assert instance != null;
 		
 		LemmaCandidateSet set = instance.getCandidateSet();
 		List<RankerCandidate> candidates = new ArrayList<>(set.size());
@@ -995,19 +1001,31 @@ public class MorphModel extends Model {
 			boolean is_correct = entry.getKey().equals(plemma);
 			LemmaCandidate candidate = entry.getValue();
 			double score = lemma_model_.score(candidate, pos_index, morph_indexes);
-			candidates.add(new RankerCandidate(plemma, candidate, is_correct, score));
+			
+			RankerCandidate rcandidate = new RankerCandidate(plemma, candidate, is_correct, score); 
+			
+			assert rcandidate.getCandidate() != null;
+			
+			candidates.add(rcandidate);
 		}
 		
 		state.setLemmaCandidates(candidates);
 		state.setLemmaScoreSum();
+		assert state.getLemmaCandidates() != null;
 	}
 
 	@Override
 	public void setLemmaCandidates(State previous_state, State state) {
 		if (lemma_model_ == null)
 			return;
+
+		assert previous_state != null;
+		assert state != null;
+		assert previous_state.getOrder() == 1;
+		assert state.getOrder() == 1;
 		
 		List<RankerCandidate> prev_candidates = previous_state.getLemmaCandidates();
+		assert prev_candidates != null;
 		
 		List<RankerCandidate> candidates = new ArrayList<>(prev_candidates.size());
 		
@@ -1017,6 +1035,8 @@ public class MorphModel extends Model {
 		
 		int morph_index = state.getIndex();
 		int[] morph_indexes = getTagToSubTags()[state.getLevel()][morph_index];
+		if (morph_indexes == null)
+			morph_indexes = RankerInstance.EMPTY_ARRAY;
 		
 		for (RankerCandidate prev_candidate : prev_candidates) {
 			String pLemma = prev_candidate.getLemma();

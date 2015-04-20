@@ -53,6 +53,8 @@ public class RankerCandidate {
 			pos_index = state.getSubLevelState().getIndex();
 			int morph_index = state.getIndex();
 			morph_indexes = morph_model.getTagToSubTags()[1][morph_index];
+			if (morph_indexes == null)
+				morph_indexes = RankerInstance.EMPTY_ARRAY;
 		}
 		
 		model.update(candidate_, pos_index, morph_indexes, value);

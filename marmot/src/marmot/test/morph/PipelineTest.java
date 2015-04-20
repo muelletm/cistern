@@ -141,6 +141,26 @@ public class PipelineTest {
 	}
 	
 	@Test
+	public void realLemmaTest() {
+		MorphOptions options = new MorphOptions();
+		options.setProperty(Options.VERBOSE, "true");
+		options.setProperty(Options.SEED, "42");
+		options.setProperty(Options.NUM_ITERATIONS, "10");
+		options.setProperty(Options.VECTOR_SIZE, "10000000");
+		options.setProperty(Options.CANDIDATES_PER_STATE, "[4, 2, 1.5, 1.25]");
+		options.setProperty(Options.PRUNE, "true");
+		options.setProperty(Options.ORDER, "3");
+		options.setProperty(Options.PENALTY, ".1");
+		options.setProperty(Options.NUM_ITERATIONS, "1");
+		options.setProperty(MorphOptions.LEMMATIZE, "true");
+		options.setProperty(MorphOptions.TRAIN_FILE,
+				"form-index=1,lemma-index=2,tag-index=4,morph-index=6," + getResourceFile("trn.txt"));
+		options.setProperty(MorphOptions.TEST_FILE,
+				"form-index=1,lemma-index=2,tag-index=4,morph-index=6," + getResourceFile("tst.txt"));
+		realTestWithOptions(options, 1., 1., 1., 1.);
+	}
+	
+	@Test
 	public void realInfixTest() {
 		MorphOptions options = new MorphOptions();
 		options.setProperty(Options.SEED, "42");
@@ -393,7 +413,7 @@ public class PipelineTest {
 
 	public void toyTestWithOptions(MorphOptions options) {
 		options.setProperty(MorphOptions.SHAPE, "false");
-		testWithOptions(options, getTrainSentences(), getTestSentences(), 100.0, 100.0);
+		testWithOptions(options, getTrainSentences(), getTestSentences(), 100.0, 100.0, 0., 0.);
 	}
 
 	public void realOptimizerTestWithOptions(final MorphOptions options, double train_acc, double test_acc) {
@@ -402,13 +422,17 @@ public class PipelineTest {
 	}
 	
 	public void realTestWithOptions(final MorphOptions options, double train_acc, double test_acc) {
+		realTestWithOptions(options, train_acc, test_acc, 0.0, 0.0);
+	}
+	
+	public void realTestWithOptions(final MorphOptions options, double train_acc, double test_acc, double lemma_train_acc, double lemma_test_acc) {
 		testWithOptions(options, getSentences(options.getTrainFile(), 100),
-				getSentences(options.getTestFile(), 100), train_acc, test_acc);
+				getSentences(options.getTestFile(), 100), train_acc, test_acc, lemma_train_acc, lemma_test_acc);
 	}
 
 	public void testWithOptions(MorphOptions options,
 			List<Sequence> train_sentences, List<Sequence> test_sentences,
-			double train_threshold, double test_threshold) {
+			double train_threshold, double test_threshold, double train_lemma_threshold, double test_lemma_threshold) {
 
 		StackTraceElement[] stack = Thread.currentThread().getStackTrace();
 		
@@ -419,8 +443,8 @@ public class PipelineTest {
 		
 		Tagger tagger = MorphModel.train(options, train_sentences);
 
-		assertModelPerformanceOnTestset(caller + " Train", tagger, train_sentences, train_threshold);
-		assertModelPerformanceOnTestset(caller + " Test ", tagger, test_sentences, test_threshold);
+		assertModelPerformanceOnTestset(caller + " Train", tagger, train_sentences, train_threshold, train_lemma_threshold);
+		assertModelPerformanceOnTestset(caller + " Test ", tagger, test_sentences, test_threshold, test_lemma_threshold);
 		
 		File tempfile;
 		try {
@@ -466,9 +490,13 @@ public class PipelineTest {
 		}
 	}
 
-
 	private void assertModelPerformanceOnTestset(String name, Tagger tagger,
 			List<Sequence> sentences, double threshold) {
+		assertModelPerformanceOnTestset(name, tagger, sentences, threshold, 0.0);
+	}
+
+	private void assertModelPerformanceOnTestset(String name, Tagger tagger,
+			List<Sequence> sentences, double threshold, double lemma_threshold) {
 		MorphResult result = new MorphResult(tagger.getModel(), tagger.getNumLevels());
 		MorphModel model = (MorphModel) tagger.getModel();
 
@@ -484,10 +512,16 @@ public class PipelineTest {
 
 		double accuracy = (result.num_tokens - result.morph_errors) * 100.
 				/ result.num_tokens;
+		
+		double lemma_accuracy = (result.num_tokens - result.lemma_errors) * 100. / result.num_tokens;
 
-		//System.err.format("%s: %g\n",name, accuracy);
+		System.err.format("%s: %g %g\n",name, accuracy, lemma_accuracy);
 
 		if (accuracy - threshold < -1e-5) {
+			throw new AssertionFailedError(accuracy + " < " + threshold);
+		}
+		
+		if (lemma_accuracy - lemma_threshold < -1e-5) {
 			throw new AssertionFailedError(accuracy + " < " + threshold);
 		}
 	}

@@ -18,6 +18,8 @@ public class State {
 	private Transition[] transitions_;
 	private int index_;
 	private State sub_level_state_;
+	
+	// For joint lemmatization
 	private List<RankerCandidate> candidates_;
 	private double candidate_score_sum_;
 	
@@ -186,6 +188,8 @@ public class State {
 		state.index_ = index_;
 		state.sub_level_state_ = sub_level_state_;
 		state.estimated_count_ = estimated_count_;
+		state.candidate_score_sum_ = candidate_score_sum_;
+		state.candidates_ = candidates_;
 		return state;
 	}
 	
