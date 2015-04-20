@@ -37,9 +37,7 @@ public class JointTaggerLemmatizer {
 		List<Sequence> train_sentences = getSentences(options.getTrainFile(), 100);
 		List<Sequence> test_sentences = getSentences(options.getTestFile(), -1);
 		
-		//PipelineTest.testWithOptions(options, train_sentences, test_sentences, 99.56, 100., 53.13, 87.66);
-		PipelineTest.testWithOptions(options, train_sentences, test_sentences, 1., 1. ,1., 1.);
-		
+		PipelineTest.testWithOptions(options, train_sentences, test_sentences, 99.56, 53.13, 100., 87.66);
 	}
 	
 	@Test
@@ -67,8 +65,7 @@ public class JointTaggerLemmatizer {
 		List<Sequence> train_sentences = getSentences(options.getTrainFile(), 1000);
 		List<Sequence> test_sentences = getSentences(options.getTestFile(), -1);
 		
-		PipelineTest.testWithOptions(options, train_sentences, test_sentences, 1., 1., 1., 1.);
-		
+		PipelineTest.testWithOptions(options, train_sentences, test_sentences, 98.53, 75.22, 99.88, 96.23);
 	}
 
 	private List<Sequence> getSentences(String trainFile, int limit) {

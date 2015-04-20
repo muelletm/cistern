@@ -51,12 +51,13 @@ public class MorphTagger extends SimpleTagger {
 				RankerCandidate candidate = RankerCandidate.bestCandidate(state.getLemmaCandidates()); 
 				lemma = candidate.getLemma(); 
 			}
+			
 			lemma_tags.add(lemma);
 			
 			List<String> tags = indexesToStrings(stateToIndexes(state));
 			
 			lemma_tags.addAll(tags);
-			list.add(tags);			
+			list.add(lemma_tags);			
 		}
 		
 		return list;

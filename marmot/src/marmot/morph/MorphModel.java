@@ -93,7 +93,6 @@ public class MorphModel extends Model {
 		tag_morph_ = options.getTagMorph();
 		split_pos_ = options.getSplitPos();
 		split_morphs_ = options.getSplitMorphs();
-		String subtag_separator_ = options.getSubTagSeparator();
 		normalize_forms_ = options.getNormalizeForms();
 		special_signature_ = options.getSpecialSignature();
 		num_folds_ = options.getNumFolds();
@@ -169,7 +168,8 @@ public class MorphModel extends Model {
 		transitions_ = extractPossibleTransitions(options, sentences);
 		observed_sets_ = extractObservedSets(sentences);
 		tag_classes_ = extractTagClasses(tag_tables_);
-		tag_to_subtag_ = extractSubTags(subtag_separator_);
+		
+		tag_to_subtag_ = extractSubTags(options.getSubTagSeparator());
 
 		for (Sequence sentence : sentences) {
 			for (Token token : sentence) {
@@ -180,6 +180,7 @@ public class MorphModel extends Model {
 		
 		if (options.getLemmatizer()) {
 			RerankerTrainerOptions roptions = new RerankerTrainerOptions();
+			roptions.setOption(RerankerTrainerOptions.UNIGRAM_FILE, options.getLemmaUnigramFile());
 			
 			List<Instance> instances = Instance.getInstances(sentences, false, false);
 			
@@ -195,8 +196,7 @@ public class MorphModel extends Model {
 			if (MORPH_INDEX_< subtag_tables_.size()) {
 				morph_table = subtag_tables_.get(MORPH_INDEX_);
 			}
-			
-			
+						
 			lemma_model_ = new RankerModel();
 			lemma_model_.init(roptions, rinstances, aligner, pos_table, morph_table);
 			

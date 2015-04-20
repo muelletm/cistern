@@ -218,7 +218,7 @@ public class Options extends java.util.Properties {
 			if (option.equalsIgnoreCase("props")) {
 				checkBoundaries(index, args);
 				setPropertiesFromFile(args[index++]);
-			} else if (this.containsKey(option)) {
+			} else if (containsKey(option)) {
 				checkBoundaries(index, args);
 				this.setProperty(option, args[index++]);
 			} else {
