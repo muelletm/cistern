@@ -12,6 +12,7 @@ import marmot.core.State;
 import marmot.core.Transition;
 import marmot.core.WeightVector;
 import marmot.lemma.ranker.RankerCandidate;
+import marmot.util.Check;
 import marmot.util.Numerics;
 
 
@@ -62,10 +63,9 @@ public class SequenceSumLattice implements SumLattice {
 	public List<List<State>> pruneStates() {
 		init();
 		double score_sum_forward = forward_.partitionFunction();
-		//double score_sum_backward = backward_.partitionFunction();
-		//normalTest(score_sum_forward);
-		//normalTest(score_sum_backward);
-		//diffTest(score_sum_forward, score_sum_backward);
+		assert Check.isNormal(score_sum_forward);
+		assert Check.isNormal(backward_.partitionFunction());
+		assert Numerics.approximatelyEqual(score_sum_forward, backward_.partitionFunction());
 
 		List<List<State>> candidates = new ArrayList<List<State>>(
 				candidates_.size());
@@ -180,10 +180,6 @@ public class SequenceSumLattice implements SumLattice {
 		double ll = 0;
 
 		double score_sum = forward_.partitionFunction();
-//		double score_sum_backward = backward_.partitionFunction();
-//		normalTest(score_sum);
-//		normalTest(score_sum_backward);
-//		diffTest(score_sum_backward, score_sum);
 		
 		int last_gold_candidate_index = 0;
 		for (int index = 0; index < candidates_.size(); index++) {
@@ -191,8 +187,6 @@ public class SequenceSumLattice implements SumLattice {
 
 			double state_sum = Double.NEGATIVE_INFINITY;
 			double trans_sum = Double.NEGATIVE_INFINITY;
-//			double state_p_sum = 0;
-//			double trans_p_sum = 0;
 
 			int state_index = 0;
 			for (State state : candidates_.get(index)) {
@@ -211,7 +205,6 @@ public class SequenceSumLattice implements SumLattice {
 						trans_sum = Numerics.sumLogProb(trans_sum, trans_score);
 
 						double p = Math.exp(trans_score - score_sum);
-//						trans_p_sum += p;
 
 						if (trans_index == last_gold_candidate_index && is_gold_sequence_state) {
 							ll += transition.getScore();
@@ -237,31 +230,22 @@ public class SequenceSumLattice implements SumLattice {
 				
 				state.incrementEstimatedCounts(value * step_width);
 
-//				State zero_order_state = state.getZeroOrderState(); 
-//				if (zero_order_state.getLemmaCandidates() != null) {
-//					double new_state_score = state_score - zero_order_state.getScore() + zero_order_state.getRealScore(); 
-//					for (RankerCandidate candidate : zero_order_state.getLemmaCandidates()) {
-//						double score = new_state_score + candidate.getScore();
-//						p = Math.exp(score - score_sum);
-//						value = -p;
-//						if (is_gold_sequence_state && candidate.isCorrect()) {
-//							value += 1.0;
-//						}
-//						candidate.incrementEstimatedCounts(value * step_width);
-//					}
-//				}
+				State zero_order_state = state.getZeroOrderState(); 
+				if (zero_order_state.getLemmaCandidates() != null) {
+					double new_state_score = state_score - zero_order_state.getScore() + zero_order_state.getRealScore(); 
+					for (RankerCandidate candidate : zero_order_state.getLemmaCandidates()) {
+						double score = new_state_score + candidate.getScore();
+						p = Math.exp(score - score_sum);
+						value = -p;
+						if (is_gold_sequence_state && candidate.isCorrect()) {
+							value += 1.0;
+						}
+						candidate.incrementEstimatedCounts(value * step_width);
+					}
+				}
 				
 				state_index++;
 			}
-
-//			normalTest(state_sum);
-//			normalTest(trans_sum);
-//			diffTest(state_sum, score_sum);
-//			diffTest(trans_sum, score_sum);
-//			normalTest(state_p_sum);
-//			normalTest(trans_p_sum);
-//			diffTest(state_p_sum, 1.0);
-//			diffTest(trans_p_sum, 1.0);
 			
 			for (State state : candidates_.get(index)) {
 				state.updateWeights(weights);

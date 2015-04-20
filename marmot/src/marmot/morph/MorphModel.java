@@ -182,6 +182,8 @@ public class MorphModel extends Model {
 			RerankerTrainerOptions roptions = new RerankerTrainerOptions();
 			
 			List<Instance> instances = Instance.getInstances(sentences, false, false);
+			System.err.println(instances.size());
+			
 			generators_ = roptions.getGenerators(instances);
 			
 			EditTreeAlignerTrainer trainer = new EditTreeAlignerTrainer(roptions.getRandom(), false);
@@ -195,9 +197,11 @@ public class MorphModel extends Model {
 				morph_table = subtag_tables_.get(MORPH_INDEX_);
 			}
 			
+			
 			lemma_model_ = new RankerModel();
 			lemma_model_.init(roptions, rinstances, aligner, pos_table, morph_table);
 			
+
 			Map<String, RankerInstance> map = new HashMap<>();
 			for (RankerInstance instance : rinstances) {
 				String key = String.format("%s\t%s", instance.getInstance().getForm(), instance.getInstance().getLemma());
@@ -635,13 +639,10 @@ public class MorphModel extends Model {
 		word.setWordIndex(word_index);
 		addCharIndexes(word, normalized_form, insert);
 		
-		if (lemma_model_ != null && word.getInstance() != null) {
+		if (lemma_model_ != null && word.getInstance() == null) {
 			Instance instance = Instance.getInstance(word, false, false);
 			RankerInstance rinstance = RankerInstance.getInstance(instance, generators_);
-			lemma_model_.addIndexes(rinstance, rinstance.getCandidateSet(), false);
-			
-			//System.err.println(rinstance);
-			
+			lemma_model_.addIndexes(rinstance, rinstance.getCandidateSet(), false);		
 			word.setInstance(rinstance);
 		}
 	}
@@ -996,9 +997,13 @@ public class MorphModel extends Model {
 		int pos_index = state.getIndex();
 		int[] morph_indexes = RankerInstance.EMPTY_ARRAY;
 		
+		String lemma = word.getInstance().getInstance().getLemma();
+		
 		for (Map.Entry<String, LemmaCandidate> entry : set) {
-			String plemma = instance.getInstance().getLemma();
-			boolean is_correct = entry.getKey().equals(plemma);
+			String plemma = entry.getKey();
+			
+			boolean is_correct = plemma.equals(lemma);
+			
 			LemmaCandidate candidate = entry.getValue();
 			double score = lemma_model_.score(candidate, pos_index, morph_indexes);
 			

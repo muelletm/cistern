@@ -75,6 +75,9 @@ public class SymbolTable<T> implements Serializable {
 	}
 	
 	public int toIndex(T symbol, int default_index, boolean insert) {
+		if (symbol == null)
+			throw new NullPointerException();
+		
 		Integer index = toIndex.get(symbol);
 		if (index == null) {
 			if (insert) {

@@ -213,15 +213,14 @@ public class State {
 		assert getOrder() == 1;
 		assert getLemmaCandidates() != null;
 		
-		double score = getScore();
-		assert Check.isNormal(score);
-		
+		assert Check.isNormal(score_);
+
 		candidate_score_sum_ = Double.NEGATIVE_INFINITY;
 
 		for (RankerCandidate candidate : getLemmaCandidates()) {
-			double candidate_score = candidate.getScore();
+			double candidate_score = candidate.getScore() + score_;
 			assert Check.isNormal(candidate_score);
-			candidate_score_sum_ = Numerics.sumLogProb(candidate_score_sum_, score + candidate_score);
+			candidate_score_sum_ = Numerics.sumLogProb(candidate_score_sum_, candidate_score);
 		}
 
 		assert candidate_score_sum_ != Double.NEGATIVE_INFINITY;

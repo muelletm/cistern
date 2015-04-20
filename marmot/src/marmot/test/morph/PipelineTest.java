@@ -38,7 +38,7 @@ public class PipelineTest {
 		return String.format("res:///%s/%s", path, name);
 	}
 	
-	public List<Sequence> getSentences(String filename, int number) {
+	public static List<Sequence> getSentences(String filename, int number) {
 		List<Sequence> list = new LinkedList<Sequence>();
 		for (Sequence sentence : new SentenceReader(filename)) {
 			list.add(sentence);
@@ -145,18 +145,23 @@ public class PipelineTest {
 		MorphOptions options = new MorphOptions();
 		options.setProperty(Options.VERBOSE, "true");
 		options.setProperty(Options.SEED, "42");
-		options.setProperty(Options.NUM_ITERATIONS, "10");
+		
 		options.setProperty(Options.VECTOR_SIZE, "10000000");
 		options.setProperty(Options.CANDIDATES_PER_STATE, "[4, 2, 1.5, 1.25]");
 		options.setProperty(Options.PRUNE, "true");
-		options.setProperty(Options.ORDER, "3");
-		options.setProperty(Options.PENALTY, ".1");
-		options.setProperty(Options.NUM_ITERATIONS, "1");
+		options.setProperty(Options.ORDER, "1");
+		options.setProperty(Options.PENALTY, "0.0");
+		
+		options.setProperty(MorphOptions.TAG_MORPH, "true");
+		
 		options.setProperty(MorphOptions.LEMMATIZE, "true");
+		options.setProperty(Options.NUM_ITERATIONS, "10");
+		
 		options.setProperty(MorphOptions.TRAIN_FILE,
 				"form-index=1,lemma-index=2,tag-index=4,morph-index=6," + getResourceFile("trn.txt"));
 		options.setProperty(MorphOptions.TEST_FILE,
 				"form-index=1,lemma-index=2,tag-index=4,morph-index=6," + getResourceFile("tst.txt"));
+		
 		realTestWithOptions(options, 1., 1., 1., 1.);
 	}
 	
@@ -515,7 +520,7 @@ public class PipelineTest {
 		
 		double lemma_accuracy = (result.num_tokens - result.lemma_errors) * 100. / result.num_tokens;
 
-		System.err.format("%s: %g %g\n",name, accuracy, lemma_accuracy);
+		System.err.println(result.toString());
 
 		if (accuracy - threshold < -1e-5) {
 			throw new AssertionFailedError(accuracy + " < " + threshold);

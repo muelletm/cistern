@@ -135,4 +135,9 @@ public class Numerics {
 		return approximatelyGreaterEqual(b, a);
 	}
 
+	public static boolean approximatelyEqual(double a,
+			double b) {
+		return Math.abs(a - b) < EPSILON;
+	}
+
 }

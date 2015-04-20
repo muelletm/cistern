@@ -110,15 +110,6 @@ public class ZeroOrderSumLattice implements SumLattice {
 		return score_sum;
 	}
 	
-	// Faster but numerically less robust.
-//	private double getScoreSum(Collection<State> states) {
-//		double score_sum = 0.0;
-//		for (State state : states) {
-//			score_sum += Math.exp(state.getScore());
-//		}
-//		return Math.log(score_sum);
-//	}
-
 	@Override
 	public double update(WeightVector weights, double step_width) {
 		init();

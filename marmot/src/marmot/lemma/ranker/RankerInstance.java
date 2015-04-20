@@ -49,7 +49,7 @@ public class RankerInstance {
 	}
 
 	public int getPosIndex(SymbolTable<String> pos_table, boolean insert) {
-		if (pos_table == null)
+		if (pos_table == null || instance_.getPosTag() == null)
 			return -1;
 
 		if (pos_index_ == -2) {

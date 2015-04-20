@@ -48,7 +48,7 @@ public class ZeroOrderViterbiLattice implements ViterbiLattice {
 
 				if (state.getLemmaCandidates() != null) {
 					RankerCandidate candidate = RankerCandidate.bestCandidate(state.getLemmaCandidates());
-					score = candidate.getScore();
+					score = candidate.getScore() + state.getRealScore();
 				}
 
 				queue.add(new LatticeEntry(score, state_index));
@@ -176,7 +176,7 @@ public class ZeroOrderViterbiLattice implements ViterbiLattice {
 
 			for (int index = 0; index < signature_array.length; index++) {
 				int[] new_signature_array = new int[signature_array.length];
-				System.arraycopy(signature, 0, new_signature_array, 0,
+				System.arraycopy(signature_array, 0, new_signature_array, 0,
 						signature_array.length);
 				new_signature_array[index]++;
 
