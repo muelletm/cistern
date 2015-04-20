@@ -20,6 +20,7 @@ import marmot.core.lattice.SumLattice;
 import marmot.core.lattice.ViterbiLattice;
 import marmot.core.lattice.ZeroOrderSumLattice;
 import marmot.core.lattice.ZeroOrderViterbiLattice;
+import marmot.lemma.ranker.RankerCandidate;
 import marmot.morph.cmd.Trainer;
 import marmot.morph.io.SentenceReader;
 import marmot.util.Copy;
@@ -68,7 +69,7 @@ public class MorphEvaluator implements Evaluator {
 		Hypothesis h = lattice.getViterbiSequence();
 		result.time += System.currentTimeMillis() - time;
 
-		List<Integer> actual = h.getStates();
+		List<Integer> candidate_indexes = h.getStates();
 
 		List<int[]> expected_indexes = new ArrayList<int[]>();
 		for (int index = 0; index < sentence.size(); index++) {
@@ -87,26 +88,26 @@ public class MorphEvaluator implements Evaluator {
 			int form_index = word.getWordFormIndex();
 			boolean is_oov = model.isOOV(form_index);
 
-			State state = candidates.get(index).get(actual.get(index))
+			State state = candidates.get(index).get(candidate_indexes.get(index))
 					.getZeroOrderState();
+			
+			assert state != null;
 
 			boolean token_error = false;
 
+			State run = state;
 			for (int level = tagger.getNumLevels() - 1; level >= 0; level--) {
-				assert state != null;
+				assert run != null;
 				int expected_tag = expected_indexes.get(index)[level];
-				int actual_tag = state.getIndex();
-				state = state.getSubLevelState();
+				int actual_tag = run.getIndex();
+				run = run.getSubLevelState();
 
 				boolean is_error = expected_tag != actual_tag;
 
 				if (is_error) {
 					sentence_error = true;
 					result.token_errors[level] += 1;
-
 					token_error = true;
-					
-
 				}
 
 				if (is_oov && is_error) {
@@ -115,6 +116,20 @@ public class MorphEvaluator implements Evaluator {
 
 			}
 
+			assert state != null;
+			List<RankerCandidate> lemma_candidates = state.getLemmaCandidates();
+			if (lemma_candidates != null) {
+				RankerCandidate candidate = RankerCandidate.bestCandidate(lemma_candidates);
+				
+				assert word.getLemma() != null;
+				
+				if (!word.getLemma().equals(candidate.getLemma())) {
+					result.lemma_errors ++;
+				}
+				
+			}
+			
+			
 			if (token_error) {
 				result.morph_errors++;
 

@@ -11,10 +11,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import marmot.core.Sequence;
-import marmot.core.Tagger;
 import marmot.core.Token;
 import marmot.morph.MorphModel;
 import marmot.morph.MorphOptions;
+import marmot.morph.MorphTagger;
 import marmot.morph.Word;
 import marmot.morph.io.FileOptions;
 import marmot.morph.io.SentenceReader;
@@ -23,7 +23,7 @@ import marmot.util.FileUtils;
 
 public class Trainer {
 	
-	public static Tagger train(MorphOptions options) {
+	public static MorphTagger train(MorphOptions options) {
 		long time = System.currentTimeMillis();
 		List<Sequence> train_sentences = new LinkedList<Sequence>();
 
@@ -52,7 +52,7 @@ public class Trainer {
 			reader = null;
 		}
 
-		Tagger tagger = MorphModel.train(options, train_sentences, test_sentences);
+		MorphTagger tagger = (MorphTagger) MorphModel.train(options, train_sentences, test_sentences);
 
 		if (!options.getModelFile().isEmpty())			
 			FileUtils.saveToFile(tagger, options.getModelFile());
@@ -71,7 +71,7 @@ public class Trainer {
 		options.dieIfPropertyIsEmpty(MorphOptions.TRAIN_FILE);
 		options.dieIfPropertyIsEmpty(MorphOptions.MODEL_FILE);
 		
-		Tagger tagger = train(options);
+		MorphTagger tagger = train(options);
 		MorphModel model = (MorphModel) tagger.getModel();
 
 		if (!options.getTestFile().isEmpty()) {

@@ -284,7 +284,7 @@ public class SimpleTagger implements Tagger {
 						State new_state = new State(tag_index, state);
 						new_state.setVector(vector);
 						new_state.setScore(weight_vector_.dotProduct(new_state,
-								vector) + state.getScore());
+								vector) + state.getRealScore());
 						model_.setLemmaCandidates(state, new_state);
 						new_current_states.add(new_state);
 					}
@@ -591,8 +591,8 @@ public class SimpleTagger implements Tagger {
 		return indexes;
 	}
 
-	protected List<int[]> tag_(Sequence sequence) {
-		List<int[]> list = new ArrayList<int[]>(sequence.size());
+	protected List<State> tag_states(Sequence sequence) {
+		List<State> list = new ArrayList<State>(sequence.size());
 		SumLattice sum_lattice = getSumLattice(false, sequence);
 
 		List<List<State>> candidates = sum_lattice.getCandidates();
@@ -606,16 +606,29 @@ public class SimpleTagger implements Tagger {
 		}
 
 		Hypothesis h = lattice.getViterbiSequence();
-		List<Integer> actual = h.getStates();
+		List<Integer> state_indexes = h.getStates();
 
 		for (int index = 0; index < sequence.size(); index++) {
-			State state = candidates.get(index).get(actual.get(index))
-					.getZeroOrderState();
+			int candidate_index = state_indexes.get(index);
+			List<State> token_candidates = candidates.get(index);
+			State state = token_candidates.get(candidate_index);
+			state = state.getZeroOrderState();
+			list.add(state);
+		}
 
+		return list;
+	}
+	
+	protected List<int[]> tag_(Sequence sequence) {
+		List<int[]> list = new ArrayList<int[]>(sequence.size());
+		
+		List<State> states = tag_states(sequence);
+		
+		for (State state : states) {
 			int[] indexes = stateToIndexes(state);
-
 			list.add(indexes);
 		}
+		
 		return list;
 	}
 

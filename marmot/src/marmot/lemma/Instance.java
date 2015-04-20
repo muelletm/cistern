@@ -163,8 +163,20 @@ public class Instance {
 	}
 
 	public static Instance getInstance(Word word, boolean use_postag, boolean use_mtag) {
-		String form = word.getWordForm().toLowerCase();
-		String lemma = word.getLemma().toLowerCase();			
+		String form = word.getWordForm();
+		
+		if (form == null) {
+			throw new RuntimeException("Form is null. Did you specify a form-index?");
+		}
+		
+		String lemma = word.getLemma();
+		
+		if (lemma == null) {
+			throw new RuntimeException("Lemma is null. Did you specify a lemma-index?");
+		}
+		
+		form = form.toLowerCase();
+		lemma = lemma.toLowerCase();
 		return  new Instance(form, lemma, (use_postag)? word.getPosTag() : null, (use_mtag) ? word.getMorphTag() : null);	
 	}
 	

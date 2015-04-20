@@ -194,33 +194,6 @@ public class PipelineTest {
 	}
 	
 	@Test
-	public void realMaTest() {
-		
-		MorphOptions options = new MorphOptions();
-		options.setProperty(MorphOptions.TRAIN_FILE,
-				"form-index=0,tag-index=1," + getResourceFile("0.trn.baseline.10"));
-		options.setProperty(MorphOptions.TEST_FILE,
-				"form-index=0,tag-index=1," + getResourceFile("0.dev.baseline"));
-
-		options.setProperty(Options.NUM_ITERATIONS, "10");
-		options.setProperty(MorphOptions.TAG_MORPH, "false");
-		options.setProperty(Options.SEED, "42");
-		options.setProperty(Options.PRUNE, "false");
-		options.setProperty(MorphOptions.USE_HASH_VECTOR, "false");
-		options.setProperty(Options.VECTOR_SIZE, "10000");
-		options.setProperty(MorphOptions.USE_DEFAULT_FEATURES, "true");
-		options.setProperty(MorphOptions.OBSERVED_FEATURE, "false");
-		options.setProperty(Options.OPTIMIZE_NUM_ITERATIONS, "false");
-		options.setProperty(MorphOptions.RARE_WORD_MAX_FREQ, "100");
-		options.setProperty(MorphOptions.FEATURE_TEMPLATES, "affix");
-		options.setProperty(MorphOptions.MAX_AFFIX_LENGTH, "3");	
-		options.setProperty(Options.ORDER, "0");
-		options.setProperty(Options.PENALTY, "0.00");
-		
-		realTestWithOptions(options, 91.00, 76.00);
-	}
-	
-	@Test
 	public void realNonHashTest() {
 		MorphOptions options = new MorphOptions();
 		options.setProperty(Options.SEED, "42");

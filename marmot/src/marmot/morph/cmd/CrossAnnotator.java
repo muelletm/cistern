@@ -11,11 +11,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 import marmot.core.Sequence;
-import marmot.core.Tagger;
 import marmot.morph.MorphEvaluator;
 import marmot.morph.MorphModel;
 import marmot.morph.MorphOptions;
 import marmot.morph.MorphResult;
+import marmot.morph.MorphTagger;
 import marmot.morph.io.SentenceReader;
 import marmot.util.FakeWriter;
 import marmot.util.ListUtils;
@@ -66,7 +66,7 @@ public class CrossAnnotator {
 			List<Sequence> chunk = chunks.get(i);
 			List<Sequence> complement = ListUtils.complement(chunks, i);
 
-			Tagger tagger = MorphModel.train(options, complement, chunk);
+			MorphTagger tagger = (MorphTagger) MorphModel.train(options, complement, chunk);
 
 			for (Sequence sequence : chunk) {
 				Annotator.annotate(tagger, sequence, writer);

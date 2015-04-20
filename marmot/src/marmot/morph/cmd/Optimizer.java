@@ -11,10 +11,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import marmot.core.Sequence;
-import marmot.core.Tagger;
 import marmot.core.Token;
 import marmot.morph.MorphModel;
 import marmot.morph.MorphOptions;
+import marmot.morph.MorphTagger;
 import marmot.morph.Word;
 import marmot.morph.io.FileOptions;
 import marmot.morph.io.SentenceReader;
@@ -58,7 +58,7 @@ public class Optimizer {
 			reader = null;
 		}
 		
-		Tagger tagger = MorphModel.trainOptimal(options, train_sentences, test_sentences);
+		MorphTagger tagger = (MorphTagger) MorphModel.trainOptimal(options, train_sentences, test_sentences);
 			
 		if (!options.getModelFile().isEmpty())			
 			FileUtils.saveToFile(tagger, options.getModelFile());

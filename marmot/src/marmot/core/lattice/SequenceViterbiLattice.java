@@ -15,6 +15,7 @@ import java.util.Set;
 
 import marmot.core.State;
 import marmot.core.Transition;
+import marmot.lemma.ranker.RankerCandidate;
 import marmot.util.HashableIntArray;
 
 
@@ -49,6 +50,17 @@ public class SequenceViterbiLattice implements ViterbiLattice {
 			for (State state : states) {
 				queue.clear();
 			
+				double state_score = state.getScore();
+				State zero_order_state = state.getZeroOrderState();
+				if (zero_order_state.getLemmaCandidates() != null) {
+					double score = state_score - zero_order_state.getScore() + zero_order_state.getRealScore();
+					state_score = Double.NEGATIVE_INFINITY;
+					for (RankerCandidate candidate : zero_order_state.getLemmaCandidates()) {
+						double candidate_score = score + candidate.getScore();
+						state_score = Math.max(state_score, candidate_score);
+					}
+				}
+				
 				for (int previous_state_index = 0; previous_state_index < previous_states
 						.size(); previous_state_index++) {
 
@@ -58,7 +70,7 @@ public class SequenceViterbiLattice implements ViterbiLattice {
 						continue;
 					}
 					
-					double score = state.getScore() + transition.getScore();
+					double score = state_score + transition.getScore();
 					
 					if (index > 0) {
 						score += lattice_[index - 1][previous_state_index][0]
@@ -160,7 +172,7 @@ public class SequenceViterbiLattice implements ViterbiLattice {
 
 			for (int index = 0; index < signature_array.length; index++) {
 				int[] new_signature_array = new int[signature_array.length];
-				System.arraycopy(signature, 0, new_signature_array, 0,
+				System.arraycopy(signature_array, 0, new_signature_array, 0,
 						signature_array.length);
 				new_signature_array[index]++;
 				

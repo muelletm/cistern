@@ -133,16 +133,17 @@ public class ZeroOrderSumLattice implements SumLattice {
 			int gold_candidate_index = gold_candidate_indexes_.get(index);
 			List<State> states = candidates_.get(index);		
 			double score_sum = score_sums_[index];
-			ll += states.get(gold_candidate_index).getScore() - score_sum;
-			update(states, gold_candidate_index, score_sum, weights, step_width);
+			ll += update(states, gold_candidate_index, score_sum, weights, step_width);
 		}
 
 		return ll;
 	}
 
-	private void update(List<State> states, int gold_candidate_index,
+	private double update(List<State> states, int gold_candidate_index,
 			double score_sum, WeightVector weights, double step_width) {
 		int candidate_index = 0;
+		double ll=0;
+		
 		for (State state : states) {
 			assert state.getZeroOrderState() == state;
 
@@ -152,7 +153,10 @@ public class ZeroOrderSumLattice implements SumLattice {
 			
 			if (candidate_index == gold_candidate_index) {
 				value += 1.0;
+				ll = states.get(gold_candidate_index).getScore() - score_sum;
 			}
+			
+			
 			
 			weights.updateWeights(state, value * step_width, false);
 			
@@ -164,6 +168,7 @@ public class ZeroOrderSumLattice implements SumLattice {
 					value = -p;
 					if (candidate.isCorrect() && candidate_index == gold_candidate_index) {
 						value += 1.0;
+						ll = score - score_sum;
 					}
 					candidate.update(state, weights, value * step_width);
 				}
@@ -171,6 +176,8 @@ public class ZeroOrderSumLattice implements SumLattice {
 			
 			candidate_index++;
 		}
+		
+		return ll;
 	}
 
 	@Override

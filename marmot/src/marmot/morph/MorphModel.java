@@ -995,7 +995,7 @@ public class MorphModel extends Model {
 			boolean is_correct = entry.getKey().equals(plemma);
 			LemmaCandidate candidate = entry.getValue();
 			double score = lemma_model_.score(candidate, pos_index, morph_indexes);
-			candidates.add(new RankerCandidate(candidate, is_correct, score));
+			candidates.add(new RankerCandidate(plemma, candidate, is_correct, score));
 		}
 		
 		state.setLemmaCandidates(candidates);
@@ -1019,9 +1019,10 @@ public class MorphModel extends Model {
 		int[] morph_indexes = getTagToSubTags()[state.getLevel()][morph_index];
 		
 		for (RankerCandidate prev_candidate : prev_candidates) {
-			LemmaCandidate l_candidate = prev_candidate.getCandidate();
-			double score = lemma_model_.score(l_candidate, pos_index, morph_indexes);
-			candidates.add(new RankerCandidate(l_candidate, prev_candidate.isCorrect(), score));
+			String pLemma = prev_candidate.getLemma();
+			LemmaCandidate pcandidate = prev_candidate.getCandidate();
+			double score = lemma_model_.score(pcandidate, pos_index, morph_indexes);
+			candidates.add(new RankerCandidate(pLemma, pcandidate, prev_candidate.isCorrect(), score));
 		}
 		
 		state.setLemmaCandidates(candidates);

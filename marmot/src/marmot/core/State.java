@@ -52,7 +52,6 @@ public class State {
 		if (candidates_ != null) {
 			return candidate_score_sum_;
 		}
-		
 		return score_;
 	}
 

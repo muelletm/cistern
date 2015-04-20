@@ -1,5 +1,7 @@
 package marmot.lemma.ranker;
 
+import java.util.List;
+
 import marmot.core.State;
 import marmot.core.WeightVector;
 import marmot.lemma.LemmaCandidate;
@@ -10,13 +12,15 @@ public class RankerCandidate {
 
 	private boolean correct_;
 	private LemmaCandidate candidate_;
+	private String lemma_;
 	private double score_;
 	private double expected_counts_;
 	
-	public RankerCandidate(LemmaCandidate candidate, boolean correct, double score) {
+	public RankerCandidate(String lemma, LemmaCandidate candidate, boolean correct, double score) {
 		score_ = score;
 		candidate_ = candidate;
 		correct_ = correct;
+		lemma_ = lemma;
 	}
 
 	public double getScore() {
@@ -63,6 +67,26 @@ public class RankerCandidate {
 			update(state, weights, expected_counts_);
 			expected_counts_ = 0.0;
 		}
+	}
+
+	public static RankerCandidate bestCandidate(List<RankerCandidate> lemma_candidates) {
+		assert lemma_candidates != null;
+		assert !lemma_candidates.isEmpty();
+		
+		RankerCandidate best_candidate = null; 
+		
+		for (RankerCandidate candidate : lemma_candidates) {
+			if (best_candidate == null || best_candidate.getScore() < candidate.getScore()) {
+				best_candidate = candidate;
+			}
+		}
+		
+		assert best_candidate != null;
+		return best_candidate;
+	}
+
+	public String getLemma() {
+		return lemma_;
 	}
 	
 }
