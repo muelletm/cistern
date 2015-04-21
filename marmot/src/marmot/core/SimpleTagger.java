@@ -284,7 +284,7 @@ public class SimpleTagger implements Tagger {
 						State new_state = new State(tag_index, state);
 						new_state.setVector(vector);
 						new_state.setScore(weight_vector_.dotProduct(new_state, vector) + state.getRealScore());
-						model_.setLemmaCandidates(state, new_state);
+						model_.setLemmaCandidates(new_state);
 						new_current_states.add(new_state);
 					}
 				}

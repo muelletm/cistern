@@ -70,6 +70,6 @@ public abstract class Model implements Serializable {
 
 	public abstract void setLemmaCandidates(Token token, State state);
 
-	public abstract void setLemmaCandidates(State state, State new_state);
+	public abstract void setLemmaCandidates(State state);
 	
 }

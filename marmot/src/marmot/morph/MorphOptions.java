@@ -39,6 +39,7 @@ public class MorphOptions extends Options {
 	public static final String LEMMATIZE = "lemmatize";
 	public static final String LEMMA_UNIGRAM_FILE = "lemma-unigram-file";
 	public static final String GOLD_LEMMA = "gold-lemma";
+	public static final String LEMMA_PRETRAINING = "lemma-pretraining";
 	
 	private static final Map<String, String> DEFALUT_VALUES_ = new HashMap<String, String>();
 	private static final Map<String, String> COMMENTS_ = new HashMap<String, String>();
@@ -99,7 +100,11 @@ public class MorphOptions extends Options {
 		COMMENTS_.put(LEMMA_UNIGRAM_FILE, "Is passed to lemma ranker model.");
 		DEFALUT_VALUES_.put(GOLD_LEMMA, "false");
 		COMMENTS_.put(GOLD_LEMMA, "Use only gold lemma.");
+		DEFALUT_VALUES_.put(LEMMA_PRETRAINING, "false");
+		COMMENTS_.put(LEMMA_PRETRAINING, "Pretrain tagger without lemma features.");
 	}
+
+
 
 	public MorphOptions() {
 		super();
@@ -225,6 +230,10 @@ public class MorphOptions extends Options {
 	
 	public boolean getGoldLemma() {
 		return Boolean.valueOf(getProperty(GOLD_LEMMA));
+	}
+
+	public boolean getLemmaPretraining() {
+		return Boolean.valueOf(getProperty(LEMMA_PRETRAINING));
 	}
 
 }

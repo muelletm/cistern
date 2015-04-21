@@ -100,8 +100,6 @@ public class MorphModel extends Model {
 
 		init(options, extractCategories(sentences));
 
-		List<SymbolTable<String>> tag_tables_ = getTagTables();
-
 		subtag_tables_ = new ArrayList<SymbolTable<String>>();
 		subtag_tables_.add(null);
 		subtag_tables_.add(null);
@@ -168,7 +166,8 @@ public class MorphModel extends Model {
 		vocab_ = extractVocabulary(options, sentences);
 		transitions_ = extractPossibleTransitions(options, sentences);
 		observed_sets_ = extractObservedSets(sentences);
-		tag_classes_ = extractTagClasses(tag_tables_);
+		
+		tag_classes_ = extractTagClasses(getTagTables());
 		
 		tag_to_subtag_ = extractSubTags(options.getSubTagSeparator());
 
@@ -179,52 +178,56 @@ public class MorphModel extends Model {
 			}
 		}
 		
-		if (options.getLemmatizer()) {
-			RerankerTrainerOptions roptions = new RerankerTrainerOptions();
-			roptions.setOption(RerankerTrainerOptions.UNIGRAM_FILE, options.getLemmaUnigramFile());
-			
-			List<Instance> instances = Instance.getInstances(sentences, false, false);
-			
-			if (options.getGoldLemma()) {
-				generators_ = Collections.singletonList((LemmaCandidateGenerator) new GoldLemmaGenerator());
-			} else {
-				generators_ = roptions.getGenerators(instances);
-			}
-			
-			EditTreeAlignerTrainer trainer = new EditTreeAlignerTrainer(roptions.getRandom(), false);
-			EditTreeAligner aligner = (EditTreeAligner) trainer.train(instances);
-			
-			List<RankerInstance> rinstances = RankerInstance.getInstances(instances, generators_);
-			
-			SymbolTable<String> pos_table = tag_tables_.get(POS_INDEX_);
-			SymbolTable<String> morph_table = null;
-			if (MORPH_INDEX_< subtag_tables_.size()) {
-				morph_table = subtag_tables_.get(MORPH_INDEX_);
-			}
-						
-			lemma_model_ = new RankerModel();
-			lemma_model_.init(roptions, rinstances, aligner, pos_table, morph_table);
-			
+		if (options.getLemmatizer() && !options.getLemmaPretraining()) {
+			initLemmatizer(options, sentences);
+		}
+	}
 
-			Map<String, RankerInstance> map = new HashMap<>();
-			for (RankerInstance instance : rinstances) {
-				String key = String.format("%s\t%s", instance.getInstance().getForm(), instance.getInstance().getLemma());
-				assert ! map.containsKey(key);
-				map.put(key, instance);
-			}
-			
-			for (Sequence sequence : sentences) {
-				for (Token token : sequence) {
-					Word word = (Word) token;
-					String key = String.format("%s\t%s", word.getWordForm().toLowerCase(), word.getLemma().toLowerCase());
-					RankerInstance instance = map.get(key);
-					assert instance != null;
-					word.setInstance(instance);
-				}
-			}
-			
+	private void initLemmatizer(MorphOptions options,
+			Collection<Sequence> sentences) {
+
+		RerankerTrainerOptions roptions = new RerankerTrainerOptions();
+		roptions.setOption(RerankerTrainerOptions.UNIGRAM_FILE, options.getLemmaUnigramFile());
+		
+		List<Instance> instances = Instance.getInstances(sentences, false, false);
+		
+		if (options.getGoldLemma()) {
+			generators_ = Collections.singletonList((LemmaCandidateGenerator) new GoldLemmaGenerator());
+		} else {
+			generators_ = roptions.getGenerators(instances);
 		}
 		
+		EditTreeAlignerTrainer trainer = new EditTreeAlignerTrainer(roptions.getRandom(), false);
+		EditTreeAligner aligner = (EditTreeAligner) trainer.train(instances);
+		
+		List<RankerInstance> rinstances = RankerInstance.getInstances(instances, generators_);
+		
+		SymbolTable<String> pos_table = getTagTables().get(POS_INDEX_);
+		SymbolTable<String> morph_table = null;
+		if (MORPH_INDEX_< subtag_tables_.size()) {
+			morph_table = subtag_tables_.get(MORPH_INDEX_);
+		}
+					
+		lemma_model_ = new RankerModel();
+		lemma_model_.init(roptions, rinstances, aligner, pos_table, morph_table);
+		
+
+		Map<String, RankerInstance> map = new HashMap<>();
+		for (RankerInstance instance : rinstances) {
+			String key = String.format("%s\t%s", instance.getInstance().getForm(), instance.getInstance().getLemma());
+			assert ! map.containsKey(key);
+			map.put(key, instance);
+		}
+		
+		for (Sequence sequence : sentences) {
+			for (Token token : sequence) {
+				Word word = (Word) token;
+				String key = String.format("%s\t%s", word.getWordForm().toLowerCase(), word.getLemma().toLowerCase());
+				RankerInstance instance = map.get(key);
+				assert instance != null;
+				word.setInstance(instance);
+			}
+		}
 	}
 
 	private int getBiIndex(int word, int level, int tag) {
@@ -643,6 +646,10 @@ public class MorphModel extends Model {
 		word.setWordIndex(word_index);
 		addCharIndexes(word, normalized_form, insert);
 		
+		addLemmaInstance(word);
+	}
+	
+	private void addLemmaInstance(Word word) {
 		if (lemma_model_ != null && word.getInstance() == null) {
 			Instance instance = Instance.getInstance(word, false, false);
 			RankerInstance rinstance = RankerInstance.getInstance(instance, generators_);
@@ -914,6 +921,23 @@ public class MorphModel extends Model {
 		}
 
 		trainer.train(tagger, train_sentences, evaluator);
+		
+		if (options.getLemmatizer() && options.getLemmaPretraining()) {
+		
+			model.initLemmatizer(options, train_sentences);
+			
+			if (test_sentences != null) {
+				for (Sequence sentence : test_sentences) {
+					for (Token token : sentence) {
+						Word word = (Word) token;
+						model.addLemmaInstance(word);
+					}
+				}
+			}	
+			
+			trainer.train(tagger, train_sentences, evaluator);
+		}
+		
 		return tagger;
 	}
 
@@ -1024,10 +1048,14 @@ public class MorphModel extends Model {
 	}
 
 	@Override
-	public void setLemmaCandidates(State previous_state, State state) {
+	public void setLemmaCandidates(State state) {
 		if (lemma_model_ == null)
 			return;
 
+		assert state.getLevel() == 1;
+		
+		State previous_state = state.getSubLevelState();
+		
 		assert previous_state != null;
 		assert state != null;
 		assert previous_state.getOrder() == 1;
@@ -1040,7 +1068,7 @@ public class MorphModel extends Model {
 		
 		assert previous_state.getLevel() == 0;
 		int pos_index = previous_state.getIndex();
-		assert previous_state == state.getSubLevelState();
+		
 		
 		int morph_index = state.getIndex();
 		int[] morph_indexes = getTagToSubTags()[state.getLevel()][morph_index];

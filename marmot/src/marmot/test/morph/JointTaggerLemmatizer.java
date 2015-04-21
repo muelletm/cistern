@@ -30,7 +30,8 @@ public class JointTaggerLemmatizer {
 		
 		options.setProperty(MorphOptions.TAG_MORPH, "true");
 		options.setProperty(MorphOptions.LEMMATIZE, "true");
-		options.setProperty(MorphOptions.GOLD_LEMMA, "true");
+		options.setProperty(MorphOptions.GOLD_LEMMA, "false");
+		options.setProperty(MorphOptions.LEMMA_PRETRAINING, "true");
 		options.setProperty(Options.NUM_ITERATIONS, "10");
 		
 		options.setProperty(MorphOptions.TRAIN_FILE,
