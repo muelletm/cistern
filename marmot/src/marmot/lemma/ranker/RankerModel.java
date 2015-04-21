@@ -16,8 +16,10 @@ import marmot.lemma.LemmaCandidate;
 import marmot.lemma.LemmaCandidateSet;
 import marmot.lemma.ranker.RankerTrainer.RerankerTrainerOptions;
 import marmot.lemma.toutanova.EditTreeAligner;
+import marmot.util.AspellLexicon;
 import marmot.util.Converter;
 import marmot.util.Encoder;
+import marmot.util.HashLexicon;
 import marmot.util.Lexicon;
 import marmot.util.LineIterator;
 import marmot.util.StringUtils.Mode;
@@ -50,7 +52,7 @@ public class RankerModel implements Serializable {
 	private static final int lexicon_feature_ = 7;
 	private static final int feature_bits_ = Encoder.bitsNeeded(7);
 	private static final int unigram_count_position_bits_ = Encoder
-			.bitsNeeded(Lexicon.ARRAY_LENGTH - 1);
+			.bitsNeeded(HashLexicon.ARRAY_LENGTH - 1);
 	private static final long max_weights_length_ = 10_000_000;
 	private static final int encoder_capacity_ = 8;
 
@@ -149,7 +151,14 @@ public class RankerModel implements Serializable {
 		List<Object> unigram_files = options.getUnigramFile(); 
 		unigram_lexicons_ = new LinkedList<>();
 		for (Object unigram_file : unigram_files)
-			prepareUnigramFeature((String) unigram_file);	
+			prepareUnigramFeature((String) unigram_file);
+		
+		String aspell_path = options.getAspellPath();
+		if (!aspell_path.isEmpty()) {
+			String aspell_lang = options.getAspellLang();
+			logger.info(String.format("Adding aspell dictionary: %s", aspell_lang));
+			unigram_lexicons_.add(new AspellLexicon(Mode.lower, aspell_path, aspell_lang));
+		}
 		
 		unigram_lexicons_bits_ = Encoder.bitsNeeded(unigram_lexicons_.size());
 		use_shape_lexicon_ = options.getUseShapeLexicon();
@@ -222,7 +231,7 @@ public class RankerModel implements Serializable {
 
 		LineIterator iterator = new LineIterator(filename);
 
-		Lexicon unigram_lexicon = new Lexicon(Mode.lower);
+		HashLexicon unigram_lexicon = new HashLexicon(Mode.lower);
 
 		while (iterator.hasNext()) {
 
@@ -372,7 +381,7 @@ public class RankerModel implements Serializable {
 			return;
 
 		if (use_shape_lexicon_) {
-			for (int i = 0; i < Lexicon.ARRAY_LENGTH; i++) {
+			for (int i = 0; i < HashLexicon.ARRAY_LENGTH; i++) {
 				int count = counts[i];
 				if (count > 0) {
 					encoder_.append(lexicon_feature_, feature_bits_);
@@ -382,7 +391,7 @@ public class RankerModel implements Serializable {
 				}
 			}		
 		} else {
-			int count = counts[Lexicon.ARRAY_LENGTH - 1];
+			int count = counts[HashLexicon.ARRAY_LENGTH - 1];
 			if (count > 0) {
 				encoder_.append(lexicon_feature_, feature_bits_);
 				encoder_.append(lexicon_index, unigram_lexicons_bits_);

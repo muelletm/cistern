@@ -63,7 +63,7 @@ public class StringUtils {
 	}
 
 	public static String normalize(String word, Mode mode) {
-		if (mode == Mode.none) {
+		if (mode == null || mode == Mode.none) {
 			return word;
 		}
 
@@ -229,6 +229,22 @@ public class StringUtils {
 		}
 
 		return Shape.Lower;
+	}
+
+	public static String capitalize(String word) {
+		StringBuilder sb = new StringBuilder(word);
+		sb.setCharAt(0, Character.toUpperCase(sb.charAt(0)));
+		return sb.toString();
+	}
+
+	public static boolean containsLetter(String word) {
+		for (int i=0; i<word.length(); i++) {
+			char c = word.charAt(i);
+			if (Character.isLetter(c)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

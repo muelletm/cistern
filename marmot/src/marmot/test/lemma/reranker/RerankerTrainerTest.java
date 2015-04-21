@@ -3,7 +3,6 @@
 
 package marmot.test.lemma.reranker;
 
-import java.util.Arrays;
 import java.util.List;
 
 import marmot.lemma.Instance;
@@ -31,8 +30,12 @@ public class RerankerTrainerTest extends SimpleTrainerTest {
 		
 		trainer.getOptions().setOption(RerankerTrainerOptions.USE_PERCEPTRON, false).setOption(RerankerTrainerOptions.QUADRATIC_PENALTY, 1.0);
 		//trainer.getOptions().setOption(RerankerTrainerOptions.UNIGRAM_FILE, "min-count=5,/mounts/data/proj/marmot/lemmatizer/data/de/unigrams.txt");
-		trainer.getOptions().setOption(RerankerTrainerOptions.UNIGRAM_FILE, Arrays.asList("min-count=1,/mounts/data/proj/marmot/lemmatizer/data/de/aspell.txt", "min-count=5,/mounts/data/proj/marmot/lemmatizer/data/de/unigrams.txt"));
+		//trainer.getOptions().setOption(RerankerTrainerOptions.UNIGRAM_FILE, Arrays.asList("min-count=1,/mounts/data/proj/marmot/lemmatizer/data/de/aspell.txt", "min-count=5,/mounts/data/proj/marmot/lemmatizer/data/de/unigrams.txt"));
 		trainer.getOptions().setOption(RerankerTrainerOptions.USE_SHAPE_LEXICON, true);
+		
+		trainer.getOptions().setOption(RerankerTrainerOptions.ASPELL_PATH, "/home/thomas/Desktop/cistern/marmot/cmd/marmot_aspell");
+		trainer.getOptions().setOption(RerankerTrainerOptions.ASPELL_LANG, "de");
+		
 		trainer.getOptions().setOption(Options.USE_MORPH, false);
 		
 		runModerateTest(trainer, 1., 1., true);

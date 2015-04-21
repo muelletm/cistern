@@ -37,6 +37,8 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
 		public static String QUADRATIC_PENALTY = "quadratic-penalty";
 		public static String UNIGRAM_FILE = "unigram-file";
 		public static String USE_SHAPE_LEXICON = "use-shape-lexicon";
+		public static String ASPELL_LANG = "aspell-lang";
+		public static String ASPELL_PATH = "aspell-path";
 
 		public RerankerTrainerOptions() {
 			map_.put(GENERATOR_TRAINERS, Arrays.asList(SimpleLemmatizerTrainer.class, EditTreeGeneratorTrainer.class));
@@ -44,6 +46,8 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
 			map_.put(QUADRATIC_PENALTY, 0.00);
 			map_.put(UNIGRAM_FILE, Arrays.asList(""));
 			map_.put(USE_SHAPE_LEXICON, false);
+			map_.put(ASPELL_LANG, "");
+			map_.put(ASPELL_PATH, "");
 		}
 		
 		@SuppressWarnings("unchecked")
@@ -77,6 +81,14 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
 
 		public boolean getUseShapeLexicon() {
 			return (Boolean) getOption(USE_SHAPE_LEXICON);
+		}
+
+		public String getAspellPath() {
+			return (String) getOption(ASPELL_PATH);
+		}
+		
+		public String getAspellLang() {
+			return (String) getOption(ASPELL_LANG);
 		}
 		
 	} 
