@@ -67,11 +67,11 @@ public class PerceptronTrainer implements Trainer {
 
 				ViterbiLattice lattice;
 				if (sum_lattice instanceof ZeroOrderSumLattice) {
-					lattice = new ZeroOrderViterbiLattice(candidates, 1);
+					lattice = new ZeroOrderViterbiLattice(candidates, 1, false);
 				} else {
 					lattice = new SequenceViterbiLattice(candidates,
 							model.getBoundaryState(tagger.getNumLevels() - 1),
-							1);
+							1, false);
 				}
 
 				List<Integer> best_sequence = lattice.getViterbiSequence()

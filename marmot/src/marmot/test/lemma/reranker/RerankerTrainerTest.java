@@ -3,6 +3,7 @@
 
 package marmot.test.lemma.reranker;
 
+import java.util.Arrays;
 import java.util.List;
 
 import marmot.lemma.Instance;
@@ -28,13 +29,32 @@ public class RerankerTrainerTest extends SimpleTrainerTest {
 	public void smallTest() {
 		RankerTrainer trainer = new RankerTrainer();
 		
-		//((RerankerTrainerOptions) trainer.getOptions()).setOption(RerankerTrainerOptions.GENERATOR_TRAINERS, Arrays.asList(EditTreeGeneratorTrainer.class, SimpleLemmatizerTrainer.class, ToutanovaTrainer.class));
-		
 		trainer.getOptions().setOption(RerankerTrainerOptions.USE_PERCEPTRON, false).setOption(RerankerTrainerOptions.QUADRATIC_PENALTY, 1.0);
 		//trainer.getOptions().setOption(RerankerTrainerOptions.UNIGRAM_FILE, "min-count=5,/mounts/data/proj/marmot/lemmatizer/data/de/unigrams.txt");
-		trainer.getOptions().setOption(Options.USE_MORPH, true);
+		trainer.getOptions().setOption(RerankerTrainerOptions.UNIGRAM_FILE, Arrays.asList("min-count=1,/mounts/data/proj/marmot/lemmatizer/data/de/aspell.txt", "min-count=5,/mounts/data/proj/marmot/lemmatizer/data/de/unigrams.txt"));
+		trainer.getOptions().setOption(RerankerTrainerOptions.USE_SHAPE_LEXICON, true);
+		trainer.getOptions().setOption(Options.USE_MORPH, false);
 		
 		runModerateTest(trainer, 1., 1., true);
+		
+//		Apr 21, 2015 6:17:25 PM marmot.lemma.Result logAccuracy
+//		INFORMATION:   9501 /   9504 = 99,9684 (Type:  3809 /  3812 = 99,9213)
+//		Apr 21, 2015 6:17:32 PM marmot.lemma.Result logAccuracy
+//		INFORMATION:  73917 /  76704 = 96,3666 (Type: 18517 / 20389 = 90,8186)
+//		Apr 21, 2015 6:17:39 PM marmot.lemma.Result logAccuracy
+//		INFORMATION:  73192 /  76704 = 95,4214 (Type: 14354 / 16640 = 86,2620)
+		
+//		INFORMATION:   9501 /   9504 = 99,9684 (Type:  3809 /  3812 = 99,9213)
+//		Apr 21, 2015 6:30:49 PM marmot.lemma.Result logAccuracy
+//		INFORMATION:  73899 /  76704 = 96,3431 (Type: 18504 / 20389 = 90,7548)
+//		Apr 21, 2015 6:30:57 PM marmot.lemma.Result logAccuracy
+//		INFORMATION:  73193 /  76704 = 95,4227 (Type: 14355 / 16640 = 86,2680)
+		
+//		INFORMATION:   9501 /   9504 = 99,9684 (Type:  3809 /  3812 = 99,9213)
+//		Apr 21, 2015 6:46:05 PM marmot.lemma.Result logAccuracy
+//		INFORMATION:  74038 /  76704 = 96,5243 (Type: 18577 / 20389 = 91,1129)
+//		Apr 21, 2015 6:46:11 PM marmot.lemma.Result logAccuracy
+//		INFORMATION:  73361 /  76704 = 95,6417 (Type: 14423 / 16640 = 86,6767)
 		
 		// MORPH 88.09
 		// POS   87.40

@@ -62,6 +62,7 @@ public class MorphModel extends Model {
 
 	private List<SymbolTable<String>> subtag_tables_;
 	private transient Map<String, Integer> signature_cache;
+	
 
 	private int[] vocab_;
 	private int[][] tag_classes_;
@@ -178,7 +179,7 @@ public class MorphModel extends Model {
 			}
 		}
 		
-		if (options.getLemmatizer() && !options.getLemmaPretraining()) {
+		if (options.getLemmatizer()) {
 			initLemmatizer(options, sentences);
 		}
 	}
@@ -186,6 +187,8 @@ public class MorphModel extends Model {
 	private void initLemmatizer(MorphOptions options,
 			Collection<Sequence> sentences) {
 
+		marginalize_lemmas_ = options.getMarginalizeLemmas();
+		
 		RerankerTrainerOptions roptions = new RerankerTrainerOptions();
 		roptions.setOption(RerankerTrainerOptions.UNIGRAM_FILE, options.getLemmaUnigramFile());
 		
@@ -227,6 +230,22 @@ public class MorphModel extends Model {
 				assert instance != null;
 				word.setInstance(instance);
 			}
+		}
+		
+		if (options.getLemmaPretraining()) {
+			for (RankerInstance instance : rinstances) {
+				clearFeaturesInInstance(instance);
+			}
+			skip_lemma_ = true;
+		} else {
+			skip_lemma_ = false;
+		}
+	}
+	
+	private void clearFeaturesInInstance(RankerInstance instance) {
+		for (Map.Entry<String, LemmaCandidate> entry : instance.getCandidateSet()) {
+			LemmaCandidate candidate = entry.getValue();
+			candidate.setFeatureIndexes(RankerInstance.EMPTY_ARRAY);
 		}
 	}
 
@@ -513,6 +532,10 @@ public class MorphModel extends Model {
 
 	private boolean special_signature_;
 
+	private boolean skip_lemma_;
+
+	private boolean marginalize_lemmas_;
+
 	private void addCharIndexes(Word word, String form, boolean insert) {
 		short[] char_indexes = new short[form.length()];
 		for (int index = 0; index < form.length(); index++) {
@@ -653,8 +676,17 @@ public class MorphModel extends Model {
 		if (lemma_model_ != null && word.getInstance() == null) {
 			Instance instance = Instance.getInstance(word, false, false);
 			RankerInstance rinstance = RankerInstance.getInstance(instance, generators_);
-			lemma_model_.addIndexes(rinstance, rinstance.getCandidateSet(), false);		
 			word.setInstance(rinstance);
+			addLemmaFeatures(word);
+		}
+	}
+
+	private void addLemmaFeatures(Word word) {
+		RankerInstance rinstance = word.getInstance(); 
+		if (skip_lemma_) {
+			clearFeaturesInInstance(rinstance);	
+		} else {
+			lemma_model_.addIndexes(rinstance, rinstance.getCandidateSet(), false);		
 		}
 	}
 
@@ -924,16 +956,24 @@ public class MorphModel extends Model {
 		
 		if (options.getLemmatizer() && options.getLemmaPretraining()) {
 		
-			model.initLemmatizer(options, train_sentences);
+			model.skip_lemma_ = false;
+			
+			for (Sequence sentence : train_sentences) {
+				for (Token token : sentence) {
+					Word word = (Word) token;
+					model.addLemmaFeatures(word);
+				}
+			}
 			
 			if (test_sentences != null) {
 				for (Sequence sentence : test_sentences) {
 					for (Token token : sentence) {
 						Word word = (Word) token;
-						model.addLemmaInstance(word);
+						model.addLemmaFeatures(word);
 					}
 				}
 			}	
+
 			
 			trainer.train(tagger, train_sentences, evaluator);
 		}
@@ -1088,6 +1128,11 @@ public class MorphModel extends Model {
 
 	public RankerModel getLemmaModel() {
 		return lemma_model_;
+	}
+
+	@Override
+	public boolean getMarganlizeLemmas() {
+		return marginalize_lemmas_;
 	}
 
 }

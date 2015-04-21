@@ -55,10 +55,10 @@ public class MorphEvaluator implements Evaluator {
 		ViterbiLattice lattice;
 		if (sum_lattice instanceof ZeroOrderSumLattice) {
 			lattice = new ZeroOrderViterbiLattice(candidates, model.getOptions()
-					.getBeamSize());
+					.getBeamSize(), model.getMarganlizeLemmas());
 		} else {
 			lattice = new SequenceViterbiLattice(candidates,
-					model.getBoundaryState(tagger.getNumLevels() - 1), model.getOptions().getBeamSize());
+					model.getBoundaryState(tagger.getNumLevels() - 1), model.getOptions().getBeamSize(), model.getMarganlizeLemmas());
 		}
 
 		for (List<State> states : candidates) {

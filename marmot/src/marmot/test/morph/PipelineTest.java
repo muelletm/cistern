@@ -446,8 +446,8 @@ public class PipelineTest {
 			caller = stack[3].getMethodName();
 		}
 		
-		Tagger tagger = MorphModel.train(options, train_sentences);
-
+		Tagger tagger = MorphModel.train(options, train_sentences, null);
+		
 		assertModelPerformanceOnTestset(caller + " Train", tagger, train_sentences, train_threshold, train_lemma_threshold);
 		assertModelPerformanceOnTestset(caller + " Test ", tagger, test_sentences, test_threshold, test_lemma_threshold);
 		

@@ -597,10 +597,10 @@ public class SimpleTagger implements Tagger {
 
 		ViterbiLattice lattice;
 		if (sum_lattice instanceof ZeroOrderSumLattice) {
-			lattice = new ZeroOrderViterbiLattice(candidates, beam_size_);
+			lattice = new ZeroOrderViterbiLattice(candidates, beam_size_, model_.getMarganlizeLemmas());
 		} else {
 			lattice = new SequenceViterbiLattice(candidates,
-					model_.getBoundaryState(getNumLevels() - 1), beam_size_);
+					model_.getBoundaryState(getNumLevels() - 1), beam_size_, model_.getMarganlizeLemmas());
 		}
 
 		Hypothesis h = lattice.getViterbiSequence();

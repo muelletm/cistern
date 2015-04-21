@@ -40,10 +40,10 @@ public class MorphOptions extends Options {
 	public static final String LEMMA_UNIGRAM_FILE = "lemma-unigram-file";
 	public static final String GOLD_LEMMA = "gold-lemma";
 	public static final String LEMMA_PRETRAINING = "lemma-pretraining";
+	public static final String MARGINALIZE_LEMMAS = "marginalize-lemmas";
 	
 	private static final Map<String, String> DEFALUT_VALUES_ = new HashMap<String, String>();
 	private static final Map<String, String> COMMENTS_ = new HashMap<String, String>();
-	
 
 	static {
 		DEFALUT_VALUES_.put(TRAIN_FILE, "");
@@ -102,9 +102,9 @@ public class MorphOptions extends Options {
 		COMMENTS_.put(GOLD_LEMMA, "Use only gold lemma.");
 		DEFALUT_VALUES_.put(LEMMA_PRETRAINING, "false");
 		COMMENTS_.put(LEMMA_PRETRAINING, "Pretrain tagger without lemma features.");
+		DEFALUT_VALUES_.put(MARGINALIZE_LEMMAS, "false");
+		COMMENTS_.put(MARGINALIZE_LEMMAS, "Marginalize over lemmas during viterbi decoding.");
 	}
-
-
 
 	public MorphOptions() {
 		super();
@@ -234,6 +234,10 @@ public class MorphOptions extends Options {
 
 	public boolean getLemmaPretraining() {
 		return Boolean.valueOf(getProperty(LEMMA_PRETRAINING));
+	}
+
+	public boolean getMarginalizeLemmas() {
+		return Boolean.valueOf(getProperty(MARGINALIZE_LEMMAS));
 	}
 
 }
