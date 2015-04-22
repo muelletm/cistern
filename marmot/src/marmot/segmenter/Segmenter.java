@@ -118,34 +118,21 @@ public class Segmenter {
 					for (int q2 = 0; q2 < this.numTags; ++q2) {
 						
 
-						transitionScore = weights[tagtag2int[q2][q1]];
+						transitionScore = weights[tagtag2int[q1][q2]];
 						emissionScore = weights[tagseg2int[q1][segment2Id[i+1][j+1]]];	
 						emissionScore2 = weights[tagseg2int[q1][segment2Id[i][j]]];	
 
 						
-						alphas[j][q1] = Numerics.sumLogProb(alphas[j][q1], alphas[i][q2] + transitionScore + emissionScore);
+						alphas[j][q2] = Numerics.sumLogProb(alphas[j][q2], alphas[i][q1] + transitionScore + emissionScore);
 						if (j == i + 1) {
 							
 
-							this.alphasTrans[j][q1] = Numerics.sumLogProb(alphasTrans[j][q1], alphas[i][q2] + transitionScore);			
+							this.alphasTrans[j][q2] = Numerics.sumLogProb(alphasTrans[j][q2], alphas[i][q1] + transitionScore);			
 							marginalTransitionProbability = Math.exp(alphas[i][q2] + betas[j][q1] + transitionScore - Z);
-							
-							
 							gradient[tagtag2int[q1][q2]] += marginalTransitionProbability;
 						}
 						if (i > 0)  {
 							marginalEmissionProbability = Math.exp(alphasTrans[i][q1] + betas[j][q2] + emissionScore2 +  weights[tagtag2int[q1][q2]] -  Z);
-							if (i == 1 && j == 2 && q1 == 1) {
-								System.out.println("ALPHA CHAR:\t" + word.getPaddedWord().substring(i,j));
-								//System.out.println(Math.exp(alphasTrans[i][q1]));
-								//System.out.println(Math.exp(betas[	][0]));
-								//System.out.println(Math.exp(emissionScore2));
-								//System.out.println(marginalEmissionProbability * 7 );
-								//System.out.println(tagseg2int[0][segment2Id[i][j]]);
-								//System.out.println("DYING");
-								//System.exit(0);
-							}
-							
 							gradient[tagseg2int[q1][segment2Id[i][j]]] += marginalEmissionProbability;
 							
 								
