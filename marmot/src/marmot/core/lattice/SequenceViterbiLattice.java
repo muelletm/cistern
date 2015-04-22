@@ -25,12 +25,14 @@ public class SequenceViterbiLattice implements ViterbiLattice {
 	private State boundary_;
 	private int beam_size_;
 	private boolean initilized_;
+	private boolean marginalize_lemmas_;
 
-	public SequenceViterbiLattice(List<List<State>> candidates, State boundary, int beam_size) {
+	public SequenceViterbiLattice(List<List<State>> candidates, State boundary, int beam_size, boolean marginalize_lemmas) {
 		candidates_ = candidates;
 		boundary_ = boundary;
 		beam_size_ = beam_size;
 		initilized_ = false;
+		marginalize_lemmas_ = marginalize_lemmas;
 	}
 
 	public void init() {
@@ -52,7 +54,7 @@ public class SequenceViterbiLattice implements ViterbiLattice {
 			
 				double state_score = state.getScore();
 				State zero_order_state = state.getZeroOrderState();
-				if (zero_order_state.getLemmaCandidates() != null) {
+				if (zero_order_state.getLemmaCandidates() != null && !marginalize_lemmas_) {
 					double score = state_score - zero_order_state.getScore() + zero_order_state.getRealScore();
 					state_score = Double.NEGATIVE_INFINITY;
 					for (RankerCandidate candidate : zero_order_state.getLemmaCandidates()) {

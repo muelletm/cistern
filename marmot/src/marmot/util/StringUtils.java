@@ -63,7 +63,7 @@ public class StringUtils {
 	}
 
 	public static String normalize(String word, Mode mode) {
-		if (mode == Mode.none) {
+		if (mode == null || mode == Mode.none) {
 			return word;
 		}
 
@@ -187,6 +187,64 @@ public class StringUtils {
 	public static String asciify(String form) {
 		return Normalizer.normalize(form, Normalizer.Form.NFD).replaceAll(
 				"[^\\p{ASCII}]", "");
+	}
+	
+	public static enum Shape {
+		FirstCap, AllCap, Lower, Mixed, NoLetter;
+	}
+
+	public static Shape getShape(String word) {
+		int num_lower = 0;
+		int num_letter = 0;
+		int num_upper = 0;
+		
+		for (int i=0; i<word.length(); i++) {
+			char c = word.charAt(i);
+			if (Character.isLetter(c)) {
+				num_letter ++;
+				if (Character.isLowerCase(c)) {
+					num_lower ++;
+				}
+				if (Character.isUpperCase(c)) {
+					num_upper ++;
+				}
+			}
+		}
+		
+		if (num_letter == 0) {
+			return Shape.NoLetter;
+		}
+		
+		if (num_lower == 0) {
+			return Shape.AllCap;
+		}
+		
+		boolean first_cap = Character.isUpperCase(word.charAt(0));
+		if (first_cap && num_upper == 1) {
+			return Shape.FirstCap;
+		}
+		
+		if (num_upper > 0) {
+			return Shape.Mixed;
+		}
+
+		return Shape.Lower;
+	}
+
+	public static String capitalize(String word) {
+		StringBuilder sb = new StringBuilder(word);
+		sb.setCharAt(0, Character.toUpperCase(sb.charAt(0)));
+		return sb.toString();
+	}
+
+	public static boolean containsLetter(String word) {
+		for (int i=0; i<word.length(); i++) {
+			char c = word.charAt(i);
+			if (Character.isLetter(c)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

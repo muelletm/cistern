@@ -6,6 +6,7 @@ package marmot.test.util;
 import static org.junit.Assert.*;
 import marmot.util.StringUtils;
 import marmot.util.StringUtils.Mode;
+import marmot.util.StringUtils.Shape;
 
 import org.junit.Test;
 
@@ -36,6 +37,23 @@ public class StringUtilsTest {
 	@Test
 	public void umlautTest() {
 		test("Äb1c-LRB-", Mode.umlaut, "aeb0c(");
+	}
+	
+	@Test
+	public void shapeTest() {
+		testShape("lower", Shape.Lower);
+		testShape("Upper", Shape.FirstCap);
+		testShape("1Upper", Shape.Mixed);
+		testShape("U1AA", Shape.AllCap);
+		testShape("123", Shape.NoLetter);
+		testShape("", Shape.NoLetter);
+		testShape("a", Shape.Lower);
+		testShape("A", Shape.AllCap);
+		testShape("!", Shape.NoLetter);
+	}
+
+	private void testShape(String string, Shape shape) {
+		assertEquals(shape, StringUtils.getShape(string));
 	}
 
 }

@@ -20,11 +20,13 @@ public class ZeroOrderViterbiLattice implements ViterbiLattice {
 
 	private int beam_size_;
 	private boolean initilized_;
+	private boolean marginalize_lemmas_;
 
-	public ZeroOrderViterbiLattice(List<List<State>> candidates, int beam_size) {
+	public ZeroOrderViterbiLattice(List<List<State>> candidates, int beam_size, boolean marginalize_lemmas) {
 		candidates_ = candidates;
 		beam_size_ = beam_size;
 		initilized_ = false;
+		marginalize_lemmas_ = marginalize_lemmas;
 	}
 
 	public void init() {
@@ -46,7 +48,7 @@ public class ZeroOrderViterbiLattice implements ViterbiLattice {
 
 				double score = state.getScore();
 
-				if (state.getLemmaCandidates() != null) {
+				if (state.getLemmaCandidates() != null && !marginalize_lemmas_) {
 					RankerCandidate candidate = RankerCandidate.bestCandidate(state.getLemmaCandidates());
 					score = candidate.getScore() + state.getRealScore();
 				}

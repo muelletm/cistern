@@ -29,8 +29,10 @@ public class JointTaggerLemmatizer {
 		options.setProperty(Options.PENALTY, "0.0");
 		
 		options.setProperty(MorphOptions.TAG_MORPH, "true");
-		options.setProperty(MorphOptions.LEMMATIZE, "true");
-		options.setProperty(MorphOptions.GOLD_LEMMA, "true");
+		options.setProperty(MorphOptions.LEMMATIZE, "false");
+		options.setProperty(MorphOptions.GOLD_LEMMA, "false");
+		options.setProperty(MorphOptions.LEMMA_PRETRAINING, "true");
+		options.setProperty(MorphOptions.MARGINALIZE_LEMMAS, "true");
 		options.setProperty(Options.NUM_ITERATIONS, "10");
 		
 		options.setProperty(MorphOptions.TRAIN_FILE,
@@ -40,7 +42,11 @@ public class JointTaggerLemmatizer {
 		
 		List<Sequence> train_sentences = getSentences(options.getTrainFile(), 100);
 		List<Sequence> test_sentences = getSentences(options.getTestFile(), -1);
-		//all : 9988 / 18939 = 52.7377%
+		
+		// all : 10219 / 18939 = 53,9574%
+		// all : 10218 / 18939 = 53,9522%
+		// all :  9988 / 18939 = 52.7377%
+		
 		PipelineTest.testWithOptions(options, train_sentences, test_sentences, 1., 1., 1., 1.);
 		//PipelineTest.testWithOptions(options, train_sentences, test_sentences, 99.56, 53.13, 100., 87.66);
 	}
