@@ -3,6 +3,9 @@ package marmot.segmenter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+
+import marmot.util.Numerics;
 
 public class Cemino {
 	
@@ -44,6 +47,12 @@ public class Cemino {
 		
 		this.gradient = new double[this.numTags * this.numSegs + this.numTags * this.numTags];
 		this.weights = new double[this.numTags * this.numSegs + this.numTags * this.numTags];
+		Random rand = new Random();
+		for (int w = 0; w < this.weights.length; ++w) {
+			this.weights[w] = rand.nextGaussian();
+		}
+		//this.weights[5] = 0.0;
+		//this.weights[1] =  Math.log(2.0);
 		int counter = 0;
 		
 		for (int i = 0; i < this.numTags; ++i) {
@@ -58,8 +67,9 @@ public class Cemino {
 				++counter;
 			}
 		}
-		
-		Segmenter segmenter = new Segmenter(this.maxLength,this.numTags, tagtag2int, tagseg2int);
+		System.out.println(tagseg2int[0][3]);
+
+		Segmenter segmenter = new Segmenter(this.maxLength,this.numTags, tagtag2int, tagseg2int, seg2int);
 		double likelihood = segmenter.logLikelihood(trainingData.get(0), weights);
 		
 		segmenter.expectedCounts(gradient,trainingData.get(0), weights);
@@ -68,7 +78,7 @@ public class Cemino {
 		// finite difference
 		double eps = 0.01;
 		double[] gradientTest = new double[this.gradient.length];
-		for (int i = 0; i < 8; ++i) {
+		for (int i = 0; i < this.gradient.length; ++i) {
 			this.weights[i] += eps;
 			double value1 = segmenter.logLikelihood(trainingData.get(0), weights);
 			this.weights[i] -= 2 * eps;
@@ -77,9 +87,10 @@ public class Cemino {
 			gradientTest[i] = (value1 - value2) / (2 * eps);
 		}
 		
-		
 		System.out.println(Arrays.toString(this.gradient));
 		System.out.println(Arrays.toString(gradientTest));
+		System.out.println(Numerics.approximatelyEqual(this.gradient, gradientTest, 0.001));
+		
 
 	}
 	
