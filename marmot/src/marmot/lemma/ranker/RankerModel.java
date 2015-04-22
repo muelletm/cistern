@@ -202,7 +202,7 @@ public class RankerModel implements Serializable {
 		
 		
 		String ignore_string = options.getIgnoreFeatures();
-		if (!ignore_string.isEmpty()) {
+		if (!ignore_string.isEmpty() && morph_table_ != null) {
 			ignores_indexes_ = new HashSet<>();
 			
 			logger.info(String.format("Ignore-string: %s (%s)", ignore_string, morph_table_));
