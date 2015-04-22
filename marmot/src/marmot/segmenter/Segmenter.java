@@ -3,7 +3,6 @@ package marmot.segmenter;
 import java.util.Arrays;
 import java.util.Map;
 
-import sun.tools.tree.ThisExpression;
 import marmot.util.Numerics;
 
 public class Segmenter {

@@ -15,6 +15,9 @@ int main(int argc, char** argv) {
   AspellConfig * spell_config = new_aspell_config();
   aspell_config_replace(spell_config, "lang", argv[1]);
   aspell_config_replace(spell_config, "encoding", argv[2]);
+  aspell_config_replace(spell_config, "ignore", "0");
+  aspell_config_replace(spell_config, "ignore-case", "false");
+  aspell_config_replace(spell_config, "ignore-accents", "false");
 
   AspellCanHaveError * possible_err = new_aspell_speller(spell_config);
   

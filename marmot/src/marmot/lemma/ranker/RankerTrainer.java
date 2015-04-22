@@ -90,7 +90,7 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
 		public String getAspellLang() {
 			return (String) getOption(ASPELL_LANG);
 		}
-		
+
 	} 
 	
 	private RerankerTrainerOptions options_;

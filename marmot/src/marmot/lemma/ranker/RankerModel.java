@@ -21,7 +21,6 @@ import marmot.util.Converter;
 import marmot.util.Encoder;
 import marmot.util.HashLexicon;
 import marmot.util.Lexicon;
-import marmot.util.LineIterator;
 import marmot.util.StringUtils.Mode;
 import marmot.util.SymbolTable;
 import marmot.util.edit.EditTree;
@@ -55,14 +54,14 @@ public class RankerModel implements Serializable {
 			.bitsNeeded(HashLexicon.ARRAY_LENGTH - 1);
 	private static final long max_weights_length_ = 10_000_000;
 	private static final int encoder_capacity_ = 8;
-
+	
 	private int lemma_bits_;
 	private int form_bits_;
 	private int char_bits_;
 	private int tree_bits_;
 	private List<Lexicon> unigram_lexicons_;
 	private int unigram_lexicons_bits_;
-	
+
 	// private RerankerTrainerOptions options_;
 	private SymbolTable<String> morph_table_;
 
@@ -78,6 +77,7 @@ public class RankerModel implements Serializable {
 	private static class Context {
 		public List<Integer> list;
 		public boolean insert;
+		// public Shape shape;
 
 		public Context() {
 			list = new ArrayList<>();
@@ -148,18 +148,20 @@ public class RankerModel implements Serializable {
 		logger.info(String.format("Candidates per token: %g", num_candidates
 				/ (double) instances.size()));
 
-		List<Object> unigram_files = options.getUnigramFile(); 
+		List<Object> unigram_files = options.getUnigramFile();
 		unigram_lexicons_ = new LinkedList<>();
 		for (Object unigram_file : unigram_files)
 			prepareUnigramFeature((String) unigram_file);
-		
+
 		String aspell_path = options.getAspellPath();
 		if (!aspell_path.isEmpty()) {
 			String aspell_lang = options.getAspellLang();
-			logger.info(String.format("Adding aspell dictionary: %s", aspell_lang));
-			unigram_lexicons_.add(new AspellLexicon(Mode.lower, aspell_path, aspell_lang));
+			logger.info(String.format("Adding aspell dictionary: %s",
+					aspell_lang));
+			unigram_lexicons_.add(new AspellLexicon(Mode.lower, aspell_path,
+					aspell_lang));
 		}
-		
+
 		unigram_lexicons_bits_ = Encoder.bitsNeeded(unigram_lexicons_.size());
 		use_shape_lexicon_ = options.getUseShapeLexicon();
 
@@ -229,51 +231,12 @@ public class RankerModel implements Serializable {
 				.format("Creating unigram lexicon from file: %s and with min-count %d.",
 						filename, min_count));
 
-		LineIterator iterator = new LineIterator(filename);
-
-		HashLexicon unigram_lexicon = new HashLexicon(Mode.lower);
-
-		while (iterator.hasNext()) {
-
-			List<String> line = iterator.next();
-
-			if (line.isEmpty())
-				continue;
-
-			checkUnigramLine(line.size() == 1 || line.size() == 2,
-					unigram_file, line);
-
-			String word = line.get(0);
-
-			int count = 1;
-
-			if (line.size() > 1) {
-				try {
-					String count_string = line.get(1);
-					count = Integer.valueOf(count_string);
-				} catch (NumberFormatException e) {
-					checkUnigramLine(false, unigram_file, line);
-				}
-			}
-
-			if (count >= min_count)
-				unigram_lexicon.addEntry(word, count);
-		}
+		HashLexicon lexicon = HashLexicon.readFromFile(filename, min_count);
 
 		logger.info(String.format("Created unigram lexicon with %7d entries.",
-				unigram_lexicon.size()));
-		
-		unigram_lexicons_.add(unigram_lexicon);
-	}
+				lexicon.size()));
 
-	private void checkUnigramLine(boolean condition, String unigram_file,
-			List<String> line) {
-		if (!condition) {
-			throw new RuntimeException(
-					String.format(
-							"Line in file %s should be of format <WORD> <COUNT>, but is \"%s\"",
-							unigram_file, line));
-		}
+		unigram_lexicons_.add(lexicon);
 	}
 
 	private void fillTables(RankerInstance instance, LemmaCandidateSet set) {
@@ -311,6 +274,7 @@ public class RankerModel implements Serializable {
 		int form_index = form_table_.toIndex(form, -1);
 
 		context_.insert = insert;
+		//context_.shape = instance.getInstance().getShape();
 
 		int[] form_chars = instance.getFormChars(char_table_, false);
 
@@ -368,14 +332,15 @@ public class RankerModel implements Serializable {
 			int lexicon_index = 0;
 			for (Lexicon lexicon : unigram_lexicons_) {
 				addUnigramFeature(lexicon_index, lexicon, lemma);
-				lemma_index ++;
+				lemma_index++;
 			}
 
 			candidate.setFeatureIndexes(Converter.toIntArray(context_.list));
 		}
 	}
 
-	private void addUnigramFeature(int lexicon_index, Lexicon unigram_lexicon, String lemma) {
+	private void addUnigramFeature(int lexicon_index, Lexicon unigram_lexicon,
+			String lemma) {
 		int[] counts = unigram_lexicon.getCount(lemma);
 		if (counts == null)
 			return;
@@ -389,7 +354,7 @@ public class RankerModel implements Serializable {
 					encoder_.append(i, unigram_count_position_bits_);
 					addFeature();
 				}
-			}		
+			}
 		} else {
 			int count = counts[HashLexicon.ARRAY_LENGTH - 1];
 			if (count > 0) {
@@ -398,7 +363,7 @@ public class RankerModel implements Serializable {
 				addFeature();
 			}
 		}
-		
+
 	}
 
 	private void addPrefixFeatures(Context context, int[] chars, Encoder encoder) {
@@ -551,6 +516,18 @@ public class RankerModel implements Serializable {
 		if (index >= 0) {
 			context_.list.add(index);
 		}
+
+//		if (use_shape_) {
+//			Shape shape = context_.shape;
+//			encoder_.storeState();
+//			encoder_.append(shape.ordinal(), shape_bits_);
+//			index = getFeatureIndex();
+//			if (index >= 0) {
+//				context_.list.add(index);
+//			}
+//			encoder_.restoreState();
+//		}
+
 		if (reset)
 			encoder_.reset();
 	}

@@ -8,10 +8,11 @@ import java.io.ObjectInputStream;
 import java.io.OutputStreamWriter;
 import java.util.HashMap;
 import java.util.Map;
-
 import java.lang.Runtime;
 
 public class Aspell {
+	
+	public final static String ASPELL_PATH = "/mounts/Users/cisintern/muellets/cistern/marmot/cmd/marmot_aspell";
 
 	private transient Process process_;
 	private transient BufferedReader out_;

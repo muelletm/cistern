@@ -16,11 +16,11 @@ import marmot.util.Mutable;
 
 public class Instance {
 
-	double count_;
-	String form_;
-	String lemma_;
-	String ptag_;
-	String mtag_;
+	private double count_;
+	private String form_;
+	private String lemma_;
+	private String ptag_;
+	private String mtag_;
 	
 	@Override
 	public String toString() {
