@@ -100,6 +100,7 @@ public class Segmenter {
 		
 		int [][]segment2Id = word.getSegment2Id();
 		
+		// BOTH TRANSITION AND EMISSION SCORES aren't necessary
 		double transitionScore = 0.0;
 		double transitionScore2 = 0.0;
 		double emissionScore = 0.0;
@@ -113,11 +114,11 @@ public class Segmenter {
 		//System.exit(0);
 		double Z = betas[0][0];
 		// 	MIDDLE
+		// O(q^2 * n * m)
 		for (int i = 0; i < word.getLength() + 1; ++i) {
 			for (int j = i + 1; j < word.getLength() + 2; ++j) {
 				for (int q1 = 0; q1 < this.numTags; ++q1) {
 					for (int q2 = 0; q2 < this.numTags; ++q2) {
-						
 						transitionScore = weights[tagtag2int[q2][q1]];
 						transitionScore2 = weights[tagtag2int[q1][q2]];
 						emissionScore = weights[tagseg2int[q1][segment2Id[i+1][j+1]]];	
@@ -125,7 +126,6 @@ public class Segmenter {
 						
 						alphas[j][q1] = Numerics.sumLogProb(alphas[j][q1], alphas[i][q2] + transitionScore + emissionScore);
 						if (j == i + 1) {
-
 							this.alphasTrans[j][q1] = Numerics.sumLogProb(alphasTrans[j][q1], alphas[i][q2] + transitionScore);			
 							marginalTransitionProbability = Math.exp(alphas[i][q2] + betas[j][q1] + transitionScore - Z);
 							gradient[tagtag2int[q2][q1]] += marginalTransitionProbability;

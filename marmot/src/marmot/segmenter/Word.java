@@ -32,6 +32,11 @@ public class Word {
 		for (int i = 0; i < this.paddedWord.length(); ++i) {
 			for (int j = i + 1; j < this.paddedWord.length(); ++j) {
 				String segment = paddedWord.substring(i,j);
+				
+				if (segment.contains("#")) {
+					continue;
+				}
+				
 				if (!seg2int.containsKey(segment)) {
 					seg2int.put(segment,seg2int.size());
 					seg2count.put(segment,0);
