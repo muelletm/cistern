@@ -21,18 +21,24 @@ public class EditTreeGeneratorTrainer implements LemmaCandidateGeneratorTrainer 
 
 	private double min_count_;
 	private EditTreeGeneratorTrainerOptions options_;
-	
+
 	public static class EditTreeGeneratorTrainerOptions extends Options {
-		
+
 		private static final long serialVersionUID = 1L;
-		private static final String MIN_COUNT = "min-count";
+		public static final String MIN_COUNT = "min-count";
+		public static final String NUM_STEPS = "num-steps";
 
 		public EditTreeGeneratorTrainerOptions() {
 			map_.put(MIN_COUNT, 1);
+			map_.put(NUM_STEPS, 1);
 		}
-		
+
+		public int getNumSteps() {
+			return (Integer) getOption(NUM_STEPS);
+		}
+
 	}
-	
+
 	public EditTreeGeneratorTrainer() {
 		options_ = new EditTreeGeneratorTrainerOptions();
 	}
@@ -40,29 +46,30 @@ public class EditTreeGeneratorTrainer implements LemmaCandidateGeneratorTrainer 
 	@Override
 	public LemmaCandidateGenerator train(List<Instance> instances,
 			List<Instance> dev_instances) {
-		
-		EditTreeBuilder builder = new EditTreeBuilderTrainer(options_.getRandom()).train(instances);
-		
+
+		EditTreeBuilder builder = new EditTreeBuilderTrainer(
+				options_.getRandom(), options_.getNumSteps()).train(instances);
+
 		Counter<EditTree> counter = new Counter<>();
-		
+
 		for (Instance instance : instances) {
 			String form = instance.getForm();
 			String lemma = instance.getLemma();
 			EditTree tree = builder.build(form, lemma);
 			counter.increment(tree, 1.0);
 		}
-		
+
 		List<EditTree> trees = new LinkedList<>();
-		
+
 		for (Map.Entry<EditTree, Double> entry : counter.entrySet()) {
 			double count = entry.getValue();
-			
+
 			if (Numerics.approximatelyGreaterEqual(count, min_count_)) {
 				EditTree tree = entry.getKey();
 				trees.add(tree);
 			}
 		}
-		
+
 		return new EditTreeGenerator(trees);
 	}
 
@@ -70,6 +77,5 @@ public class EditTreeGeneratorTrainer implements LemmaCandidateGeneratorTrainer 
 	public Options getOptions() {
 		return options_;
 	}
-
 
 }

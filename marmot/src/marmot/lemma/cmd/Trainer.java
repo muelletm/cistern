@@ -28,23 +28,21 @@ public class Trainer {
 		String options_string = args[1];
 		String output_file = args[2];
 		String train_file = args[3];
-		String test_file = args[4];
-		String pred_file = args[5];
-		String test_file2 = args[6];
-		String pred_file2 = args[7];
 		
 		Lemmatizer lemmatizer = train(model_type, options_string, train_file);
 		
-		test(lemmatizer, test_file);
-		annotate(lemmatizer, test_file, pred_file);
-				
-		test(lemmatizer, test_file2);
-		annotate(lemmatizer, test_file2, pred_file2);
+		for (int i=4; i < args.length; i += 2) {
+			String test_file = args[i];
+			String pred_file = args[i + 1];
+			
+			test(lemmatizer, test_file);
+			annotate(lemmatizer, test_file, pred_file);	
+		}
 		
 		FileUtils.saveToFile(lemmatizer, output_file);
 	}
 	
-	private static void annotate(Lemmatizer lemmatizer, String test_file, String pred_file) {
+	static void annotate(Lemmatizer lemmatizer, String test_file, String pred_file) {
 		
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(pred_file));

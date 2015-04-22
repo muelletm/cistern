@@ -12,13 +12,13 @@ import marmot.morph.io.SentenceReader;
 
 public class Result {
 
-	private int total_;
+	private int num_tokens_;
 	private List<Error> errors_;
-	private int total_types_;
+	private int num_oov_tokens_;
 
-	public Result(int num_tokens, int num_types, List<Error> errors) {
-		total_ = num_tokens;
-		total_types_ = num_types;
+	public Result(int num_tokens, int num_oov_tokens, List<Error> errors) {
+		num_tokens_ = num_tokens;
+		num_oov_tokens_ = num_oov_tokens;
 		errors_ = errors;
 	}
 
@@ -29,20 +29,27 @@ public class Result {
 	public static Result test(Lemmatizer lemmatizer,
 			Collection<Instance> instances) {
 		int total = 0;
+		
+		int num_oovs = 0;
+		
 
 		List<Error> errors = new LinkedList<>();
 
 		for (Instance instance : instances) {
 			String predicted_lemma = lemmatizer.lemmatize(instance);
+			
+			if (lemmatizer.isOOV(instance)) {
+				num_oovs += instance.getCount();
+			}
 
 			if (predicted_lemma == null
 					|| !predicted_lemma.equals(instance.getLemma())) {
-				errors.add(new Error(instance, predicted_lemma));
+				errors.add(new Error(instance, predicted_lemma, lemmatizer.isOOV(instance)));
 			}
 			total += instance.getCount();
 		}
 
-		return new Result(total, instances.size(), errors);
+		return new Result(total, num_oovs, errors);
 	}
 
 	public static void logTest(Lemmatizer lemmatizer, String file, int limit) {
@@ -52,18 +59,29 @@ public class Result {
 		result.logErrors(limit);
 	}
 
+	private String format(int correct, int total) {
+		double acc = correct * 100. / total;
+		return String.format("%6d / %6d = %g", correct, total, acc);
+	}
+	
 	public void logAccuracy() {
-
-		int correct = total_;
+		int errors = 0;
+		int oov_errors = 0;
+				
 		for (Error error : errors_) {
-			correct -= error.getInstance().getCount();
+			errors += error.getInstance().getCount();
+						
+			if (error.isOOV()) {
+				oov_errors += error.getInstance().getCount();
+			}
+			
 		}
-		int correct_types = total_types_ - errors_.size();
-
+		
+		int correct = num_tokens_ - errors;
+		int oov_correct = num_oov_tokens_ - oov_errors;
+		
 		Logger.getLogger(getClass().getName()).info(
-				String.format("%6d / %6d = %g (Type: %5d / %5d = %g)", correct,
-						total_, correct * 100. / total_, correct_types,
-						total_types_, correct_types * 100. / total_types_));
+			String.format("%s (OOV: %s)", format(correct, num_tokens_), format(oov_correct, num_oov_tokens_)));
 	}
 
 	public void logErrors(int limit) {
@@ -86,37 +104,42 @@ public class Result {
 	}
 
 	public double getTokenAccuracy() {
-		int correct = total_;
+		int correct = num_tokens_;
 		for (Error error : errors_) {
 			correct -= error.getInstance().getCount();
 		}
-		return correct * 100. / total_;
+		return correct * 100. / num_tokens_;
 	}
 
-	public static Result testGenerator(LemmaCandidateGenerator generator,
+	public static Result testGenerator(LemmatizerGenerator generator,
 			String filename) {
 		return testGenerator(generator, Instance.getInstances(filename));
 	}
 	
-	public static Result testGenerator(LemmaCandidateGenerator generator, List<Instance> instances) {
+	public static Result testGenerator(LemmatizerGenerator generator, List<Instance> instances) {
 		
 		int total = 0;
+		int oov_total = 0;
 
 		List<Error> errors = new LinkedList<>();
 
 		for (Instance instance : instances) {
+			
+			if (generator.isOOV(instance)) {
+				oov_total += instance.getCount();
+			}			
 			
 			LemmaCandidateSet set = new LemmaCandidateSet(instance.getForm());
 			
 			generator.addCandidates(instance, set);
 
 			if (!set.contains(instance.getLemma())) {
-				errors.add(new Error(instance, null));
+				errors.add(new Error(instance, null, generator.isOOV(instance)));
 			}
 			total += instance.getCount();
 		}
 
-		return new Result(total, instances.size(), errors);
+		return new Result(total, oov_total, errors);
 		
 	}
 

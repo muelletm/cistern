@@ -10,4 +10,9 @@ public class LemmatizerWFST extends LemmatizerTransducer {
 		return null;
 	}
 
+	@Override
+	public boolean isOOV(Instance instance) {
+		throw new UnsupportedOperationException();
+	}
+	
 }

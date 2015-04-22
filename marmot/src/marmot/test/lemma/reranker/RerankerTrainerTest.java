@@ -14,7 +14,6 @@ import marmot.lemma.ranker.RankerTrainer;
 import marmot.lemma.ranker.RankerTrainer.RerankerTrainerOptions;
 import marmot.test.lemma.toutanova.SimpleTrainerTest;
 import marmot.test.morph.PipelineTest;
-import marmot.util.Aspell;
 
 import org.junit.Test;
 
@@ -35,10 +34,17 @@ public class RerankerTrainerTest extends SimpleTrainerTest {
 		trainer.getOptions().setOption(RerankerTrainerOptions.UNIGRAM_FILE, Arrays.asList("min-count=1,/mounts/data/proj/marmot/lemmatizer/data/de/aspell.txt", "min-count=5,/mounts/data/proj/marmot/lemmatizer/data/de/unigrams.txt"));
 		//trainer.getOptions().setOption(RerankerTrainerOptions.UNIGRAM_FILE, Arrays.asList("min-count=1,/mounts/data/proj/marmot/lemmatizer/data/de/aspell.txt"));
 		trainer.getOptions().setOption(RerankerTrainerOptions.USE_SHAPE_LEXICON, true);
+		trainer.getOptions().setOption(RerankerTrainerOptions.NUM_EDIT_TREE_STEPS, 0);
 		
 //		trainer.getOptions().setOption(RerankerTrainerOptions.UNIGRAM_FILE, Arrays.asList("min-count=5,/mounts/data/proj/marmot/lemmatizer/data/de/unigrams.txt"));
 //		trainer.getOptions().setOption(RerankerTrainerOptions.ASPELL_PATH, Aspell.ASPELL_PATH);
 //		trainer.getOptions().setOption(RerankerTrainerOptions.ASPELL_LANG, "de");
+		
+//		INFORMATION:   9501 /   9504 = 99,9684 (OOV:      0 /      0 = NaN)
+//				Apr 22, 2015 3:39:51 PM marmot.lemma.Result logAccuracy
+//				INFORMATION:  74304 /  76704 = 96,8711 (OOV:  24266 /  26505 = 91,5525)
+//				Apr 22, 2015 3:40:02 PM marmot.lemma.Result logAccuracy
+//				INFORMATION:  73640 /  76704 = 96,0054 (OOV:  23714 /  26505 = 89,4699)
 		
 		trainer.getOptions().setOption(Options.USE_MORPH, false);
 		

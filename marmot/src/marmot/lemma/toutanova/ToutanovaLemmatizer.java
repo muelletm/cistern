@@ -63,4 +63,9 @@ public class ToutanovaLemmatizer implements Lemmatizer, LemmatizerGenerator {
 		}
 	}
 
+	@Override
+	public boolean isOOV(Instance instance) {
+		return model_.isOOV(instance);
+	}
+
 }

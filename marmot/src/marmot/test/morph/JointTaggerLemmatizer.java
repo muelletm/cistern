@@ -29,10 +29,11 @@ public class JointTaggerLemmatizer {
 		options.setProperty(Options.PENALTY, "0.0");
 		
 		options.setProperty(MorphOptions.TAG_MORPH, "true");
-		options.setProperty(MorphOptions.LEMMATIZE, "false");
+		options.setProperty(MorphOptions.LEMMATIZE, "true");
 		options.setProperty(MorphOptions.GOLD_LEMMA, "false");
 		options.setProperty(MorphOptions.LEMMA_PRETRAINING, "true");
-		options.setProperty(MorphOptions.MARGINALIZE_LEMMAS, "true");
+		options.setProperty(MorphOptions.MARGINALIZE_LEMMAS, "false");
+		options.setProperty(MorphOptions.LEMMAS_IGNORE_FEATURES, "case=*|case=nom|case=acc|case=dat|case=gen");
 		options.setProperty(Options.NUM_ITERATIONS, "10");
 		
 		options.setProperty(MorphOptions.TRAIN_FILE,
@@ -43,9 +44,19 @@ public class JointTaggerLemmatizer {
 		List<Sequence> train_sentences = getSentences(options.getTrainFile(), 100);
 		List<Sequence> test_sentences = getSentences(options.getTestFile(), -1);
 		
-		// all : 10219 / 18939 = 53,9574%
-		// all : 10218 / 18939 = 53,9522%
-		// all :  9988 / 18939 = 52.7377%
+//		pos: 14569 / 18939 = 76,9259%
+//		morph: 11101 / 18939 = 58,6145%
+//		all : 9988 / 18939 = 52,7377%
+		
+//		pos: 15063 / 18939 = 79,5343%
+//		morph: 11172 / 18939 = 58,9894%
+//		all : 10304 / 18939 = 54,4063%
+//		lemma : 16691 / 18939 = 88,1303%
+		
+//		pos: 14980 / 18939 = 79,0960%
+//		morph: 11411 / 18939 = 60,2513%
+//		all : 10476 / 18939 = 55,3144%
+//		lemma : 16561 / 18939 = 87,4439%	
 		
 		PipelineTest.testWithOptions(options, train_sentences, test_sentences, 1., 1., 1., 1.);
 		//PipelineTest.testWithOptions(options, train_sentences, test_sentences, 99.56, 53.13, 100., 87.66);

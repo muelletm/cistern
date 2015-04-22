@@ -30,4 +30,9 @@ public class BackupLemmatizer implements Lemmatizer, LemmatizerGenerator {
 		backup_.addCandidates(instance, set);
 	}
 
+	@Override
+	public boolean isOOV(Instance instance) {
+		return lemmatizer_.isOOV(instance) && backup_.isOOV(instance);
+	}
+
 }

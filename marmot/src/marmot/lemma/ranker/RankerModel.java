@@ -5,13 +5,16 @@ package marmot.lemma.ranker;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import marmot.core.Feature;
+import marmot.lemma.Instance;
 import marmot.lemma.LemmaCandidate;
 import marmot.lemma.LemmaCandidateSet;
 import marmot.lemma.ranker.RankerTrainer.RerankerTrainerOptions;
@@ -54,6 +57,8 @@ public class RankerModel implements Serializable {
 			.bitsNeeded(HashLexicon.ARRAY_LENGTH - 1);
 	private static final long max_weights_length_ = 10_000_000;
 	private static final int encoder_capacity_ = 8;
+
+	private Set<Integer> ignores_indexes_;
 	
 	private int lemma_bits_;
 	private int form_bits_;
@@ -62,7 +67,6 @@ public class RankerModel implements Serializable {
 	private List<Lexicon> unigram_lexicons_;
 	private int unigram_lexicons_bits_;
 
-	// private RerankerTrainerOptions options_;
 	private SymbolTable<String> morph_table_;
 
 	private transient Feature feature_;
@@ -73,10 +77,14 @@ public class RankerModel implements Serializable {
 	private long pos_length_;
 	private long feat_length_;
 	private boolean use_shape_lexicon_;
+	private boolean use_core_features_;
+	private boolean use_alignment_features_;
+	
 
 	private static class Context {
 		public List<Integer> list;
 		public boolean insert;
+
 		// public Shape shape;
 
 		public Context() {
@@ -140,7 +148,7 @@ public class RankerModel implements Serializable {
 			logger.info(String.format("Morph features: %s",
 					morph_table_.keySet()));
 		}
-
+		
 		int num_candidates = 0;
 		for (RankerInstance instance : instances) {
 			num_candidates += instance.getCandidateSet().size();
@@ -164,6 +172,8 @@ public class RankerModel implements Serializable {
 
 		unigram_lexicons_bits_ = Encoder.bitsNeeded(unigram_lexicons_.size());
 		use_shape_lexicon_ = options.getUseShapeLexicon();
+		use_core_features_ = options.getUseCoreFeatures();
+		use_alignment_features_ = options.getUseAlignmentFeatures();
 
 		feature_table_ = new SymbolTable<>();
 
@@ -189,6 +199,20 @@ public class RankerModel implements Serializable {
 		logger.info(String.format("Weights length: %6d", weights_.length));
 
 		logger.info(String.format("Real encoder capacity: %2d", real_capacity_));
+		
+		
+		String ignore_string = options.getIgnoreFeatures();
+		if (!ignore_string.isEmpty()) {
+			ignores_indexes_ = new HashSet<>();
+			
+			logger.info(String.format("Ignore-string: %s (%s)", ignore_string, morph_table_));
+			
+			for (String feat : ignore_string.split("\\|")) {
+				int index = morph_table_.toIndex(feat, -1);
+				ignores_indexes_.add(index);
+				logger.info(String.format("Ignore-string: %s (%d)", feat, index));
+			}
+		}		
 	}
 
 	private void prepareUnigramFeature(String unigram_file) {
@@ -252,8 +276,11 @@ public class RankerModel implements Serializable {
 			String lemma = candidate_pair.getKey();
 			LemmaCandidate candidate = candidate_pair.getValue();
 
-			candidate.getLemmaChars(char_table_, lemma, true);
-			candidate.getAlignment(aligner_, form, lemma);
+			if (use_alignment_features_) {
+				candidate.getLemmaChars(char_table_, lemma, true);
+				candidate.getAlignment(aligner_, form, lemma);
+			}
+			
 			candidate.getTreeIndex(aligner_.getBuilder(), form, lemma,
 					tree_table_, true);
 
@@ -274,7 +301,7 @@ public class RankerModel implements Serializable {
 		int form_index = form_table_.toIndex(form, -1);
 
 		context_.insert = insert;
-		//context_.shape = instance.getInstance().getShape();
+		// context_.shape = instance.getInstance().getShape();
 
 		int[] form_chars = instance.getFormChars(char_table_, false);
 
@@ -286,48 +313,53 @@ public class RankerModel implements Serializable {
 
 			LemmaCandidate candidate = candidate_pair.getValue();
 
-			int[] lemma_chars = candidate.getLemmaChars(char_table_, lemma,
-					false);
+			if (use_core_features_) {
 
-			if (lemma_index >= 0) {
-				encoder_.append(lemma_feature_, feature_bits_);
-				encoder_.append(lemma_index, lemma_bits_);
-				addFeature();
+				if (lemma_index >= 0) {
+					encoder_.append(lemma_feature_, feature_bits_);
+					encoder_.append(lemma_index, lemma_bits_);
+					addFeature();
+				}
+
+				if (lemma_index >= 0 && form_index >= 0) {
+					encoder_.append(lemma_form_feature_, feature_bits_);
+					encoder_.append(lemma_index, lemma_bits_);
+					encoder_.append(form_index, form_bits_);
+					addFeature();
+				}
+
+				int tree_index = candidate.getTreeIndex(aligner_.getBuilder(),
+						form, lemma, tree_table_, false);
+
+				if (tree_index >= 0) {
+					encoder_.append(tree_feature_, feature_bits_);
+					encoder_.append(tree_index, tree_bits_);
+					addFeature();
+
+					encoder_.append(tree_feature_, feature_bits_);
+					encoder_.append(tree_index, tree_bits_);
+					addPrefixFeatures(context_, form_chars, encoder_);
+					encoder_.reset();
+
+					encoder_.append(tree_feature_, feature_bits_);
+					encoder_.append(tree_index, tree_bits_);
+					addSuffixFeatures(context_, form_chars, encoder_);
+					encoder_.reset();
+				}
+
 			}
 
-			if (lemma_index >= 0 && form_index >= 0) {
-				encoder_.append(lemma_form_feature_, feature_bits_);
-				encoder_.append(lemma_index, lemma_bits_);
-				encoder_.append(form_index, form_bits_);
-				addFeature();
+			if (use_alignment_features_) {
+				int[] lemma_chars = candidate.getLemmaChars(char_table_, lemma, false);
+				
+				List<Integer> alignment = candidate.getAlignment(aligner_,
+						form, lemma);
+
+				addAlignmentIndexes(context_, form_chars, lemma_chars,
+						alignment, encoder_);
+
+				addAffixIndexes(context_, lemma_chars, encoder_);
 			}
-
-			List<Integer> alignment = candidate.getAlignment(aligner_, form,
-					lemma);
-
-			addAlignmentIndexes(context_, form_chars, lemma_chars, alignment,
-					encoder_);
-
-			int tree_index = candidate.getTreeIndex(aligner_.getBuilder(),
-					form, lemma, tree_table_, false);
-
-			if (tree_index >= 0) {
-				encoder_.append(tree_feature_, feature_bits_);
-				encoder_.append(tree_index, tree_bits_);
-				addFeature();
-
-				encoder_.append(tree_feature_, feature_bits_);
-				encoder_.append(tree_index, tree_bits_);
-				addPrefixFeatures(context_, form_chars, encoder_);
-				encoder_.reset();
-
-				encoder_.append(tree_feature_, feature_bits_);
-				encoder_.append(tree_index, tree_bits_);
-				addSuffixFeatures(context_, form_chars, encoder_);
-				encoder_.reset();
-			}
-
-			addAffixIndexes(context_, lemma_chars, encoder_);
 
 			int lexicon_index = 0;
 			for (Lexicon lexicon : unigram_lexicons_) {
@@ -517,16 +549,16 @@ public class RankerModel implements Serializable {
 			context_.list.add(index);
 		}
 
-//		if (use_shape_) {
-//			Shape shape = context_.shape;
-//			encoder_.storeState();
-//			encoder_.append(shape.ordinal(), shape_bits_);
-//			index = getFeatureIndex();
-//			if (index >= 0) {
-//				context_.list.add(index);
-//			}
-//			encoder_.restoreState();
-//		}
+		// if (use_shape_) {
+		// Shape shape = context_.shape;
+		// encoder_.storeState();
+		// encoder_.append(shape.ordinal(), shape_bits_);
+		// index = getFeatureIndex();
+		// if (index >= 0) {
+		// context_.list.add(index);
+		// }
+		// encoder_.restoreState();
+		// }
 
 		if (reset)
 			encoder_.reset();
@@ -590,6 +622,13 @@ public class RankerModel implements Serializable {
 			score += updateScore(p_index, update);
 
 			for (long morph_index : morph_indexes) {
+				
+				if (ignores_indexes_ != null) {
+					if (ignores_indexes_.contains((int) morph_index)) {
+						continue;
+					}					
+				}				
+				
 				long m_index = p_index + (morph_index + 1L) * feat_length_
 						* pos_length_;
 				score += updateScore(m_index, update);
@@ -619,6 +658,10 @@ public class RankerModel implements Serializable {
 
 	public SymbolTable<String> getMorphTable() {
 		return morph_table_;
+	}
+
+	public boolean isOOV(Instance instance) {
+		return form_table_.toIndex(instance.getForm(), -1) == -1;
 	}
 
 }

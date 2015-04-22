@@ -6,12 +6,14 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.OutputStreamWriter;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.lang.Runtime;
 
-public class Aspell {
+public class Aspell implements Serializable {
 	
+	private static final long serialVersionUID = 1L;
 	public final static String ASPELL_PATH = "/mounts/Users/cisintern/muellets/cistern/marmot/cmd/marmot_aspell";
 
 	private transient Process process_;

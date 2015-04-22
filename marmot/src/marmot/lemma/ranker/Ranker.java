@@ -37,4 +37,9 @@ public class Ranker implements LemmatizerGenerator {
 		}
 	}
 
+	@Override
+	public boolean isOOV(Instance instance) {
+		return model_.isOOV(instance);
+	}
+
 }

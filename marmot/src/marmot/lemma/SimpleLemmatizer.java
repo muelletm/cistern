@@ -92,4 +92,9 @@ public class SimpleLemmatizer implements LemmatizerGenerator {
 		
 	}
 
+	@Override
+	public boolean isOOV(Instance instance) {
+		return map_.get(toSimpleKey(instance)) == null;
+	}
+
 }

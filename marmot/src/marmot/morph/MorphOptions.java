@@ -44,6 +44,7 @@ public class MorphOptions extends Options {
 	
 	private static final Map<String, String> DEFALUT_VALUES_ = new HashMap<String, String>();
 	private static final Map<String, String> COMMENTS_ = new HashMap<String, String>();
+	public static final String LEMMAS_IGNORE_FEATURES = "lemma-ignore-features";
 
 	static {
 		DEFALUT_VALUES_.put(TRAIN_FILE, "");
@@ -104,6 +105,8 @@ public class MorphOptions extends Options {
 		COMMENTS_.put(LEMMA_PRETRAINING, "Pretrain tagger without lemma features.");
 		DEFALUT_VALUES_.put(MARGINALIZE_LEMMAS, "false");
 		COMMENTS_.put(MARGINALIZE_LEMMAS, "Marginalize over lemmas during viterbi decoding.");
+		DEFALUT_VALUES_.put(LEMMAS_IGNORE_FEATURES, "");
+		COMMENTS_.put(LEMMAS_IGNORE_FEATURES, "Features to ignore in the lemma model.");
 	}
 
 	public MorphOptions() {
@@ -238,6 +241,10 @@ public class MorphOptions extends Options {
 
 	public boolean getMarginalizeLemmas() {
 		return Boolean.valueOf(getProperty(MARGINALIZE_LEMMAS));
+	}
+
+	public String getLemmaIgnoreFeatures() {
+		return getProperty(LEMMAS_IGNORE_FEATURES);
 	}
 
 }

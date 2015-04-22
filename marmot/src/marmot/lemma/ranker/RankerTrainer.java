@@ -18,6 +18,7 @@ import marmot.lemma.LemmatizerGeneratorTrainer;
 import marmot.lemma.Options;
 import marmot.lemma.SimpleLemmatizerTrainer;
 import marmot.lemma.edit.EditTreeGeneratorTrainer;
+import marmot.lemma.edit.EditTreeGeneratorTrainer.EditTreeGeneratorTrainerOptions;
 import marmot.lemma.toutanova.EditTreeAligner;
 import marmot.lemma.toutanova.EditTreeAlignerTrainer;
 import marmot.util.Runtime;
@@ -32,13 +33,18 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
 	public static class RerankerTrainerOptions extends Options {
 		
 		private static final long serialVersionUID = 1L;
+		
 		public static final String GENERATOR_TRAINERS = "generator-trainers";
 		public static final String USE_PERCEPTRON = "use-perceptron";
-		public static String QUADRATIC_PENALTY = "quadratic-penalty";
-		public static String UNIGRAM_FILE = "unigram-file";
-		public static String USE_SHAPE_LEXICON = "use-shape-lexicon";
-		public static String ASPELL_LANG = "aspell-lang";
-		public static String ASPELL_PATH = "aspell-path";
+		public static final String QUADRATIC_PENALTY = "quadratic-penalty";
+		public static final String UNIGRAM_FILE = "unigram-file";
+		public static final String USE_SHAPE_LEXICON = "use-shape-lexicon";
+		public static final String ASPELL_LANG = "aspell-lang";
+		public static final String ASPELL_PATH = "aspell-path";
+		public static final String USE_CORE_FEATURES = "use-core-features";
+		public static final String USE_ALIGNMENT_FEATURES = "use-alignment-features";
+		public static final String IGNORE_FEATURES = "ignore-features";
+		public static final String NUM_EDIT_TREE_STEPS = "num-edit-tree-steps";
 
 		public RerankerTrainerOptions() {
 			map_.put(GENERATOR_TRAINERS, Arrays.asList(SimpleLemmatizerTrainer.class, EditTreeGeneratorTrainer.class));
@@ -48,6 +54,10 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
 			map_.put(USE_SHAPE_LEXICON, false);
 			map_.put(ASPELL_LANG, "");
 			map_.put(ASPELL_PATH, "");
+			map_.put(USE_CORE_FEATURES, true);
+			map_.put(USE_ALIGNMENT_FEATURES, true);
+			map_.put(IGNORE_FEATURES, "");
+			map_.put(NUM_EDIT_TREE_STEPS, 1);
 		}
 		
 		@SuppressWarnings("unchecked")
@@ -69,13 +79,17 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
 		}
 		
 		public List<LemmaCandidateGenerator> getGenerators(List<Instance> instances) {
-
 			List<LemmaCandidateGenerator> generators = new LinkedList<>();
 			for (Object trainer_class  : getGeneratorTrainers()) {
 				LemmaCandidateGeneratorTrainer trainer = (LemmaCandidateGeneratorTrainer) toInstance((Class<?>) trainer_class);
+				
+				if (trainer instanceof EditTreeGeneratorTrainer) {
+					trainer.getOptions().setOption(EditTreeGeneratorTrainerOptions.NUM_STEPS, getNumEditTreeSteps());
+				}
+				
+				
 				generators.add(trainer.train(instances, null));
-			}
-			
+			}		
 			return generators;
 		}
 
@@ -89,6 +103,22 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
 		
 		public String getAspellLang() {
 			return (String) getOption(ASPELL_LANG);
+		}
+
+		public boolean getUseCoreFeatures() {
+			return (Boolean) getOption(USE_CORE_FEATURES);
+		}
+
+		public boolean getUseAlignmentFeatures() {
+			return (Boolean) getOption(USE_ALIGNMENT_FEATURES);
+		}
+
+		public String getIgnoreFeatures() {
+			return (String) getOption(IGNORE_FEATURES);
+		}
+
+		public int getNumEditTreeSteps() {
+			return (Integer) getOption(NUM_EDIT_TREE_STEPS);
 		}
 
 	} 

@@ -123,7 +123,7 @@ public class SentenceReader implements Iterable<Sequence> {
 			private String check_index(int index, String string, List<String> row, boolean check_zero) {
 				if ((index < 0 && check_zero) || index >= row.size()) {
 					RuntimeException e = new RuntimeException(String.format(
-							"%s out of range: %d : %s\n", index, string, row));
+							"%s out of range: %d : %s\n", string, index, row));
 					throw e;					
 				}
 				

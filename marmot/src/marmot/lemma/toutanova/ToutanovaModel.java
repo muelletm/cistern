@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import marmot.core.Feature;
+import marmot.lemma.Instance;
 import marmot.lemma.toutanova.Aligner.Pair;
 import marmot.lemma.toutanova.ToutanovaTrainer.ToutanovaOptions;
 import marmot.util.DynamicWeights;
@@ -381,6 +382,10 @@ public class ToutanovaModel implements Serializable {
 		weights_ = weights;
 		scorer_.setWeights(weights);
 		updater_.setWeights(weights);
+	}
+
+	public boolean isOOV(Instance instance) {
+		throw new UnsupportedOperationException();
 	}
 
 }

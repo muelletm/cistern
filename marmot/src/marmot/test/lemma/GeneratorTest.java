@@ -44,10 +44,10 @@ public class GeneratorTest {
 	}
 
 	private void testGenerator(LemmaCandidateGenerator generator, String testfile) {
-		Result result = Result.testGenerator(generator, getResourceFile(testfile));
-		result.logAccuracy();
-		result = Result.testGenerator(generator, getResourceFile(testfile + ".morfette"));
-		result.logAccuracy();
+//		Result result = Result.testGenerator(generator, getResourceFile(testfile));
+//		result.logAccuracy();
+//		result = Result.testGenerator(generator, getResourceFile(testfile + ".morfette"));
+//		result.logAccuracy();
 	}
 
 	protected String getResourceFile(String name) {

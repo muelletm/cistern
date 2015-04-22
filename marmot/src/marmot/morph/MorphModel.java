@@ -191,6 +191,7 @@ public class MorphModel extends Model {
 		
 		RerankerTrainerOptions roptions = new RerankerTrainerOptions();
 		roptions.setOption(RerankerTrainerOptions.UNIGRAM_FILE, options.getLemmaUnigramFile());
+		roptions.setOption(RerankerTrainerOptions.IGNORE_FEATURES, options.getLemmaIgnoreFeatures());
 		
 		List<Instance> instances = Instance.getInstances(sentences, false, false);
 		

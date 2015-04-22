@@ -9,4 +9,6 @@ public interface Lemmatizer extends Serializable {
 
 	public String lemmatize(Instance instance);
 
+	public boolean isOOV(Instance instance);
+
 }
