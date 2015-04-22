@@ -192,6 +192,9 @@ public class MorphModel extends Model {
 		RerankerTrainerOptions roptions = new RerankerTrainerOptions();
 		roptions.setOption(RerankerTrainerOptions.UNIGRAM_FILE, options.getLemmaUnigramFile());
 		roptions.setOption(RerankerTrainerOptions.IGNORE_FEATURES, options.getLemmaIgnoreFeatures());
+		roptions.setOption(RerankerTrainerOptions.ASPELL_PATH, options.getLemmaAspellPath());
+		roptions.setOption(RerankerTrainerOptions.ASPELL_LANG, options.getLemmaAspellLang());
+		roptions.setOption(RerankerTrainerOptions.USE_SHAPE_LEXICON, options.getLemmaUseShapeLexicon());
 		
 		List<Instance> instances = Instance.getInstances(sentences, false, false);
 		

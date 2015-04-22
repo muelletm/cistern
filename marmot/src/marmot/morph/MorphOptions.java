@@ -41,6 +41,9 @@ public class MorphOptions extends Options {
 	public static final String GOLD_LEMMA = "gold-lemma";
 	public static final String LEMMA_PRETRAINING = "lemma-pretraining";
 	public static final String MARGINALIZE_LEMMAS = "marginalize-lemmas";
+	public static final String LEMMA_ASPELL_LANG = "lemma-aspell-lang";
+	public static final String LEMMA_ASPELL_PATH = "lemma-aspell-path";
+	public static final String LEMMA_USE_SHAPE_LEXICON= "lemma-use-shape-lexicon";
 	
 	private static final Map<String, String> DEFALUT_VALUES_ = new HashMap<String, String>();
 	private static final Map<String, String> COMMENTS_ = new HashMap<String, String>();
@@ -107,6 +110,12 @@ public class MorphOptions extends Options {
 		COMMENTS_.put(MARGINALIZE_LEMMAS, "Marginalize over lemmas during viterbi decoding.");
 		DEFALUT_VALUES_.put(LEMMAS_IGNORE_FEATURES, "");
 		COMMENTS_.put(LEMMAS_IGNORE_FEATURES, "Features to ignore in the lemma model.");
+		DEFALUT_VALUES_.put(LEMMA_ASPELL_LANG, "");
+		COMMENTS_.put(LEMMA_ASPELL_LANG, "Passed to lemma model.");
+		DEFALUT_VALUES_.put(LEMMA_ASPELL_PATH, "");
+		COMMENTS_.put(LEMMA_ASPELL_PATH, "Passed to lemma model.");
+		DEFALUT_VALUES_.put(LEMMA_USE_SHAPE_LEXICON, "false");
+		COMMENTS_.put(LEMMA_USE_SHAPE_LEXICON, "Passed to lemma model.");
 	}
 
 	public MorphOptions() {
@@ -245,6 +254,18 @@ public class MorphOptions extends Options {
 
 	public String getLemmaIgnoreFeatures() {
 		return getProperty(LEMMAS_IGNORE_FEATURES);
+	}
+	
+	public String getLemmaAspellPath() {
+		return getProperty(LEMMA_ASPELL_PATH);
+	}
+	
+	public String getLemmaAspellLang() {
+		return getProperty(LEMMA_ASPELL_LANG);
+	}
+	
+	public boolean getLemmaUseShapeLexicon() {
+		return Boolean.parseBoolean(getProperty(LEMMA_USE_SHAPE_LEXICON));
 	}
 
 }
