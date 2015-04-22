@@ -101,6 +101,7 @@ public class Segmenter {
 		int [][]segment2Id = word.getSegment2Id();
 		
 		double transitionScore = 0.0;
+		double transitionScore2 = 0.0;
 		double emissionScore = 0.0;
 		double emissionScore2 = 0.0;
 
@@ -117,22 +118,20 @@ public class Segmenter {
 				for (int q1 = 0; q1 < this.numTags; ++q1) {
 					for (int q2 = 0; q2 < this.numTags; ++q2) {
 						
-
-						transitionScore = weights[tagtag2int[q1][q2]];
+						transitionScore = weights[tagtag2int[q2][q1]];
+						transitionScore2 = weights[tagtag2int[q1][q2]];
 						emissionScore = weights[tagseg2int[q1][segment2Id[i+1][j+1]]];	
 						emissionScore2 = weights[tagseg2int[q1][segment2Id[i][j]]];	
-
 						
-						alphas[j][q2] = Numerics.sumLogProb(alphas[j][q2], alphas[i][q1] + transitionScore + emissionScore);
+						alphas[j][q1] = Numerics.sumLogProb(alphas[j][q1], alphas[i][q2] + transitionScore + emissionScore);
 						if (j == i + 1) {
-							
 
-							this.alphasTrans[j][q2] = Numerics.sumLogProb(alphasTrans[j][q2], alphas[i][q1] + transitionScore);			
+							this.alphasTrans[j][q1] = Numerics.sumLogProb(alphasTrans[j][q1], alphas[i][q2] + transitionScore);			
 							marginalTransitionProbability = Math.exp(alphas[i][q2] + betas[j][q1] + transitionScore - Z);
-							gradient[tagtag2int[q1][q2]] += marginalTransitionProbability;
+							gradient[tagtag2int[q2][q1]] += marginalTransitionProbability;
 						}
 						if (i > 0)  {
-							marginalEmissionProbability = Math.exp(alphasTrans[i][q1] + betas[j][q2] + emissionScore2 +  weights[tagtag2int[q1][q2]] -  Z);
+							marginalEmissionProbability = Math.exp(alphasTrans[i][q1] + betas[j][q2] + emissionScore2 + transitionScore2 -  Z);
 							gradient[tagseg2int[q1][segment2Id[i][j]]] += marginalEmissionProbability;
 							
 								
