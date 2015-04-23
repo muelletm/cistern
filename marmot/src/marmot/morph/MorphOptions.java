@@ -44,6 +44,7 @@ public class MorphOptions extends Options {
 	public static final String LEMMA_ASPELL_LANG = "lemma-aspell-lang";
 	public static final String LEMMA_ASPELL_PATH = "lemma-aspell-path";
 	public static final String LEMMA_USE_SHAPE_LEXICON= "lemma-use-shape-lexicon";
+	public static final String LEMMA_USE_MORPH= "lemma-use-morph";
 	
 	private static final Map<String, String> DEFALUT_VALUES_ = new HashMap<String, String>();
 	private static final Map<String, String> COMMENTS_ = new HashMap<String, String>();
@@ -116,6 +117,8 @@ public class MorphOptions extends Options {
 		COMMENTS_.put(LEMMA_ASPELL_PATH, "Passed to lemma model.");
 		DEFALUT_VALUES_.put(LEMMA_USE_SHAPE_LEXICON, "false");
 		COMMENTS_.put(LEMMA_USE_SHAPE_LEXICON, "Passed to lemma model.");
+		DEFALUT_VALUES_.put(LEMMA_USE_MORPH, "true");
+		COMMENTS_.put(LEMMA_USE_MORPH, "Passed to lemma model.");
 	}
 
 	public MorphOptions() {
@@ -266,6 +269,10 @@ public class MorphOptions extends Options {
 	
 	public boolean getLemmaUseShapeLexicon() {
 		return Boolean.parseBoolean(getProperty(LEMMA_USE_SHAPE_LEXICON));
+	}
+	
+	public boolean getLemmaUseMorph() {
+		return Boolean.parseBoolean(getProperty(LEMMA_USE_MORPH));
 	}
 
 }

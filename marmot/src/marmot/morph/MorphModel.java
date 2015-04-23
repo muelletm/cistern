@@ -187,6 +187,8 @@ public class MorphModel extends Model {
 	private void initLemmatizer(MorphOptions options,
 			Collection<Sequence> sentences) {
 
+		lemma_use_morph_ = options.getLemmaUseMorph();
+		
 		marginalize_lemmas_ = options.getMarginalizeLemmas();
 		
 		RerankerTrainerOptions roptions = new RerankerTrainerOptions();
@@ -539,6 +541,8 @@ public class MorphModel extends Model {
 	private boolean skip_lemma_;
 
 	private boolean marginalize_lemmas_;
+
+	private boolean lemma_use_morph_;
 
 	private void addCharIndexes(Word word, String form, boolean insert) {
 		short[] char_indexes = new short[form.length()];
@@ -1118,6 +1122,9 @@ public class MorphModel extends Model {
 		int[] morph_indexes = getTagToSubTags()[state.getLevel()][morph_index];
 		if (morph_indexes == null)
 			morph_indexes = RankerInstance.EMPTY_ARRAY;
+		if (!lemma_use_morph_) {
+			morph_indexes = RankerInstance.EMPTY_ARRAY;
+		}
 		
 		for (RankerCandidate prev_candidate : prev_candidates) {
 			String pLemma = prev_candidate.getLemma();
@@ -1137,6 +1144,10 @@ public class MorphModel extends Model {
 	@Override
 	public boolean getMarganlizeLemmas() {
 		return marginalize_lemmas_;
+	}
+
+	public boolean getLemmaUseMorph() {
+		return lemma_use_morph_;
 	}
 
 }

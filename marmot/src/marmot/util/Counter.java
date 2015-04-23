@@ -120,4 +120,16 @@ public class Counter<T> implements Serializable {
 		return list;	
 	}
 
+	public T max() {
+		Map.Entry<T, Double> max_entry = null;
+		
+		for (Map.Entry<T, Double> entry : storage_.entrySet()) {
+			if (max_entry == null || max_entry.getValue() < entry.getValue()) {
+				max_entry = entry;
+			}
+		}
+		
+		return max_entry.getKey();
+	}
+
 }

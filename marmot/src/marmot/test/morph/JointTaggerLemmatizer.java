@@ -26,14 +26,15 @@ public class JointTaggerLemmatizer {
 		options.setProperty(Options.CANDIDATES_PER_STATE, "[4, 2, 1.5, 1.25]");
 		options.setProperty(Options.PRUNE, "true");
 		options.setProperty(Options.ORDER, "1");
-		options.setProperty(Options.PENALTY, "0.0");
+		options.setProperty(Options.PENALTY, "1.0");
 		
 		options.setProperty(MorphOptions.TAG_MORPH, "true");
 		options.setProperty(MorphOptions.LEMMATIZE, "true");
 		options.setProperty(MorphOptions.GOLD_LEMMA, "false");
 		options.setProperty(MorphOptions.LEMMA_PRETRAINING, "true");
 		options.setProperty(MorphOptions.MARGINALIZE_LEMMAS, "false");
-		options.setProperty(MorphOptions.LEMMAS_IGNORE_FEATURES, "case=*|case=nom|case=acc|case=dat|case=gen");
+		//options.setProperty(MorphOptions.LEMMAS_IGNORE_FEATURES, "case=*|case=nom|case=acc|case=dat|case=gen");
+		//options.setProperty(MorphOptions.LEMMA_USE_MORPH, "false");
 		options.setProperty(Options.NUM_ITERATIONS, "10");
 		
 		options.setProperty(MorphOptions.TRAIN_FILE,
@@ -41,23 +42,35 @@ public class JointTaggerLemmatizer {
 		options.setProperty(MorphOptions.TEST_FILE,
 				"form-index=1,lemma-index=2,tag-index=4,morph-index=6,res:///marmot/test/morph/tst.txt");
 		
-		List<Sequence> train_sentences = getSentences(options.getTrainFile(), 100);
+		List<Sequence> train_sentences = getSentences(options.getTrainFile(), 1000);
 		List<Sequence> test_sentences = getSentences(options.getTestFile(), -1);
-		
-//		pos: 14569 / 18939 = 76,9259%
-//		morph: 11101 / 18939 = 58,6145%
-//		all : 9988 / 18939 = 52,7377%
-		
-//		pos: 15063 / 18939 = 79,5343%
-//		morph: 11172 / 18939 = 58,9894%
-//		all : 10304 / 18939 = 54,4063%
+
+//		Joint
+//		all : 10304 / 18939 = 54,4063%			0.0
 //		lemma : 16691 / 18939 = 88,1303%
+//		all : 9160 / 18939 = 48,3658%			1.0
+//		lemma : 16536 / 18939 = 87,3119%
+//		all : 10301 / 18939 = 54,3904%			0.01
+//		lemma : 16637 / 18939 = 87,8452%
 		
-//		pos: 14980 / 18939 = 79,0960%
-//		morph: 11411 / 18939 = 60,2513%
-//		all : 10476 / 18939 = 55,3144%
-//		lemma : 16561 / 18939 = 87,4439%	
+//		all :   14281 / 18939 = 75,4052%		0.0		1000
+//		lemma : 18237 / 18939 = 96,2934%
 		
+//		all : 14300 / 18939 = 75,5056%			0.01	1000
+//		lemma : 18234 / 18939 = 96,2775%
+		
+//		all : 14397 / 18939 = 76,0177%			0.1
+//		lemma : 18217 / 18939 = 96,1878%
+		
+//		Pipeline
+//		all : 9988 / 18939 = 52,7377%			0.0
+//		all : 7946 / 18939 = 41,9558%			1.0
+//		all : 9949 / 18939 = 52,5318%			0.01
+		
+//		all : 14613 / 18939 = 77,1582%			0.0		1000
+//		all : 14628 / 18939 = 77,2374%			0.01	1000
+
+
 		PipelineTest.testWithOptions(options, train_sentences, test_sentences, 1., 1., 1., 1.);
 		//PipelineTest.testWithOptions(options, train_sentences, test_sentences, 99.56, 53.13, 100., 87.66);
 	}

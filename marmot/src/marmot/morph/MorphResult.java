@@ -34,6 +34,7 @@ public class MorphResult implements Result {
 	private Model model_;
 	public long sum_lattice_time;
 	public int lemma_errors;
+	public int lemma_oov_errors;
 
 	public MorphResult(Tagger tagger) {
 		this(tagger.getModel(), tagger.getNumLevels());
@@ -75,6 +76,7 @@ public class MorphResult implements Result {
 		sum_lattice_time += eval.sum_lattice_time;
 
 		lemma_errors += eval.lemma_errors;
+		lemma_oov_errors += eval.lemma_oov_errors;
 		
 		time += eval.time;
 	}
@@ -89,12 +91,14 @@ public class MorphResult implements Result {
 				toString(token_errors, num_tokens)));
 		sb.append(String.format("all : %s\n\n",
 				toString(morph_errors, num_tokens)));
+		sb.append(String.format("lemma : %s\n\n",
+				toString(lemma_errors, num_tokens)));
+		
 		sb.append(String.format("OOV : %s\n", toString(oov_errors, num_oovs)));
 		sb.append(String.format("all : %s\n\n",
 				toString(morph_oov_errors, num_oovs)));
-		
 		sb.append(String.format("lemma : %s\n\n",
-				toString(lemma_errors, num_tokens)));
+				toString(lemma_oov_errors, num_oovs)));
 		
 		sb.append(String.format("Sentence : %s",
 				toString(sentence_errors, num_sentences)));

@@ -59,7 +59,7 @@ public class RankerModel implements Serializable {
 	private static final int encoder_capacity_ = 8;
 
 	private Set<Integer> ignores_indexes_;
-	
+
 	private int lemma_bits_;
 	private int form_bits_;
 	private int char_bits_;
@@ -79,7 +79,10 @@ public class RankerModel implements Serializable {
 	private boolean use_shape_lexicon_;
 	private boolean use_core_features_;
 	private boolean use_alignment_features_;
-	
+
+	private transient double[] accumulated_penalties_;
+	private double accumulated_penalty_;
+	private final static double EPSILON = 1e-10;;
 
 	private static class Context {
 		public List<Integer> list;
@@ -148,7 +151,7 @@ public class RankerModel implements Serializable {
 			logger.info(String.format("Morph features: %s",
 					morph_table_.keySet()));
 		}
-		
+
 		int num_candidates = 0;
 		for (RankerInstance instance : instances) {
 			num_candidates += instance.getCandidateSet().size();
@@ -199,20 +202,21 @@ public class RankerModel implements Serializable {
 		logger.info(String.format("Weights length: %6d", weights_.length));
 
 		logger.info(String.format("Real encoder capacity: %2d", real_capacity_));
-		
-		
+
 		String ignore_string = options.getIgnoreFeatures();
 		if (!ignore_string.isEmpty() && morph_table_ != null) {
 			ignores_indexes_ = new HashSet<>();
-			
-			logger.info(String.format("Ignore-string: %s (%s)", ignore_string, morph_table_));
-			
+
+			logger.info(String.format("Ignore-string: %s (%s)", ignore_string,
+					morph_table_));
+
 			for (String feat : ignore_string.split("\\|")) {
 				int index = morph_table_.toIndex(feat, -1);
 				ignores_indexes_.add(index);
-				logger.info(String.format("Ignore-string: %s (%d)", feat, index));
+				logger.info(String
+						.format("Ignore-string: %s (%d)", feat, index));
 			}
-		}		
+		}
 	}
 
 	private void prepareUnigramFeature(String unigram_file) {
@@ -280,7 +284,7 @@ public class RankerModel implements Serializable {
 				candidate.getLemmaChars(char_table_, lemma, true);
 				candidate.getAlignment(aligner_, form, lemma);
 			}
-			
+
 			candidate.getTreeIndex(aligner_.getBuilder(), form, lemma,
 					tree_table_, true);
 
@@ -350,8 +354,9 @@ public class RankerModel implements Serializable {
 			}
 
 			if (use_alignment_features_) {
-				int[] lemma_chars = candidate.getLemmaChars(char_table_, lemma, false);
-				
+				int[] lemma_chars = candidate.getLemmaChars(char_table_, lemma,
+						false);
+
 				List<Integer> alignment = candidate.getAlignment(aligner_,
 						form, lemma);
 
@@ -622,13 +627,13 @@ public class RankerModel implements Serializable {
 			score += updateScore(p_index, update);
 
 			for (long morph_index : morph_indexes) {
-				
+
 				if (ignores_indexes_ != null) {
 					if (ignores_indexes_.contains((int) morph_index)) {
 						continue;
-					}					
-				}				
-				
+					}
+				}
+
 				long m_index = p_index + (morph_index + 1L) * feat_length_
 						* pos_length_;
 				score += updateScore(m_index, update);
@@ -641,7 +646,38 @@ public class RankerModel implements Serializable {
 	private double updateScore(long index, double update) {
 		int int_index = (int) (index % (long) weights_.length);
 		weights_[int_index] += update;
+
+		if (accumulated_penalties_ != null && Math.abs(update) > EPSILON) {
+			applyPenalty(weights_[int_index], int_index);
+		}
+
 		return weights_[int_index];
+	}
+
+	public void setPenalty(boolean penalize, double accumulated_penalty) {
+		if (penalize) {
+			accumulated_penalty_ = accumulated_penalty;
+			if (accumulated_penalties_ == null) {
+				accumulated_penalties_ = new double[weights_.length];
+			}
+		} else {
+			accumulated_penalties_ = null;
+		}
+	}
+
+	private void applyPenalty(double weight, int index) {
+		double old_weight = weight;
+
+		if (old_weight - EPSILON > 0.) {
+			weight = Math.max(0, old_weight
+					- (accumulated_penalty_ + accumulated_penalties_[index]));
+		} else if (old_weight + EPSILON < 0.) {
+			weight = Math.min(0, old_weight
+					+ (accumulated_penalty_ - accumulated_penalties_[index]));
+		}
+
+		accumulated_penalties_[index] += weight - old_weight;
+		weights_[index] = weight;
 	}
 
 	public double[] getWeights() {

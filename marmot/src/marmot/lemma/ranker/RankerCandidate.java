@@ -58,12 +58,13 @@ public class RankerCandidate {
 			morph_indexes = morph_model.getTagToSubTags()[1][morph_index];
 			if (morph_indexes == null)
 				morph_indexes = RankerInstance.EMPTY_ARRAY;
-			
+			if (!morph_model.getLemmaUseMorph()) {
+				morph_indexes = RankerInstance.EMPTY_ARRAY;
+			}
 			
 		}
 		
 		assert pos_index < morph_model.getTagTables().get(0).size();
-		assert candidate_.isCorrect() || value < 0.0;
 		model.update(candidate_, pos_index, morph_indexes, value);
 	}
 

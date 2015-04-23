@@ -31,7 +31,8 @@ public class SimpleTrainerTest {
 	public void moderateUnseenTest() {
 		SimpleLemmatizerTrainer trainer = new SimpleLemmatizerTrainer();
 		trainer.getOptions().setOption(SimpleLemmatizerTrainerOptions.HANDLE_UNSEEN, true);
-		runModerateTest(trainer, 98.41, 86.19);
+		trainer.getOptions().setOption(SimpleLemmatizerTrainerOptions.USE_POS, false);
+		runModerateTest(trainer, 99.48, 86.63);
 	}
 	
 	@Test
@@ -39,7 +40,7 @@ public class SimpleTrainerTest {
 		SimpleLemmatizerTrainer trainer = new SimpleLemmatizerTrainer();
 		trainer.getOptions().setOption(SimpleLemmatizerTrainerOptions.HANDLE_UNSEEN, true);
 		trainer.getOptions().setOption(SimpleLemmatizerTrainerOptions.USE_POS, true);
-		runModerateTest(trainer, 99.84, 86.82);
+		runModerateTest(trainer, 99.96, 86.84);
 	}
 	
 	protected String getResourceFile(String name) {

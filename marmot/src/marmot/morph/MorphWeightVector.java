@@ -17,12 +17,13 @@ import marmot.core.Sequence;
 import marmot.core.State;
 import marmot.core.WeightVector;
 import marmot.core.ZeroFloatFeatureVector;
+import marmot.lemma.ranker.RankerModel;
 import marmot.util.Encoder;
 import marmot.util.SymbolTable;
 
 public class MorphWeightVector implements WeightVector, FloatWeights {
 	private static final long serialVersionUID = 1L;
-	private int max_affix_length_ ;
+	private int max_affix_length_;
 	private int num_state_features_;
 
 	private static final int ENCODER_CAPACITY_ = 10;
@@ -31,11 +32,10 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 
 	private transient Encoder encoder_;
 
-	private boolean penalize_ = false;
-	private double linear_penalty_;
+	private double accumulated_penalty_;
 
-	private transient double[] accumulated_penalty_;
-	private transient double[] accumulated_float_penalty_;
+	private transient double[] accumulated_penalties_;
+	private transient double[] accumulated_float_penalties_;
 	private double[] weights_;
 	private double[] float_weights_;
 
@@ -73,9 +73,9 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 	private boolean use_signature_features_;
 	private boolean use_infix_features_;
 	private boolean use_bigrams_;
-	
+	private boolean use_penalty_ = false;
+
 	// private double[] accumulated_float_penalty_;
-	
 
 	public MorphWeightVector(MorphOptions options) {
 		shape_ = options.getShape();
@@ -84,7 +84,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 		use_state_features_ = options.getUseDefaultFeatures();
 		use_hash_vector = options.getUseHashVector();
 		max_affix_length_ = options.getMaxAffixLength();
-		
+
 		use_form_feature_ = true;
 		use_rare_feature_ = true;
 		use_lexical_context_feature_ = true;
@@ -123,7 +123,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 			}
 
 		}
-		
+
 		if (!use_state_features_) {
 			use_form_feature_ = false;
 			use_rare_feature_ = false;
@@ -132,12 +132,12 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 			use_signature_features_ = false;
 			use_bigrams_ = false;
 		}
-		
+
 		if (!options.getMorphDict().isEmpty()) {
 			mdict_ = MorphDictionary.create(options.getMorphDict());
 			mdict_bits_ = Encoder.bitsNeeded(mdict_.numTags());
 		}
-		
+
 		num_state_features_ = 0;
 		if (use_form_feature_) {
 			num_state_features_ += 1;
@@ -163,13 +163,11 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 		if (use_infix_features_) {
 			num_state_features_ += 1;
 		}
-		
-		// For the token features 
-		num_state_features_ += 1;
-		
-		
-		//num_state_features_ = 3 + 3;
 
+		// For the token features
+		num_state_features_ += 1;
+
+		// num_state_features_ = 3 + 3;
 
 		if (!options.getFloatTypeDict().isEmpty()) {
 
@@ -196,18 +194,30 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 	@Override
 	public void setPenalty(boolean penalize, double linear_penalty) {
 		if (!penalize) {
-			penalize_ = false;
-			accumulated_penalty_ = null;
-			linear_penalty_ = 0.0;
+			accumulated_penalties_ = null;
+			accumulated_float_penalties_ = null;
+			accumulated_penalty_ = 0.0;
 		} else {
-			penalize_ = true;
-			linear_penalty_ = (double) (linear_penalty / scale_factor_);
-			if (accumulated_penalty_ == null) {
-				accumulated_penalty_ = new double[weights_.length];
+
+			if (use_penalty_) {
+
+				System.err.println("Using penalty!");
+				
+				accumulated_penalty_ = (double) (linear_penalty / scale_factor_);
+				if (accumulated_penalties_ == null) {
+					accumulated_penalties_ = new double[weights_.length];
+				}
+				if (accumulated_float_penalties_ == null
+						&& float_weights_ != null) {
+					accumulated_float_penalties_ = new double[float_weights_.length];
+				}
+
 			}
-			if (accumulated_float_penalty_ == null && float_weights_ != null) {
-				accumulated_float_penalty_ = new double[float_weights_.length];
-			}
+		}
+
+		RankerModel model = model_.getLemmaModel();
+		if (model != null) {
+			model.setPenalty(penalize, linear_penalty);
 		}
 	}
 
@@ -426,21 +436,21 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 			if (use_infix_features_) {
 				if (is_rare) {
 					assert chars != null;
-					
+
 					encoder_.append(0, order_bits_);
 					encoder_.append(0, level_bits_);
 					encoder_.append(fc, state_feature_bits_);
 
-					for (int position = 0; position < chars.length; position ++) {
-						
-						for (int length = 0; length < max_affix_length_; length ++) {
-							
+					for (int position = 0; position < chars.length; position++) {
+
+						for (int length = 0; length < max_affix_length_; length++) {
+
 							int end_position = position + length;
-							
+
 							if (end_position >= chars.length) {
 								break;
 							}
-							
+
 							short c = chars[end_position];
 							if (c < 0) {
 								break;
@@ -448,17 +458,16 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 							encoder_.append(c, char_bits_);
 							features.add(getFeatureIndex(encoder_
 									.getFeature(extend_feature_set_)));
-							
-							
+
 						}
-						
-						encoder_.reset();					
+
+						encoder_.reset();
 					}
-					
+
 				}
 				fc++;
 			}
-			
+
 			// Prefix feature
 			if (use_affix_features_) {
 				if (is_rare) {
@@ -562,7 +571,8 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 		features.setIsState(true);
 		features.setWordIndex(form_index);
 
-		assert fc == num_state_features_ || fc + 1 == num_state_features_ : String.format("%d != %d", fc, num_state_features_);
+		assert fc == num_state_features_ || fc + 1 == num_state_features_ : String
+				.format("%d != %d", fc, num_state_features_);
 		return features;
 	}
 
@@ -764,19 +774,19 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 
 				weights_ = Arrays.copyOf(weights_, length);
 
-				if (accumulated_penalty_ != null) {
-					accumulated_penalty_ = Arrays.copyOf(accumulated_penalty_,
-							length);
+				if (accumulated_penalties_ != null) {
+					accumulated_penalties_ = Arrays.copyOf(
+							accumulated_penalties_, length);
 				}
 
 				for (int i = 0; i < 2 * max_level_; i++) {
 
 					weights_[capacity + i] = weights_[old_capacity + i];
 					weights_[old_capacity + i] = 0.0;
-					if (accumulated_penalty_ != null) {
-						accumulated_penalty_[capacity + i] = accumulated_penalty_[old_capacity
+					if (accumulated_penalties_ != null) {
+						accumulated_penalties_[capacity + i] = accumulated_penalties_[old_capacity
 								+ i];
-						accumulated_penalty_[old_capacity + i] = 0.0;
+						accumulated_penalties_[old_capacity + i] = 0.0;
 					}
 
 				}
@@ -925,17 +935,17 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 
 	protected void updateWeight(int index, double value) {
 		weights_[index] += value;
-		if (penalize_) {
+		if (accumulated_penalties_ != null) {
 			weights_[index] = applyPenalty(index, weights_[index],
-					accumulated_penalty_);
+					accumulated_penalties_);
 		}
 	}
 
 	public void updateFloatWeight(int index, double value) {
 		float_weights_[index] += value;
-		if (penalize_) {
+		if (accumulated_penalties_ != null) {
 			float_weights_[index] = applyPenalty(index, float_weights_[index],
-					accumulated_float_penalty_);
+					accumulated_float_penalties_);
 		}
 	}
 
@@ -958,10 +968,10 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 
 		if (z - 1e-10 > 0.) {
 			weight = Math.max(0, z
-					- (linear_penalty_ + accumulated_penalty[index]));
+					- (accumulated_penalty_ + accumulated_penalty[index]));
 		} else if (z + 1e-10 < 0.) {
 			weight = Math.min(0, z
-					+ (linear_penalty_ - accumulated_penalty[index]));
+					+ (accumulated_penalty_ - accumulated_penalty[index]));
 		}
 
 		accumulated_penalty[index] += weight - z;
@@ -989,7 +999,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 
 	@Override
 	public void scaleBy(double scale_factor) {
-		linear_penalty_ /= scale_factor;
+		accumulated_penalty_ /= scale_factor;
 		scale_factor_ *= scale_factor;
 	}
 

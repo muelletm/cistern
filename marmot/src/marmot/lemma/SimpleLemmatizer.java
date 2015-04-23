@@ -3,19 +3,19 @@
 
 package marmot.lemma;
 
-import java.util.List;
 import java.util.Map;
 
 import marmot.lemma.SimpleLemmatizerTrainer.SimpleLemmatizerTrainerOptions;
+import marmot.util.Counter;
 
 public class SimpleLemmatizer implements LemmatizerGenerator {
 
 	private static final long serialVersionUID = 1L;
 	private static final String SEPARATOR = "\t";
-	private Map<String, List<String>> map_;
+	private Map<String, Counter<String>> map_;
 	private SimpleLemmatizerTrainerOptions options_;
 
-	public SimpleLemmatizer(SimpleLemmatizerTrainerOptions options, Map<String, List<String>> map) {
+	public SimpleLemmatizer(SimpleLemmatizerTrainerOptions options, Map<String, Counter<String>> map) {
 		map_ = map;
 		options_ = options;
 	}
@@ -32,7 +32,7 @@ public class SimpleLemmatizer implements LemmatizerGenerator {
 
 	@Override
 	public String lemmatize(Instance instance) {
-		List<String> lemmas = null;
+		Counter<String> lemmas = null;
 		String key = null;
 
 		if (options_.getUsePos()) {
@@ -40,7 +40,7 @@ public class SimpleLemmatizer implements LemmatizerGenerator {
 			if (key != null) {
 				lemmas = map_.get(key);
 				if (lemmas != null && (!options_.getAbstainIfAmbigous() || lemmas.size() == 1 )) {
-					return lemmas.get(0);
+					return lemmas.max();
 				}
 			}
 		}
@@ -50,7 +50,7 @@ public class SimpleLemmatizer implements LemmatizerGenerator {
 			if (key != null) {
 				lemmas = map_.get(key);
 				if (lemmas != null && (!options_.getAbstainIfAmbigous() || lemmas.size() == 1 )) {
-					return lemmas.get(0);
+					return lemmas.max();
 				}
 			}
 		}
@@ -66,30 +66,28 @@ public class SimpleLemmatizer implements LemmatizerGenerator {
 		return instance.getForm();
 	}
 
+	private void addCandidates(Counter<String> lemmas, LemmaCandidateSet set) {
+		if (lemmas != null) {
+			for (Map.Entry<String, Double> lemma : lemmas.entrySet()) {
+				set.getCandidate(lemma.getKey());
+			}
+		}
+	}
+	
 	@Override
 	public void addCandidates(Instance instance, LemmaCandidateSet set) {	
 		String key = toKey(instance);
 		if (key != null) {
-			List<String> lemmas = map_.get(key);
-			if (lemmas != null) {
-				for (String lemma : lemmas) {
-					set.getCandidate(lemma);
-				}
-			}
+			Counter<String> lemmas = map_.get(key);
+			addCandidates(lemmas, set);
 		}
 		
 		key = toSimpleKey(instance);
 		if (key != null) {
-			List<String> lemmas = map_.get(key);
-			if (lemmas != null) {
-				for (String lemma : lemmas) {
-					set.getCandidate(lemma);
-				}
-			}
+			Counter<String> lemmas = map_.get(key);
+			addCandidates(lemmas, set);
 		}
 
-		
-		
 	}
 
 	@Override

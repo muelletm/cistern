@@ -4,9 +4,10 @@
 package marmot.lemma;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import marmot.util.Counter;
 
 public class SimpleLemmatizerTrainer implements LemmatizerGeneratorTrainer {
 
@@ -52,7 +53,7 @@ public class SimpleLemmatizerTrainer implements LemmatizerGeneratorTrainer {
 	public LemmatizerGenerator train(List<Instance> instances,
 			List<Instance> dev_instances) {
 		
-		Map<String, List<String>> map = new HashMap<>();
+		Map<String, Counter<String>> map = new HashMap<>();
 		
 		for (Instance instance : instances) {
 			String key = null;
@@ -66,23 +67,21 @@ public class SimpleLemmatizerTrainer implements LemmatizerGeneratorTrainer {
 				key = SimpleLemmatizer.toSimpleKey(instance);
 				addToMap(key, map, instance);
 			}
-		}		
+		}
 		
 		return new SimpleLemmatizer(options_, map);
 	}
 
-	private void addToMap(String key, Map<String, List<String>> map,
+	private void addToMap(String key, Map<String, Counter<String>> map,
 			Instance instance) {
-		List<String> lemmas = map.get(key);
+		Counter<String> lemmas = map.get(key);
 		
 		if (lemmas == null) {
-			lemmas = new LinkedList<>();
+			lemmas = new Counter<>();
 			map.put(key, lemmas);
 		}
 		
-		if (!lemmas.contains(instance.getLemma())) {
-			lemmas.add(instance.getLemma());
-		}
+		lemmas.increment(instance.getLemma(), instance.getCount());
 	}
 
 	@Override

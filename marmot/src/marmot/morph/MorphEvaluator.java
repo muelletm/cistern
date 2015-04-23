@@ -128,7 +128,13 @@ public class MorphEvaluator implements Evaluator {
 				
 				if (!lemma.equals(plemma)) {
 					result.lemma_errors ++;
+					
+					if (is_oov) {
+						result.lemma_oov_errors ++;
+					}
 				}
+				
+				
 			}
 			
 			
