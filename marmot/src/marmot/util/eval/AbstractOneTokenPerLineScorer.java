@@ -9,20 +9,26 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import marmot.test.util.KeyValueOptions;
 import marmot.util.FileUtils;
 
 public abstract class AbstractOneTokenPerLineScorer implements Scorer {
 
 	@Override
 	public List<Double> getScores(String actual, String prediction) {
+		
+		KeyValueOptions actual_option = new KeyValueOptions(actual);
+		KeyValueOptions prediction_option = new KeyValueOptions(prediction);
+		
 		List<Double> scores = new ArrayList<Double>();
 		
 		double score = 0.;
 		double number_of_tokens = 0;
 		
 		try {
-			BufferedReader actual_reader = FileUtils.openFile(actual);
-			BufferedReader prediction_reader = FileUtils.openFile(prediction);
+			
+			BufferedReader actual_reader = FileUtils.openFile(actual_option.getDefaultOption());
+			BufferedReader prediction_reader = FileUtils.openFile(prediction_option.getDefaultOption());
 			
 			while (actual_reader.ready() && prediction_reader.ready()) {
 				
@@ -49,7 +55,7 @@ public abstract class AbstractOneTokenPerLineScorer implements Scorer {
 				String[] actual_tokens = actual_line.split("\\s+");
 				String[] prediction_tokens = prediction_line.split("\\s+");
 				
-				score += getScore(actual_tokens, prediction_tokens);
+				score += getScore(actual_option, actual_tokens, prediction_option, prediction_tokens);
 				number_of_tokens += 1;
 				
 			}
@@ -81,6 +87,6 @@ public abstract class AbstractOneTokenPerLineScorer implements Scorer {
 	public void setOption(String option, String value) {
 	}
 	
-	abstract public double getScore(String[] actual_tokens, String[] prediction_tokens);	
+	abstract public double getScore(KeyValueOptions actual_opts, String[] actual_tokens, KeyValueOptions prediction_opts, String[] prediction_tokens);	
 	
 }

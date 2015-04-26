@@ -73,7 +73,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 	private boolean use_signature_features_;
 	private boolean use_infix_features_;
 	private boolean use_bigrams_;
-	private boolean use_penalty_ = false;
+	private static final boolean use_penalty_ = true;
 
 	// private double[] accumulated_float_penalty_;
 
@@ -200,9 +200,6 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 		} else {
 
 			if (use_penalty_) {
-
-				System.err.println("Using penalty!");
-				
 				accumulated_penalty_ = (double) (linear_penalty / scale_factor_);
 				if (accumulated_penalties_ == null) {
 					accumulated_penalties_ = new double[weights_.length];

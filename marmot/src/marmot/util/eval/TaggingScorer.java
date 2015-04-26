@@ -3,24 +3,38 @@
 
 package marmot.util.eval;
 
+import java.util.Collection;
+
+import marmot.test.util.KeyValueOptions;
+
 
 
 public class TaggingScorer extends AbstractOneTokenPerLineScorer {
 
-	private int gold_tag_index_ = 1;
-	private int predicted_tag_index_ = 1;
-
 	@Override
-	public double getScore(String[] actual_tokens, String[] expected_tokens) {	
-		String actual_tag = actual_tokens[gold_tag_index_];
+	public double getScore(KeyValueOptions actual_opts, String[] actual_tokens,
+			KeyValueOptions prediction_opts, String[] prediction_tokens) {
 		
-		boolean tag_correct = actual_tag.equals(expected_tokens[predicted_tag_index_]);
+		Collection<String> keys = actual_opts.getSortedKeys();
+		
+		String actual_tag = getTag(keys, actual_opts, actual_tokens);
+		String prediction_tag = getTag(keys, prediction_opts, prediction_tokens);
+		
+		boolean tag_correct = actual_tag.equals(prediction_tag);
 			
 		if (tag_correct) {
 			return 1.0;
 		}
-		
 		return 0.0;
+	}
+
+	private String getTag(Collection<String> keys, KeyValueOptions opts, String[] tokens) {
+		StringBuilder sb = new StringBuilder();
+		for (String key : keys) {
+			int index = opts.getValueAsInteger(key);
+			sb.append(tokens[index]);
+		}
+		return sb.toString();
 	}
 
 }
