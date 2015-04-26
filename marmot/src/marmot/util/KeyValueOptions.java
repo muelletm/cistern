@@ -1,4 +1,4 @@
-package marmot.test.util;
+package marmot.util;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -12,7 +12,7 @@ public class KeyValueOptions {
 
 	private Map<String, String> map_ = new HashMap<>();
 	private String default_option_;
-	
+
 	public KeyValueOptions(String format) {
 		parse(format);
 	}
@@ -29,19 +29,21 @@ public class KeyValueOptions {
 
 			if (index < 0) {
 				if (default_option_ != null)
-					throw new RuntimeException("Default option already set: %s" + args);
+					throw new RuntimeException("Default option already set: %s"
+							+ args);
 				default_option_ = arg;
+			} else {
+
+				String key = arg.substring(0, index);
+				String value = arg.substring(index + 1, arg.length());
+
+				if (map_.containsKey(key)) {
+					throw new RuntimeException("Key already definded: %s"
+							+ args);
+				}
+
+				map_.put(key, value);
 			}
-
-			String key = arg.substring(0, index);
-			String value = arg.substring(index + 1, arg.length());
-
-			if (map_.containsKey(key)) {
-				throw new RuntimeException("Key already definded: %s"
-						+ args);
-			}
-
-			map_.put(key, value);
 		}
 	}
 
@@ -52,22 +54,22 @@ public class KeyValueOptions {
 		}
 		return Integer.valueOf(value);
 	}
-	
+
 	public Collection<String> getKeys() {
 		return map_.keySet();
 	}
-	
+
 	public Collection<String> getSortedKeys() {
-		
+
 		List<String> keys = new LinkedList<>();
 		for (String key : getKeys()) {
 			keys.add(key);
 		}
-		
+
 		Collections.sort(keys);
 		return keys;
 	}
-	
+
 	public String getDefaultOption() {
 		return default_option_;
 	}

@@ -4,6 +4,8 @@
 package marmot.lemma.toutanova;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import marmot.lemma.Instance;
 import marmot.lemma.LemmaCandidateSet;
@@ -18,6 +20,8 @@ public class ToutanovaLemmatizer implements Lemmatizer, LemmatizerGenerator {
 	private transient Decoder decoder_;
 	private transient NbestDecoder nbest_decoder_;
 	private ToutanovaOptions options_;
+	
+	private transient Map<Instance, String> cache_;
 
 	public ToutanovaLemmatizer(ToutanovaOptions options, ToutanovaModel model) {
 		model_ = model;
@@ -26,13 +30,23 @@ public class ToutanovaLemmatizer implements Lemmatizer, LemmatizerGenerator {
 
 	@Override
 	public String lemmatize(Instance instance) {
+		if (cache_ == null) {
+			cache_ = new HashMap<>();
+		}
+		
+		String lemma = cache_.get(instance);
+		if (lemma != null)
+			return lemma;
+		
 		if (decoder_ == null) {
 			decoder_ = options_.getDecoderInstance();
 			decoder_.init(model_);
 		}
 		
 		ToutanovaInstance tinstance = getToutanovaInstance(instance);
-		return decoder_.decode(tinstance).getOutput();
+		lemma = decoder_.decode(tinstance).getOutput();
+		cache_.put(instance, lemma);
+		return lemma;
 	}
 
 	private ToutanovaInstance getToutanovaInstance(Instance instance) {

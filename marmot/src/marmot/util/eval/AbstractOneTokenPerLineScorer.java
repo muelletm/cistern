@@ -9,8 +9,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import marmot.test.util.KeyValueOptions;
 import marmot.util.FileUtils;
+import marmot.util.KeyValueOptions;
 
 public abstract class AbstractOneTokenPerLineScorer implements Scorer {
 

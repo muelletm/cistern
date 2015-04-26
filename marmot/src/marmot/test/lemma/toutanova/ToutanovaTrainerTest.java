@@ -65,7 +65,6 @@ public class ToutanovaTrainerTest extends SimpleTrainerTest {
 		trainer.getOptions().setOption(ToutanovaOptions.SEED, 10L);
 		trainer.getOptions().setOption(ToutanovaOptions.ALIGNER_TRAINER, EditTreeAlignerTrainer.class);
 		trainer.getOptions().setOption(ToutanovaOptions.MAX_COUNT, 1);
-		trainer.getOptions().setOption(ToutanovaOptions.USE_CONSTEXT_FEATURE, true);
 		
 		// 90.75 88.46 HA
 		// 93.90 90.72 SA
@@ -79,6 +78,10 @@ public class ToutanovaTrainerTest extends SimpleTrainerTest {
 		
 		// 99.84 90.43 25s
 		// 99.84 90.41 21s
+		
+		// 92.73 101s
+		// 94.54 313s
+		// 94.93 814s
 		
 		LemmatizerTrainer btrainer = new BackupLemmatizerTrainer(simple_trainer, trainer);
 		runModerateTest(btrainer, 1., 92.72);

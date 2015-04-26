@@ -16,12 +16,19 @@ public class Encoder implements Serializable {
 	private int[] bytes_;
 	private short current_array_length_;
 	private short current_bit_index_;
-	private short stored_array_length_;
-	private short stored_bit_index_;
-	private int stored_byte_;
 
+	private State state_;
+	
+	public static class State implements Serializable {
+		private static final long serialVersionUID = 1L;
+		private short array_length_;
+		private short bit_index_;
+		private int byte_;	
+	}
+	
 	public Encoder(int capacity) {
 		bytes_ = new int[capacity];
+		state_ = new State();
 		reset();
 	}
 
@@ -82,20 +89,28 @@ public class Encoder implements Serializable {
 	}
 
 	public void storeState() {
-		stored_array_length_ = current_array_length_;
-		stored_bit_index_ = current_bit_index_;
+		storeState(state_);
+	}
+	
+	public void storeState(State state) {
+		state.array_length_ = current_array_length_;
+		state.bit_index_ = current_bit_index_;
 		if (current_array_length_ > 0)
-			stored_byte_ = bytes_[current_array_length_  - 1];
+			state.byte_ = bytes_[current_array_length_  - 1];
 		else
-			stored_byte_ = 0;
+			state.byte_ = 0;
 	}
 
 	public void restoreState() {
-		Arrays.fill(bytes_, stored_array_length_ , current_array_length_, 0);
-		current_array_length_ = stored_array_length_;
-		current_bit_index_ = stored_bit_index_;
+		restoreState(state_);
+	}
+	
+	public void restoreState(State state) {
+		Arrays.fill(bytes_, state.array_length_ , current_array_length_, 0);
+		current_array_length_ = state.array_length_;
+		current_bit_index_ = state.bit_index_;
 		if (current_array_length_ > 0)
-			bytes_[current_array_length_ - 1] = stored_byte_;
+			bytes_[current_array_length_ - 1] = state.byte_;
 	}
 
 	@Override
@@ -131,9 +146,9 @@ public class Encoder implements Serializable {
 		return "Encoder [bytes_=" + Arrays.toString(bytes_)
 				+ ", current_array_length_=" + current_array_length_
 				+ ", current_bit_index_=" + current_bit_index_
-				+ ", stored_array_length_=" + stored_array_length_
-				+ ", stored_bit_index_=" + stored_bit_index_
-				+ ", stored_byte_=" + stored_byte_ + "]";
+				+ ", stored_array_length_=" + state_.array_length_
+				+ ", stored_bit_index_=" + state_.bit_index_
+				+ ", stored_byte_=" + state_.byte_ + "]";
 	}
 
 	public int getCapacity() {

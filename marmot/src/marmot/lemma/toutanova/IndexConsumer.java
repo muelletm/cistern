@@ -30,9 +30,11 @@ public abstract class IndexConsumer implements Serializable {
 		consume(index);
 		
 		if (num_pos_bits_ >= 0 && instance.getPosTagIndex() >= 0) {
+			encoder.storeState();
 			encoder.append(instance.getPosTagIndex(), num_pos_bits_);
 			index = feature_map_.toIndex(encoder.getFeature(), -1, getInsert());
 			consume(index);
+			encoder.restoreState();
 		}
 	}
 	

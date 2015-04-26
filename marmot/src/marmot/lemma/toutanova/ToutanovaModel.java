@@ -7,9 +7,11 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import marmot.core.Feature;
@@ -29,7 +31,9 @@ public class ToutanovaModel implements Serializable {
 	private int max_input_segment_length_;
 	private int num_output_bits;
 	private SymbolTable<Character> char_table;
+	private Set<String> form_vocab_;
 	transient private Encoder encoder;
+	transient private Encoder.State encoder_state;
 
 	private int num_char_bits;
 	private int num_pos_bits;
@@ -38,8 +42,8 @@ public class ToutanovaModel implements Serializable {
 	private IndexUpdater updater_;
 	private boolean use_zero_order_;
 	private int max_input_segment_length_bits_;
-	private boolean use_context_feature_;
 	private DynamicWeights weights_;
+	private static final int length_bits_ = 6;
 
 	private final static int FEATURE_BITS = Encoder.bitsNeeded(2);
 	private final static int TRANS_FEAT = 0;
@@ -48,10 +52,13 @@ public class ToutanovaModel implements Serializable {
 
 	private final static String COPY_SYMBOL = "<COPY>";
 
-	public void init(ToutanovaOptions options, List<ToutanovaInstance> train_instances,
+	public void init(ToutanovaOptions options,
+			List<ToutanovaInstance> train_instances,
 			List<ToutanovaInstance> test_instances) {
 		Logger logger = Logger.getLogger(getClass().getName());
 
+		max_window = options.getMaxWindowSize();
+		
 		createOutputTable(options, train_instances);
 		logger.info("Output alphabet size: " + output_table_.size());
 		logger.info("Max input segment length: " + max_input_segment_length_);
@@ -67,6 +74,11 @@ public class ToutanovaModel implements Serializable {
 		char_table = new SymbolTable<>();
 		if (options.getUsePos()) {
 			pos_table_ = new SymbolTable<>();
+		}
+
+		form_vocab_ = new HashSet<>();
+		for (ToutanovaInstance instance : train_instances) {
+			form_vocab_.add(instance.getInstance().getForm());
 		}
 
 		addIndexes(train_instances, true);
@@ -86,7 +98,7 @@ public class ToutanovaModel implements Serializable {
 		if (pos_table_ != null)
 			num_pos_bits = Encoder.bitsNeeded(pos_table_.size());
 
-		encoder = new Encoder(10);
+		setupTemp();
 
 		weights_ = new DynamicWeights(options.getRandom());
 
@@ -94,14 +106,14 @@ public class ToutanovaModel implements Serializable {
 		scorer_ = new IndexScorer(weights_, feature_map, num_pos_bits);
 		updater_ = new IndexUpdater(weights_, feature_map, num_pos_bits);
 
-		use_context_feature_ = options.getUseContextFeature();
 		use_zero_order_ = options.getDecoderInstance().getOrder() < 1;
-		
+
 		setupTemp();
 	}
 
 	private void setupTemp() {
 		encoder = new Encoder(10);
+		encoder_state = new Encoder.State();
 	}
 
 	private void readObject(ObjectInputStream ois)
@@ -227,11 +239,59 @@ public class ToutanovaModel implements Serializable {
 		encoder.append(TRANS_FEAT, FEATURE_BITS);
 		encoder.append(last_o, num_output_bits);
 		encoder.append(o, num_output_bits);
-		if (use_context_feature_) {
-			encoder.append(l_start == 0);
-			encoder.append(l_end == instance.getFormCharIndexes().length);
-		}
+		// if (use_context_feature_) {
+		// encoder.append(l_start == 0);
+		// encoder.append(l_end == instance.getFormCharIndexes().length);
+		// }
+
 		consumer.consume(instance, encoder);
+		addAffixes(instance, consumer, l_start, l_end);
+	}
+
+	private int max_window = 2;
+
+	private void addAffixes(ToutanovaInstance instance, IndexConsumer consumer,
+			int l_start, int l_end) {
+		for (int window = 1; window <= max_window; window++) {
+			encoder.storeState(encoder_state);
+			addSegment(instance.getFormCharIndexes(), l_start - window, l_start);
+			addSegment(instance.getFormCharIndexes(), l_end + 1, l_end + window + 1);
+			consumer.consume(instance, encoder);
+			encoder.restoreState(encoder_state);
+		}
+
+		for (int window = 1; window <= max_window; window++) {
+			encoder.storeState(encoder_state);
+			addSegment(instance.getFormCharIndexes(), l_start - window, l_start);
+			consumer.consume(instance, encoder);
+			encoder.restoreState(encoder_state);
+		}
+
+		for (int window = 1; window <= max_window; window++) {
+			encoder.storeState(encoder_state);
+			addSegment(instance.getFormCharIndexes(), l_end + 1, l_end + window + 1);
+			consumer.consume(instance, encoder);
+			encoder.restoreState(encoder_state);
+		}
+	}
+
+	private void addSegment(int[] chars, int start, int end) {
+		encoder.append(end - start, length_bits_);
+
+		for (int i = start; i < end; i++) {
+
+			int c;
+			if (i >= 0 && i < chars.length) {
+				c = chars[i];
+			} else {
+				c = char_table.size();
+			}
+
+			if (c < 0)
+				return;
+
+			encoder.append(c, num_char_bits);
+		}
 	}
 
 	public void consumeOutputFeature(IndexConsumer consumer,
@@ -239,11 +299,12 @@ public class ToutanovaModel implements Serializable {
 		encoder.reset();
 		encoder.append(OUTPUT_FEAT, FEATURE_BITS);
 		encoder.append(o, num_output_bits);
-		if (use_context_feature_) {
-			encoder.append(l_start == 0);
-			encoder.append(l_end == instance.getFormCharIndexes().length);
-		}
+		// if (use_context_feature_) {
+		// encoder.append(l_start == 0);
+		// encoder.append(l_end == instance.getFormCharIndexes().length);
+		// }
 		consumer.consume(instance, encoder);
+		addAffixes(instance, consumer, l_start, l_end);
 	}
 
 	public void consumePairFeature(IndexConsumer consumer,
@@ -253,10 +314,11 @@ public class ToutanovaModel implements Serializable {
 		encoder.append(PAIR_FEAT, FEATURE_BITS);
 		encoder.append(o, num_output_bits);
 		encoder.append(l_end - l_start, max_input_segment_length_bits_);
-		if (use_context_feature_) {
-			encoder.append(l_start == 0);
-			encoder.append(l_end == instance.getFormCharIndexes().length);
-		}
+		// if (use_context_feature_) {
+		// encoder.append(l_start == 0);
+		// encoder.append(l_end == instance.getFormCharIndexes().length);
+		// }
+		encoder.append(l_end - l_start, 4);
 		for (int l = l_start; l < l_end; l++) {
 			int c = chars[l];
 			if (c < 0) {
@@ -264,8 +326,8 @@ public class ToutanovaModel implements Serializable {
 			}
 			encoder.append(c, num_char_bits);
 		}
-
 		consumer.consume(instance, encoder);
+		addAffixes(instance, consumer, l_start, l_end);
 	}
 
 	private void consumeOutputPair(IndexConsumer consumer,
@@ -277,11 +339,9 @@ public class ToutanovaModel implements Serializable {
 	private void consumeTransition(IndexConsumer consumer,
 			ToutanovaInstance instance, int l_start, int l_end, int last_o,
 			int o) {
-
 		if (use_zero_order_) {
 			return;
 		}
-
 		consumeTransitionFeature(consumer, instance, l_start, l_end, last_o, o);
 	}
 
@@ -385,7 +445,7 @@ public class ToutanovaModel implements Serializable {
 	}
 
 	public boolean isOOV(Instance instance) {
-		throw new UnsupportedOperationException();
+		return !form_vocab_.contains(instance.getForm());
 	}
 
 }

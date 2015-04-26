@@ -9,7 +9,8 @@ import java.util.List;
 import java.util.Random;
 
 public class RandomizationTest implements SignificanceTest {
-	Random random_;
+
+	private Random random_;
 
 	public RandomizationTest() {
 		random_ = new Random();
@@ -29,8 +30,17 @@ public class RandomizationTest implements SignificanceTest {
 	
 	public double test(Scorer scorer, String gold, String pred1, String pred2) {
 		List<Double> scores1 = scorer.getScores(gold, pred1);
+		System.err.println(pred1 + ": " + getSum(scores1));
 		List<Double> scores2 = scorer.getScores(gold, pred2);
-		List<Double> diffs = getDifferences(scores1, scores2, true);	
+		System.err.println(pred2 + ": " + getSum(scores2));
+		
+		List<Double> diffs = getDifferences(scores1, scores2, true);
+		
+		if (diffs.isEmpty()) {
+			return 1.0;
+		}
+
+		System.err.println("|Diffs|: " + diffs.size());
 		double diff = getAbsoluteDifference(diffs, false);
 			
 		int total = 1048576;
@@ -44,8 +54,6 @@ public class RandomizationTest implements SignificanceTest {
 			}
 		}
 
-		error++;
-		total++;
 		return error / (double) total;
 	}
 

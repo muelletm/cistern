@@ -22,9 +22,9 @@ public class ToutanovaTrainer implements LemmatizerGeneratorTrainer {
 		public static final String FILTER_ALPHABET = "filter-alphabet";
 		public static final String ALIGNER_TRAINER = "aligner-trainer";
 		public static final String DECODER = "decoder";
-		public static final String USE_CONSTEXT_FEATURE = "use-context-feature";
 		public static final String MAX_COUNT = "max-count";
 		public static final String NBEST_RANK = "nbest-rank";
+		public static final String WINDOW_SIZE = "window-size";
 		
 		public ToutanovaOptions() {
 			super();
@@ -32,9 +32,9 @@ public class ToutanovaTrainer implements LemmatizerGeneratorTrainer {
 			map_.put(FILTER_ALPHABET, 5);
 			map_.put(ALIGNER_TRAINER, EditTreeAlignerTrainer.class);
 			map_.put(DECODER, ZeroOrderDecoder.class);
-			map_.put(USE_CONSTEXT_FEATURE, true);
 			map_.put(MAX_COUNT, 1);
 			map_.put(NBEST_RANK, 50);
+			map_.put(WINDOW_SIZE, 2);
 		}
 
 		public static ToutanovaOptions newInstance() {
@@ -53,16 +53,16 @@ public class ToutanovaTrainer implements LemmatizerGeneratorTrainer {
 			return (Decoder) getInstance(DECODER);
 		}
 
-		public boolean getUseContextFeature() {
-			return (Boolean) getOption(USE_CONSTEXT_FEATURE);
-		}
-
 		public int getMaxCount() {
 			return (Integer) getOption(MAX_COUNT);
 		}
 
 		public int getNbestRank() {
 			return (Integer) getOption(NBEST_RANK);
+		}
+
+		public int getMaxWindowSize() {
+			return (Integer) getOption(WINDOW_SIZE );
 		}
 
 	}

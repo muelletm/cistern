@@ -20,34 +20,29 @@ public class BackupLemmatizerTrainer implements LemmatizerGeneratorTrainer {
 			map_.put(BACKUP_TRAINER, ToutanovaTrainer.class.getName());
 		}
 
+		public LemmatizerGeneratorTrainer getLemmatizerTrainer(String name) {
+			String classname = (String) getOption(name);
+			try {
+				return (LemmatizerGeneratorTrainer) Class.forName(classname).newInstance();
+			} catch (InstantiationException e) {
+				throw new RuntimeException(e);
+			} catch (IllegalAccessException e) {
+				throw new RuntimeException(e);
+			} catch (ClassNotFoundException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
 		public LemmatizerGeneratorTrainer getLemmatizerTrainer() {
-			String classname = (String) getOption(LEMMATIZER_TRAINER);
-			try {
-				return (LemmatizerGeneratorTrainer) Class.forName(classname).newInstance();
-			} catch (InstantiationException e) {
-				throw new RuntimeException(e);
-			} catch (IllegalAccessException e) {
-				throw new RuntimeException(e);
-			} catch (ClassNotFoundException e) {
-				throw new RuntimeException(e);
-			}
+			return getLemmatizerTrainer(LEMMATIZER_TRAINER);
 		}
-		
+
 		public LemmatizerGeneratorTrainer getBackupTrainer() {
-			String classname = (String) getOption(BACKUP_TRAINER);
-			try {
-				return (LemmatizerGeneratorTrainer) Class.forName(classname).newInstance();
-			} catch (InstantiationException e) {
-				throw new RuntimeException(e);
-			} catch (IllegalAccessException e) {
-				throw new RuntimeException(e);
-			} catch (ClassNotFoundException e) {
-				throw new RuntimeException(e);
-			}
+			return getLemmatizerTrainer(BACKUP_TRAINER);
 		}
-		
+
 	}
-	
+		
 	BackupLemmatizerTrainerOptions options_;
 	private LemmatizerGeneratorTrainer standard_trainer_;
 	private ToutanovaTrainer backup_trainer_;

@@ -5,7 +5,7 @@ package marmot.util.eval;
 
 import java.util.Collection;
 
-import marmot.test.util.KeyValueOptions;
+import marmot.util.KeyValueOptions;
 
 
 
@@ -34,7 +34,7 @@ public class TaggingScorer extends AbstractOneTokenPerLineScorer {
 			int index = opts.getValueAsInteger(key);
 			sb.append(tokens[index]);
 		}
-		return sb.toString();
+		return sb.toString().toLowerCase();
 	}
 
 }
