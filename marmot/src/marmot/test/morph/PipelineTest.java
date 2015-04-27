@@ -133,6 +133,7 @@ public class PipelineTest {
 		options.setProperty(Options.PRUNE, "true");
 		options.setProperty(Options.ORDER, "3");
 		options.setProperty(Options.PENALTY, ".1");
+		options.setProperty(MorphOptions.USE_HASH_FEATURE_TABLE_, "true");
 		options.setProperty(MorphOptions.TRAIN_FILE,
 				"form-index=1,tag-index=4,morph-index=6," + getResourceFile("trn.txt"));
 		options.setProperty(MorphOptions.TEST_FILE,

@@ -34,7 +34,7 @@ import marmot.lemma.LemmaCandidateSet;
 import marmot.lemma.ranker.RankerCandidate;
 import marmot.lemma.ranker.RankerInstance;
 import marmot.lemma.ranker.RankerModel;
-import marmot.lemma.ranker.RankerTrainer.RerankerTrainerOptions;
+import marmot.lemma.ranker.RankerTrainer.RankerTrainerOptions;
 import marmot.lemma.toutanova.EditTreeAligner;
 import marmot.lemma.toutanova.EditTreeAlignerTrainer;
 import marmot.morph.analyzer.Analyzer;
@@ -191,12 +191,12 @@ public class MorphModel extends Model {
 		
 		marginalize_lemmas_ = options.getMarginalizeLemmas();
 		
-		RerankerTrainerOptions roptions = new RerankerTrainerOptions();
-		roptions.setOption(RerankerTrainerOptions.UNIGRAM_FILE, options.getLemmaUnigramFile());
-		roptions.setOption(RerankerTrainerOptions.IGNORE_FEATURES, options.getLemmaIgnoreFeatures());
-		roptions.setOption(RerankerTrainerOptions.ASPELL_PATH, options.getLemmaAspellPath());
-		roptions.setOption(RerankerTrainerOptions.ASPELL_LANG, options.getLemmaAspellLang());
-		roptions.setOption(RerankerTrainerOptions.USE_SHAPE_LEXICON, options.getLemmaUseShapeLexicon());
+		RankerTrainerOptions roptions = new RankerTrainerOptions();
+		roptions.setOption(RankerTrainerOptions.UNIGRAM_FILE, options.getLemmaUnigramFile());
+		roptions.setOption(RankerTrainerOptions.IGNORE_FEATURES, options.getLemmaIgnoreFeatures());
+		roptions.setOption(RankerTrainerOptions.ASPELL_PATH, options.getLemmaAspellPath());
+		roptions.setOption(RankerTrainerOptions.ASPELL_LANG, options.getLemmaAspellLang());
+		roptions.setOption(RankerTrainerOptions.USE_SHAPE_LEXICON, options.getLemmaUseShapeLexicon());
 		
 		List<Instance> instances = Instance.getInstances(sentences, false, false);
 		

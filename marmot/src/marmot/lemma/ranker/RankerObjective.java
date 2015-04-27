@@ -9,7 +9,7 @@ import java.util.Map;
 
 import marmot.lemma.LemmaCandidate;
 import marmot.lemma.LemmaCandidateSet;
-import marmot.lemma.ranker.RankerTrainer.RerankerTrainerOptions;
+import marmot.lemma.ranker.RankerTrainer.RankerTrainerOptions;
 import marmot.util.Numerics;
 import cc.mallet.optimize.Optimizable.ByGradientValue;
 
@@ -22,7 +22,7 @@ public class RankerObjective implements ByGradientValue {
 	private double[] weights_;
 	private double penalty_;
 
-	public RankerObjective(RerankerTrainerOptions options, RankerModel model,
+	public RankerObjective(RankerTrainerOptions options, RankerModel model,
 			List<RankerInstance> instances) {
 		model_ = model;
 		instances_ = instances;

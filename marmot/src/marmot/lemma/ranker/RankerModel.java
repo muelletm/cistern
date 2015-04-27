@@ -17,7 +17,7 @@ import marmot.core.Feature;
 import marmot.lemma.Instance;
 import marmot.lemma.LemmaCandidate;
 import marmot.lemma.LemmaCandidateSet;
-import marmot.lemma.ranker.RankerTrainer.RerankerTrainerOptions;
+import marmot.lemma.ranker.RankerTrainer.RankerTrainerOptions;
 import marmot.lemma.toutanova.EditTreeAligner;
 import marmot.util.AspellLexicon;
 import marmot.util.Converter;
@@ -35,7 +35,6 @@ public class RankerModel implements Serializable {
 	private SymbolTable<String> form_table_;
 	private SymbolTable<String> lemma_table_;
 	private SymbolTable<String> pos_table_;
-	private SymbolTable<Feature> feature_table_;
 	private SymbolTable<Character> char_table_;
 	private SymbolTable<EditTree> tree_table_;
 	private EditTreeAligner aligner_;
@@ -66,7 +65,9 @@ public class RankerModel implements Serializable {
 
 	private SymbolTable<String> morph_table_;
 
+	private SymbolTable<Object> feature_table_;
 	private transient Feature feature_;
+
 	private transient Encoder encoder_;
 	private transient Context context_;
 
@@ -80,13 +81,12 @@ public class RankerModel implements Serializable {
 	private transient double[] accumulated_penalties_;
 	private double accumulated_penalty_;
 	private boolean copy_conjunctions_;
-	private final static double EPSILON = 1e-10;;
+	private boolean hash_feature_table_;
+	private final static double EPSILON = 1e-10;
 
 	private static class Context {
 		public List<Integer> list;
 		public boolean insert;
-
-		// public Shape shape;
 
 		public Context() {
 			list = new ArrayList<>();
@@ -96,7 +96,7 @@ public class RankerModel implements Serializable {
 	private static final int length_bits_ = Encoder
 			.bitsNeeded(2 * max_window + 10);
 
-	public void init(RerankerTrainerOptions options,
+	public void init(RankerTrainerOptions options,
 			List<RankerInstance> instances, EditTreeAligner aligner) {
 
 		SymbolTable<String> pos_table = null;
@@ -112,7 +112,7 @@ public class RankerModel implements Serializable {
 		init(options, instances, aligner, pos_table, morph_table);
 	}
 
-	public void init(RerankerTrainerOptions options,
+	public void init(RankerTrainerOptions options,
 			List<RankerInstance> instances, EditTreeAligner aligner,
 			SymbolTable<String> pos_table, SymbolTable<String> morph_table) {
 		Logger logger = Logger.getLogger(getClass().getName());
@@ -177,6 +177,9 @@ public class RankerModel implements Serializable {
 		use_alignment_features_ = options.getUseAlignmentFeatures();
 		copy_conjunctions_ = options.getCopyConjunctions();
 
+		hash_feature_table_ = options.getUseHashFeatureTable();
+
+		// if (explicit_feature_table_)
 		feature_table_ = new SymbolTable<>();
 
 		logger.info("Starting feature index extraction.");
@@ -185,7 +188,10 @@ public class RankerModel implements Serializable {
 			addIndexes(instance, instance.getCandidateSet(), true);
 		}
 
-		feat_length_ = feature_table_.size();
+		feat_length_ = 100_000_000l;
+		if (feature_table_ != null)
+			feat_length_ = feature_table_.size();
+
 		pos_length_ = (pos_table_ == null) ? 1 : pos_table_.size() + 1;
 		long morph_length = (morph_table_ == null) ? 1
 				: morph_table_.size() + 1;
@@ -196,8 +202,10 @@ public class RankerModel implements Serializable {
 		int length = (int) Math.min(actual_length, max_weights_length_);
 
 		weights_ = new double[length];
-		logger.info(String.format("Number of features: %10d",
-				feature_table_.size()));
+
+		if (feature_table_ != null)
+			logger.info(String.format("Number of features: %10d",
+					feature_table_.size()));
 		logger.info(String.format("Weights length: %6d", weights_.length));
 
 		logger.info(String.format("Real encoder capacity: %2d", real_capacity_));
@@ -294,10 +302,11 @@ public class RankerModel implements Serializable {
 
 	public void addIndexes(RankerInstance instance, LemmaCandidateSet set,
 			boolean insert) {
-		if (context_ == null || encoder_ == null || feature_ == null) {
+		if (context_ == null) {
 			context_ = new Context();
 			encoder_ = new Encoder(encoder_capacity_);
-			feature_ = new Feature(encoder_capacity_);
+			if (!hash_feature_table_)
+				feature_ = new Feature(encoder_capacity_);
 		}
 
 		String form = instance.getInstance().getForm();
@@ -472,7 +481,7 @@ public class RankerModel implements Serializable {
 			encoder_.append(Features.align_copy_feature.ordinal(),
 					feature_bits_);
 			addFeature();
-			
+
 			if (!copy_conjunctions_) {
 				return;
 			}
@@ -556,24 +565,23 @@ public class RankerModel implements Serializable {
 	}
 
 	private int getFeatureIndex() {
-		if (feature_table_ != null) {
-
+		int index;
+		if (hash_feature_table_) {
+			index = feature_table_.toIndex(encoder_.hashCode(), -1,
+					context_.insert);
+		} else {
 			encoder_.copyToFeature(feature_);
-
-			int index = feature_table_.toIndex(feature_, -1, false);
+			index = feature_table_.toIndex(feature_, -1, false);
 			if (index >= 0)
 				return index;
-
 			if (context_.insert) {
 				real_capacity_ = Math.max(real_capacity_,
 						feature_.getCurrentLength());
 				index = feature_table_.toIndex(feature_, true);
 				feature_ = new Feature(encoder_capacity_);
 			}
-
-			return index;
 		}
-		return encoder_.hashCode();
+		return index;
 	}
 
 	private void addFeature(boolean reset) {
@@ -581,17 +589,6 @@ public class RankerModel implements Serializable {
 		if (index >= 0) {
 			context_.list.add(index);
 		}
-
-		// if (use_shape_) {
-		// Shape shape = context_.shape;
-		// encoder_.storeState();
-		// encoder_.append(shape.ordinal(), shape_bits_);
-		// index = getFeatureIndex();
-		// if (index >= 0) {
-		// context_.list.add(index);
-		// }
-		// encoder_.restoreState();
-		// }
 
 		if (reset)
 			encoder_.reset();

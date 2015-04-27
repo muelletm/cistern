@@ -46,12 +46,11 @@ public class MorphOptions extends Options {
 	public static final String LEMMA_USE_SHAPE_LEXICON= "lemma-use-shape-lexicon";
 	public static final String LEMMA_USE_MORPH = "lemma-use-morph";
 	public static final String LEMMATIZER_FILE = "lemmatizer-file";
+	public static final String LEMMAS_IGNORE_FEATURES = "lemma-ignore-features";
+	public static final String USE_HASH_FEATURE_TABLE_ = "use-hash-feature-table";
 
-
-	
 	private static final Map<String, String> DEFALUT_VALUES_ = new HashMap<String, String>();
 	private static final Map<String, String> COMMENTS_ = new HashMap<String, String>();
-	public static final String LEMMAS_IGNORE_FEATURES = "lemma-ignore-features";
 
 	static {
 		DEFALUT_VALUES_.put(TRAIN_FILE, "");
@@ -124,6 +123,8 @@ public class MorphOptions extends Options {
 		COMMENTS_.put(LEMMA_USE_MORPH, "Passed to lemma model.");
 		DEFALUT_VALUES_.put(LEMMATIZER_FILE, "");
 		COMMENTS_.put(LEMMATIZER_FILE, "Use this pipeline lemmatizer to lemmatizer after tagging.");
+		DEFALUT_VALUES_.put(USE_HASH_FEATURE_TABLE_, "false");
+		COMMENTS_.put(USE_HASH_FEATURE_TABLE_, "Less memory usage sligtly less accurate.");
 	}
 
 	public MorphOptions() {
@@ -282,6 +283,10 @@ public class MorphOptions extends Options {
 
 	public String getLemmatizerFile() {
 		return getProperty(LEMMATIZER_FILE);
+	}
+
+	public boolean getUseHashFeatureTable() {
+		return Boolean.valueOf(USE_HASH_FEATURE_TABLE_);
 	}
 
 }

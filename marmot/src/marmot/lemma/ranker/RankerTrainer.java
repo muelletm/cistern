@@ -30,7 +30,7 @@ import cc.mallet.optimize.Optimizer;
 
 public class RankerTrainer implements LemmatizerGeneratorTrainer {
 
-	public static class RerankerTrainerOptions extends Options {
+	public static class RankerTrainerOptions extends Options {
 		
 		private static final long serialVersionUID = 1L;
 		
@@ -47,7 +47,9 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
 		public static final String NUM_EDIT_TREE_STEPS = "num-edit-tree-steps";
 		public static final String COPY_CONJUNCTONS = "copy-conjunctions";
 
-		public RerankerTrainerOptions() {
+		public static final String USE_HASH_FEATURE_TABLE = "use-hash-feature-table";
+
+		public RankerTrainerOptions() {
 			map_.put(GENERATOR_TRAINERS, Arrays.asList(SimpleLemmatizerTrainer.class, EditTreeGeneratorTrainer.class));
 			map_.put(USE_PERCEPTRON, true);
 			map_.put(QUADRATIC_PENALTY, 0.00);
@@ -60,6 +62,7 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
 			map_.put(IGNORE_FEATURES, "");
 			map_.put(NUM_EDIT_TREE_STEPS, 1);
 			map_.put(COPY_CONJUNCTONS, false);
+			map_.put(USE_HASH_FEATURE_TABLE, false);
 		}
 		
 		@SuppressWarnings("unchecked")
@@ -127,12 +130,15 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
 			return (Boolean) getOption(COPY_CONJUNCTONS);
 		}
 
+		public boolean getUseHashFeatureTable() {
+			return (Boolean) getOption(USE_HASH_FEATURE_TABLE);
+		}
 	} 
 	
-	private RerankerTrainerOptions options_;
+	private RankerTrainerOptions options_;
 	
 	public RankerTrainer() {
-		options_ = new RerankerTrainerOptions();
+		options_ = new RankerTrainerOptions();
 	}
 
 	@Override

@@ -8,7 +8,6 @@ import java.util.Collection;
 
 import marmot.core.ArrayFloatFeatureVector;
 import marmot.core.ConcatFloatFeatureVector;
-import marmot.core.Feature;
 import marmot.core.FeatureVector;
 import marmot.core.FloatFeatureVector;
 import marmot.core.FloatWeights;
@@ -41,7 +40,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 
 	private boolean extend_feature_set_;
 	private MorphModel model_;
-	private SymbolTable<Feature> feature_table_;
+	private SymbolTable<Object> xfeature_table_;
 
 	private int simple_sub_morph_start_index_;
 
@@ -73,9 +72,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 	private boolean use_signature_features_;
 	private boolean use_infix_features_;
 	private boolean use_bigrams_;
-	private static final boolean use_penalty_ = true;
-
-	// private double[] accumulated_float_penalty_;
+	private boolean hash_feature_table_;
 
 	public MorphWeightVector(MorphOptions options) {
 		shape_ = options.getShape();
@@ -84,6 +81,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 		use_state_features_ = options.getUseDefaultFeatures();
 		use_hash_vector = options.getUseHashVector();
 		max_affix_length_ = options.getMaxAffixLength();
+		hash_feature_table_ = options.getUseHashFeatureTable();
 
 		use_form_feature_ = true;
 		use_rare_feature_ = true;
@@ -199,16 +197,12 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 			accumulated_penalty_ = 0.0;
 		} else {
 
-			if (use_penalty_) {
-				accumulated_penalty_ = (double) (linear_penalty / scale_factor_);
-				if (accumulated_penalties_ == null) {
-					accumulated_penalties_ = new double[weights_.length];
-				}
-				if (accumulated_float_penalties_ == null
-						&& float_weights_ != null) {
-					accumulated_float_penalties_ = new double[float_weights_.length];
-				}
-
+			accumulated_penalty_ = (double) (linear_penalty / scale_factor_);
+			if (accumulated_penalties_ == null) {
+				accumulated_penalties_ = new double[weights_.length];
+			}
+			if (accumulated_float_penalties_ == null && float_weights_ != null) {
+				accumulated_float_penalties_ = new double[float_weights_.length];
 			}
 		}
 
@@ -234,8 +228,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 		while (run != null) {
 			encoder_.append(run.getLevel(), level_bits_);
 			encoder_.append(run.getIndex(), tag_bits_[run.getLevel()]);
-			new_vector.add(getFeatureIndex(encoder_
-					.getFeature(extend_feature_set_)));
+			addFeature(new_vector);
 			run = run.getSubLevelState();
 		}
 		encoder_.reset();
@@ -273,8 +266,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 					encoder_.append(0, level_bits_);
 					encoder_.append(fc, state_feature_bits_);
 					encoder_.append(form_index, word_bits_);
-					features.add(getFeatureIndex(encoder_
-							.getFeature(extend_feature_set_)));
+					addFeature(features);
 					encoder_.reset();
 				}
 
@@ -287,8 +279,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 				encoder_.append(0, level_bits_);
 				encoder_.append(fc, state_feature_bits_);
 				encoder_.append(is_rare);
-				features.add(getFeatureIndex(encoder_
-						.getFeature(extend_feature_set_)));
+				addFeature(features);
 				encoder_.reset();
 
 				fc++;
@@ -302,8 +293,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 					encoder_.append(0, level_bits_);
 					encoder_.append(fc, state_feature_bits_);
 					encoder_.append(shape_index, shape_bits_);
-					features.add(getFeatureIndex(encoder_
-							.getFeature(extend_feature_set_)));
+					addFeature(features);
 					encoder_.reset();
 				}
 				fc++;
@@ -322,13 +312,11 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 						encoder_.append(0, level_bits_);
 						encoder_.append(fc, state_feature_bits_);
 						encoder_.append(pform_index, word_bits_);
-						features.add(getFeatureIndex(encoder_
-								.getFeature(extend_feature_set_)));
+						addFeature(features);
 
 						if (form_index >= 0 && use_bigrams_) {
 							encoder_.append(form_index, word_bits_);
-							features.add(getFeatureIndex(encoder_
-									.getFeature(extend_feature_set_)));
+							addFeature(features);
 						}
 						encoder_.reset();
 					}
@@ -348,8 +336,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 					encoder_.append(pshape_index, shape_bits_);
 
 					if (model_.isRare(pform_index)) {
-						features.add(getFeatureIndex(encoder_
-								.getFeature(extend_feature_set_)));
+						addFeature(features);
 					}
 					encoder_.reset();
 				}
@@ -375,13 +362,11 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 						encoder_.append(0, level_bits_);
 						encoder_.append(fc, state_feature_bits_);
 						encoder_.append(nform_index, word_bits_);
-						features.add(getFeatureIndex(encoder_
-								.getFeature(extend_feature_set_)));
+						addFeature(features);
 
 						if (form_index >= 0 && use_bigrams_) {
 							encoder_.append(form_index, word_bits_);
-							features.add(getFeatureIndex(encoder_
-									.getFeature(extend_feature_set_)));
+							addFeature(features);
 						}
 						encoder_.reset();
 					}
@@ -399,8 +384,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 					encoder_.append(nshape_index, shape_bits_);
 
 					if (model_.isRare(nform_index)) {
-						features.add(getFeatureIndex(encoder_
-								.getFeature(extend_feature_set_)));
+						addFeature(features);
 					}
 
 					encoder_.reset();
@@ -422,8 +406,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 					encoder_.append(0, level_bits_);
 					encoder_.append(fc, state_feature_bits_);
 					encoder_.append(signature, signature_bits_);
-					features.add(getFeatureIndex(encoder_
-							.getFeature(extend_feature_set_)));
+					addFeature(features);
 					encoder_.reset();
 				}
 				fc++;
@@ -453,9 +436,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 								break;
 							}
 							encoder_.append(c, char_bits_);
-							features.add(getFeatureIndex(encoder_
-									.getFeature(extend_feature_set_)));
-
+							addFeature(features);
 						}
 
 						encoder_.reset();
@@ -481,8 +462,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 							break;
 						}
 						encoder_.append(c, char_bits_);
-						features.add(getFeatureIndex(encoder_
-								.getFeature(extend_feature_set_)));
+						addFeature(features);
 					}
 					encoder_.reset();
 				}
@@ -503,9 +483,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 							break;
 						}
 						encoder_.append(c, char_bits_);
-						features.add(getFeatureIndex(encoder_
-								.getFeature(extend_feature_set_)));
-
+						addFeature(features);
 					}
 					encoder_.reset();
 				}
@@ -523,8 +501,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 					encoder_.append(fc, state_feature_bits_);
 
 					encoder_.append(token_feature_index, token_feature_bits_);
-					features.add(getFeatureIndex(encoder_
-							.getFeature(extend_feature_set_)));
+					addFeature(features);
 					encoder_.reset();
 				}
 			}
@@ -556,8 +533,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 						encoder_.append(0, level_bits_);
 						encoder_.append(fc, state_feature_bits_);
 						encoder_.append(index, mdict_bits_);
-						features.add(getFeatureIndex(encoder_
-								.getFeature(extend_feature_set_)));
+						addFeature(features);
 						encoder_.reset();
 					}
 				}
@@ -571,6 +547,18 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 		assert fc == num_state_features_ || fc + 1 == num_state_features_ : String
 				.format("%d != %d", fc, num_state_features_);
 		return features;
+	}
+
+	private void addFeature(FeatureVector features) {
+		Object feature;
+		if (hash_feature_table_) {
+			feature = encoder_.hashCode();
+		} else {
+			feature = encoder_.getFeature();
+		}
+
+		int index = xfeature_table_.toIndex(feature, -1, extend_feature_set_);
+		features.add(index);
 	}
 
 	private FloatFeatureVector extractFloatFeatures(Sequence sentence,
@@ -603,11 +591,6 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 		return vector;
 	}
 
-	private int getFeatureIndex(Feature feature) {
-		int index = feature_table_.toIndex(feature, -1, extend_feature_set_);
-		return index;
-	}
-
 	@Override
 	public FeatureVector extractTransitionFeatures(State state) {
 		prepareEncoder();
@@ -636,8 +619,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 				encoder_.append(index, tag_bits_[level]);
 				run = run.getPreviousSubOrderState();
 			}
-			features.add(getFeatureIndex(encoder_
-					.getFeature(extend_feature_set_)));
+			addFeature(features);
 			encoder_.reset();
 
 		}
@@ -799,7 +781,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 	@Override
 	public void init(Model model, Collection<Sequence> sequences) {
 		int max_level = model.getTagTables().size();
-		feature_table_ = new SymbolTable<Feature>();
+		xfeature_table_ = new SymbolTable<>();
 		model_ = (MorphModel) model;
 		max_level_ = max_level;
 		num_tags_ = new int[max_level];
@@ -1014,8 +996,8 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 		return mdict_;
 	}
 
-	public SymbolTable<Feature> getFeatureTable() {
-		return feature_table_;
+	public SymbolTable<Object> getFeatureTable() {
+		return xfeature_table_;
 	}
 
 	@Override
