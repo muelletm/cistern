@@ -44,15 +44,12 @@ public class RankerModel implements Serializable {
 	private static final int window_bits_ = Encoder.bitsNeeded(max_window);
 	private static final int max_affix_length_ = 10;
 
-	private static final int lemma_feature_ = 0;
-	private static final int lemma_form_feature_ = 1;
-	private static final int align_feature_ = 2;
-	private static final int align_copy_feature_ = 3;
-	private static final int align_window_feature_ = 4;
-	private static final int tree_feature_ = 5;
-	private static final int affix_feature_ = 6;
-	private static final int lexicon_feature_ = 7;
-	private static final int feature_bits_ = Encoder.bitsNeeded(7);
+	private static enum Features {
+		lemma_feature, lemma_form_feature, align_feature, align_copy_feature, tree_feature, affix_feature, lexicon_feature, align_feature_output
+	}
+
+	private static final int feature_bits_ = Encoder.bitsNeeded(Features
+			.values().length - 1);
 	private static final int unigram_count_position_bits_ = Encoder
 			.bitsNeeded(HashLexicon.ARRAY_LENGTH - 1);
 	private static final long max_weights_length_ = 10_000_000;
@@ -82,6 +79,7 @@ public class RankerModel implements Serializable {
 
 	private transient double[] accumulated_penalties_;
 	private double accumulated_penalty_;
+	private boolean copy_conjunctions_;
 	private final static double EPSILON = 1e-10;;
 
 	private static class Context {
@@ -177,6 +175,7 @@ public class RankerModel implements Serializable {
 		use_shape_lexicon_ = options.getUseShapeLexicon();
 		use_core_features_ = options.getUseCoreFeatures();
 		use_alignment_features_ = options.getUseAlignmentFeatures();
+		copy_conjunctions_ = options.getCopyConjunctions();
 
 		feature_table_ = new SymbolTable<>();
 
@@ -320,13 +319,15 @@ public class RankerModel implements Serializable {
 			if (use_core_features_) {
 
 				if (lemma_index >= 0) {
-					encoder_.append(lemma_feature_, feature_bits_);
+					encoder_.append(Features.lemma_feature.ordinal(),
+							feature_bits_);
 					encoder_.append(lemma_index, lemma_bits_);
 					addFeature();
 				}
 
 				if (lemma_index >= 0 && form_index >= 0) {
-					encoder_.append(lemma_form_feature_, feature_bits_);
+					encoder_.append(Features.lemma_form_feature.ordinal(),
+							feature_bits_);
 					encoder_.append(lemma_index, lemma_bits_);
 					encoder_.append(form_index, form_bits_);
 					addFeature();
@@ -336,18 +337,21 @@ public class RankerModel implements Serializable {
 						form, lemma, tree_table_, false);
 
 				if (tree_index >= 0) {
-					encoder_.append(tree_feature_, feature_bits_);
+					encoder_.append(Features.tree_feature.ordinal(),
+							feature_bits_);
 					encoder_.append(tree_index, tree_bits_);
 					addFeature();
 
-					encoder_.append(tree_feature_, feature_bits_);
+					encoder_.append(Features.tree_feature.ordinal(),
+							feature_bits_);
 					encoder_.append(tree_index, tree_bits_);
-					addPrefixFeatures(context_, form_chars, encoder_);
+					addPrefixFeatures(form_chars);
 					encoder_.reset();
 
-					encoder_.append(tree_feature_, feature_bits_);
+					encoder_.append(Features.tree_feature.ordinal(),
+							feature_bits_);
 					encoder_.append(tree_index, tree_bits_);
-					addSuffixFeatures(context_, form_chars, encoder_);
+					addSuffixFeatures(form_chars);
 					encoder_.reset();
 				}
 
@@ -360,10 +364,9 @@ public class RankerModel implements Serializable {
 				List<Integer> alignment = candidate.getAlignment(aligner_,
 						form, lemma);
 
-				addAlignmentIndexes(context_, form_chars, lemma_chars,
-						alignment, encoder_);
+				addAlignmentIndexes(form_chars, lemma_chars, alignment);
 
-				addAffixIndexes(context_, lemma_chars, encoder_);
+				addAffixIndexes(lemma_chars);
 			}
 
 			int lexicon_index = 0;
@@ -386,7 +389,8 @@ public class RankerModel implements Serializable {
 			for (int i = 0; i < HashLexicon.ARRAY_LENGTH; i++) {
 				int count = counts[i];
 				if (count > 0) {
-					encoder_.append(lexicon_feature_, feature_bits_);
+					encoder_.append(Features.lexicon_feature.ordinal(),
+							feature_bits_);
 					encoder_.append(lexicon_index, unigram_lexicons_bits_);
 					encoder_.append(i, unigram_count_position_bits_);
 					addFeature();
@@ -395,7 +399,8 @@ public class RankerModel implements Serializable {
 		} else {
 			int count = counts[HashLexicon.ARRAY_LENGTH - 1];
 			if (count > 0) {
-				encoder_.append(lexicon_feature_, feature_bits_);
+				encoder_.append(Features.lexicon_feature.ordinal(),
+						feature_bits_);
 				encoder_.append(lexicon_index, unigram_lexicons_bits_);
 				addFeature();
 			}
@@ -403,42 +408,41 @@ public class RankerModel implements Serializable {
 
 	}
 
-	private void addPrefixFeatures(Context context, int[] chars, Encoder encoder) {
-		encoder.append(false);
+	private void addPrefixFeatures(int[] chars) {
+		encoder_.append(false);
 		for (int i = 0; i < Math.min(chars.length, max_affix_length_); i++) {
 			int c = chars[i];
 			if (c < 0)
 				return;
-			encoder.append(c, char_bits_);
+			encoder_.append(c, char_bits_);
 			addFeature(false);
 		}
 	}
 
-	private void addSuffixFeatures(Context context, int[] chars, Encoder encoder) {
-		encoder.append(true);
+	private void addSuffixFeatures(int[] chars) {
+		encoder_.append(true);
 		for (int i = chars.length - 1; i >= Math.max(0, chars.length
 				- max_affix_length_); i--) {
 			int c = chars[i];
 			if (c < 0)
 				return;
-			encoder.append(c, char_bits_);
+			encoder_.append(c, char_bits_);
 			addFeature(false);
 		}
 	}
 
-	private void addAffixIndexes(Context c, int[] lemma_chars, Encoder encoder) {
-		encoder.append(affix_feature_, feature_bits_);
-		addPrefixFeatures(c, lemma_chars, encoder);
-		encoder.reset();
+	private void addAffixIndexes(int[] lemma_chars) {
+		encoder_.append(Features.affix_feature.ordinal(), feature_bits_);
+		addPrefixFeatures(lemma_chars);
+		encoder_.reset();
 
-		encoder.append(affix_feature_, feature_bits_);
-		addSuffixFeatures(c, lemma_chars, encoder);
-		encoder.reset();
-
+		encoder_.append(Features.affix_feature.ordinal(), feature_bits_);
+		addSuffixFeatures(lemma_chars);
+		encoder_.reset();
 	}
 
-	private void addAlignmentIndexes(Context c, int[] form_chars,
-			int[] lemma_chars, List<Integer> alignment, Encoder encoder) {
+	private void addAlignmentIndexes(int[] form_chars, int[] lemma_chars,
+			List<Integer> alignment) {
 
 		Iterator<Integer> iterator = alignment.iterator();
 
@@ -451,48 +455,72 @@ public class RankerModel implements Serializable {
 			int input_end = input_start + input_length;
 			int output_end = output_start + output_length;
 
-			addAlignmentSegmentIndexes(c, form_chars, lemma_chars, encoder,
-					input_start, input_end, output_start, output_end);
+			addAlignmentSegmentIndexes(form_chars, lemma_chars, input_start,
+					input_end, output_start, output_end);
 
 			input_start = input_end;
 			output_start = output_end;
 		}
 	}
 
-	private void addAlignmentSegmentIndexes(Context c, int[] form_chars,
-			int[] lemma_chars, Encoder encoder, int input_start, int input_end,
+	private void addAlignmentSegmentIndexes(int[] form_chars,
+			int[] lemma_chars, int input_start, int input_end,
 			int output_start, int output_end) {
 
 		if (isCopySegment(form_chars, lemma_chars, input_start, input_end,
 				output_start, output_end)) {
-			encoder.append(align_copy_feature_, feature_bits_);
+			encoder_.append(Features.align_copy_feature.ordinal(),
+					feature_bits_);
 			addFeature();
-		} else {
-
-			encoder.append(align_feature_, feature_bits_);
-			addSegment(form_chars, input_start, input_end, encoder);
-			addSegment(form_chars, output_start, output_end, encoder);
-			addFeature();
-
-			for (int window = 1; window <= max_window; window++) {
-
-				encoder.append(align_window_feature_, feature_bits_);
-				encoder.append(window, window_bits_);
-				encoder.append(true);
-				addSegment(form_chars, input_start - window,
-						input_end + window, encoder);
-				addSegment(form_chars, output_start, output_end, encoder);
-				addFeature();
-
-				encoder.append(align_window_feature_, feature_bits_);
-				encoder.append(window, window_bits_);
-				encoder.append(false);
-				addSegment(form_chars, input_start, input_end, encoder);
-				addSegment(form_chars, output_start - window, output_end
-						+ window, encoder);
-				addFeature();
-
+			
+			if (!copy_conjunctions_) {
+				return;
 			}
+		}
+
+		encoder_.append(Features.align_feature.ordinal(), feature_bits_);
+		addSegment(form_chars, input_start, input_end);
+		addSegment(lemma_chars, output_start, output_end);
+		addFeature(false);
+		addWindow(form_chars, lemma_chars, input_start, input_end,
+				output_start, output_end);
+		encoder_.reset();
+
+		encoder_.append(Features.align_feature_output.ordinal(), feature_bits_);
+		addSegment(lemma_chars, output_start, output_end);
+		addFeature(false);
+		addWindow(form_chars, lemma_chars, input_start, input_end,
+				output_start, output_end);
+		encoder_.reset();
+	}
+
+	private void addWindow(int[] form_chars, int[] lemma_chars,
+			int input_start, int input_end, int output_start, int output_end) {
+		encoder_.storeState();
+
+		int feature_bits_ = 3;
+
+		for (int window = 1; window <= max_window; window++) {
+			int index = 0;
+
+			encoder_.append(index++, feature_bits_);
+			encoder_.append(window, window_bits_);
+			addSegment(form_chars, input_start - window, input_start);
+			addSegment(form_chars, input_end + 1, input_end + window + 1);
+			addFeature(false);
+			encoder_.restoreState();
+
+			encoder_.append(index++, feature_bits_);
+			encoder_.append(window, window_bits_);
+			addSegment(form_chars, input_end + 1, input_end + window + 1);
+			addFeature(false);
+			encoder_.restoreState();
+
+			encoder_.append(index++, feature_bits_);
+			encoder_.append(window, window_bits_);
+			addSegment(form_chars, input_start - window, input_start);
+			addFeature(false);
+			encoder_.restoreState();
 		}
 	}
 
@@ -508,8 +536,8 @@ public class RankerModel implements Serializable {
 		return form_chars[input_start] == lemma_chars[output_start];
 	}
 
-	private void addSegment(int[] chars, int start, int end, Encoder encoder) {
-		encoder.append(end - start, length_bits_);
+	private void addSegment(int[] chars, int start, int end) {
+		encoder_.append(end - start, length_bits_);
 
 		for (int i = start; i < end; i++) {
 
@@ -523,7 +551,7 @@ public class RankerModel implements Serializable {
 			if (c < 0)
 				return;
 
-			encoder.append(c, char_bits_);
+			encoder_.append(c, char_bits_);
 		}
 	}
 

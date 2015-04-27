@@ -6,6 +6,7 @@ package marmot.test.lemma.toutanova;
 import java.util.List;
 
 import marmot.lemma.BackupLemmatizerTrainer;
+import marmot.lemma.BackupLemmatizerTrainer.BackupLemmatizerTrainerOptions;
 import marmot.lemma.Instance;
 import marmot.lemma.Lemmatizer;
 import marmot.lemma.LemmatizerGeneratorTrainer;
@@ -50,21 +51,11 @@ public class ToutanovaTrainerTest extends SimpleTrainerTest {
 	@Test
 	public void moderateZeroOrderAlignerPosTest() {
 
-		LemmatizerGeneratorTrainer simple_trainer = new SimpleLemmatizerTrainer();
-		simple_trainer.getOptions().setOption(SimpleLemmatizerTrainerOptions.HANDLE_UNSEEN, false);
-		simple_trainer.getOptions().setOption(SimpleLemmatizerTrainerOptions.USE_BACKUP, false);
-		simple_trainer.getOptions().setOption(Options.USE_POS, true);
-		simple_trainer.getOptions().setOption(SimpleLemmatizerTrainerOptions.ABSTAIN_IF_AMBIGIOUS, true);
+		BackupLemmatizerTrainer trainer = new BackupLemmatizerTrainer();
+		Options options = trainer.getOptions();
 		
-		ToutanovaTrainer trainer = new ToutanovaTrainer();
-		trainer.getOptions().setOption(ToutanovaOptions.NUM_ITERATIONS, 10);
-		trainer.getOptions().setOption(ToutanovaOptions.USE_POS, true);
-		trainer.getOptions().setOption(ToutanovaOptions.FILTER_ALPHABET, 5);
-		trainer.getOptions().setOption(ToutanovaOptions.AVERAGING, true);
-		trainer.getOptions().setOption(ToutanovaOptions.DECODER, FirstOrderDecoder.class);
-		trainer.getOptions().setOption(ToutanovaOptions.SEED, 10L);
-		trainer.getOptions().setOption(ToutanovaOptions.ALIGNER_TRAINER, EditTreeAlignerTrainer.class);
-		trainer.getOptions().setOption(ToutanovaOptions.MAX_COUNT, 1);
+		options.setOption(BackupLemmatizerTrainerOptions.TRAINER_PREF + SimpleLemmatizerTrainerOptions.USE_BACKUP, false);
+		options.setOption(BackupLemmatizerTrainerOptions.BACKUP_PREF + ToutanovaOptions.SEED, 10L);
 		
 		// 90.75 88.46 HA
 		// 93.90 90.72 SA
@@ -83,8 +74,7 @@ public class ToutanovaTrainerTest extends SimpleTrainerTest {
 		// 94.54 313s
 		// 94.93 814s
 		
-		LemmatizerTrainer btrainer = new BackupLemmatizerTrainer(simple_trainer, trainer);
-		runModerateTest(btrainer, 1., 92.72);
+		runModerateTest(trainer, 1., 92.72);
 	}
 
 	@Test

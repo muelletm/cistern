@@ -31,7 +31,7 @@ public class RerankerTrainerTest extends SimpleTrainerTest {
 		
 		trainer.getOptions().setOption(RerankerTrainerOptions.USE_PERCEPTRON, false).setOption(RerankerTrainerOptions.QUADRATIC_PENALTY, 1.0);
 		//trainer.getOptions().setOption(RerankerTrainerOptions.UNIGRAM_FILE, "min-count=5,/mounts/data/proj/marmot/lemmatizer/data/de/unigrams.txt");
-		trainer.getOptions().setOption(RerankerTrainerOptions.UNIGRAM_FILE, Arrays.asList("min-count=1,/mounts/data/proj/marmot/lemmatizer/data/de/aspell.txt", "min-count=5,/mounts/data/proj/marmot/lemmatizer/data/de/unigrams.txt"));
+		//trainer.getOptions().setOption(RerankerTrainerOptions.UNIGRAM_FILE, Arrays.asList("min-count=1,/mounts/data/proj/marmot/lemmatizer/data/de/aspell.txt", "min-count=5,/mounts/data/proj/marmot/lemmatizer/data/de/unigrams.txt"));
 		//trainer.getOptions().setOption(RerankerTrainerOptions.UNIGRAM_FILE, Arrays.asList("min-count=1,/mounts/data/proj/marmot/lemmatizer/data/de/aspell.txt"));
 		trainer.getOptions().setOption(RerankerTrainerOptions.USE_SHAPE_LEXICON, true);
 		trainer.getOptions().setOption(RerankerTrainerOptions.NUM_EDIT_TREE_STEPS, 0);

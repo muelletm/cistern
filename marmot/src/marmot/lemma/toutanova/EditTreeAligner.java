@@ -34,11 +34,11 @@ public class EditTreeAligner implements Aligner {
 			List<Integer> merged_list = Aligner.StaticMethods
 					.mergeEmptyInputSegments(list);
 
-			if (!merged_list.equals(list)) {
-				Logger.getLogger(getClass().getName()).info(
-						String.format("Merging: %s %s %s -> %s", input, output,
-								list, merged_list));
-			}
+//			if (!merged_list.equals(list)) {
+//				Logger.getLogger(getClass().getName()).info(
+//						String.format("Merging: %s %s %s -> %s", input, output,
+//								list, merged_list));
+//			}
 			
 			list = merged_list;
 		}

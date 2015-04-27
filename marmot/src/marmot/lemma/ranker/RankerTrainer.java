@@ -45,6 +45,7 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
 		public static final String USE_ALIGNMENT_FEATURES = "use-alignment-features";
 		public static final String IGNORE_FEATURES = "ignore-features";
 		public static final String NUM_EDIT_TREE_STEPS = "num-edit-tree-steps";
+		public static final String COPY_CONJUNCTONS = "copy-conjunctions";
 
 		public RerankerTrainerOptions() {
 			map_.put(GENERATOR_TRAINERS, Arrays.asList(SimpleLemmatizerTrainer.class, EditTreeGeneratorTrainer.class));
@@ -58,6 +59,7 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
 			map_.put(USE_ALIGNMENT_FEATURES, true);
 			map_.put(IGNORE_FEATURES, "");
 			map_.put(NUM_EDIT_TREE_STEPS, 1);
+			map_.put(COPY_CONJUNCTONS, false);
 		}
 		
 		@SuppressWarnings("unchecked")
@@ -119,6 +121,10 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
 
 		public int getNumEditTreeSteps() {
 			return (Integer) getOption(NUM_EDIT_TREE_STEPS);
+		}
+
+		public boolean getCopyConjunctions() {
+			return (Boolean) getOption(COPY_CONJUNCTONS);
 		}
 
 	} 
