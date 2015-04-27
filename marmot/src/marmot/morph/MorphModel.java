@@ -754,11 +754,20 @@ public class MorphModel extends Model {
 
 		int[] tag_indexes = new int[tag_tables.size()];
 
-		tag_indexes[0] = tag_tables.get(0).toIndex(pos_tag, -1, insert);
-		if (tag_morph_) {
-			tag_indexes[1] = tag_tables.get(1).toIndex(morph, -1, insert);
+		if (pos_tag == null) {
+			tag_indexes[0] = -1;
+		} else {
+			tag_indexes[0] = tag_tables.get(0).toIndex(pos_tag, -1, insert);
 		}
-
+		
+		if (tag_morph_) {
+			if (morph == null) {
+				tag_indexes[1] = -1;
+			} else {
+				tag_indexes[1] = tag_tables.get(1).toIndex(morph, -1, insert);	
+			}
+			
+		}
 		word.setTagIndexes(tag_indexes);
 	}
 

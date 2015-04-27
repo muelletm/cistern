@@ -12,14 +12,21 @@ import marmot.core.SimpleTagger;
 import marmot.core.State;
 import marmot.core.Token;
 import marmot.core.WeightVector;
+import marmot.lemma.Instance;
+import marmot.lemma.Lemmatizer;
 import marmot.lemma.ranker.RankerCandidate;
 
 public class MorphTagger extends SimpleTagger {
 
 	private static final long serialVersionUID = 1L;
+	private transient Lemmatizer lemmatizer_;
 	
 	public MorphTagger(Model model, int order, WeightVector weight_vector) {
 		super(model, order, weight_vector);
+	}
+	
+	public void setPipeLineLemmatizer(Lemmatizer lemmatizer) {
+		lemmatizer_ = lemmatizer;
 	}
 
 	protected void addIndexes(Sequence sequence) {
@@ -43,21 +50,34 @@ public class MorphTagger extends SimpleTagger {
 		
 		List<List<String>> list = new ArrayList<>(sequence.size());
 		
+		int token_index = 0;
 		for (State state : states) {
 			List<String> lemma_tags = new ArrayList<>();
 			
+			List<String> tags = indexesToStrings(stateToIndexes(state));
+			
 			String lemma = null;
+			
 			if (state.getLemmaCandidates() != null) {
 				RankerCandidate candidate = RankerCandidate.bestCandidate(state.getLemmaCandidates()); 
 				lemma = candidate.getLemma(); 
-			}
+			} else if (lemmatizer_ != null) {
+				Word word = (Word) sequence.get(token_index);
+				Instance instance = Instance.getInstance(word);
+				
+				instance.setPosTag(tags.get(0));
+				if (1 < tags.size()) {
+					instance.setMorphTag(tags.get(1));	
+				}
+				
+				lemma = lemmatizer_.lemmatize(instance);
+			} 
 			
 			lemma_tags.add(lemma);
-			
-			List<String> tags = indexesToStrings(stateToIndexes(state));
-			
 			lemma_tags.addAll(tags);
-			list.add(lemma_tags);			
+			list.add(lemma_tags);	
+			
+			token_index ++;
 		}
 		
 		return list;

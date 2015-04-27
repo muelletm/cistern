@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import marmot.core.Sequence;
+import marmot.lemma.Lemmatizer;
 import marmot.morph.MorphDictionary;
 import marmot.morph.MorphOptions;
 import marmot.morph.MorphTagger;
@@ -36,6 +37,12 @@ public class Annotator {
 		options.dieIfPropertyIsEmpty(MorphOptions.TEST_FILE);
 		
 		MorphTagger tagger = FileUtils.loadFromFile(options.getModelFile());
+		
+		String lemmatizer_file = options.getLemmatizerFile();
+		if (!lemmatizer_file.isEmpty()) {
+			Lemmatizer lemmatizer = FileUtils.loadFromFile(lemmatizer_file);
+			tagger.setPipeLineLemmatizer(lemmatizer);
+		}
 		
 		if (!options.getMorphDict().isEmpty()) {
 			MorphWeightVector vector = (MorphWeightVector) tagger.getWeightVector();

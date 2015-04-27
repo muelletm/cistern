@@ -45,6 +45,11 @@ public class ToutanovaLemmatizer implements Lemmatizer, LemmatizerGenerator {
 		
 		ToutanovaInstance tinstance = getToutanovaInstance(instance);
 		lemma = decoder_.decode(tinstance).getOutput();
+		
+		if (lemma == null || lemma.isEmpty()) {
+			lemma = "_";
+		}
+		
 		cache_.put(instance, lemma);
 		return lemma;
 	}

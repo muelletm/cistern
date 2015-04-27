@@ -53,7 +53,7 @@ public class RankerModel implements Serializable {
 	private static final int unigram_count_position_bits_ = Encoder
 			.bitsNeeded(HashLexicon.ARRAY_LENGTH - 1);
 	private static final long max_weights_length_ = 10_000_000;
-	private static final int encoder_capacity_ = 8;
+	private static final int encoder_capacity_ = 10;
 
 	private Set<Integer> ignores_indexes_;
 

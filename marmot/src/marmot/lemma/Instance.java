@@ -197,4 +197,12 @@ public class Instance {
 		return getInstance(word, true, true);	
 	}
 
+	public void setPosTag(String string) {
+		ptag_ = string;
+	}
+	
+	public void setMorphTag(String string) {
+		mtag_ = string;
+	}
+
 }
