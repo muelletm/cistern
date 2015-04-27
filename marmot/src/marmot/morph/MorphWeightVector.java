@@ -40,7 +40,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 
 	private boolean extend_feature_set_;
 	private MorphModel model_;
-	private SymbolTable<Object> xfeature_table_;
+	private SymbolTable<Object> feature_table_;
 
 	private int simple_sub_morph_start_index_;
 
@@ -190,14 +190,14 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 	}
 
 	@Override
-	public void setPenalty(boolean penalize, double linear_penalty) {
+	public void setPenalty(boolean penalize, double accumulated_penalty) {
 		if (!penalize) {
 			accumulated_penalties_ = null;
 			accumulated_float_penalties_ = null;
 			accumulated_penalty_ = 0.0;
 		} else {
 
-			accumulated_penalty_ = (double) (linear_penalty / scale_factor_);
+			accumulated_penalty_ = (double) (accumulated_penalty / scale_factor_);
 			if (accumulated_penalties_ == null) {
 				accumulated_penalties_ = new double[weights_.length];
 			}
@@ -208,7 +208,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 
 		RankerModel model = model_.getLemmaModel();
 		if (model != null) {
-			model.setPenalty(penalize, linear_penalty);
+			model.setPenalty(penalize, accumulated_penalty);
 		}
 	}
 
@@ -557,7 +557,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 			feature = encoder_.getFeature();
 		}
 
-		int index = xfeature_table_.toIndex(feature, -1, extend_feature_set_);
+		int index = feature_table_.toIndex(feature, -1, extend_feature_set_);
 		features.add(index);
 	}
 
@@ -781,7 +781,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 	@Override
 	public void init(Model model, Collection<Sequence> sequences) {
 		int max_level = model.getTagTables().size();
-		xfeature_table_ = new SymbolTable<>();
+		feature_table_ = new SymbolTable<>();
 		model_ = (MorphModel) model;
 		max_level_ = max_level;
 		num_tags_ = new int[max_level];
@@ -796,8 +796,6 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 
 		simple_sub_morph_start_index_ = total_num_tags_;
 		total_num_tags_ += model_.getNumSubTags();
-		// tuple_sub_morph_start_index_ = total_num_tags_;
-		// total_num_tags_ += model.getNumSubMorphTags() * num_tags_[0];
 
 		word_bits_ = Encoder.bitsNeeded(model_.getWordTable().size());
 		state_feature_bits_ = Encoder.bitsNeeded(num_state_features_);
@@ -997,7 +995,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 	}
 
 	public SymbolTable<Object> getFeatureTable() {
-		return xfeature_table_;
+		return feature_table_;
 	}
 
 	@Override
