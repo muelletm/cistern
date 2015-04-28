@@ -161,6 +161,10 @@ public class Encoder implements Serializable {
 		feature.setBitIndex(current_bit_index_);
 	}
 
+	public int getCurrentLength() {
+		return current_array_length_;
+	}
+
 	
 	
 }

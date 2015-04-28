@@ -566,6 +566,7 @@ public class RankerModel implements Serializable {
 
 	private int getFeatureIndex() {
 		int index;
+		real_capacity_ = Math.max(real_capacity_, encoder_.getCurrentLength());
 		if (hash_feature_table_) {
 			index = feature_table_.toIndex(encoder_.hashCode(), -1,
 					context_.insert);
@@ -575,8 +576,6 @@ public class RankerModel implements Serializable {
 			if (index >= 0)
 				return index;
 			if (context_.insert) {
-				real_capacity_ = Math.max(real_capacity_,
-						feature_.getCurrentLength());
 				index = feature_table_.toIndex(feature_, true);
 				feature_ = new Feature(encoder_capacity_);
 			}

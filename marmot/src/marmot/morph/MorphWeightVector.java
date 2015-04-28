@@ -558,7 +558,8 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 		}
 
 		int index = feature_table_.toIndex(feature, -1, extend_feature_set_);
-		features.add(index);
+		if (index >= 0)
+				features.add(index);
 	}
 
 	private FloatFeatureVector extractFloatFeatures(Sequence sentence,
