@@ -37,6 +37,10 @@ public class Timer {
 		return time;
 	}
 	
+	public long getTimeInSeconds() {
+		return getTime() / 1000;
+	}
+	
 	public void reset() {
 		total_time_ = 0;
 		current_start_time_ = -1;

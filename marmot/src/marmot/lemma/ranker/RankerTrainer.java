@@ -21,7 +21,7 @@ import marmot.lemma.edit.EditTreeGeneratorTrainer;
 import marmot.lemma.edit.EditTreeGeneratorTrainer.EditTreeGeneratorTrainerOptions;
 import marmot.lemma.toutanova.EditTreeAligner;
 import marmot.lemma.toutanova.EditTreeAlignerTrainer;
-import marmot.util.Runtime;
+import marmot.util.Sys;
 import cc.mallet.optimize.LimitedMemoryBFGS;
 import cc.mallet.optimize.Optimizable.ByGradientValue;
 import cc.mallet.optimize.OptimizationException;
@@ -181,10 +181,10 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
 	private void runMaxEnt(RankerModel model, List<RankerInstance> instances) {
 		Logger logger =Logger.getLogger(getClass().getName());
 		
-		double memory_used_before_optimization = Runtime.getUsedMemoryInMegaBytes();
+		double memory_used_before_optimization = Sys.getUsedMemoryInMegaBytes();
 		double memory_usage_of_one_weights_array = (double) model.getWeights().length * (double) Double.SIZE / (8. * 1024. * 1024.);
-		logger.info(String.format("Memory usage of weights array: %g (%g) MB", Runtime.getUsedMemoryInMegaBytes(model.getWeights(), false), memory_usage_of_one_weights_array));
-		logger.info(String.format("Memory usage: %g / %g MB", memory_used_before_optimization , Runtime.getMaxHeapSizeInMegaBytes()));
+		logger.info(String.format("Memory usage of weights array: %g (%g) MB", Sys.getUsedMemoryInMegaBytes(model.getWeights(), false), memory_usage_of_one_weights_array));
+		logger.info(String.format("Memory usage: %g / %g MB", memory_used_before_optimization , Sys.getMaxHeapSizeInMegaBytes()));
 
 		logger.info("Start optimization");
 		ByGradientValue objective = new RankerObjective(options_, model, instances);
@@ -198,8 +198,8 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
         try {
         	optimizer.optimize(1);
         	
-        	double memory_usage_during_optimization = Runtime.getUsedMemoryInMegaBytes();
-        	logger.info(String.format("Memory usage after first iteration: %g / %g MB", memory_usage_during_optimization, Runtime.getMaxHeapSizeInMegaBytes()));
+        	double memory_usage_during_optimization = Sys.getUsedMemoryInMegaBytes();
+        	logger.info(String.format("Memory usage after first iteration: %g / %g MB", memory_usage_during_optimization, Sys.getMaxHeapSizeInMegaBytes()));
 
         	for (int i=0; i< 200 && !optimizer.isConverged(); i++) {
                 optimizer.optimize(1);

@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import marmot.core.Feature;
 import marmot.lemma.Instance;
 import marmot.lemma.LemmaCandidate;
 import marmot.lemma.LemmaCandidateSet;
@@ -22,10 +21,14 @@ import marmot.lemma.toutanova.EditTreeAligner;
 import marmot.util.AspellLexicon;
 import marmot.util.Converter;
 import marmot.util.Encoder;
+import marmot.util.FeatureTable;
+import marmot.util.FileUtils;
 import marmot.util.HashLexicon;
 import marmot.util.Lexicon;
 import marmot.util.StringUtils.Mode;
 import marmot.util.SymbolTable;
+import marmot.util.Sys;
+import marmot.util.Timer;
 import marmot.util.edit.EditTree;
 
 public class RankerModel implements Serializable {
@@ -65,8 +68,7 @@ public class RankerModel implements Serializable {
 
 	private SymbolTable<String> morph_table_;
 
-	private SymbolTable<Object> feature_table_;
-	private transient Feature feature_;
+	private FeatureTable feature_table_;
 
 	private transient Encoder encoder_;
 	private transient Context context_;
@@ -179,8 +181,7 @@ public class RankerModel implements Serializable {
 
 		hash_feature_table_ = options.getUseHashFeatureTable();
 
-		// if (explicit_feature_table_)
-		feature_table_ = new SymbolTable<>();
+		feature_table_ = FeatureTable.StaticMethods.create(hash_feature_table_);
 
 		logger.info("Starting feature index extraction.");
 
@@ -204,8 +205,7 @@ public class RankerModel implements Serializable {
 		weights_ = new double[length];
 
 		if (feature_table_ != null)
-			logger.info(String.format("Number of features: %10d",
-					feature_table_.size()));
+			logger.info(String.format("Number of features: %10d", feature_table_.size()));
 		logger.info(String.format("Weights length: %6d", weights_.length));
 
 		logger.info(String.format("Real encoder capacity: %2d", real_capacity_));
@@ -305,8 +305,6 @@ public class RankerModel implements Serializable {
 		if (context_ == null) {
 			context_ = new Context();
 			encoder_ = new Encoder(encoder_capacity_);
-			if (!hash_feature_table_)
-				feature_ = new Feature(encoder_capacity_);
 		}
 
 		String form = instance.getInstance().getForm();
@@ -564,27 +562,9 @@ public class RankerModel implements Serializable {
 		}
 	}
 
-	private int getFeatureIndex() {
-		int index;
-		real_capacity_ = Math.max(real_capacity_, encoder_.getCurrentLength());
-		if (hash_feature_table_) {
-			index = feature_table_.toIndex(encoder_.hashCode(), -1,
-					context_.insert);
-		} else {
-			encoder_.copyToFeature(feature_);
-			index = feature_table_.toIndex(feature_, -1, false);
-			if (index >= 0)
-				return index;
-			if (context_.insert) {
-				index = feature_table_.toIndex(feature_, true);
-				feature_ = new Feature(encoder_capacity_);
-			}
-		}
-		return index;
-	}
-
 	private void addFeature(boolean reset) {
-		int index = getFeatureIndex();
+		real_capacity_ = Math.max(real_capacity_, encoder_.getCurrentLength());
+		int index = feature_table_.getFeatureIndex(encoder_, context_.insert);
 		if (index >= 0) {
 			context_.list.add(index);
 		}
@@ -724,4 +704,38 @@ public class RankerModel implements Serializable {
 		return form_table_.toIndex(instance.getForm(), -1) == -1;
 	}
 
+	public static void main(String args[]) {
+		
+		Timer t = new Timer();
+		
+		t.reset();
+		t.start();
+		Ranker ranker = FileUtils.loadFromFile(args[0]);
+		RankerModel model = ranker.getModel();
+		System.err.format("Deserialization took: %ds (Memory: %g MB)\n", t.getTimeInSeconds(), Sys.getUsedMemoryInMegaBytes());
+		
+		t.reset();
+		t.start();
+		double size = Sys.getUsedMemoryInMegaBytes(model.feature_table_, false);
+		System.err.format("FT serialization took: %ds\n", t.getTimeInSeconds());
+		
+		t.reset();
+		t.start();
+		double compressed_size = Sys.getUsedMemoryInMegaBytes(model.feature_table_, true);
+		System.err.format("FT compressed serialization took: %ds\n", t.getTimeInSeconds());
+		System.err.format("FT: %gMB (%gMB)\n", size, compressed_size);
+
+		t.reset();
+		t.start();
+		size = Sys.getUsedMemoryInMegaBytes((Serializable) model.unigram_lexicons_, false);
+		System.err.format("Lex serialization took: %ds\n", t.getTimeInSeconds());
+
+		t.reset();
+		t.start();
+		compressed_size = Sys.getUsedMemoryInMegaBytes((Serializable) model.unigram_lexicons_, true);
+		System.err.format("Lex compressed serialization took: %ds\n", t.getTimeInSeconds());
+		
+		System.err.format("Lexicons: %gMB (%gMB)\n", size, compressed_size);
+	}
+	
 }

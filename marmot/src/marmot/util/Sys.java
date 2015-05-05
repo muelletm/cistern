@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 
-public class Runtime {
+public class Sys {
 	
 	private static final long ONE_MEGA_BYTES_IN_BYTES = 1024 * 1024;
 

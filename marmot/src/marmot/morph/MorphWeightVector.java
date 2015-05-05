@@ -18,7 +18,8 @@ import marmot.core.WeightVector;
 import marmot.core.ZeroFloatFeatureVector;
 import marmot.lemma.ranker.RankerModel;
 import marmot.util.Encoder;
-import marmot.util.SymbolTable;
+import marmot.util.FeatureTable;
+
 
 public class MorphWeightVector implements WeightVector, FloatWeights {
 	private static final long serialVersionUID = 1L;
@@ -40,7 +41,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 
 	private boolean extend_feature_set_;
 	private MorphModel model_;
-	private SymbolTable<Object> feature_table_;
+	private FeatureTable feature_table_;
 
 	private int simple_sub_morph_start_index_;
 
@@ -550,16 +551,9 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 	}
 
 	private void addFeature(FeatureVector features) {
-		Object feature;
-		if (hash_feature_table_) {
-			feature = encoder_.hashCode();
-		} else {
-			feature = encoder_.getFeature();
-		}
-
-		int index = feature_table_.toIndex(feature, -1, extend_feature_set_);
+		int index = feature_table_.getFeatureIndex(encoder_, extend_feature_set_);
 		if (index >= 0)
-				features.add(index);
+			features.add(index);
 	}
 
 	private FloatFeatureVector extractFloatFeatures(Sequence sentence,
@@ -782,7 +776,10 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 	@Override
 	public void init(Model model, Collection<Sequence> sequences) {
 		int max_level = model.getTagTables().size();
-		feature_table_ = new SymbolTable<>();
+		
+		feature_table_ = FeatureTable.StaticMethods.create(hash_feature_table_);
+		
+		
 		model_ = (MorphModel) model;
 		max_level_ = max_level;
 		num_tags_ = new int[max_level];
@@ -993,10 +990,6 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 
 	public MorphDictionary getMorphDict() {
 		return mdict_;
-	}
-
-	public SymbolTable<Object> getFeatureTable() {
-		return feature_table_;
 	}
 
 	@Override
