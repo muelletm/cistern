@@ -23,6 +23,9 @@ public class HashFeatureTable implements FeatureTable {
 	@Override
 	public int getFeatureIndex(Encoder encoder, boolean insert) {
 		int hash_code = encoder.hashCode();
+		if (hash_code < 0) {
+			hash_code = -hash_code;
+		}
 		
 		if (set_.contains(hash_code)) {
 			return hash_code;

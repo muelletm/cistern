@@ -24,12 +24,15 @@ import marmot.morph.MorphEvaluator;
 import marmot.morph.MorphModel;
 import marmot.morph.MorphOptions;
 import marmot.morph.MorphResult;
+import marmot.morph.MorphWeightVector;
 import marmot.morph.Sentence;
 import marmot.morph.Word;
 import marmot.morph.io.SentenceReader;
 import marmot.util.Copy;
+import marmot.util.FeatureTable;
 import marmot.util.FileUtils;
 import marmot.util.StringUtils.Mode;
+import marmot.util.Sys;
 
 public class PipelineTest {
 
@@ -134,7 +137,8 @@ public class PipelineTest {
 		options.setProperty(Options.PRUNE, "true");
 		options.setProperty(Options.ORDER, "3");
 		options.setProperty(Options.PENALTY, ".1");
-		options.setProperty(MorphOptions.USE_HASH_FEATURE_TABLE_, "true");
+		options.setProperty(MorphOptions.USE_HASH_FEATURE_TABLE_, "false");
+		
 		options.setProperty(MorphOptions.TRAIN_FILE,
 				"form-index=1,tag-index=4,morph-index=6,"
 						+ getResourceFile("trn.txt"));
@@ -462,7 +466,17 @@ public class PipelineTest {
 		}
 
 		Tagger tagger = MorphModel.train(options, train_sentences, null);
-
+		
+		System.err.println("Memory size: " + Sys.getUsedMemoryInMegaBytes(tagger, true) + "MB");
+		
+		MorphWeightVector vector = (MorphWeightVector) tagger.getWeightVector();
+		FeatureTable table = vector.getFeatureTable();
+		
+		System.err.println("Ftable size: " + table.size());
+		System.err.println("Ftable size: " + Sys.getUsedMemoryInMegaBytes(table, true) + "MB");
+		System.err.println("Vector size: " + Sys.getUsedMemoryInMegaBytes(vector, true) + "MB");
+		System.err.println("Vector size (uncompressed): " + Sys.getUsedMemoryInMegaBytes(vector, false) + "MB");
+		
 		assertModelPerformanceOnTestset(caller + " Train", tagger,
 				train_sentences, train_threshold, train_lemma_threshold);
 		assertModelPerformanceOnTestset(caller + " Test ", tagger,

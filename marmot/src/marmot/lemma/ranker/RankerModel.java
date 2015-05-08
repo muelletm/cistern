@@ -82,8 +82,7 @@ public class RankerModel implements Serializable {
 
 	private transient double[] accumulated_penalties_;
 	private double accumulated_penalty_;
-	private boolean copy_conjunctions_;
-	private boolean hash_feature_table_;
+	private boolean copy_conjunctions_;	
 	private final static double EPSILON = 1e-10;
 
 	private static class Context {
@@ -179,9 +178,9 @@ public class RankerModel implements Serializable {
 		use_alignment_features_ = options.getUseAlignmentFeatures();
 		copy_conjunctions_ = options.getCopyConjunctions();
 
-		hash_feature_table_ = options.getUseHashFeatureTable();
+		boolean use_hash_feature_table = options.getUseHashFeatureTable();
 
-		feature_table_ = FeatureTable.StaticMethods.create(hash_feature_table_);
+		feature_table_ = FeatureTable.StaticMethods.create(use_hash_feature_table);
 
 		logger.info("Starting feature index extraction.");
 

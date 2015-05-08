@@ -73,7 +73,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 	private boolean use_signature_features_;
 	private boolean use_infix_features_;
 	private boolean use_bigrams_;
-	private boolean hash_feature_table_;
+	private boolean use_hash_feature_table_;
 
 	public MorphWeightVector(MorphOptions options) {
 		shape_ = options.getShape();
@@ -82,7 +82,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 		use_state_features_ = options.getUseDefaultFeatures();
 		use_hash_vector = options.getUseHashVector();
 		max_affix_length_ = options.getMaxAffixLength();
-		hash_feature_table_ = options.getUseHashFeatureTable();
+		use_hash_feature_table_ = options.getUseHashFeatureTable();
 
 		use_form_feature_ = true;
 		use_rare_feature_ = true;
@@ -777,7 +777,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 	public void init(Model model, Collection<Sequence> sequences) {
 		int max_level = model.getTagTables().size();
 		
-		feature_table_ = FeatureTable.StaticMethods.create(hash_feature_table_);
+		feature_table_ = FeatureTable.StaticMethods.create(use_hash_feature_table_);
 		
 		
 		model_ = (MorphModel) model;
@@ -1004,5 +1004,9 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 
 	public MorphModel getModel() {
 		return model_;
+	}
+
+	public FeatureTable getFeatureTable() {
+		return feature_table_;
 	}
 }

@@ -22,6 +22,7 @@ import marmot.morph.Sentence;
 import marmot.morph.Word;
 import marmot.morph.io.SentenceReader;
 import marmot.util.FileUtils;
+import marmot.util.Sys;
 
 public class Annotator {
 	
@@ -42,6 +43,10 @@ public class Annotator {
 		if (!lemmatizer_file.isEmpty()) {
 			Lemmatizer lemmatizer = FileUtils.loadFromFile(lemmatizer_file);
 			tagger.setPipeLineLemmatizer(lemmatizer);
+		}
+		
+		if (options.getVerbose()) {
+			System.err.format("Loaded model: %g MB", Sys.getUsedMemoryInMegaBytes());
 		}
 		
 		if (!options.getMorphDict().isEmpty()) {

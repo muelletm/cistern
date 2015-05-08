@@ -286,7 +286,7 @@ public class MorphOptions extends Options {
 	}
 
 	public boolean getUseHashFeatureTable() {
-		return Boolean.valueOf(USE_HASH_FEATURE_TABLE_);
+		return Boolean.valueOf(getProperty(USE_HASH_FEATURE_TABLE_));
 	}
 
 }
