@@ -25,6 +25,8 @@ public class Cemino {
 	private int numTags;
 	private int numSegs;
 	private int maxLength;
+	private int numContexts;
+	private int[] context2int;
 
 	public Cemino(SegmentationDataReader sdr) {
 		
@@ -40,10 +42,11 @@ public class Cemino {
 		this.maxLength = sdr.getMaxLength();
 		this.numSegs = sdr.getNumSegs();
 		this.numTags = sdr.getNumTags();
+		this.numContexts = sdr.getNumContexts();
 				
 		this.tagtag2int = new int[this.numTags][this.numTags];
 		this.tagseg2int = new int[this.numTags][this.numSegs];
-		
+		this.context2int = new int[this.numContexts];
 		
 		this.gradient = new double[this.numTags * this.numSegs + this.numTags * this.numTags];
 		this.weights = new double[this.numTags * this.numSegs + this.numTags * this.numTags];
@@ -53,6 +56,8 @@ public class Cemino {
 		}
 		//this.weights[5] = 0.0;
 		//this.weights[1] =  Math.log(2.0);
+		
+		// add unique ids
 		int counter = 0;
 		
 		for (int i = 0; i < this.numTags; ++i) {

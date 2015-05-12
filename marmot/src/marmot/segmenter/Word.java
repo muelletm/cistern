@@ -20,8 +20,32 @@ public class Word {
 		segment2Id = new int[this.paddedWord.length()][this.paddedWord.length()];
 		this.length = word.length();
 		this.extractSegmentIds(seg2int,seg2count);
+			
 		
-		
+	}
+	
+	
+	private void extractRightContextIds(int contextSize, Map<String,Integer> leftContext2int) {
+		for (int index = 0; index < this.paddedWord.length(); ++index) {
+			int leftValue = Math.max(0, contextSize - index);
+			String context = this.paddedWord.substring(0, leftValue);
+			
+			if (!leftContext2int.containsKey(context)) {
+				leftContext2int.put(context,leftContext2int.size());
+			}
+		}
+	}
+	
+	private void extractLeftContextIds(int contextSize, Map<String,Integer> rightContext2int) {
+		for (int index = 0; index < this.paddedWord.length(); ++index) {
+			int rightValue = Math.min(this.paddedWord.length(), contextSize + index);
+			String context = this.paddedWord.substring(rightValue,this.paddedWord.length());
+			
+			if (!rightContext2int.containsKey(context)) {
+				rightContext2int.put(context,rightContext2int.size());
+			}
+			
+		}
 	}
 	
 	/**
