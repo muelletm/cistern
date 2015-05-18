@@ -157,5 +157,9 @@ public class SegmentationDataReader {
 		return this.maxLength;
 	}
 
+	public int getNumContexts() {
+		return 0;
+	}
+
 
 }

@@ -23,7 +23,7 @@ public class Ranker implements LemmatizerGenerator {
 
 	@Override
 	public String lemmatize(Instance instance) {
-		LemmaCandidateSet set = new LemmaCandidateSet(instance.getForm());
+		LemmaCandidateSet set = new LemmaCandidateSet();
 		addCandidates(instance, set);;
 		RankerInstance rinstance = new RankerInstance(instance, set);
 		model_.addIndexes(rinstance, set, false);

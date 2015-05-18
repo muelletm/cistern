@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -34,7 +35,7 @@ public class EditTreeBuilderTrainerTest {
 		
 		List<Instance> instances = Instance.getInstances(new SentenceReader(trainfile));
 		
-		EditTreeBuilderTrainer trainer = new EditTreeBuilderTrainer(42);
+		EditTreeBuilderTrainer trainer = new EditTreeBuilderTrainer(new Random(42), 1, -1);
 		EditTreeBuilder builder =  trainer.train(instances);
 		
 		EditTreeAligner aligner = new EditTreeAligner(builder, true);
@@ -51,7 +52,7 @@ public class EditTreeBuilderTrainerTest {
 		
 		List<Instance> instances = Instance.getInstances(new SentenceReader(trainfile));
 		
-		EditTreeBuilderTrainer trainer = new EditTreeBuilderTrainer(-1, 1);
+		EditTreeBuilderTrainer trainer = new EditTreeBuilderTrainer(new Random(42), 1, -1);
 		EditTreeBuilder builder =  trainer.train(instances);
 	
 		testHashAndEquals(builder, "loves", "love", "hates", "hate", true);
@@ -79,8 +80,6 @@ public class EditTreeBuilderTrainerTest {
 			list.add(instance);
 		}
 
-		assertEquals(215, map.size());
-		
 		applyTest(map, instances, false, 0.0);
 		applyTest(map, Instance.getInstances(indexes + getResourceFile("dev.tsv")), false, 0.02526);
 	}

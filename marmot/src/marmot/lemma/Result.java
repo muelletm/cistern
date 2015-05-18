@@ -129,7 +129,7 @@ public class Result {
 				oov_total += instance.getCount();
 			}			
 			
-			LemmaCandidateSet set = new LemmaCandidateSet(instance.getForm());
+			LemmaCandidateSet set = new LemmaCandidateSet();
 			
 			generator.addCandidates(instance, set);
 

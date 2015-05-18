@@ -12,9 +12,8 @@ public class LemmaCandidateSet implements Iterable<Map.Entry<String, LemmaCandid
 
 	private Map<String, LemmaCandidate> map_;
 	
-	public LemmaCandidateSet(String form) {
+	public LemmaCandidateSet() {
 		map_ = new HashMap<>();
-		getCandidate(form);
 	}
 	
 	public LemmaCandidate getCandidate(String lemma) {

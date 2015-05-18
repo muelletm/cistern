@@ -30,6 +30,8 @@ import cc.mallet.optimize.Optimizer;
 
 public class RankerTrainer implements LemmatizerGeneratorTrainer {
 
+
+
 	public static class RankerTrainerOptions extends Options {
 		
 		private static final long serialVersionUID = 1L;
@@ -46,8 +48,12 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
 		public static final String IGNORE_FEATURES = "ignore-features";
 		public static final String NUM_EDIT_TREE_STEPS = "num-edit-tree-steps";
 		public static final String COPY_CONJUNCTONS = "copy-conjunctions";
-
+		public static final String TAG_DEPENDENT = "tag-dependent";
+		public static final String EDIT_TREE_MIN_COUNT = "edit-tree-min-count";
+		public static final String EDIT_TREE_MAX_DEPTH = "edit-tree-max-depth";
 		public static final String USE_HASH_FEATURE_TABLE = "use-hash-feature-table";
+
+		
 
 		public RankerTrainerOptions() {
 			map_.put(GENERATOR_TRAINERS, Arrays.asList(SimpleLemmatizerTrainer.class, EditTreeGeneratorTrainer.class));
@@ -63,6 +69,9 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
 			map_.put(NUM_EDIT_TREE_STEPS, 1);
 			map_.put(COPY_CONJUNCTONS, false);
 			map_.put(USE_HASH_FEATURE_TABLE, false);
+			map_.put(TAG_DEPENDENT, false);
+			map_.put(EDIT_TREE_MIN_COUNT, 1);
+			map_.put(EDIT_TREE_MAX_DEPTH, -1);
 		}
 		
 		@SuppressWarnings("unchecked")
@@ -90,12 +99,27 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
 				
 				if (trainer instanceof EditTreeGeneratorTrainer) {
 					trainer.getOptions().setOption(EditTreeGeneratorTrainerOptions.NUM_STEPS, getNumEditTreeSteps());
+					trainer.getOptions().setOption(EditTreeGeneratorTrainerOptions.TAG_DEPENDENT, getTagDependent());
+					trainer.getOptions().setOption(EditTreeGeneratorTrainerOptions.MIN_COUNT, getEditTreeMinCount());
+					trainer.getOptions().setOption(EditTreeGeneratorTrainerOptions.MAX_DEPTH, getEditTreeMaxDepth());
 				}
 				
 				
 				generators.add(trainer.train(instances, null));
 			}		
 			return generators;
+		}
+
+		private Integer getEditTreeMaxDepth() {
+			return (Integer) getOption(EDIT_TREE_MAX_DEPTH);
+		}
+
+		private Integer getEditTreeMinCount() {
+			return (Integer) getOption(EDIT_TREE_MIN_COUNT);
+		}
+
+		public boolean getTagDependent() {
+			return (Boolean) getOption(TAG_DEPENDENT);
 		}
 
 		public boolean getUseShapeLexicon() {
@@ -158,7 +182,7 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
 				
 		RankerModel model = new RankerModel();
 
-		EditTreeAligner aligner = (EditTreeAligner) new EditTreeAlignerTrainer(options_.getRandom(), false)
+		EditTreeAligner aligner = (EditTreeAligner) new EditTreeAlignerTrainer(options_.getRandom(), false, 1, -1)
 				.train(simple_instances);
 
 		Logger logger = Logger.getLogger(getClass().getName());

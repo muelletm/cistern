@@ -206,7 +206,7 @@ public class MorphModel extends Model {
 			generators_ = roptions.getGenerators(instances);
 		}
 		
-		EditTreeAlignerTrainer trainer = new EditTreeAlignerTrainer(roptions.getRandom(), false);
+		EditTreeAlignerTrainer trainer = new EditTreeAlignerTrainer(roptions.getRandom(), false, 1, -1);
 		EditTreeAligner aligner = (EditTreeAligner) trainer.train(instances);
 		
 		List<RankerInstance> rinstances = RankerInstance.getInstances(instances, generators_);

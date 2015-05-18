@@ -1,18 +1,16 @@
 package marmot.util;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.HashSet;
-import java.util.Set;
+import gnu.trove.set.TIntSet;
+import gnu.trove.set.hash.TIntHashSet;
 
 public class HashFeatureTable implements FeatureTable {
 
 	private static final long serialVersionUID = 1L;
-	private Set<Integer> set_;
+	private TIntSet set_; 
+	//private Set<Integer> set_;
 	
 	public HashFeatureTable() {
-		set_ = new HashSet<>();
+		set_ = new TIntHashSet();
 	}
 	
 	@Override
@@ -39,22 +37,22 @@ public class HashFeatureTable implements FeatureTable {
 		return -1;
 	}
 	
-	private void writeObject(ObjectOutputStream oos) throws IOException {
-		oos.defaultWriteObject();
-		oos.writeInt(set_.size());
-		for (Integer i : set_) {
-			oos.writeInt(i);
-		}
-	}
-
-	private void readObject(ObjectInputStream ois)
-			throws ClassNotFoundException, IOException {
-		ois.defaultReadObject();
-		int size = ois.readInt();
-		set_ = new HashSet<>(size);
-		for (int number = 0; number < size; number++) {
-			Integer i = ois.readInt();
-			set_.add(i);
-		}
-	}
+//	private void writeObject(ObjectOutputStream oos) throws IOException {
+//		oos.defaultWriteObject();
+//		oos.writeInt(set_.size());
+//		for (Integer i : set_) {
+//			oos.writeInt(i);
+//		}
+//	}
+//
+//	private void readObject(ObjectInputStream ois)
+//			throws ClassNotFoundException, IOException {
+//		ois.defaultReadObject();
+//		int size = ois.readInt();
+//		set_ = new HashSet<>(size);
+//		for (int number = 0; number < size; number++) {
+//			Integer i = ois.readInt();
+//			set_.add(i);
+//		}
+//	}
 }

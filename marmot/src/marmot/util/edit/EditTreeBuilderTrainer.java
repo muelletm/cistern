@@ -13,27 +13,17 @@ public class EditTreeBuilderTrainer {
 
 	private Random random_;
 	private int num_iterations_;
+	private int max_depth_;
 
-	public EditTreeBuilderTrainer(long seed) {
-		this(new Random(seed), 1);
-	}
-
-	public EditTreeBuilderTrainer(long seed, int num_iterations) {
-		this(new Random(seed), num_iterations);
-	}
-	
-	public EditTreeBuilderTrainer(Random random, int num_iterations) {
+	public EditTreeBuilderTrainer(Random random, int num_iterations, int max_depth) {
 		random_ = random;
 		num_iterations_ = num_iterations;
-	}
-
-	public EditTreeBuilderTrainer(Random random) {
-		this(random, 1);
+		max_depth_ = max_depth;
 	}
 
 	public EditTreeBuilder train(List<Instance> instances) {
 
-		EditTreeBuilder builder = new EditTreeBuilder(random_);
+		EditTreeBuilder builder = new EditTreeBuilder(random_, max_depth_);
 
 		for (int iter = 0; iter < num_iterations_; iter++) {
 			Counter<String> counter = new Counter<>();

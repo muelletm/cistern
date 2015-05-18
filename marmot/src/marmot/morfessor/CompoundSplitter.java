@@ -42,7 +42,6 @@ public class CompoundSplitter implements Serializable, Splitter {
 		if (normalize_) {
 			word = StringUtils.normalize(word, Mode.lower);
 		}
-		
 		trie_.addWord(word, new CollectableDouble(count));
 	}
 	

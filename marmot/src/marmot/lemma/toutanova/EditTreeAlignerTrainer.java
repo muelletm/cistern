@@ -14,19 +14,19 @@ public class EditTreeAlignerTrainer implements AlignerTrainer {
 
 	private Random random_;
 	private boolean merge_empty_input_segments_;
+	private int num_steps_;
+	private int max_depth_;
 
-	public EditTreeAlignerTrainer() {
-		this(new Random(42), true);
-	}
-	
-	public EditTreeAlignerTrainer(Random random, boolean merge_empty_input_segments) {
+	public EditTreeAlignerTrainer(Random random, boolean merge_empty_input_segments, int num_steps, int max_depth) {
 		random_ = random;
 		merge_empty_input_segments_ = merge_empty_input_segments;
+		num_steps_ = num_steps;
+		max_depth_ = max_depth;
 	}
 
 	@Override
 	public Aligner train(List<Instance> instances) {
-		EditTreeBuilder builder = new EditTreeBuilderTrainer(random_).train(instances);
+		EditTreeBuilder builder = new EditTreeBuilderTrainer(random_, num_steps_, max_depth_).train(instances);
 		return new EditTreeAligner(builder, merge_empty_input_segments_);
 	}
 	

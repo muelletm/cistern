@@ -467,16 +467,6 @@ public class PipelineTest {
 
 		Tagger tagger = MorphModel.train(options, train_sentences, null);
 		
-		System.err.println("Memory size: " + Sys.getUsedMemoryInMegaBytes(tagger, true) + "MB");
-		
-		MorphWeightVector vector = (MorphWeightVector) tagger.getWeightVector();
-		FeatureTable table = vector.getFeatureTable();
-		
-		System.err.println("Ftable size: " + table.size());
-		System.err.println("Ftable size: " + Sys.getUsedMemoryInMegaBytes(table, true) + "MB");
-		System.err.println("Vector size: " + Sys.getUsedMemoryInMegaBytes(vector, true) + "MB");
-		System.err.println("Vector size (uncompressed): " + Sys.getUsedMemoryInMegaBytes(vector, false) + "MB");
-		
 		assertModelPerformanceOnTestset(caller + " Train", tagger,
 				train_sentences, train_threshold, train_lemma_threshold);
 		assertModelPerformanceOnTestset(caller + " Test ", tagger,
