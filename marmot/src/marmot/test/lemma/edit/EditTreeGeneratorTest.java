@@ -1,7 +1,9 @@
 package marmot.test.lemma.edit;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -10,6 +12,8 @@ import marmot.lemma.LemmaCandidateSet;
 import marmot.lemma.edit.EditTreeGenerator;
 import marmot.lemma.edit.EditTreeGeneratorTrainer;
 import marmot.lemma.edit.EditTreeGeneratorTrainer.EditTreeGeneratorTrainerOptions;
+import marmot.lemma.ranker.Ranker;
+import marmot.lemma.ranker.RankerTrainer;
 
 import org.junit.Test;
 
@@ -54,5 +58,5 @@ public class EditTreeGeneratorTest {
 		assertTrue(set.contains("fg"));
 		assertTrue(set.contains("fgcc"));
 	}
-
+	
 }

@@ -154,18 +154,7 @@ public class RankerModel implements Serializable {
 		int num_candidates = 0;
 		for (RankerInstance instance : instances) {
 			num_candidates += instance.getCandidateSet().size();
-			
-			if (instance.getCandidateSet().size() > 50) {
-				for (Map.Entry<String, LemmaCandidate> candidate : instance.getCandidateSet()) {
-					System.err.println(instance.getInstance().getForm()+ " " + candidate.getKey());
-					
-				}
-				return;
-			}
-			
 		}
-		
-		System.exit(1);
 		
 		logger.info(String.format("Candidates per token: %d / %d = %g", num_candidates, instances.size(), num_candidates
 				/ (double) instances.size()));

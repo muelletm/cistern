@@ -107,10 +107,9 @@ public class RankerInstance {
 	public static RankerInstance getInstance(Instance instance,
 			List<LemmaCandidateGenerator> generators) {
 		LemmaCandidateSet set = new LemmaCandidateSet();
-		for (LemmaCandidateGenerator generator : generators) {			
+		for (LemmaCandidateGenerator generator : generators) {
 			generator.addCandidates(instance, set);
-		}
-		set.getCandidate(instance.getLemma());
+		}	
 		return new RankerInstance(instance, set);
 	}
 

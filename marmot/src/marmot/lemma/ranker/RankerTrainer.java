@@ -70,7 +70,7 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
 			map_.put(COPY_CONJUNCTONS, false);
 			map_.put(USE_HASH_FEATURE_TABLE, false);
 			map_.put(TAG_DEPENDENT, false);
-			map_.put(EDIT_TREE_MIN_COUNT, 1);
+			map_.put(EDIT_TREE_MIN_COUNT, 0);
 			map_.put(EDIT_TREE_MAX_DEPTH, -1);
 		}
 		
@@ -96,15 +96,12 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
 			List<LemmaCandidateGenerator> generators = new LinkedList<>();
 			for (Object trainer_class  : getGeneratorTrainers()) {
 				LemmaCandidateGeneratorTrainer trainer = (LemmaCandidateGeneratorTrainer) toInstance((Class<?>) trainer_class);
-				
 				if (trainer instanceof EditTreeGeneratorTrainer) {
 					trainer.getOptions().setOption(EditTreeGeneratorTrainerOptions.NUM_STEPS, getNumEditTreeSteps());
 					trainer.getOptions().setOption(EditTreeGeneratorTrainerOptions.TAG_DEPENDENT, getTagDependent());
 					trainer.getOptions().setOption(EditTreeGeneratorTrainerOptions.MIN_COUNT, getEditTreeMinCount());
 					trainer.getOptions().setOption(EditTreeGeneratorTrainerOptions.MAX_DEPTH, getEditTreeMaxDepth());
-				}
-				
-				
+				}			
 				generators.add(trainer.train(instances, null));
 			}		
 			return generators;
@@ -177,7 +174,6 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
 	private LemmatizerGenerator trainReranker(
 			List<LemmaCandidateGenerator> generators,
 			List<Instance> simple_instances) {
-
 		List<RankerInstance> instances = RankerInstance.getInstances(simple_instances, generators);
 				
 		RankerModel model = new RankerModel();
@@ -195,10 +191,6 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
 			runMaxEnt(model, instances);
 		}
 		
-		
-
-
-
 		return new Ranker(model, generators);
 	}
 

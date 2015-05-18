@@ -45,4 +45,9 @@ public class LemmaCandidateSet implements Iterable<Map.Entry<String, LemmaCandid
 		map_.clear();
 	}
 	
+	@Override
+	public String toString() {
+		return map_.keySet().toString();
+	}
+	
 }
