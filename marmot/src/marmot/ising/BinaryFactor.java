@@ -1,12 +1,17 @@
 package marmot.ising;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 public class BinaryFactor extends Factor {
 
 	private int size1;
 	private int size2;
 	protected double[][] potential;
+	
+	private List<Integer> features;
+
 	
 	// first variable id
 	private int i;
@@ -16,8 +21,10 @@ public class BinaryFactor extends Factor {
 	public BinaryFactor(int size1, int size2, int i, int j) {
 		this.setSize1(size1);
 		this.setSize2(size2);
-		
+				
 		this.setPotential(new double[this.size1][this.size2]);
+		
+		this.setFeatures(new LinkedList<Integer>());
 		
 		for (int n = 0; n < this.size1; ++n) {
 			for (int m = 0; m < this.size2; ++m) {
@@ -108,6 +115,16 @@ public class BinaryFactor extends Factor {
 	
 	public void setPotential(int n, int m, double value) {
 		this.potential[n][m] = value;
+	}
+
+
+	public List<Integer> getFeatures() {
+		return features;
+	}
+
+
+	public void setFeatures(List<Integer> features) {
+		this.features = features;
 	}
 
 
