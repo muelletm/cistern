@@ -16,7 +16,7 @@ public class BruteForceUnit {
 		int correct = 0;
 		int total = 100;
 		for (int i = 0; i < total; ++i) {
-			if (test(4)) {
+			if (test(6)) {
 				++correct;
 			}
 		}
@@ -36,6 +36,11 @@ public class BruteForceUnit {
 		pairs.add(new Pair<>(0,1));
 		pairs.add(new Pair<>(1,2));
 		pairs.add(new Pair<>(1,3));
+		pairs.add(new Pair<>(2,4));
+		pairs.add(new Pair<>(4,5));
+
+
+
 		
 		
 		// randomly generate tree
