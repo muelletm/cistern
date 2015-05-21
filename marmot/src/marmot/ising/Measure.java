@@ -10,6 +10,10 @@ public abstract class Measure {
 	public Measure(int size) {
 		this.setSize(size);
 		this.measure = new double[this.size];
+		
+		for (int n = 0; n < this.size; ++n) {
+			this.measure[n] = 1.0;
+		}
 	}
 	
 	/**

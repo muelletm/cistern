@@ -21,7 +21,7 @@ public class UnaryFactor extends Factor {
 		
 		this.setI(i);
 		
-		this.setNeigbors(new ArrayList<Variable>());
+		this.setNeighbors(new ArrayList<Variable>());
 		this.setMessageIds(new ArrayList<Integer>());
 		
 		this.setMessages(new ArrayList<Message>());

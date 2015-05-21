@@ -1,5 +1,6 @@
 package marmot.ising;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -24,9 +25,16 @@ public class BruteForceUnit {
 		
 		IsingFactorGraph fg = new IsingFactorGraph(numVariables, pairs, tagNames);
 		fg.unaryFactors.get(0).setPotential(0, 2.0);
+		
+		System.out.println("...brute-force inference...");
 		fg.inferenceBruteForce();
 		
+		System.out.println("...belief propagation...");
 		fg.inference(10, 1.0);
+		
+		for (int n = 0; n < numVariables; ++n) {
+			System.out.println("Var Id: " + n + "\t" + Arrays.toString(fg.variables.get(n).getBelief().measure));
+		}
 	
 	}
 }

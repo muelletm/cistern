@@ -29,7 +29,7 @@ public class BinaryFactor extends Factor {
 		this.setI(i);
 		this.setJ(j);
 		
-		this.setNeigbors(new ArrayList<Variable>());
+		this.setNeighbors(new ArrayList<Variable>());
 		
 		this.setMessageIds(new ArrayList<Integer>());
 		this.setMessages(new ArrayList<Message>());
@@ -38,11 +38,29 @@ public class BinaryFactor extends Factor {
 
 	@Override
 	public void passMessage() {
-		// zero out
-		this.messages.get(0).toZeros();
-		this.messages.get(1).toZeros();
+		// outgoing messages
+		Message m1_out = this.messages.get(0);
+		Message m2_out = this.messages.get(1);
 		
-		// TOOD
+		// incoming messages
+		
+		Message m1_in = this.neighbors.get(0).getMessages().get(this.messageIds.get(0));
+		Message m2_in = this.neighbors.get(1).getMessages().get(this.messageIds.get(1));
+		
+		// zero out
+		m1_out.toZeros();
+		m2_out.toZeros();
+		
+		// pass messages
+		for (int n = 0; n < this.size1; ++n) {
+			for (int m = 0; m < this.size2; ++m) {
+				m2_out.measure[m] += this.potential[n][m] * m1_in.measure[n];
+				m1_out.measure[n] += this.potential[n][n] * m2_in.measure[m];
+			}
+		}
+		
+		
+		
 		
 	}
 

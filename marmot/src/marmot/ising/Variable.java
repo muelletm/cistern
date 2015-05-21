@@ -33,7 +33,17 @@ public class Variable {
 	}
 	
 	public void computeBelief() {
-		// TODO
+		this.belief.toOnes();
+		for (int neighborId = 0; neighborId < this.neighbors.size(); ++neighborId) {
+			Factor f = this.neighbors.get(neighborId);
+			int messageId = this.messageIds.get(neighborId);
+			Message m = f.getMessages().get(messageId);
+			
+			for (int n = 0; n < this.size; ++n) {
+				this.belief.measure[n] *= m.measure[n];
+			}
+		}
+		this.belief.renormalize();
 	}
 	
 	/**
@@ -43,7 +53,23 @@ public class Variable {
 	 * 2) Divide out message for each message
 	 */
 	public void passMessage() {
-		// TODO
+		this.belief.renormalize();
+		
+		int neighborId = 0;
+		for (Message m1 : this.messages) {
+			Factor f = this.neighbors.get(neighborId);
+			int messageId = this.messageIds.get(neighborId);
+			
+			Message m2 = f.messages.get(messageId);
+			
+			for (int n = 0; n < this.size; ++n) {
+				m1.measure[n] = this.belief.measure[n] / m2.measure[n];
+			}
+			// renormalize (optional)
+			m1.renormalize();
+			
+			++neighborId;
+		}
 	}
 
 	public int getI() {

@@ -5,7 +5,7 @@ import java.util.List;
 public abstract class Factor {
 
 	// neighbors 
-		protected List<Variable> neigbors;
+		protected List<Variable> neighbors;
 		protected List<Integer> messageIds;
 		
 		//messages 
@@ -30,11 +30,11 @@ public abstract class Factor {
 			this.messageIds = messageIds;
 		}
 
-		public List<Variable> getNeigbors() {
-			return neigbors;
+		public List<Variable> getNeighbors() {
+			return neighbors;
 		}
 
-		public void setNeigbors(List<Variable> neigbors) {
-			this.neigbors = neigbors;
+		public void setNeighbors(List<Variable> neighbors) {
+			this.neighbors = neighbors;
 		}
 }

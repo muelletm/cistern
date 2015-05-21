@@ -34,7 +34,7 @@ public class IsingFactorGraph {
 			v.getMessages().add(new Message(2));
 			
 			// add neighbors to unary
-			uf.getNeigbors().add(v);
+			uf.getNeighbors().add(v);
 			uf.getMessageIds().add(v.getMessages().size());
 			uf.getMessages().add(new Message(2));
 			
@@ -54,21 +54,23 @@ public class IsingFactorGraph {
 			
 			v1.getNeighbors().add(bf);
 			v1.getMessageIds().add(0);
-			v1.getMessages().add(new Message(2));
+			bf.getMessages().add(new Message(2));
+
 			
 			v2.getNeighbors().add(bf);
 			v2.getMessageIds().add(1);
-			v2.getMessages().add(new Message(2));
+			bf.getMessages().add(new Message(2));
+
 			
 			// add neighbors to factor
-			bf.getNeigbors().add(v1);
+			bf.getNeighbors().add(v1);
 			bf.getMessageIds().add(v1.getMessages().size());
-			bf.getMessages().add(new Message(2));
-			
-			bf.getNeigbors().add(v2);
+			v1.getMessages().add(new Message(2));
+
+			bf.getNeighbors().add(v2);
 			bf.getMessageIds().add(v2.getMessages().size());
-			bf.getMessages().add(new Message(2));
-			
+			v2.getMessages().add(new Message(2));
+
 			// add to graph
 			this.binaryFactors.add(bf);
 		}
