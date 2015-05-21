@@ -1,6 +1,7 @@
 package marmot.ising;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class UnaryFactor extends Factor {
 
@@ -35,6 +36,7 @@ public class UnaryFactor extends Factor {
 		
 		// renormalize (optional)
 		this.messages.get(0).renormalize();
+		System.out.println(Arrays.toString(this.messages.get(0).measure));
 		
 	}
 	
