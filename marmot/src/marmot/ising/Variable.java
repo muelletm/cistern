@@ -44,6 +44,8 @@ public class Variable {
 			}
 		}
 		this.belief.renormalize();
+		
+		//System.exit(0);
 	}
 	
 	/**
@@ -53,7 +55,7 @@ public class Variable {
 	 * 2) Divide out message for each message
 	 */
 	public void passMessage() {
-		this.belief.renormalize();
+		this.computeBelief();
 		
 		int neighborId = 0;
 		for (Message m1 : this.messages) {

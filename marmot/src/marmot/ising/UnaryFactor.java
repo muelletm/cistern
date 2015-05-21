@@ -36,7 +36,7 @@ public class UnaryFactor extends Factor {
 		
 		// renormalize (optional)
 		this.messages.get(0).renormalize();
-		System.out.println(Arrays.toString(this.messages.get(0).measure));
+		//System.out.println(Arrays.toString(this.messages.get(0).measure));
 		
 	}
 	
