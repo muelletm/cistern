@@ -6,7 +6,7 @@ public class BinaryFactor extends Factor {
 
 	private int size1;
 	private int size2;
-	private double[][] potential;
+	protected double[][] potential;
 	
 	// first variable id
 	private int i;
@@ -18,6 +18,13 @@ public class BinaryFactor extends Factor {
 		this.setSize2(size2);
 		
 		this.setPotential(new double[this.size1][this.size2]);
+		
+		for (int n = 0; n < this.size1; ++n) {
+			for (int m = 0; m < this.size2; ++m) {
+				this.potential[n][m] = 1.0;
+			}
+		}
+		
 		
 		this.setI(i);
 		this.setJ(j);

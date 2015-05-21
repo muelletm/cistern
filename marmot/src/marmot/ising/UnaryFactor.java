@@ -7,13 +7,18 @@ public class UnaryFactor extends Factor {
 	// variable id
 	private int i;
 	private int size;
-	private double[] potential;
+	protected double[] potential;
 	
 	
 	
 	public UnaryFactor(int size, int i) {
 		this.setSize(size);
 		this.setPotential(new double[this.size]);
+		
+		for (int n = 0; n < this.size; ++n) {
+			this.potential[n] = 1.0;
+		}
+		
 		this.setI(i);
 		
 		this.setNeigbors(new ArrayList<Variable>());
@@ -55,6 +60,10 @@ public class UnaryFactor extends Factor {
 
 	public void setPotential(double[] potential) {
 		this.potential = potential;
+	}
+	
+	public void setPotential(int n, double value) {
+		this.potential[n] = value;
 	}
 
 	

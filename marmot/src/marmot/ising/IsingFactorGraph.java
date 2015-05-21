@@ -1,6 +1,7 @@
 package marmot.ising;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.javatuples.Pair;
@@ -9,9 +10,9 @@ public class IsingFactorGraph {
 	
 	private int numVariables;
 
-	private List<Variable> variables;
-	private List<UnaryFactor> unaryFactors;
-	private List<BinaryFactor> binaryFactors;
+	protected List<Variable> variables;
+	protected List<UnaryFactor> unaryFactors;
+	protected List<BinaryFactor> binaryFactors;
 
 	
 
@@ -77,22 +78,51 @@ public class IsingFactorGraph {
 	 * Brute force inference for the Ising factor graph
 	 */
 	public void inferenceBruteForce() {
+		double Z = 0.0;
+		double[][] marginals = new double[this.numVariables][2];
 		for(int i = 0; i < Math.pow(2,this.numVariables); i++) {    
-		    String configuration = Integer.toBinaryString(i);
 		    
-		    List<Integer> configurationLst = new ArrayList<Integer>();
-		    for (int j = 0; j < this.numVariables; ++j) {
-		    	int value = Character.getNumericValue(configuration.charAt(j));
-		    	configurationLst.add(value);
-		    }
-		    
-		    
-		    
-		    // score configuration
-		    
-		    
-		    // udpate beliefs
+			double configurationScore = 0.0;
+			
+			 String format="%0"+this.numVariables+"d";
+			 String newString = String.format(format,Integer.valueOf(Integer.toBinaryString(i)));
+			 List<Integer> configuration = new ArrayList<Integer>();
+			 for (int n = 0; n < this.numVariables; ++n) {
+				 configuration.add(Character.getNumericValue(newString.charAt(n)));
+			 }
+			 
+			 // sum over unary factors
+			 for (UnaryFactor uf : this.unaryFactors) {
+				 int value = configuration.get(uf.getI());
+				 configurationScore += uf.potential[value];
+				 
+			 }
+			 
+			 // sum over binary factors
+			 for (BinaryFactor bf : this.binaryFactors) {
+				 int value1 = configuration.get(bf.getI());
+				 int value2 = configuration.get(bf.getJ());
+				 configurationScore += bf.potential[value1][value2];
+			 }
+			 
+			 Z += configurationScore;
+			 System.out.println(configuration);
+			 System.out.println(configurationScore);
+			 System.out.println();
+			 //add configuration score
+			 for (int n = 0; n < this.numVariables; ++n) {
+				 int value = configuration.get(n);
+				 marginals[n][value] += configurationScore;
+			 }
 		}
+		
+		for (int n = 0; n < this.numVariables; ++n) {
+			 double Z_local = marginals[n][0] + marginals[n][1];
+			 marginals[n][0] /= Z_local;
+			 marginals[n][1] /= Z_local;
+		 }
+		
+		System.out.println(Arrays.deepToString(marginals));
 	}
 	
 	/**
