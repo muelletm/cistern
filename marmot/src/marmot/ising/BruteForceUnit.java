@@ -30,7 +30,7 @@ public class BruteForceUnit {
 			tagNames.add("");
 		}
 		
-		
+		// adjust tree as seen fit
 		List<Pair<Integer,Integer>> pairs = new LinkedList<Pair<Integer,Integer>>();
 		pairs.add(new Pair<>(0,1));
 		pairs.add(new Pair<>(1,2));
@@ -38,11 +38,6 @@ public class BruteForceUnit {
 		pairs.add(new Pair<>(2,4));
 		pairs.add(new Pair<>(4,5));
 
-
-
-		
-		
-		// randomly generate tree
 		
 		
 		IsingFactorGraph fg = new IsingFactorGraph(numVariables, pairs, tagNames);
