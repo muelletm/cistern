@@ -1,6 +1,7 @@
 package marmot.ising;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class BinaryFactor extends Factor {
 
@@ -54,12 +55,25 @@ public class BinaryFactor extends Factor {
 		// pass messages
 		for (int n = 0; n < this.size1; ++n) {
 			for (int m = 0; m < this.size2; ++m) {
+				//System.out.println("n, m:\t" + n + "\t" + m + "\t" + this.potential[n][m]  * m1_in.measure[n]);
 				m2_out.measure[m] += this.potential[n][m] * m1_in.measure[n];
-				m1_out.measure[n] += this.potential[n][n] * m2_in.measure[m];
+				m1_out.measure[n] += this.potential[n][m] * m2_in.measure[m];
 			}
 		}
 		
-		
+		/*
+		System.out.println("MESSAGE 1");
+
+		System.out.println(Arrays.toString(m2_in.measure));
+		System.out.println(Arrays.toString(m1_out.measure));
+
+		System.out.println("MESSAGE 2");
+		System.out.println(Arrays.toString(m1_in.measure));
+		System.out.println(Arrays.toString(m2_out.measure));
+
+
+		System.exit(0);
+		*/
 		
 		
 	}
@@ -109,5 +123,10 @@ public class BinaryFactor extends Factor {
 	public void setPotential(double[][] potential) {
 		this.potential = potential;
 	}
+	
+	public void setPotential(int n, int m, double value) {
+		this.potential[n][m] = value;
+	}
+
 
 }

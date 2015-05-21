@@ -79,12 +79,12 @@ public class IsingFactorGraph {
 	/**
 	 * Brute force inference for the Ising factor graph
 	 */
-	public void inferenceBruteForce() {
+	public double[][] inferenceBruteForce() {
 		double Z = 0.0;
 		double[][] marginals = new double[this.numVariables][2];
 		for(int i = 0; i < Math.pow(2,this.numVariables); i++) {    
 		    
-			double configurationScore = 0.0;
+			double configurationScore = 1.0;
 			
 			 String format="%0"+this.numVariables+"d";
 			 String newString = String.format(format,Integer.valueOf(Integer.toBinaryString(i)));
@@ -96,7 +96,7 @@ public class IsingFactorGraph {
 			 // sum over unary factors
 			 for (UnaryFactor uf : this.unaryFactors) {
 				 int value = configuration.get(uf.getI());
-				 configurationScore += uf.potential[value];
+				 configurationScore *= uf.potential[value];
 				 
 			 }
 			 
@@ -104,13 +104,15 @@ public class IsingFactorGraph {
 			 for (BinaryFactor bf : this.binaryFactors) {
 				 int value1 = configuration.get(bf.getI());
 				 int value2 = configuration.get(bf.getJ());
-				 configurationScore += bf.potential[value1][value2];
+				 configurationScore *= bf.potential[value1][value2];
 			 }
 			 
 			 Z += configurationScore;
-			 System.out.println(configuration);
-			 System.out.println(configurationScore);
-			 System.out.println();
+			 
+			 //System.out.println(configuration);
+			 //System.out.println(configurationScore);
+			 //System.out.println();
+			 
 			 //add configuration score
 			 for (int n = 0; n < this.numVariables; ++n) {
 				 int value = configuration.get(n);
@@ -124,7 +126,7 @@ public class IsingFactorGraph {
 			 marginals[n][1] /= Z_local;
 		 }
 		
-		System.out.println(Arrays.deepToString(marginals));
+		return marginals;
 	}
 	
 	/**
