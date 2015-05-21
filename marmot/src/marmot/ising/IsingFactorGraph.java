@@ -1,7 +1,6 @@
 package marmot.ising;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.javatuples.Pair;
@@ -80,7 +79,6 @@ public class IsingFactorGraph {
 	 * Brute force inference for the Ising factor graph
 	 */
 	public double[][] inferenceBruteForce() {
-		double Z = 0.0;
 		double[][] marginals = new double[this.numVariables][2];
 		for(int i = 0; i < Math.pow(2,this.numVariables); i++) {    
 		    
@@ -107,7 +105,6 @@ public class IsingFactorGraph {
 				 configurationScore *= bf.potential[value1][value2];
 			 }
 			 
-			 Z += configurationScore;
 			 
 			 //System.out.println(configuration);
 			 //System.out.println(configurationScore);
