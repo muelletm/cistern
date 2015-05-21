@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.javatuples.Pair;
 
-public class FactorGraph {
+public class IsingFactorGraph {
 	
 	private int numVariables;
 
@@ -15,7 +15,7 @@ public class FactorGraph {
 
 	
 
-	public FactorGraph(int numVariables, List<Pair<Integer,Integer>> pairwise, List<String> tagNames) {
+	public IsingFactorGraph(int numVariables, List<Pair<Integer,Integer>> pairwise, List<String> tagNames) {
 		this.numVariables = numVariables;
 		
 		this.variables = new ArrayList<Variable>();
@@ -73,9 +73,30 @@ public class FactorGraph {
 		}
 	}
 	
+	/**
+	 * Brute force inference for the Ising factor graph
+	 */
+	public void inferenceBruteForce() {
+		for(int i = 0; i < Math.pow(2,this.numVariables); i++) {    
+		    String configuration = Integer.toBinaryString(i);
+		    
+		    List<Integer> configurationLst = new ArrayList<Integer>();
+		    for (int j = 0; j < this.numVariables; ++j) {
+		    	int value = Character.getNumericValue(configuration.charAt(j));
+		    	configurationLst.add(value);
+		    }
+		    
+		    
+		    
+		    // score configuration
+		    
+		    
+		    // udpate beliefs
+		}
+	}
 	
 	/**
-	 * Performs inferene by belif propagation
+	 * Performs inference by belief propagation
 	 * @param maxIterNum
 	 * @param convergence
 	 */
