@@ -26,4 +26,18 @@ public abstract class Measure {
 	public void setMeasure(double[] measure) {
 		this.measure = measure;
 	}
+	
+	
+	public void toZeros() {
+		for (int i = 0; i < this.size; ++i) {
+			this.measure[i]  = 0.0;
+		}
+	}
+	
+	
+	public void toOnes() {
+		for (int i = 0; i < this.size; ++i) {
+			this.measure[i]  = 0.0;
+		}
+	}
 }

@@ -13,6 +13,8 @@ public class SegmentVariable extends Measure {
 	private List<Integer> messageIds;
 	private List<Message> messages;
 	
+	private Belief belief;
+	
 	public SegmentVariable(String segment, int startPos, int endPos) {
 		super(2);
 		this.setSegment(segment);
@@ -22,11 +24,40 @@ public class SegmentVariable extends Measure {
 		this.setNeighbors(new ArrayList<Factor>());
 		this.setMessageIds(new ArrayList<Integer>());
 		this.setMessages(new ArrayList<Message>());
+		
+		this.setBelief(new Belief(2));
 	}
 
 	
-	public void passMessages() {
+	public void computeBelief() {
+		this.belief.toOnes();
 		
+		for (int index = 0; index < this.messageIds.size(); ++index) {
+			Factor f = neighbors.get(index);
+			int messageId = this.messageIds.get(index);
+			
+			Message m = f.getMessages().get(messageId);
+			
+			for (int i = 0; i < 2; ++i) {
+				this.belief.measure[i] *= m.measure[i];
+			}
+		}
+	}
+	
+	public void passMessages() {
+		this.computeBelief();
+		
+		for (int index = 0; index < this.messageIds.size(); ++index) {
+			Factor f = neighbors.get(index);
+			int messageId = this.messageIds.get(index);
+			
+			Message m = f.getMessages().get(messageId);
+			
+			messages.get(index).toZeros();
+			for (int i = 0; i < 2; ++i) {
+				messages.get(index).measure[i] = this.belief.measure[i] / m.measure[i];
+			}
+		}
 	}
 	
 	public String getSegment() {
@@ -75,6 +106,16 @@ public class SegmentVariable extends Measure {
 
 	public void setMessages(List<Message> messages) {
 		this.messages = messages;
+	}
+
+
+	public Belief getBelief() {
+		return belief;
+	}
+
+
+	public void setBelief(Belief belief) {
+		this.belief = belief;
 	}
 	
 	

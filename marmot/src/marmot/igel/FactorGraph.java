@@ -3,6 +3,8 @@ package marmot.igel;
 import java.util.ArrayList;
 import java.util.List;
 
+
+
 import org.javatuples.Pair;
 
 public class FactorGraph {
@@ -11,8 +13,11 @@ public class FactorGraph {
 	private List<UnaryFactor> unaryFactors;
 	private List<BinaryFactor> binaryFactors;
 	private SemiMarkovFactor globalFactor;
+	private int numVariables;
 	
 	public FactorGraph(Word word) {
+		
+		this.numVariables = 0;
 		
 		variables = new ArrayList<SegmentVariable>();
 		unaryFactors = new ArrayList<UnaryFactor>();
@@ -24,6 +29,7 @@ public class FactorGraph {
 			int endPos = key.getValue1();
 			String segment = word.getPos2String().get(key);
 			
+			this.numVariables += 1;
 			variables.add(new SegmentVariable(segment,startPos,endPos));
 		}
 		
@@ -85,6 +91,44 @@ public class FactorGraph {
 	}
 	
 	public void inferenceBruteForce() {
-		
+		for(int i = 0; i < Math.pow(2,this.numVariables); i++) {    
+		    
+			double configurationScore = 1.0;
+			
+				 String format="%0"+this.numVariables+"d";
+				 String newString = String.format(format,Integer.valueOf(Integer.toBinaryString(i)));
+				 System.out.println(newString);
+			 /*
+			 List<Integer> configuration = new ArrayList<Integer>();
+			 for (int n = 0; n < this.numVariables; ++n) {
+				 configuration.add(Character.getNumericValue(newString.charAt(n)));
+			 }
+			 
+			 // sum over unary factors
+			 for (UnaryFactor uf : this.unaryFactors) {
+				 int value = configuration.get(uf.getI());
+				 configurationScore *= uf.potential[value];
+				 
+			 }
+			 
+			 // sum over binary factors
+			 for (BinaryFactor bf : this.binaryFactors) {
+				 int value1 = configuration.get(bf.getI());
+				 int value2 = configuration.get(bf.getJ());
+				 configurationScore *= bf.potential[value1][value2];
+			 }
+			 
+			 
+			 //System.out.println(configuration);
+			 //System.out.println(configurationScore);
+			 //System.out.println();
+			 
+			 //add configuration score
+			 for (int n = 0; n < this.numVariables; ++n) {
+				 int value = configuration.get(n);
+				 marginals[n][value] += configurationScore;
+			 }
+			 */
+		}
 	}
 }
