@@ -231,7 +231,7 @@ public class IsingFactorGraph {
 			bf.setPotential(1, 1, parameters[counter]);
 			++counter;
 			
-			//bf.renormalize();
+			bf.renormalize();
 
 		}
 	}
