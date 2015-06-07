@@ -12,16 +12,26 @@ import org.javatuples.Pair;
 public class DataReader {
 	
 	
+	protected int numVariables;
 	protected Map<String,Integer> atoms2Integer;
+	protected Map<Integer,String> integer2Atoms;
+
 	protected List<Datum> data;
 	protected Set<Pair<Integer, Integer>> pairs;
+	protected List<String> tagNames;
+	
+	protected List<Pair<Integer, Integer>> pairsLst;
+	
 	
 	
 	public DataReader() {
-		
+		this.numVariables = 0;
 		this.atoms2Integer = new HashMap<String,Integer>();
+		this.integer2Atoms = new HashMap<Integer,String>();
+
 		this.data = new ArrayList<Datum>();
 		this.pairs = new HashSet<Pair<Integer, Integer>>();
+		this.tagNames = new ArrayList<String>();
 		
 	}
 }

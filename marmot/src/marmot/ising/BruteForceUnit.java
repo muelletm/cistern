@@ -1,5 +1,7 @@
 package marmot.ising;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -38,22 +40,49 @@ public class BruteForceUnit {
 		pairs.add(new Pair<>(2,4));
 		pairs.add(new Pair<>(4,5));
 
+		// golden
+		List<Integer> golden = new ArrayList<Integer>();
+		for (int i = 0; i < numVariables; ++i) {
+			if (rand.nextBoolean()) {
+				golden.add(1);
+			} else {
+				golden.add(0);
+			}
+		}
 		
-		
-		IsingFactorGraph fg = new IsingFactorGraph(numVariables, pairs, tagNames);
+		IsingFactorGraph fg = new IsingFactorGraph(numVariables, pairs, golden, tagNames);
+		int numParameters = 2 * fg.unaryFactors.size() + 4 * fg.binaryFactors.size();
+		double[] parameters = new double[numParameters];
 		
 		// random unary potentials
+		int counter = 0;
 		for (UnaryFactor uf : fg.unaryFactors) {
-			uf.setPotential(0, Math.abs(rand.nextGaussian()));
-			uf.setPotential(1, Math.abs(rand.nextGaussian()));
+			parameters[counter] = Math.abs(rand.nextGaussian());
+			uf.setPotential(0, parameters[counter]);
+			++counter;
+			
+			parameters[counter] = Math.abs(rand.nextGaussian());
+			uf.setPotential(1, parameters[counter]);
+			++counter;
 		}
 	
 		// random binary potentials
 		for (BinaryFactor bf : fg.binaryFactors) {
-			bf.setPotential(0, 0, Math.abs(rand.nextGaussian()));
-			bf.setPotential(0, 1, Math.abs(rand.nextGaussian()));
-			bf.setPotential(1, 0, Math.abs(rand.nextGaussian()));
-			bf.setPotential(1, 1, Math.abs(rand.nextGaussian()));
+			parameters[counter] = Math.abs(rand.nextGaussian());
+			bf.setPotential(0, 0, parameters[counter]);
+			++counter;
+			
+			parameters[counter] = Math.abs(rand.nextGaussian());
+			bf.setPotential(0, 1, parameters[counter]);
+			++counter;
+			
+			parameters[counter] = Math.abs(rand.nextGaussian());
+			bf.setPotential(1, 0, parameters[counter]);
+			++counter;
+			
+			parameters[counter] = Math.abs(rand.nextGaussian());
+			bf.setPotential(1, 1, parameters[counter]);
+			++counter;
 
 		}
 	
@@ -69,6 +98,9 @@ public class BruteForceUnit {
 			//System.out.println("N:" + n + "\t" + Arrays.toString(marginalsBruteForce[n]));
 			//System.out.println("N:" + n + "\t" + Arrays.toString(marginal));
 
+			
+			System.out.println(fg.logLikelihood());
+			
 			if (!Numerics.approximatelyEqual(marginalsBruteForce[n],marginal,0.01)) {
 				return false;
 			}

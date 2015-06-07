@@ -13,14 +13,17 @@ public class IsingFactorGraph {
 	protected List<UnaryFactor> unaryFactors;
 	protected List<BinaryFactor> binaryFactors;
 
+	protected List<Integer> golden;
 	
 
-	public IsingFactorGraph(int numVariables, List<Pair<Integer,Integer>> pairwise, List<String> tagNames) {
+	public IsingFactorGraph(int numVariables, List<Pair<Integer,Integer>> pairwise, List<Integer> golden, List<String> tagNames) {
 		this.numVariables = numVariables;
 		
 		this.variables = new ArrayList<Variable>();
 		this.unaryFactors = new ArrayList<UnaryFactor>();
 		this.binaryFactors = new ArrayList<BinaryFactor>();
+		
+		this.golden = golden;
 		
 		// ADD VARIABLES AND UNARY FACTORS
 		for (int i = 0; i < this.numVariables; ++i) {
@@ -48,6 +51,7 @@ public class IsingFactorGraph {
 			BinaryFactor bf = new BinaryFactor(2,2,i,j);
 			
 			// add neighbors to variable
+
 			Variable v1 = this.variables.get(i);
 			Variable v2 = this.variables.get(j);
 			
@@ -150,5 +154,74 @@ public class IsingFactorGraph {
 				v.passMessage();
 			}
 		}
+	}
+	
+	/**
+	 * 
+	 */
+	public double logLikelihood() {
+		// partition function
+		
+		int index = 0;
+		double logLikelihood = 0.0;
+		
+		for (int golden : this.golden) {
+			logLikelihood += Math.log(this.variables.get(index).getBelief().measure[golden]);
+			++index;
+		}
+		
+		return logLikelihood;
+	}
+	
+	/**
+	 * Finite Difference Results
+	 * @return
+	 */
+	public double[] finiteDifference(double[] parameters) {
+		this.updatePotentials(parameters);
+		double[] gradient = new double[numParameters];
+		
+		return gradient;
+	}
+	
+	public void updatePotentials(double[] parameters) {
+		int counter = 0;
+		for (UnaryFactor uf : this.unaryFactors) {
+			uf.setPotential(0, parameters[counter]);
+			++counter;
+
+			uf.setPotential(1, parameters[counter]);
+			++counter;
+			
+		}
+	
+		// random binary potentials
+		for (BinaryFactor bf : this.binaryFactors) {
+			bf.setPotential(0, 0, parameters[counter]);
+			++counter;
+
+			bf.setPotential(0, 1, parameters[counter]);
+			++counter;
+
+			bf.setPotential(1, 0, parameters[counter]);
+			++counter;
+
+			bf.setPotential(1, 1, parameters[counter]);
+			++counter;
+
+		}
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public double[] unfeaturizedGradient() {
+		double[] gradient = new double[this.numVariables];
+		
+		
+		
+		
+		return gradient;
 	}
 }
