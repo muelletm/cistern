@@ -172,9 +172,11 @@ public class IsingFactorGraph {
 		double logLikelihood = 0.0;
 		
 		for (int golden : this.golden) {
+			System.out.println("GOLDEN:\t" + golden + "\t" + this.variables.get(index).getBelief().measure[golden]);
 			logLikelihood += Math.log(this.variables.get(index).getBelief().measure[golden]);
 			++index;
 		}
+		System.out.println("LIKELIHOOD:\t" + logLikelihood);
 		return logLikelihood;
 	}
 	
@@ -189,11 +191,17 @@ public class IsingFactorGraph {
 			parameters[i] += epsilon;
 			this.updatePotentials(parameters);
 			this.inference(10, 1.0);
-			
 			double val1 = this.logLikelihood();
 			System.out.println("VAL1:\t" + val1);
 			System.out.println(Arrays.toString(this.variables.get(0).getBelief().measure));
 
+			double[] marginal1 = this.variables.get(0).getBelief().measure;
+			double[] marginal2 = this.variables.get(1).getBelief().measure;
+
+			System.out.println("MARGINALS 1:" + 1 + "\t" + Arrays.toString(marginal1));
+			System.out.println("MARGINALS 2:" + 2 + "\t" + Arrays.toString(marginal2));
+
+			
 			parameters[i] -= 2 * epsilon;
 			this.updatePotentials(parameters);
 			this.inference(10, 1.0);
@@ -201,8 +209,13 @@ public class IsingFactorGraph {
 			double val2 = this.logLikelihood();
 			System.out.println("VAL2:\t" + val1);
 			System.out.println(Arrays.toString(this.variables.get(1).getBelief().measure));
+			
+			marginal1 = this.variables.get(0).getBelief().measure;
+			marginal2 = this.variables.get(1).getBelief().measure;
 
 
+			System.out.println("MARGINALS 1:" + 1 + "\t" + Arrays.toString(marginal1));
+			System.out.println("MARGINALS 2:" + 2 + "\t" + Arrays.toString(marginal2));
 
 			gradient[i]  = (val1 - val2) / (2 * epsilon);
 			
@@ -221,7 +234,7 @@ public class IsingFactorGraph {
 			uf.setPotential(1, parameters[counter]);
 			++counter;
 		
-			uf.renormalize();
+			//uf.renormalize();
 		}
 	
 		// random binary potentials
@@ -238,8 +251,8 @@ public class IsingFactorGraph {
 			bf.setPotential(1, 1, parameters[counter]);
 			++counter;
 			
-			bf.renormalize();
-
+			//bf.renormalize();
+			System.out.println(Arrays.deepToString(bf.potential));
 		}
 	}
 	

@@ -50,7 +50,7 @@ public class BruteForceUnit {
 				golden.add(0);
 			}
 		}*/
-		golden.add(1);
+		golden.add(0);
 		golden.add(0);
 		
 		IsingFactorGraph fg = new IsingFactorGraph(numVariables, pairs, golden, tagNames);
@@ -101,17 +101,18 @@ public class BruteForceUnit {
 	
 		for (int n = 0; n < numVariables; ++n) {
 			double[] marginal = fg.variables.get(n).getBelief().measure;
-			//System.out.println("N:" + n + "\t" + Arrays.toString(marginalsBruteForce[n]));
-			//System.out.println("N:" + n + "\t" + Arrays.toString(marginal));
+			System.out.println("BRUTE FORCE N:" + n + "\t" + Arrays.toString(marginalsBruteForce[n]));
+			System.out.println("MARGINALS N:" + n + "\t" + Arrays.toString(marginal));
 
 			
 			System.out.println(fg.logLikelihood());
+
 			System.out.println(Arrays.toString(fg.unfeaturizedGradient()));
 
 			System.out.println(Arrays.toString(fg.finiteDifference(parameters, 0.1)));
 			
 			System.exit(0);
-			
+
 			if (!Numerics.approximatelyEqual(marginalsBruteForce[n],marginal,0.01)) {
 				return false;
 			}
