@@ -1,6 +1,7 @@
 package marmot.ising;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.javatuples.Pair;
@@ -184,18 +185,24 @@ public class IsingFactorGraph {
 	public double[] finiteDifference(double[] parameters, double epsilon) {
 		double[] gradient = new double[parameters.length];
 		
-		for (int i = 0; i < parameters.length; ++i) {
+		for (int i = 5; i < 6; ++i) {
 			parameters[i] += epsilon;
 			this.updatePotentials(parameters);
 			this.inference(10, 1.0);
 			
 			double val1 = this.logLikelihood();
+			System.out.println("VAL1:\t" + val1);
+			System.out.println(Arrays.toString(this.variables.get(0).getBelief().measure));
 
 			parameters[i] -= 2 * epsilon;
 			this.updatePotentials(parameters);
 			this.inference(10, 1.0);
 
 			double val2 = this.logLikelihood();
+			System.out.println("VAL2:\t" + val1);
+			System.out.println(Arrays.toString(this.variables.get(1).getBelief().measure));
+
+
 
 			gradient[i]  = (val1 - val2) / (2 * epsilon);
 			
@@ -219,13 +226,13 @@ public class IsingFactorGraph {
 	
 		// random binary potentials
 		for (BinaryFactor bf : this.binaryFactors) {
-			//bf.setPotential(0, 0, parameters[counter]);
+			bf.setPotential(0, 0, parameters[counter]);
 			++counter;
 
-			//bf.setPotential(0, 1, parameters[counter]);
+			bf.setPotential(0, 1, parameters[counter]);
 			++counter;
 
-			//bf.setPotential(1, 0, parameters[counter]);
+			bf.setPotential(1, 0, parameters[counter]);
 			++counter;
 
 			bf.setPotential(1, 1, parameters[counter]);

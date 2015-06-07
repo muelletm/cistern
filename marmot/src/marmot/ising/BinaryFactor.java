@@ -76,7 +76,7 @@ public class BinaryFactor extends Factor {
 				Z += this.potential[i][j];
 			}
 		}
-		System.out.println(Arrays.toString(this.potential));
+		System.out.println(Arrays.deepToString(this.potential));
 		for (int i = 0; i < this.size1; ++i) {
 			for (int j = 0; j < this.size2; ++j) {
 				this.potential[i][j] /= Z;

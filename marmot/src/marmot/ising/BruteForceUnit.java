@@ -50,7 +50,7 @@ public class BruteForceUnit {
 				golden.add(0);
 			}
 		}*/
-		golden.add(0);
+		golden.add(1);
 		golden.add(0);
 		
 		IsingFactorGraph fg = new IsingFactorGraph(numVariables, pairs, golden, tagNames);
@@ -108,7 +108,7 @@ public class BruteForceUnit {
 			System.out.println(fg.logLikelihood());
 			System.out.println(Arrays.toString(fg.unfeaturizedGradient()));
 
-			System.out.println(Arrays.toString(fg.finiteDifference(parameters, 0.01)));
+			System.out.println(Arrays.toString(fg.finiteDifference(parameters, 0.1)));
 			
 			System.exit(0);
 			
