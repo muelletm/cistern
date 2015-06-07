@@ -17,7 +17,7 @@ public class BruteForceUnit {
 		int correct = 0;
 		int total = 100;
 		for (int i = 0; i < total; ++i) {
-			if (test(6)) {
+			if (test(2)) {
 				++correct;
 			}
 		}
@@ -35,52 +35,58 @@ public class BruteForceUnit {
 		// adjust tree as seen fit
 		List<Pair<Integer,Integer>> pairs = new LinkedList<Pair<Integer,Integer>>();
 		pairs.add(new Pair<>(0,1));
-		pairs.add(new Pair<>(1,2));
-		pairs.add(new Pair<>(1,3));
-		pairs.add(new Pair<>(2,4));
-		pairs.add(new Pair<>(4,5));
+		//pairs.add(new Pair<>(1,2));
+		//pairs.add(new Pair<>(1,3));
+		//pairs.add(new Pair<>(2,4));
+		//pairs.add(new Pair<>(4,5));
 
 		// golden
 		List<Integer> golden = new ArrayList<Integer>();
+		/*
 		for (int i = 0; i < numVariables; ++i) {
 			if (rand.nextBoolean()) {
 				golden.add(1);
 			} else {
 				golden.add(0);
 			}
-		}
+		}*/
+		golden.add(0);
+		golden.add(0);
 		
 		IsingFactorGraph fg = new IsingFactorGraph(numVariables, pairs, golden, tagNames);
 		int numParameters = 2 * fg.unaryFactors.size() + 4 * fg.binaryFactors.size();
 		double[] parameters = new double[numParameters];
+		for (int i = 0; i < parameters.length; ++i) {
+			parameters[i] = 1.0;
+		}
 		
 		// random unary potentials
 		int counter = 0;
 		for (UnaryFactor uf : fg.unaryFactors) {
-			parameters[counter] = Math.abs(rand.nextGaussian());
+			//parameters[counter] = Math.abs(rand.nextGaussian());
 			uf.setPotential(0, parameters[counter]);
 			++counter;
 			
-			parameters[counter] = Math.abs(rand.nextGaussian());
+			//parameters[counter] = Math.abs(rand.nextGaussian());
 			uf.setPotential(1, parameters[counter]);
 			++counter;
 		}
 	
 		// random binary potentials
 		for (BinaryFactor bf : fg.binaryFactors) {
-			parameters[counter] = Math.abs(rand.nextGaussian());
+			//parameters[counter] = Math.abs(rand.nextGaussian());
 			bf.setPotential(0, 0, parameters[counter]);
 			++counter;
 			
-			parameters[counter] = Math.abs(rand.nextGaussian());
+			//parameters[counter] = Math.abs(rand.nextGaussian());
 			bf.setPotential(0, 1, parameters[counter]);
 			++counter;
 			
-			parameters[counter] = Math.abs(rand.nextGaussian());
+			//parameters[counter] = Math.abs(rand.nextGaussian());
 			bf.setPotential(1, 0, parameters[counter]);
 			++counter;
 			
-			parameters[counter] = Math.abs(rand.nextGaussian());
+			//parameters[counter] = Math.abs(rand.nextGaussian());
 			bf.setPotential(1, 1, parameters[counter]);
 			++counter;
 
@@ -100,6 +106,11 @@ public class BruteForceUnit {
 
 			
 			System.out.println(fg.logLikelihood());
+			System.out.println(Arrays.toString(fg.unfeaturizedGradient()));
+
+			System.out.println(Arrays.toString(fg.finiteDifference(parameters, 0.01)));
+			
+			System.exit(0);
 			
 			if (!Numerics.approximatelyEqual(marginalsBruteForce[n],marginal,0.01)) {
 				return false;

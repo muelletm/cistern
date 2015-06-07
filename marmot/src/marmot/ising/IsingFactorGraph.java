@@ -15,6 +15,8 @@ public class IsingFactorGraph {
 
 	protected List<Integer> golden;
 	
+	protected int numParameters;
+	
 
 	public IsingFactorGraph(int numVariables, List<Pair<Integer,Integer>> pairwise, List<Integer> golden, List<String> tagNames) {
 		this.numVariables = numVariables;
@@ -77,6 +79,9 @@ public class IsingFactorGraph {
 			// add to graph
 			this.binaryFactors.add(bf);
 		}
+		
+		this.numParameters = 2 * this.unaryFactors.size() + 4 * this.binaryFactors.size();
+
 	}
 	
 	/**
@@ -169,7 +174,6 @@ public class IsingFactorGraph {
 			logLikelihood += Math.log(this.variables.get(index).getBelief().measure[golden]);
 			++index;
 		}
-		
 		return logLikelihood;
 	}
 	
@@ -177,9 +181,26 @@ public class IsingFactorGraph {
 	 * Finite Difference Results
 	 * @return
 	 */
-	public double[] finiteDifference(double[] parameters) {
-		this.updatePotentials(parameters);
-		double[] gradient = new double[numParameters];
+	public double[] finiteDifference(double[] parameters, double epsilon) {
+		double[] gradient = new double[parameters.length];
+		
+		for (int i = 0; i < parameters.length; ++i) {
+			parameters[i] += epsilon;
+			this.updatePotentials(parameters);
+			this.inference(10, 1.0);
+			
+			double val1 = this.logLikelihood();
+
+			parameters[i] -= 2 * epsilon;
+			this.updatePotentials(parameters);
+			this.inference(10, 1.0);
+
+			double val2 = this.logLikelihood();
+
+			gradient[i]  = (val1 - val2) / (2 * epsilon);
+			
+			parameters[i] += epsilon;
+		}
 		
 		return gradient;
 	}
@@ -192,22 +213,25 @@ public class IsingFactorGraph {
 
 			uf.setPotential(1, parameters[counter]);
 			++counter;
-			
+		
+			uf.renormalize();
 		}
 	
 		// random binary potentials
 		for (BinaryFactor bf : this.binaryFactors) {
-			bf.setPotential(0, 0, parameters[counter]);
+			//bf.setPotential(0, 0, parameters[counter]);
 			++counter;
 
-			bf.setPotential(0, 1, parameters[counter]);
+			//bf.setPotential(0, 1, parameters[counter]);
 			++counter;
 
-			bf.setPotential(1, 0, parameters[counter]);
+			//bf.setPotential(1, 0, parameters[counter]);
 			++counter;
 
 			bf.setPotential(1, 1, parameters[counter]);
 			++counter;
+			
+			//bf.renormalize();
 
 		}
 	}
@@ -217,10 +241,64 @@ public class IsingFactorGraph {
 	 * @return
 	 */
 	public double[] unfeaturizedGradient() {
-		double[] gradient = new double[this.numVariables];
+		double[] gradient = new double[this.numParameters];
 		
-		
-		
+		int counter = 0;
+		for (UnaryFactor uf : this.unaryFactors) {
+			
+			if (this.golden.get(uf.getI()) == 0) {
+				gradient[counter] += 1.0;
+			}
+			gradient[counter] -= this.variables.get(this.golden.get(uf.getI())).getBelief().measure[0];
+			
+			++counter;
+
+			if (this.golden.get(uf.getI()) == 1) {
+				gradient[counter] += 1.0;
+			}
+			
+			gradient[counter] -= this.variables.get(this.golden.get(uf.getI())).getBelief().measure[1];
+
+			
+			++counter;
+			
+		}
+	
+		// random binary potentials
+		for (BinaryFactor bf : this.binaryFactors) {
+			
+			if (this.golden.get(bf.getI()) == 0 && bf.getJ() == 0) {
+				gradient[counter] += 1.0;
+			}
+			gradient[counter] -= this.variables.get(this.golden.get(bf.getI())).getBelief().measure[0] * this.variables.get(this.golden.get(bf.getJ())).getBelief().measure[0];
+
+			++counter;
+
+			if (this.golden.get(bf.getI()) == 0 && bf.getJ() == 1) {
+				gradient[counter] += 1.0;
+			}
+			gradient[counter] -= this.variables.get(this.golden.get(bf.getI())).getBelief().measure[0] * this.variables.get(this.golden.get(bf.getJ())).getBelief().measure[1];
+
+			
+			++counter;
+
+			if (this.golden.get(bf.getI()) == 1 && bf.getJ() == 0) {
+				gradient[counter] += 1.0;
+			}
+			
+			gradient[counter] -= this.variables.get(this.golden.get(bf.getI())).getBelief().measure[1] * this.variables.get(this.golden.get(bf.getJ())).getBelief().measure[0];
+
+			++counter;
+
+			if (this.golden.get(bf.getI()) == 1 && bf.getJ() == 1) {
+				gradient[counter] += 1.0;
+			}
+			
+			gradient[counter] -= this.variables.get(this.golden.get(bf.getI())).getBelief().measure[1] * this.variables.get(this.golden.get(bf.getJ())).getBelief().measure[1];
+
+			++counter;
+
+		}
 		
 		return gradient;
 	}

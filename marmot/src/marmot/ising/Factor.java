@@ -13,6 +13,7 @@ public abstract class Factor {
 
 		
 		public abstract void passMessage();
+		public abstract void renormalize();
 		
 		public List<Message> getMessages() {
 			return messages;

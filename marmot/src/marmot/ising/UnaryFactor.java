@@ -1,6 +1,7 @@
 package marmot.ising;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -42,6 +43,18 @@ public class UnaryFactor extends Factor {
 		this.messages.get(0).renormalize();
 		//System.out.println(Arrays.toString(this.messages.get(0).measure));
 		
+	}
+	
+	@Override
+	public void renormalize() {
+		double Z = 0.0;
+		for (int i = 0; i < this.size; ++i) {
+			Z += this.potential[i];
+		}
+
+		for (int i = 0; i < this.size; ++i) {
+			this.potential[i] /= Z;
+		}
 	}
 	
 	public int getI() {

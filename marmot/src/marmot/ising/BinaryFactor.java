@@ -1,6 +1,7 @@
 package marmot.ising;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -67,6 +68,24 @@ public class BinaryFactor extends Factor {
 		}
 	}
 
+	@Override
+	public void renormalize() {
+		double Z = 0.0;
+		for (int i = 0; i < this.size1; ++i) {
+			for (int j = 0; j < this.size2; ++j) {
+				Z += this.potential[i][j];
+			}
+		}
+		System.out.println(Arrays.toString(this.potential));
+		for (int i = 0; i < this.size1; ++i) {
+			for (int j = 0; j < this.size2; ++j) {
+				this.potential[i][j] /= Z;
+			}
+		}
+		System.out.println(Arrays.toString(this.potential));
+
+	}
+	
 	public int getI() {
 		return i;
 	}
