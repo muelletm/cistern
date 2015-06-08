@@ -4,7 +4,7 @@
 package marmot.lemma.cmd;
 
 import marmot.lemma.LemmatizerGenerator;
-import marmot.lemma.Result;
+import marmot.lemma.LemmaResult;
 import marmot.util.FileUtils;
 
 public class OracleTester {
@@ -13,7 +13,7 @@ public class OracleTester {
 		String model_file = args[0];
 		String test_file = args[1];
 		LemmatizerGenerator lemmatizer = FileUtils.loadFromFile(model_file);
-		Result.testGenerator(lemmatizer, test_file).logAccuracy();
+		LemmaResult.testGenerator(lemmatizer, test_file).logAccuracy();
 	}
 
 }

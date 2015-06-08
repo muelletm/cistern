@@ -7,7 +7,7 @@ public class Analyzer {
 		System.out.println("...num variables:\t" + dr.numVariables);
 		System.out.println("...num pairs:\t" + dr.pairs.size());
 
-		IsingFactorGraph fg = new IsingFactorGraph(dr.numVariables, dr.pairsLst, dr.tagNames);
+		IsingFactorGraph fg = new IsingFactorGraph(dr.numVariables, dr.pairsLst, null, dr.tagNames);
 		fg.inference(5, 0.001);
 
 	}

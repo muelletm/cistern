@@ -8,15 +8,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import marmot.lemma.Instance;
+import marmot.lemma.LemmaInstance;
 import marmot.lemma.LemmatizerGenerator;
 import marmot.lemma.LemmatizerGeneratorTrainer;
-import marmot.lemma.Options;
+import marmot.lemma.LemmaOptions;
 import marmot.util.DynamicWeights;
 
 public class ToutanovaTrainer implements LemmatizerGeneratorTrainer {
 
-	public static class ToutanovaOptions extends Options {
+	public static class ToutanovaOptions extends LemmaOptions {
 
 		private static final long serialVersionUID = 1L;
 		public static final String FILTER_ALPHABET = "filter-alphabet";
@@ -74,10 +74,10 @@ public class ToutanovaTrainer implements LemmatizerGeneratorTrainer {
 	}
 
 	public static List<ToutanovaInstance> createToutanovaInstances(
-			List<Instance> instances, Aligner aligner) {
+			List<LemmaInstance> instances, Aligner aligner) {
 		List<ToutanovaInstance> new_instances = new LinkedList<>();
 
-		for (Instance instance : instances) {
+		for (LemmaInstance instance : instances) {
 			List<Integer> alignment = null;
 
 			if (aligner != null) {
@@ -93,8 +93,8 @@ public class ToutanovaTrainer implements LemmatizerGeneratorTrainer {
 	}
 
 	@Override
-	public LemmatizerGenerator train(List<Instance> train_instances,
-			List<Instance> dev_instances) {
+	public LemmatizerGenerator train(List<LemmaInstance> train_instances,
+			List<LemmaInstance> dev_instances) {
 
 		AlignerTrainer aligner_trainer = options_.getAligner();
 		Aligner aligner = aligner_trainer.train(train_instances);
@@ -206,7 +206,7 @@ public class ToutanovaTrainer implements LemmatizerGeneratorTrainer {
 	}
 
 	@Override
-	public Options getOptions() {
+	public LemmaOptions getOptions() {
 		return options_;
 	}
 

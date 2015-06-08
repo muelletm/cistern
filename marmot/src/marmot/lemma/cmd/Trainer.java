@@ -11,11 +11,11 @@ import java.util.logging.Logger;
 
 import marmot.core.Sequence;
 import marmot.core.Token;
-import marmot.lemma.Instance;
+import marmot.lemma.LemmaInstance;
 import marmot.lemma.Lemmatizer;
 import marmot.lemma.LemmatizerTrainer;
-import marmot.lemma.Options;
-import marmot.lemma.Result;
+import marmot.lemma.LemmaOptions;
+import marmot.lemma.LemmaResult;
 import marmot.morph.Word;
 import marmot.morph.io.SentenceReader;
 import marmot.util.FileUtils;
@@ -48,7 +48,7 @@ public class Trainer {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(pred_file));
 			for (Sequence sequence : new SentenceReader(test_file)) {
 				for (Token token : sequence) {
-					Instance instance = Instance.getInstance((Word) token);
+					LemmaInstance instance = LemmaInstance.getInstance((Word) token);
 					String plemma = lemmatizer.lemmatize(instance);
 					
 					writer.write(String.format("%s\t%s\n", instance, plemma));
@@ -73,20 +73,20 @@ public class Trainer {
 			throw new RuntimeException(e); 
 		}
 		
-		Options options = trainer.getOptions();	
+		LemmaOptions options = trainer.getOptions();	
 		options.readArguments(options_string);
 		
 		Logger logger = Logger.getLogger(Trainer.class.getName());
 		logger.info(options.report());
 
-		List<Instance> training_instances = Instance.getInstances(new SentenceReader(train_file), options.getLimit());
+		List<LemmaInstance> training_instances = LemmaInstance.getInstances(new SentenceReader(train_file), options.getLimit());
 		Lemmatizer lemmatizer = trainer.train(training_instances, null);
 		
 		return lemmatizer;
 	}
 
 	public static void test(Lemmatizer lemmatizer, String test_file) {
-		Result.logTest(lemmatizer, test_file, 50);
+		LemmaResult.logTest(lemmatizer, test_file, 50);
 	}
 
 }

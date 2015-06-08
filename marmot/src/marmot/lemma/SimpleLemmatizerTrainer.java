@@ -11,7 +11,7 @@ import marmot.util.Counter;
 
 public class SimpleLemmatizerTrainer implements LemmatizerGeneratorTrainer {
 
-	public static class SimpleLemmatizerTrainerOptions extends Options {
+	public static class SimpleLemmatizerTrainerOptions extends LemmaOptions {
 		
 		private static final long serialVersionUID = 1L;
 		public static final String HANDLE_UNSEEN = "handle-unseen";
@@ -50,12 +50,12 @@ public class SimpleLemmatizerTrainer implements LemmatizerGeneratorTrainer {
 	}
 	
 	@Override
-	public LemmatizerGenerator train(List<Instance> instances,
-			List<Instance> dev_instances) {
+	public LemmatizerGenerator train(List<LemmaInstance> instances,
+			List<LemmaInstance> dev_instances) {
 		
 		Map<String, Counter<String>> map = new HashMap<>();
 		
-		for (Instance instance : instances) {
+		for (LemmaInstance instance : instances) {
 			String key = null;
 			
 			if (options_.getUsePos()) {
@@ -73,7 +73,7 @@ public class SimpleLemmatizerTrainer implements LemmatizerGeneratorTrainer {
 	}
 
 	private void addToMap(String key, Map<String, Counter<String>> map,
-			Instance instance) {
+			LemmaInstance instance) {
 		Counter<String> lemmas = map.get(key);
 		
 		if (lemmas == null) {
@@ -85,7 +85,7 @@ public class SimpleLemmatizerTrainer implements LemmatizerGeneratorTrainer {
 	}
 
 	@Override
-	public Options getOptions() {
+	public LemmaOptions getOptions() {
 		return options_;
 	}
 

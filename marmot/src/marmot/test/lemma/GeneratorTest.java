@@ -5,10 +5,10 @@ package marmot.test.lemma;
 
 import marmot.lemma.BackupLemmatizerTrainer;
 import marmot.lemma.BackupLemmatizerTrainer.BackupLemmatizerTrainerOptions;
-import marmot.lemma.Instance;
+import marmot.lemma.LemmaInstance;
 import marmot.lemma.LemmaCandidateGenerator;
 import marmot.lemma.LemmaCandidateGeneratorTrainer;
-import marmot.lemma.Result;
+import marmot.lemma.LemmaResult;
 import marmot.lemma.SimpleLemmatizerTrainer;
 import marmot.lemma.edit.EditTreeGeneratorTrainer;
 import marmot.lemma.toutanova.ToutanovaTrainer;
@@ -39,7 +39,7 @@ public class GeneratorTest {
 	}
 	
 	public void testGeneratorTrainer(LemmaCandidateGeneratorTrainer trainer, String trainfile, String testfile) {
-		LemmaCandidateGenerator generator = trainer.train(Instance.getInstances(getResourceFile(trainfile)), null);
+		LemmaCandidateGenerator generator = trainer.train(LemmaInstance.getInstances(getResourceFile(trainfile)), null);
 		testGenerator(generator, testfile);
 	}
 

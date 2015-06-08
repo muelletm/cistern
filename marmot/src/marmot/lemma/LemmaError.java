@@ -3,19 +3,19 @@
 
 package marmot.lemma;
 
-public class Error {
+public class LemmaError {
 
-		private Instance instance_;
+		private LemmaInstance instance_;
 		private String predicted_lemma_;
 		private boolean oov_;
 
-		public Error(Instance instance, String predicted_lemma, boolean oov) {
+		public LemmaError(LemmaInstance instance, String predicted_lemma, boolean oov) {
 			instance_ = instance;
 			predicted_lemma_ = predicted_lemma;
 			oov_ = oov;
 		}
 
-		public Instance getInstance() {
+		public LemmaInstance getInstance() {
 			return instance_;
 		}
 

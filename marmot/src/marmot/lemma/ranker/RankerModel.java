@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import marmot.lemma.Instance;
+import marmot.lemma.LemmaInstance;
 import marmot.lemma.LemmaCandidate;
 import marmot.lemma.LemmaCandidateSet;
 import marmot.lemma.ranker.RankerTrainer.RankerTrainerOptions;
@@ -700,7 +700,7 @@ public class RankerModel implements Serializable {
 		return morph_table_;
 	}
 
-	public boolean isOOV(Instance instance) {
+	public boolean isOOV(LemmaInstance instance) {
 		return form_table_.toIndex(instance.getForm(), -1) == -1;
 	}
 

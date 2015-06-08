@@ -12,7 +12,7 @@ import marmot.core.SimpleTagger;
 import marmot.core.State;
 import marmot.core.Token;
 import marmot.core.WeightVector;
-import marmot.lemma.Instance;
+import marmot.lemma.LemmaInstance;
 import marmot.lemma.Lemmatizer;
 import marmot.lemma.ranker.RankerCandidate;
 
@@ -63,7 +63,7 @@ public class MorphTagger extends SimpleTagger {
 				lemma = candidate.getLemma(); 
 			} else if (lemmatizer_ != null) {
 				Word word = (Word) sequence.get(token_index);
-				Instance instance = Instance.getInstance(word);
+				LemmaInstance instance = LemmaInstance.getInstance(word);
 				
 				instance.setPosTag(tags.get(0));
 				if (1 < tags.size()) {

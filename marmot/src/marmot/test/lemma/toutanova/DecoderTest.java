@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import marmot.lemma.Instance;
+import marmot.lemma.LemmaInstance;
 import marmot.lemma.toutanova.Decoder;
 import marmot.lemma.toutanova.FirstOrderDecoder;
 import marmot.lemma.toutanova.ToutanovaModel;
@@ -28,12 +28,12 @@ public class DecoderTest {
 		
 		List<ToutanovaInstance> train_instances = new LinkedList<>();
 		
-		train_instances.add(new ToutanovaInstance(new Instance("aaae", "aaa", null, null), Arrays.asList(1, 1, 1, 1, 2, 1)));
-		train_instances.add(new ToutanovaInstance(new Instance("bbbe", "bbb", null, null), Arrays.asList(1, 1, 1, 1, 2, 1)));
-		train_instances.add(new ToutanovaInstance(new Instance("ccce", "ccc", null, null), Arrays.asList(1, 1, 1, 1, 2, 1)));
-		train_instances.add(new ToutanovaInstance(new Instance("aaaf", "aaa", null, null), Arrays.asList(1, 1, 1, 1, 2, 1)));
-		train_instances.add(new ToutanovaInstance(new Instance("bbbf", "bbb", null, null), Arrays.asList(1, 1, 1, 1, 2, 1)));
-		train_instances.add(new ToutanovaInstance(new Instance("cccf", "ccc", null, null), Arrays.asList(1, 1, 1, 1, 2, 1)));
+		train_instances.add(new ToutanovaInstance(new LemmaInstance("aaae", "aaa", null, null), Arrays.asList(1, 1, 1, 1, 2, 1)));
+		train_instances.add(new ToutanovaInstance(new LemmaInstance("bbbe", "bbb", null, null), Arrays.asList(1, 1, 1, 1, 2, 1)));
+		train_instances.add(new ToutanovaInstance(new LemmaInstance("ccce", "ccc", null, null), Arrays.asList(1, 1, 1, 1, 2, 1)));
+		train_instances.add(new ToutanovaInstance(new LemmaInstance("aaaf", "aaa", null, null), Arrays.asList(1, 1, 1, 1, 2, 1)));
+		train_instances.add(new ToutanovaInstance(new LemmaInstance("bbbf", "bbb", null, null), Arrays.asList(1, 1, 1, 1, 2, 1)));
+		train_instances.add(new ToutanovaInstance(new LemmaInstance("cccf", "ccc", null, null), Arrays.asList(1, 1, 1, 1, 2, 1)));
 		
 		model.init(ToutanovaTrainer.ToutanovaOptions.newInstance(), train_instances, null);
 		

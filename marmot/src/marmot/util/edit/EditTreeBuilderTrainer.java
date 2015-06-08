@@ -6,7 +6,7 @@ package marmot.util.edit;
 import java.util.List;
 import java.util.Random;
 
-import marmot.lemma.Instance;
+import marmot.lemma.LemmaInstance;
 import marmot.util.Counter;
 
 public class EditTreeBuilderTrainer {
@@ -21,13 +21,13 @@ public class EditTreeBuilderTrainer {
 		max_depth_ = max_depth;
 	}
 
-	public EditTreeBuilder train(List<Instance> instances) {
+	public EditTreeBuilder train(List<LemmaInstance> instances) {
 
 		EditTreeBuilder builder = new EditTreeBuilder(random_, max_depth_);
 
 		for (int iter = 0; iter < num_iterations_; iter++) {
 			Counter<String> counter = new Counter<>();
-			for (Instance instance : instances) {
+			for (LemmaInstance instance : instances) {
 				EditTree tree = builder.build(instance.getForm(),
 						instance.getLemma());
 				tree.increment(counter);

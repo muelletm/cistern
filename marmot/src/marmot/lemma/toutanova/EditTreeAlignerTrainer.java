@@ -6,7 +6,7 @@ package marmot.lemma.toutanova;
 import java.util.List;
 import java.util.Random;
 
-import marmot.lemma.Instance;
+import marmot.lemma.LemmaInstance;
 import marmot.util.edit.EditTreeBuilder;
 import marmot.util.edit.EditTreeBuilderTrainer;
 
@@ -25,7 +25,7 @@ public class EditTreeAlignerTrainer implements AlignerTrainer {
 	}
 
 	@Override
-	public Aligner train(List<Instance> instances) {
+	public Aligner train(List<LemmaInstance> instances) {
 		EditTreeBuilder builder = new EditTreeBuilderTrainer(random_, num_steps_, max_depth_).train(instances);
 		return new EditTreeAligner(builder, merge_empty_input_segments_);
 	}

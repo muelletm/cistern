@@ -27,7 +27,7 @@ import marmot.core.Trainer;
 import marmot.core.TrainerFactory;
 import marmot.core.WeightVector;
 import marmot.lemma.GoldLemmaGenerator;
-import marmot.lemma.Instance;
+import marmot.lemma.LemmaInstance;
 import marmot.lemma.LemmaCandidate;
 import marmot.lemma.LemmaCandidateGenerator;
 import marmot.lemma.LemmaCandidateSet;
@@ -198,7 +198,7 @@ public class MorphModel extends Model {
 		roptions.setOption(RankerTrainerOptions.ASPELL_LANG, options.getLemmaAspellLang());
 		roptions.setOption(RankerTrainerOptions.USE_SHAPE_LEXICON, options.getLemmaUseShapeLexicon());
 		
-		List<Instance> instances = Instance.getInstances(sentences, false, false);
+		List<LemmaInstance> instances = LemmaInstance.getInstances(sentences, false, false);
 		
 		if (options.getGoldLemma()) {
 			generators_ = Collections.singletonList((LemmaCandidateGenerator) new GoldLemmaGenerator());
@@ -682,7 +682,7 @@ public class MorphModel extends Model {
 	
 	private void addLemmaInstance(Word word) {
 		if (lemma_model_ != null && word.getInstance() == null) {
-			Instance instance = Instance.getInstance(word, false, false);
+			LemmaInstance instance = LemmaInstance.getInstance(word, false, false);
 			RankerInstance rinstance = RankerInstance.getInstance(instance, generators_);
 			word.setInstance(rinstance);
 			addLemmaFeatures(word);

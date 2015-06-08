@@ -15,9 +15,9 @@ import org.javatuples.Pair;
 
 import com.google.common.collect.Sets;
 
-import marmot.lemma.Instance;
+import marmot.lemma.LemmaInstance;
 import marmot.lemma.Lemmatizer;
-import marmot.lemma.Options;
+import marmot.lemma.LemmaOptions;
 import marmot.lemma.transducer.exceptions.LabelBiasException;
 import marmot.lemma.transducer.exceptions.NegativeContext;
 import marmot.util.Numerics;
@@ -156,7 +156,7 @@ public class PFST extends Transducer {
 	 
 	protected void observedCounts(double[][][] gradient, double[] contextCounts, int instanceId) {
 		// get data instance
-		Instance instance = this.trainingData.get(instanceId);
+		LemmaInstance instance = this.trainingData.get(instanceId);
 		String upper = instance.getFormPadded();
 		String lower = instance.getLemmaPadded();
 				
@@ -252,7 +252,7 @@ public class PFST extends Transducer {
 	@Override
 	protected double logLikelihood(int instanceId) {
 		// get data instance
-		Instance instance = this.trainingData.get(instanceId);
+		LemmaInstance instance = this.trainingData.get(instanceId);
 		String upper = instance.getFormPadded();
 		String lower = instance.getLemmaPadded();
 		
@@ -303,11 +303,11 @@ public class PFST extends Transducer {
 		}
 	}
 	
-	public void decode (List<Instance> instances) {
+	public void decode (List<LemmaInstance> instances) {
 		//List<Set<Integer>> cartesianProductArgsC3 = new ArrayList<Set<Integer>>();
 		int instanceId = 0;
 		int correct = 0;
-		for (Instance instance : instances) {
+		for (LemmaInstance instance : instances) {
 
 			String upper = instance.getFormPadded();
 			String lower = instance.getLemmaPadded();
@@ -449,12 +449,12 @@ public class PFST extends Transducer {
 		System.out.println("ACCURACY: " + correct + " - " +  instances.size());
 	}
 	@Override
-	public Lemmatizer train(List<Instance> instances,
-			List<Instance> dev_instances) {
+	public Lemmatizer train(List<LemmaInstance> instances,
+			List<LemmaInstance> dev_instances) {
 		
 		
-		this.trainingData = new ArrayList<Instance>(instances);
-		this.devData =  new ArrayList<Instance>(dev_instances);
+		this.trainingData = new ArrayList<LemmaInstance>(instances);
+		this.devData =  new ArrayList<LemmaInstance>(dev_instances);
 		
 		this.contextToCharacter = new HashMap<Integer,Character>();
 		
@@ -596,7 +596,7 @@ public class PFST extends Transducer {
 	}
 	
 	@Override
-	public Options getOptions() {
+	public LemmaOptions getOptions() {
 		// TODO Auto-generated method stub
 		return null;
 	}

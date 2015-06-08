@@ -7,7 +7,7 @@ public class GoldLemmaGenerator implements LemmaCandidateGenerator {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void addCandidates(Instance instance, LemmaCandidateSet set) {
+	public void addCandidates(LemmaInstance instance, LemmaCandidateSet set) {
 		set.clear();
 		assert instance.getLemma() != null;
 		set.getCandidate(instance.getLemma());

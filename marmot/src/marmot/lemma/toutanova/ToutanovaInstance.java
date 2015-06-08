@@ -5,24 +5,24 @@ package marmot.lemma.toutanova;
 
 import java.util.List;
 
-import marmot.lemma.Instance;
+import marmot.lemma.LemmaInstance;
 
 public class ToutanovaInstance {
 
-	private Instance instance_;
+	private LemmaInstance instance_;
 	private List<Integer> alignment_;
 	private int[] form_char_indexes_;
 	private Result result_;
 	private int pos_tag_index_;
 	private boolean rare_;
 	
-	public ToutanovaInstance(Instance instance, List<Integer> alignment) {
+	public ToutanovaInstance(LemmaInstance instance, List<Integer> alignment) {
 		instance_ = instance;
 		alignment_ = alignment;
 		rare_ = false;
 	}
 	
-	Instance getInstance() {
+	LemmaInstance getInstance() {
 		return instance_;
 	}
 	

@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import marmot.core.Feature;
-import marmot.lemma.Instance;
+import marmot.lemma.LemmaInstance;
 import marmot.lemma.toutanova.Aligner.Pair;
 import marmot.lemma.toutanova.ToutanovaTrainer.ToutanovaOptions;
 import marmot.util.DynamicWeights;
@@ -444,7 +444,7 @@ public class ToutanovaModel implements Serializable {
 		updater_.setWeights(weights);
 	}
 
-	public boolean isOOV(Instance instance) {
+	public boolean isOOV(LemmaInstance instance) {
 		return !form_vocab_.contains(instance.getForm());
 	}
 

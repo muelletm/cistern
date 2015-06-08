@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-public abstract class Options implements Serializable {
+public abstract class LemmaOptions implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	protected Map<String, Object> map_;
@@ -25,7 +25,7 @@ public abstract class Options implements Serializable {
 	
 	private Random random_;
 
-	public Options() {
+	public LemmaOptions() {
 		map_ = new HashMap<>();
 
 		map_.put(SEED, 42L);
@@ -137,7 +137,7 @@ public abstract class Options implements Serializable {
 		return new_value;
 	}
 	
-	public Options setOption(String name, Object value) {
+	public LemmaOptions setOption(String name, Object value) {
 		Object current_value = getOption(name);
 		Object new_value = getValue(current_value, value);
 		map_.put(name, new_value);

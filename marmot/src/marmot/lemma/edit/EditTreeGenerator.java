@@ -6,7 +6,7 @@ package marmot.lemma.edit;
 import java.util.List;
 import java.util.Map;
 
-import marmot.lemma.Instance;
+import marmot.lemma.LemmaInstance;
 import marmot.lemma.LemmaCandidateGenerator;
 import marmot.lemma.LemmaCandidateSet;
 import marmot.util.edit.EditTree;
@@ -23,7 +23,7 @@ public class EditTreeGenerator implements LemmaCandidateGenerator {
 	}
 	
 	@Override
-	public void addCandidates(Instance instance, LemmaCandidateSet set) {
+	public void addCandidates(LemmaInstance instance, LemmaCandidateSet set) {
 		String form = instance.getForm();
 		
 		String tag = instance.getMorphTag();

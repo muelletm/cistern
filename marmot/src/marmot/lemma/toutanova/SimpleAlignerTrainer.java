@@ -5,12 +5,12 @@ package marmot.lemma.toutanova;
 
 import java.util.List;
 
-import marmot.lemma.Instance;
+import marmot.lemma.LemmaInstance;
 
 public class SimpleAlignerTrainer implements AlignerTrainer {
 
 	@Override
-	public Aligner train(List<Instance> instances) {
+	public Aligner train(List<LemmaInstance> instances) {
 		return new SimpleAligner();
 	}
 

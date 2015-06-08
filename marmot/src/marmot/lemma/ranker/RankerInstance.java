@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import marmot.lemma.Instance;
+import marmot.lemma.LemmaInstance;
 import marmot.lemma.LemmaCandidateGenerator;
 import marmot.lemma.LemmaCandidateSet;
 import marmot.util.Converter;
@@ -17,13 +17,13 @@ public class RankerInstance {
 
 	public static final int[] EMPTY_ARRAY = {};
 
-	private Instance instance_;
+	private LemmaInstance instance_;
 	private LemmaCandidateSet set_;
 	private int[] form_chars_;
 	private int pos_index_;
 	private int[] morph_indexes_;
 
-	public RankerInstance(Instance instance, LemmaCandidateSet set) {
+	public RankerInstance(LemmaInstance instance, LemmaCandidateSet set) {
 		instance_ = instance;
 		set_ = set;
 		form_chars_ = null;
@@ -31,7 +31,7 @@ public class RankerInstance {
 		morph_indexes_ = null;
 	}
 
-	public Instance getInstance() {
+	public LemmaInstance getInstance() {
 		return instance_;
 	}
 
@@ -95,16 +95,16 @@ public class RankerInstance {
 		}
 	}
 
-	public static List<RankerInstance> getInstances(List<Instance> instances,
+	public static List<RankerInstance> getInstances(List<LemmaInstance> instances,
 			List<LemmaCandidateGenerator> generators) {
 		List<RankerInstance> rinstances = new LinkedList<>();
-		for (Instance instance : instances) {
+		for (LemmaInstance instance : instances) {
 			rinstances.add(getInstance(instance, generators));	
 		}
 		return rinstances;
 	}
 
-	public static RankerInstance getInstance(Instance instance,
+	public static RankerInstance getInstance(LemmaInstance instance,
 			List<LemmaCandidateGenerator> generators) {
 		LemmaCandidateSet set = new LemmaCandidateSet();
 		for (LemmaCandidateGenerator generator : generators) {

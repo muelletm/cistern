@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import marmot.lemma.Instance;
+import marmot.lemma.LemmaInstance;
 import marmot.lemma.LemmaCandidateSet;
 import marmot.lemma.Lemmatizer;
 import marmot.lemma.LemmatizerGenerator;
@@ -21,7 +21,7 @@ public class ToutanovaLemmatizer implements Lemmatizer, LemmatizerGenerator {
 	private transient NbestDecoder nbest_decoder_;
 	private ToutanovaOptions options_;
 	
-	private transient Map<Instance, String> cache_;
+	private transient Map<LemmaInstance, String> cache_;
 
 	public ToutanovaLemmatizer(ToutanovaOptions options, ToutanovaModel model) {
 		model_ = model;
@@ -29,7 +29,7 @@ public class ToutanovaLemmatizer implements Lemmatizer, LemmatizerGenerator {
 	}
 
 	@Override
-	public String lemmatize(Instance instance) {
+	public String lemmatize(LemmaInstance instance) {
 		if (cache_ == null) {
 			cache_ = new HashMap<>();
 		}
@@ -54,7 +54,7 @@ public class ToutanovaLemmatizer implements Lemmatizer, LemmatizerGenerator {
 		return lemma;
 	}
 
-	private ToutanovaInstance getToutanovaInstance(Instance instance) {
+	private ToutanovaInstance getToutanovaInstance(LemmaInstance instance) {
 		ToutanovaInstance tinstance = new ToutanovaInstance(instance, null);
 		model_.addIndexes(tinstance, false);
 		return tinstance;
@@ -65,7 +65,7 @@ public class ToutanovaLemmatizer implements Lemmatizer, LemmatizerGenerator {
 	}
 
 	@Override
-	public void addCandidates(Instance instance, LemmaCandidateSet set) {
+	public void addCandidates(LemmaInstance instance, LemmaCandidateSet set) {
 		ToutanovaInstance tinstance = getToutanovaInstance(instance);
 		
 		if (nbest_decoder_ == null) {
@@ -83,7 +83,7 @@ public class ToutanovaLemmatizer implements Lemmatizer, LemmatizerGenerator {
 	}
 
 	@Override
-	public boolean isOOV(Instance instance) {
+	public boolean isOOV(LemmaInstance instance) {
 		return model_.isOOV(instance);
 	}
 

@@ -14,7 +14,7 @@ import marmot.morph.Word;
 import marmot.morph.io.SentenceReader;
 import marmot.util.Mutable;
 
-public class Instance {
+public class LemmaInstance {
 
 	private double count_;
 	private String form_;
@@ -35,7 +35,7 @@ public class Instance {
 		return String.format("%s\t%s\t%s\t%s", form_, ptag, mtag, lemma_);
 	}
 	
-	public Instance(String form, String lemma, String tag, String mtag) {
+	public LemmaInstance(String form, String lemma, String tag, String mtag) {
 		count_ = 1;
 		form_ = form;
 		lemma_ = lemma;
@@ -92,7 +92,7 @@ public class Instance {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Instance other = (Instance) obj;
+		LemmaInstance other = (LemmaInstance) obj;
 		if (form_ == null) {
 			if (other.form_ != null)
 				return false;
@@ -116,21 +116,21 @@ public class Instance {
 		return true;
 	}
 	
-	public static List<Instance> getInstances(Iterable<Sequence> reader) {
+	public static List<LemmaInstance> getInstances(Iterable<Sequence> reader) {
 		return getInstances(reader, -1);
 	}
 	
-	public static List<Instance> getInstances(Iterable<Sequence> reader, int limit) {
+	public static List<LemmaInstance> getInstances(Iterable<Sequence> reader, int limit) {
 		return getInstances(reader, limit, true, true);
 	}
 	
-	public static List<Instance> getInstances(Iterable<Sequence> reader, boolean use_ptag, boolean use_mtag) {
+	public static List<LemmaInstance> getInstances(Iterable<Sequence> reader, boolean use_ptag, boolean use_mtag) {
 		return getInstances(reader, -1, use_ptag, use_mtag);
 	}
 	
-	public static List<Instance> getInstances(Iterable<Sequence> reader, int limit, boolean use_postag, boolean use_mtag) {
+	public static List<LemmaInstance> getInstances(Iterable<Sequence> reader, int limit, boolean use_postag, boolean use_mtag) {
 		 
-		Map<Instance, Mutable<Integer>> map = new HashMap<>();
+		Map<LemmaInstance, Mutable<Integer>> map = new HashMap<>();
 		
 		int number = 0;
 		for (Sequence sentence : reader) {
@@ -138,7 +138,7 @@ public class Instance {
 				
 				number ++;
 				
-				Instance instance = Instance.getInstance((Word) token, use_postag, use_mtag);
+				LemmaInstance instance = LemmaInstance.getInstance((Word) token, use_postag, use_mtag);
 				
 				Mutable<Integer> mi = map.get(instance);
 				if (mi == null) {
@@ -154,10 +154,10 @@ public class Instance {
 			
 		}
 		
-		List<Instance> instances = new LinkedList<Instance>();
-		for (Map.Entry<Instance, Mutable<Integer>> entry : map.entrySet()) {
+		List<LemmaInstance> instances = new LinkedList<LemmaInstance>();
+		for (Map.Entry<LemmaInstance, Mutable<Integer>> entry : map.entrySet()) {
 
-			Instance instance = entry.getKey();
+			LemmaInstance instance = entry.getKey();
 			double count = entry.getValue().get();
 			
 			instance.setCount(count);
@@ -167,7 +167,7 @@ public class Instance {
 		return instances;
 	}
 
-	public static List<Instance> getInstances(String file) {
+	public static List<LemmaInstance> getInstances(String file) {
 		return getInstances(new SentenceReader(file));
 	}
 
@@ -175,7 +175,7 @@ public class Instance {
 		return mtag_;
 	}
 
-	public static Instance getInstance(Word word, boolean use_postag, boolean use_mtag) {
+	public static LemmaInstance getInstance(Word word, boolean use_postag, boolean use_mtag) {
 		String form = word.getWordForm();
 		
 		if (form == null) {
@@ -187,10 +187,10 @@ public class Instance {
 		if (lemma != null)
 			lemma = lemma.toLowerCase();
 
-		return  new Instance(form, lemma, (use_postag)? word.getPosTag() : null, (use_mtag) ? word.getMorphTag() : null);	
+		return  new LemmaInstance(form, lemma, (use_postag)? word.getPosTag() : null, (use_mtag) ? word.getMorphTag() : null);	
 	}
 	
-	public static Instance getInstance(Word word) {
+	public static LemmaInstance getInstance(Word word) {
 		return getInstance(word, true, true);	
 	}
 

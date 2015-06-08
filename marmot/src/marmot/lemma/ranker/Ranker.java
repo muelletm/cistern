@@ -5,7 +5,7 @@ package marmot.lemma.ranker;
 
 import java.util.List;
 
-import marmot.lemma.Instance;
+import marmot.lemma.LemmaInstance;
 import marmot.lemma.LemmaCandidateGenerator;
 import marmot.lemma.LemmaCandidateSet;
 import marmot.lemma.LemmatizerGenerator;
@@ -22,7 +22,7 @@ public class Ranker implements LemmatizerGenerator {
 	}
 
 	@Override
-	public String lemmatize(Instance instance) {
+	public String lemmatize(LemmaInstance instance) {
 		LemmaCandidateSet set = new LemmaCandidateSet();
 		addCandidates(instance, set);;
 		RankerInstance rinstance = new RankerInstance(instance, set);
@@ -31,14 +31,14 @@ public class Ranker implements LemmatizerGenerator {
 	}
 
 	@Override
-	public void addCandidates(Instance instance, LemmaCandidateSet set) {
+	public void addCandidates(LemmaInstance instance, LemmaCandidateSet set) {
 		for (LemmaCandidateGenerator generator : generators_) {
 			generator.addCandidates(instance, set);
 		}
 	}
 
 	@Override
-	public boolean isOOV(Instance instance) {
+	public boolean isOOV(LemmaInstance instance) {
 		return model_.isOOV(instance);
 	}
 

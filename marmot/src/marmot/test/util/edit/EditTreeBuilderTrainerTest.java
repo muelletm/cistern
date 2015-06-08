@@ -15,7 +15,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import marmot.lemma.Instance;
+import marmot.lemma.LemmaInstance;
 import marmot.lemma.toutanova.Aligner.Pair;
 import marmot.lemma.toutanova.EditTreeAligner;
 import marmot.morph.io.SentenceReader;
@@ -33,7 +33,7 @@ public class EditTreeBuilderTrainerTest {
 		String indexes = "form-index=4,lemma-index=5,tag-index=2,";
 		String trainfile = indexes+ getResourceFile("trn_mod.tsv");
 		
-		List<Instance> instances = Instance.getInstances(new SentenceReader(trainfile));
+		List<LemmaInstance> instances = LemmaInstance.getInstances(new SentenceReader(trainfile));
 		
 		EditTreeBuilderTrainer trainer = new EditTreeBuilderTrainer(new Random(42), 1, -1);
 		EditTreeBuilder builder =  trainer.train(instances);
@@ -50,7 +50,7 @@ public class EditTreeBuilderTrainerTest {
 		String indexes = "form-index=4,lemma-index=5,tag-index=2,";
 		String trainfile = indexes+ getResourceFile("trn_mod.tsv");
 		
-		List<Instance> instances = Instance.getInstances(new SentenceReader(trainfile));
+		List<LemmaInstance> instances = LemmaInstance.getInstances(new SentenceReader(trainfile));
 		
 		EditTreeBuilderTrainer trainer = new EditTreeBuilderTrainer(new Random(42), 1, -1);
 		EditTreeBuilder builder =  trainer.train(instances);
@@ -59,9 +59,9 @@ public class EditTreeBuilderTrainerTest {
 		testHashAndEquals(builder, "lachen", "gelacht", "machen", "gemacht", true);
 		testHashAndEquals(builder, "lachen", "gelacht", "aaaaaaaaen", "geaaaaaaaat", true);
 		
-		Map<EditTree, List<Instance>> map = new HashMap<>();
+		Map<EditTree, List<LemmaInstance>> map = new HashMap<>();
 		
-		for (Instance instance : instances) {
+		for (LemmaInstance instance : instances) {
 			
 			String input = instance.getForm();
 			String output = instance.getLemma();
@@ -71,7 +71,7 @@ public class EditTreeBuilderTrainerTest {
 			String p_output = tree.apply(input, 0, input.length());
 			assertEquals(output, p_output);
 			
-			List<Instance> list = map.get(tree);
+			List<LemmaInstance> list = map.get(tree);
 			if (list == null) {
 				list = new LinkedList<>();
 				map.put(tree, list);
@@ -81,17 +81,17 @@ public class EditTreeBuilderTrainerTest {
 		}
 
 		applyTest(map, instances, false, 0.0);
-		applyTest(map, Instance.getInstances(indexes + getResourceFile("dev.tsv")), false, 0.02526);
+		applyTest(map, LemmaInstance.getInstances(indexes + getResourceFile("dev.tsv")), false, 0.02526);
 	}
 	
-	private void applyTest(Map<EditTree, List<Instance>> map,
-			List<Instance> instances, boolean log_missed_outputs, double expected_miss_rate) {
+	private void applyTest(Map<EditTree, List<LemmaInstance>> map,
+			List<LemmaInstance> instances, boolean log_missed_outputs, double expected_miss_rate) {
 		
 		Logger logger = Logger.getLogger(getClass().getName());
 		
 		int missed_outputs = 0;
 				
-		for (Instance instance : instances) {
+		for (LemmaInstance instance : instances) {
 			
 			String input = instance.getForm();
 			String output = instance.getLemma();

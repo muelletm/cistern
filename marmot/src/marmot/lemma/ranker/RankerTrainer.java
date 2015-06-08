@@ -10,12 +10,12 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import marmot.lemma.Instance;
+import marmot.lemma.LemmaInstance;
 import marmot.lemma.LemmaCandidateGenerator;
 import marmot.lemma.LemmaCandidateGeneratorTrainer;
 import marmot.lemma.LemmatizerGenerator;
 import marmot.lemma.LemmatizerGeneratorTrainer;
-import marmot.lemma.Options;
+import marmot.lemma.LemmaOptions;
 import marmot.lemma.SimpleLemmatizerTrainer;
 import marmot.lemma.edit.EditTreeGeneratorTrainer;
 import marmot.lemma.edit.EditTreeGeneratorTrainer.EditTreeGeneratorTrainerOptions;
@@ -32,7 +32,7 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
 
 
 
-	public static class RankerTrainerOptions extends Options {
+	public static class RankerTrainerOptions extends LemmaOptions {
 		
 		private static final long serialVersionUID = 1L;
 		
@@ -92,7 +92,7 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
 			return (Double) getOption(QUADRATIC_PENALTY);
 		}
 		
-		public List<LemmaCandidateGenerator> getGenerators(List<Instance> instances) {
+		public List<LemmaCandidateGenerator> getGenerators(List<LemmaInstance> instances) {
 			List<LemmaCandidateGenerator> generators = new LinkedList<>();
 			for (Object trainer_class  : getGeneratorTrainers()) {
 				LemmaCandidateGeneratorTrainer trainer = (LemmaCandidateGeneratorTrainer) toInstance((Class<?>) trainer_class);
@@ -163,8 +163,8 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
 	}
 
 	@Override
-	public LemmatizerGenerator train(List<Instance> train_instances,
-			List<Instance> test_instances) {
+	public LemmatizerGenerator train(List<LemmaInstance> train_instances,
+			List<LemmaInstance> test_instances) {
 
 		List<LemmaCandidateGenerator> generators = options_.getGenerators(train_instances);
 
@@ -173,7 +173,7 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
 
 	private LemmatizerGenerator trainReranker(
 			List<LemmaCandidateGenerator> generators,
-			List<Instance> simple_instances) {
+			List<LemmaInstance> simple_instances) {
 		List<RankerInstance> instances = RankerInstance.getInstances(simple_instances, generators);
 				
 		RankerModel model = new RankerModel();
@@ -292,7 +292,7 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
 	}
 
 	@Override
-	public Options getOptions() {
+	public LemmaOptions getOptions() {
 		return options_;
 	}
 
