@@ -5,19 +5,12 @@ public class Datum {
 	private int [] features;
 	private String word;
 	private String lemma;
+	private String tag;
 	
-	public Datum(String word, String lemma, int[] features) {
+	public Datum(String word, String lemma, String tag) {
 		setWord(word);
 		setLemma(lemma);
-		setFeatures(features);
-	}
-
-	public int [] getFeatures() {
-		return features;
-	}
-
-	public void setFeatures(int [] features) {
-		this.features = features;
+		setTag(tag);
 	}
 
 	public String getWord() {
@@ -34,5 +27,13 @@ public class Datum {
 
 	public void setLemma(String lemma) {
 		this.lemma = lemma;
+	}
+
+	public String getTag() {
+		return tag;
+	}
+
+	public void setTag(String tag) {
+		this.tag = tag;
 	}
 }

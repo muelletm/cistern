@@ -163,6 +163,13 @@ public class IsingFactorGraph {
 	}
 	
 	/**
+	 * Returns the most probable configuration
+	 */
+	public void decode() {
+		
+	}
+	
+	/**
 	 * 
 	 */
 	public double logLikelihood() {
