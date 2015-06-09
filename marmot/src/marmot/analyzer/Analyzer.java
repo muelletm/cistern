@@ -4,6 +4,6 @@ import java.util.Collection;
 
 public interface Analyzer {
 
-	Collection<String> analyze(String form);
+	Collection<AnalyzerReading> analyze(AnalyzerInstance instance);
 	
 }

@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import marmot.core.ArrayFloatFeatureVector;
 import marmot.core.DenseArrayFloatFeatureVector;
@@ -19,7 +20,7 @@ import marmot.util.SymbolTable;
 public class FloatHashDictionary implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private Map<String, FloatFeatureVector> index_map_;
-	private SymbolTable<String> table_;
+	private SymbolTable<String> column_table_;
 	private MorphDictionaryOptions options_;
 
 	protected void readSparseVector(LineIterator iterator) {
@@ -55,7 +56,7 @@ public class FloatHashDictionary implements Serializable {
 								+ pair_string);
 					} else {
 						String key = key_value[0];
-						int index = table_.toIndex(key, true);
+						int index = column_table_.toIndex(key, true);
 
 						assert (index >= 0);
 
@@ -81,12 +82,19 @@ public class FloatHashDictionary implements Serializable {
 		while (iterator.hasNext()) {
 			List<String> line = iterator.next();
 
+			if (dim == -1 && line.size() == 2) {
+				// Data is in word2vec text format.
+				Logger logger = Logger.getLogger(getClass().getName());
+				logger.info(String.format("Skipping possible file header: %s", line));
+				continue;
+			}		
+			
 			if (!line.isEmpty()) {
 				
 				if (dim < 0) {
 					dim = line.size() - 1;
 					for (int i=0; i< dim; i++) {
-						table_.toIndex(Integer.toString(i), true);
+						column_table_.toIndex(Integer.toString(i), true);
 					}			
 				}
 				
@@ -116,10 +124,10 @@ public class FloatHashDictionary implements Serializable {
 	}
 
 	public void init(MorphDictionaryOptions options) {
-
 		options_ = options;
-		LineIterator iterator = new LineIterator(options.getFilename());
-		table_ = new SymbolTable<String>();
+		
+		LineIterator iterator = new LineIterator(options_.getFilename());
+		column_table_ = new SymbolTable<String>();
 		index_map_ = new HashMap<String, FloatFeatureVector>();
 
 		if (options_.getDense()) {
@@ -135,11 +143,11 @@ public class FloatHashDictionary implements Serializable {
 					ArrayFloatFeatureVector vec = (ArrayFloatFeatureVector) entry
 							.getValue();
 
-					if (table_.size() == vec.getWeights().length) {
+					if (column_table_.size() == vec.getWeights().length) {
 						entry.setValue(new DenseArrayFloatFeatureVector(vec
 								.getWeights()));
 					} else {
-						double[] weights = new double[table_.size()];
+						double[] weights = new double[column_table_.size()];
 						for (int index = 0; index < vec.getWeights().length; index++) {
 							weights[vec.getFeatures()[index]] = vec
 									.getWeights()[index];
@@ -156,12 +164,12 @@ public class FloatHashDictionary implements Serializable {
 		return v;
 	}
 
-	public int size() {
-		return table_.size();
+	public int getDimension() {
+		return column_table_.size();
 	}
 
-	public int[] getOffsets() {
-		return options_.getIndexes();
+	public int numEntries() {
+		return index_map_.size();
 	}
 
 }

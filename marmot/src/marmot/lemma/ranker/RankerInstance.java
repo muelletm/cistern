@@ -11,6 +11,7 @@ import marmot.lemma.LemmaInstance;
 import marmot.lemma.LemmaCandidateGenerator;
 import marmot.lemma.LemmaCandidateSet;
 import marmot.util.Converter;
+import marmot.util.FeatUtil;
 import marmot.util.SymbolTable;
 
 public class RankerInstance {
@@ -19,7 +20,7 @@ public class RankerInstance {
 
 	private LemmaInstance instance_;
 	private LemmaCandidateSet set_;
-	private int[] form_chars_;
+	private short[] form_chars_;
 	private int pos_index_;
 	private int[] morph_indexes_;
 
@@ -39,14 +40,9 @@ public class RankerInstance {
 		return set_;
 	}
 
-	public int[] getFormChars(SymbolTable<Character> char_table_, boolean insert) {
+	public short[] getFormChars(SymbolTable<Character> char_table_, boolean insert) {
 		if (form_chars_ == null) {
-			String form = instance_.getForm();
-			form_chars_ = new int[form.length()];
-			for (int i = 0; i < form.length(); i++) {
-				int c = char_table_.toIndex(form.charAt(i), -1, insert);
-				form_chars_[i] = c;
-			}
+			form_chars_ = FeatUtil.getCharIndexes(instance_.getForm(), char_table_, insert);
 		}
 		return form_chars_;
 	}

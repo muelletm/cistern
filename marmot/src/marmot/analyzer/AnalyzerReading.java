@@ -1,26 +1,29 @@
 package marmot.analyzer;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Set;
+
 import marmot.morph.Word;
 
 public class AnalyzerReading {
 
-	private String pos_tag_;
-	private String morph_tag_;
 	private String lemma_;
+	private AnalyzerTag tag_;
 	
-	public AnalyzerReading(String pos_tag, String morph_tag, String lemma) {
-		pos_tag_ = pos_tag;
-		morph_tag_ = morph_tag;
+	public AnalyzerReading(AnalyzerTag tag, String lemma) {
+		tag_ = tag;
 		lemma_ = lemma;
 	}
 	
 	public AnalyzerReading(Word word) {
-		this(word.getPosTag(), word.getPosTag(), word.getLemma());
+		this(new AnalyzerTag(word.getPosTag(), word.getMorphTag()), word.getLemma());
 	}
 
 	@Override
 	public String toString() {
-		return String.format("%s %s %s", pos_tag_, morph_tag_, lemma_);
+		return String.format("%s %s", tag_, lemma_);
 	}
 
 	@Override
@@ -28,10 +31,7 @@ public class AnalyzerReading {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((lemma_ == null) ? 0 : lemma_.hashCode());
-		result = prime * result
-				+ ((morph_tag_ == null) ? 0 : morph_tag_.hashCode());
-		result = prime * result
-				+ ((pos_tag_ == null) ? 0 : pos_tag_.hashCode());
+		result = prime * result + ((tag_ == null) ? 0 : tag_.hashCode());
 		return result;
 	}
 
@@ -49,17 +49,24 @@ public class AnalyzerReading {
 				return false;
 		} else if (!lemma_.equals(other.lemma_))
 			return false;
-		if (morph_tag_ == null) {
-			if (other.morph_tag_ != null)
+		if (tag_ == null) {
+			if (other.tag_ != null)
 				return false;
-		} else if (!morph_tag_.equals(other.morph_tag_))
-			return false;
-		if (pos_tag_ == null) {
-			if (other.pos_tag_ != null)
-				return false;
-		} else if (!pos_tag_.equals(other.pos_tag_))
+		} else if (!tag_.equals(other.tag_))
 			return false;
 		return true;
+	}
+	
+	public static Collection<AnalyzerTag> toTags(Collection<AnalyzerReading> readings) {
+		Set<AnalyzerTag> tags = new HashSet<>();
+		for (AnalyzerReading reading : readings) {
+			tags.add(reading.getTag());
+		}
+		return new LinkedList<>(tags);
+	}
+
+	private AnalyzerTag getTag() {
+		return tag_;
 	}
 
 }

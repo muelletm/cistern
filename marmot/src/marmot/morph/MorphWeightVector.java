@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import marmot.core.ArrayFloatFeatureVector;
-import marmot.core.ConcatFloatFeatureVector;
 import marmot.core.FeatureVector;
 import marmot.core.FloatFeatureVector;
 import marmot.core.FloatWeights;
@@ -15,11 +14,9 @@ import marmot.core.Model;
 import marmot.core.Sequence;
 import marmot.core.State;
 import marmot.core.WeightVector;
-import marmot.core.ZeroFloatFeatureVector;
 import marmot.lemma.ranker.RankerModel;
 import marmot.util.Encoder;
 import marmot.util.FeatureTable;
-
 
 public class MorphWeightVector implements WeightVector, FloatWeights {
 	private static final long serialVersionUID = 1L;
@@ -510,8 +507,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 		}
 
 		if (fdict_ != null) {
-
-			FloatFeatureVector vector = extractFloatFeatures(sequence,
+			FloatFeatureVector vector = extractFloatFeatures(sequence, 
 					token_index);
 			features.setFloatVector(vector);
 
@@ -551,39 +547,20 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 	}
 
 	private void addFeature(FeatureVector features) {
-		int index = feature_table_.getFeatureIndex(encoder_, extend_feature_set_);
+		int index = feature_table_.getFeatureIndex(encoder_,
+				extend_feature_set_);
 		if (index >= 0)
 			features.add(index);
 	}
 
 	private FloatFeatureVector extractFloatFeatures(Sequence sentence,
 			int token_index) {
-		FloatFeatureVector vector = null;
-
-		for (int offset : fdict_.getOffsets()) {
-			int index = token_index + offset;
-
-			FloatFeatureVector current_vector = null;
-			if (index >= 0 && index < sentence.size()) {
-				String form = ((Word) sentence.get(index)).getWordForm();
-				current_vector = fdict_.getVector(form);
-			}
-
-			if (current_vector == null) {
-				current_vector = new ZeroFloatFeatureVector(fdict_.size());
-			}
-
-			assert (current_vector != null);
-
-			if (vector == null) {
-				vector = current_vector;
-			} else {
-				vector = new ConcatFloatFeatureVector(vector, current_vector);
-			}
+		FloatFeatureVector current_vector = null;
+		if (token_index >= 0 && token_index < sentence.size()) {
+			String form = ((Word) sentence.get(token_index)).getWordForm();
+			current_vector = fdict_.getVector(form);
 		}
-
-		assert vector != null;
-		return vector;
+		return current_vector;
 	}
 
 	@Override
@@ -776,10 +753,10 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 	@Override
 	public void init(Model model, Collection<Sequence> sequences) {
 		int max_level = model.getTagTables().size();
-		
-		feature_table_ = FeatureTable.StaticMethods.create(use_hash_feature_table_);
-		
-		
+
+		feature_table_ = FeatureTable.StaticMethods
+				.create(use_hash_feature_table_);
+
 		model_ = (MorphModel) model;
 		max_level_ = max_level;
 		num_tags_ = new int[max_level];
@@ -808,8 +785,7 @@ public class MorphWeightVector implements WeightVector, FloatWeights {
 				.size());
 
 		if (fdict_ != null) {
-			float_weights_ = new double[fdict_.getOffsets().length
-					* fdict_.size() * total_num_tags_];
+			float_weights_ = new double[fdict_.getDimension() * total_num_tags_];
 		} else {
 			float_weights_ = new double[model_.getWeightedTokenFeatureTable()
 					.size() * total_num_tags_];

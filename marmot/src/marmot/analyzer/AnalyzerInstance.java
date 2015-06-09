@@ -32,12 +32,20 @@ public class AnalyzerInstance {
 		readings_ = new ArrayList<>(tags);
 	}
 	
-	Collection<AnalyzerInstance> getInstances(String filename) {
+	public static Collection<AnalyzerInstance> getInstances(String filename) {
 		List<AnalyzerInstance> list = new LinkedList<>();
 		for (Sequence sequence : new SentenceReader(filename)) {
 			list.add(new AnalyzerInstance(sequence));
 		}
 		return list;
+	}
+
+	public String getForm() {
+		return form_;
+	}
+
+	public Collection<AnalyzerReading> getReadings() {
+		return readings_;
 	}
 	
 }
