@@ -16,6 +16,8 @@ public class DataReader {
 	protected Map<String,Integer> tag2Integer;
 	protected Map<Integer,String> integer2Tag;
 	protected Map<String,Set<String>> word2Tags;
+	protected Map<String,Set<Pair<String,String>>> word2LemmaTag;
+	
 	
 	protected List<Datum> data;
 	protected Set<Pair<Integer, Integer>> pairs;
@@ -31,6 +33,7 @@ public class DataReader {
 		this.integer2Tag = new HashMap<Integer,String>();
 		
 		this.word2Tags = new HashMap<String,Set<String>>();
+		this.word2LemmaTag = new HashMap<String,Set<Pair<String,String>>>();
 
 		this.data = new ArrayList<Datum>();
 		this.pairs = new HashSet<Pair<Integer, Integer>>();

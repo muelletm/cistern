@@ -1,7 +1,6 @@
 package marmot.ising;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -11,6 +10,7 @@ public class UnaryFactor extends Factor {
 	private int i;
 	private int size;
 	protected double[] potential;
+	protected double[] factorBelief;
 	
 	private List<Integer> features;
 	
@@ -32,6 +32,12 @@ public class UnaryFactor extends Factor {
 		
 		this.setMessages(new ArrayList<Message>());
 	}
+	
+	@Override
+	public void computeFactorBelief() {
+
+	}
+	
 
 	@Override
 	public void passMessage() {

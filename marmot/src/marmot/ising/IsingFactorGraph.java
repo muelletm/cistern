@@ -2,6 +2,7 @@ package marmot.ising;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.javatuples.Pair;
@@ -90,6 +91,7 @@ public class IsingFactorGraph {
 	 */
 	public double[][] inferenceBruteForce() {
 		double[][] marginals = new double[this.numVariables][2];
+		double Z = 0.0;
 		for(int i = 0; i < Math.pow(2,this.numVariables); i++) {    
 		    
 			double configurationScore = 1.0;
@@ -113,6 +115,7 @@ public class IsingFactorGraph {
 				 int value1 = configuration.get(bf.getI());
 				 int value2 = configuration.get(bf.getJ());
 				 configurationScore *= bf.potential[value1][value2];
+
 			 }
 			 
 			 
@@ -120,11 +123,15 @@ public class IsingFactorGraph {
 			 //System.out.println(configurationScore);
 			 //System.out.println();
 			 
+			 
+			 Z += configurationScore;
+			 
 			 //add configuration score
 			 for (int n = 0; n < this.numVariables; ++n) {
 				 int value = configuration.get(n);
 				 marginals[n][value] += configurationScore;
 			 }
+			 
 		}
 		
 		for (int n = 0; n < this.numVariables; ++n) {
@@ -134,6 +141,53 @@ public class IsingFactorGraph {
 		 }
 		
 		return marginals;
+	}
+	
+
+	public double betheFreeEnergy() {
+		double betheFreeEnergy = 0.0;
+		
+		// binary factor beliefs
+		for (BinaryFactor bf : this.binaryFactors) {
+			bf.computeFactorBelief();
+			for (int i = 0; i < bf.getSize1(); ++i) {
+				for (int j = 0; j < bf.getSize2(); ++j) {
+					betheFreeEnergy -= bf.factorBelief[i][j] * Math.log(bf.factorBelief[i][j]);
+					betheFreeEnergy += bf.factorBelief[i][j]  * Math.log(bf.potential[i][j]);
+				
+				}
+			}
+		}
+		// unary factor belief = variable belief
+		for (Variable v: this.variables) {
+			v.computeBelief();
+			UnaryFactor uf = this.unaryFactors.get(v.getI());
+
+			for (int i = 0; i < v.getSize(); ++i) {
+
+				// -2 to get rid of unary factor
+				// generally -1 
+				int n = v.getNeighbors().size() - 2;
+				if (n > 0) {
+					betheFreeEnergy += n * v.getBelief().measure[i] * Math.log(v.getBelief().measure[i]);
+					
+				}
+				betheFreeEnergy += v.getBelief().measure[i] * Math.log(uf.potential[i]);
+
+				
+			}
+		}
+		return betheFreeEnergy;
+	}
+	
+
+	/**
+	 * Returns an approximate partition function. 
+	 * This is simply the exp of the Bethe Free Energy
+	 * @return
+	 */
+	public double approximateZ() {
+		return Math.exp(this.betheFreeEnergy());
 	}
 	
 	/**
@@ -160,13 +214,38 @@ public class IsingFactorGraph {
 				v.passMessage();
 			}
 		}
+		
+		for (Variable v : this.variables) {
+			v.computeBelief();
+		}
 	}
 	
 	/**
-	 * Returns the most probable configuration
+	 * Returns the most probable configuration under 0/1 loss
 	 */
-	public void decode() {
+	
+	public List<String> viterbiDecode() {
+		return null;
+	}
+	
+	/**
+	 * Returns the most probable configuration under Hamming loss
+	 * @return
+	 */
+	public List<String> posteriorDecode() {
 		
+		List<String> tags = new LinkedList<String>();
+		this.inference(10, 0.01);
+		
+		for (Variable v: this.variables) {
+			Belief b = v.getBelief();
+			
+			if (b.measure[1] > b.measure[0]) {
+				tags.add(v.getTagName());
+			}
+		}
+		
+		return tags;
 	}
 	
 	/**
@@ -175,16 +254,27 @@ public class IsingFactorGraph {
 	public double logLikelihood() {
 		// partition function
 		
-		int index = 0;
-		double logLikelihood = 0.0;
-		
-		for (int golden : this.golden) {
-			System.out.println("GOLDEN:\t" + golden + "\t" + this.variables.get(index).getBelief().measure[golden]);
-			logLikelihood += Math.log(this.variables.get(index).getBelief().measure[golden]);
-			++index;
+	
+		double logZ_B = this.betheFreeEnergy();
+		double configurationScore = 1.0;
+		 // sum over unary factors
+		for (UnaryFactor uf : this.unaryFactors) {
+			int value = this.golden.get(uf.getI());
+			configurationScore *= uf.potential[value];
+			 
 		}
-		System.out.println("LIKELIHOOD:\t" + logLikelihood);
-		return logLikelihood;
+		 
+		 // sum over binary factors
+		 for (BinaryFactor bf : this.binaryFactors) {
+			 int value1 = this.golden.get(bf.getI());
+			 int value2 = this.golden.get(bf.getJ());
+
+			 configurationScore *= bf.potential[value1][value2];
+
+
+		}
+		//System.out.println("CONFIGURATION SCORE:\t" + configurationScore);
+		return Math.log(configurationScore) - logZ_B;
 	}
 	
 	/**
@@ -194,37 +284,19 @@ public class IsingFactorGraph {
 	public double[] finiteDifference(double[] parameters, double epsilon) {
 		double[] gradient = new double[parameters.length];
 		
-		for (int i = 5; i < 6; ++i) {
+		for (int i = 0; i < this.numParameters; ++i) {
 			parameters[i] += epsilon;
 			this.updatePotentials(parameters);
 			this.inference(10, 1.0);
 			double val1 = this.logLikelihood();
-			System.out.println("VAL1:\t" + val1);
-			System.out.println(Arrays.toString(this.variables.get(0).getBelief().measure));
-
-			double[] marginal1 = this.variables.get(0).getBelief().measure;
-			double[] marginal2 = this.variables.get(1).getBelief().measure;
-
-			System.out.println("MARGINALS 1:" + 1 + "\t" + Arrays.toString(marginal1));
-			System.out.println("MARGINALS 2:" + 2 + "\t" + Arrays.toString(marginal2));
-
-			
+		
 			parameters[i] -= 2 * epsilon;
 			this.updatePotentials(parameters);
 			this.inference(10, 1.0);
 
 			double val2 = this.logLikelihood();
-			System.out.println("VAL2:\t" + val1);
-			System.out.println(Arrays.toString(this.variables.get(1).getBelief().measure));
-			
-			marginal1 = this.variables.get(0).getBelief().measure;
-			marginal2 = this.variables.get(1).getBelief().measure;
 
-
-			System.out.println("MARGINALS 1:" + 1 + "\t" + Arrays.toString(marginal1));
-			System.out.println("MARGINALS 2:" + 2 + "\t" + Arrays.toString(marginal2));
-
-			gradient[i]  = (val1 - val2) / (2 * epsilon);
+			gradient[i] = (val1 - val2) / (2 * epsilon);
 			
 			parameters[i] += epsilon;
 		}
@@ -235,10 +307,10 @@ public class IsingFactorGraph {
 	public void updatePotentials(double[] parameters) {
 		int counter = 0;
 		for (UnaryFactor uf : this.unaryFactors) {
-			uf.setPotential(0, parameters[counter]);
+			uf.setPotential(0, Math.exp(parameters[counter]));
 			++counter;
 
-			uf.setPotential(1, parameters[counter]);
+			uf.setPotential(1, Math.exp(parameters[counter]));
 			++counter;
 		
 			//uf.renormalize();
@@ -246,20 +318,18 @@ public class IsingFactorGraph {
 	
 		// random binary potentials
 		for (BinaryFactor bf : this.binaryFactors) {
-			bf.setPotential(0, 0, parameters[counter]);
+			bf.setPotential(0, 0, Math.exp(parameters[counter]));
 			++counter;
 
-			bf.setPotential(0, 1, parameters[counter]);
+			bf.setPotential(0, 1, Math.exp(parameters[counter]));
 			++counter;
 
-			bf.setPotential(1, 0, parameters[counter]);
+			bf.setPotential(1, 0, Math.exp(parameters[counter]));
 			++counter;
 
-			bf.setPotential(1, 1, parameters[counter]);
+			bf.setPotential(1, 1, Math.exp(parameters[counter]));
 			++counter;
 			
-			//bf.renormalize();
-			System.out.println(Arrays.deepToString(bf.potential));
 		}
 	}
 	
@@ -268,6 +338,10 @@ public class IsingFactorGraph {
 	 * @return
 	 */
 	public double[] unfeaturizedGradient() {
+		this.inference(10, 0.01);
+
+		
+		
 		double[] gradient = new double[this.numParameters];
 		
 		int counter = 0;
@@ -276,7 +350,7 @@ public class IsingFactorGraph {
 			if (this.golden.get(uf.getI()) == 0) {
 				gradient[counter] += 1.0;
 			}
-			gradient[counter] -= this.variables.get(this.golden.get(uf.getI())).getBelief().measure[0];
+			gradient[counter] -= this.variables.get(uf.getI()).getBelief().measure[0];
 			
 			++counter;
 
@@ -284,7 +358,7 @@ public class IsingFactorGraph {
 				gradient[counter] += 1.0;
 			}
 			
-			gradient[counter] -= this.variables.get(this.golden.get(uf.getI())).getBelief().measure[1];
+			gradient[counter] -= this.variables.get(uf.getI()).getBelief().measure[1];
 
 			
 			++counter;
@@ -294,34 +368,34 @@ public class IsingFactorGraph {
 		// random binary potentials
 		for (BinaryFactor bf : this.binaryFactors) {
 			
-			if (this.golden.get(bf.getI()) == 0 && bf.getJ() == 0) {
+			if (this.golden.get(bf.getI()) == 0 && this.golden.get(bf.getJ()) == 0) {
 				gradient[counter] += 1.0;
 			}
-			gradient[counter] -= this.variables.get(this.golden.get(bf.getI())).getBelief().measure[0] * this.variables.get(this.golden.get(bf.getJ())).getBelief().measure[0];
+			gradient[counter] -= this.variables.get(bf.getI()).getBelief().measure[0] * this.variables.get(bf.getJ()).getBelief().measure[0];
 
 			++counter;
 
-			if (this.golden.get(bf.getI()) == 0 && bf.getJ() == 1) {
+			if (this.golden.get(bf.getI()) == 0 && this.golden.get(bf.getJ()) == 1) {
 				gradient[counter] += 1.0;
 			}
-			gradient[counter] -= this.variables.get(this.golden.get(bf.getI())).getBelief().measure[0] * this.variables.get(this.golden.get(bf.getJ())).getBelief().measure[1];
+			gradient[counter] -= this.variables.get(bf.getI()).getBelief().measure[0] * this.variables.get(bf.getJ()).getBelief().measure[1];
 
 			
 			++counter;
 
-			if (this.golden.get(bf.getI()) == 1 && bf.getJ() == 0) {
+			if (this.golden.get(bf.getI()) == 1 && this.golden.get(bf.getJ()) == 0) {
 				gradient[counter] += 1.0;
 			}
 			
-			gradient[counter] -= this.variables.get(this.golden.get(bf.getI())).getBelief().measure[1] * this.variables.get(this.golden.get(bf.getJ())).getBelief().measure[0];
+			gradient[counter] -= this.variables.get(bf.getI()).getBelief().measure[1] * this.variables.get(bf.getJ()).getBelief().measure[0];
 
 			++counter;
 
-			if (this.golden.get(bf.getI()) == 1 && bf.getJ() == 1) {
+			if (this.golden.get(bf.getI()) == 1 && this.golden.get(bf.getJ()) == 1) {
 				gradient[counter] += 1.0;
 			}
 			
-			gradient[counter] -= this.variables.get(this.golden.get(bf.getI())).getBelief().measure[1] * this.variables.get(this.golden.get(bf.getJ())).getBelief().measure[1];
+			gradient[counter] -= this.variables.get(bf.getI()).getBelief().measure[1] * this.variables.get(bf.getJ()).getBelief().measure[1];
 
 			++counter;
 

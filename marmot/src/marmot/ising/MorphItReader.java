@@ -31,8 +31,11 @@ public class MorphItReader extends DataReader {
 	            	// add word
 	            	if (!this.word2Tags.containsKey(word)) {
 	            		this.word2Tags.put(word, new HashSet<String>());
+	            		this.word2LemmaTag.put(word, new HashSet<Pair<String, String>>());
 	            	}
+	            	
 	            	this.word2Tags.get(word).add(tag);
+	            	this.word2LemmaTag.get(word).add(new Pair<>(lemma,tag));
 	            	
 	            	// cache features
             		if (!this.tag2Integer.keySet().contains(tag)) {
@@ -41,8 +44,6 @@ public class MorphItReader extends DataReader {
             		}
             		
             		this.numVariables = this.tag2Integer.size();
-            		
-	            	this.data.add(new Datum(word,lemma, tag));
 		            this.tagNames.add(tag);
 
 	            }
@@ -57,6 +58,7 @@ public class MorphItReader extends DataReader {
 	         System.out.println("Badness");
 	         System.exit(0);
         }
+				
 		
 		// add pairs
 		for (String word : this.word2Tags.keySet()) {
@@ -72,11 +74,30 @@ public class MorphItReader extends DataReader {
 				}
 			}
 		}
+		
+		// add data
+		// TODO redundant with the above (can collapse the data structures)
+		for (String word : this.word2LemmaTag.keySet()) {
+			ArrayList<String> lemmas = new ArrayList<String>();
+			ArrayList<Integer> tags = new ArrayList<Integer>();
+			
+			for (Pair<String, String> p : this.word2LemmaTag.get(word)) {
+				String lemma = p.getValue0();
+				int tag = this.tag2Integer.get(p.getValue1());
+				
+				lemmas.add(lemma);
+				tags.add(tag);
+			}
+			
+			Datum datum = new Datum(word, lemmas, tags);
+			data.add(datum);
+		}
+		
 		for (Pair<Integer, Integer> p : this.pairs) {
 			String tag1 = this.integer2Tag.get(p.getValue0());
 			String tag2 = this.integer2Tag.get(p.getValue1());
 			
-			System.out.println(tag1 + "\t" + tag2);
+			//System.out.println(tag1 + "\t" + tag2);
 		}
 		
 		this.pairsLst = new ArrayList<>(this.pairs);

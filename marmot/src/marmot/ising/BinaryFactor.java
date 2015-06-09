@@ -10,6 +10,7 @@ public class BinaryFactor extends Factor {
 	private int size1;
 	private int size2;
 	protected double[][] potential;
+	protected double[][] factorBelief;
 	
 	private List<Integer> features;
 
@@ -24,6 +25,7 @@ public class BinaryFactor extends Factor {
 		this.setSize2(size2);
 				
 		this.setPotential(new double[this.size1][this.size2]);
+		this.setFactorBelief(new double[this.size1][this.size2]);
 		
 		this.setFeatures(new LinkedList<Integer>());
 		
@@ -43,6 +45,31 @@ public class BinaryFactor extends Factor {
 		this.setMessages(new ArrayList<Message>());
 	}
 	
+	
+	/**
+	 * Computes the belief at the factor - necessary
+	 * for computation of the Bethe free energy
+	 */
+	@Override
+	public void computeFactorBelief() {
+		Message m1_in = this.neighbors.get(0).getMessages().get(this.messageIds.get(0));
+		Message m2_in = this.neighbors.get(1).getMessages().get(this.messageIds.get(1));
+		
+		double Z = 0.0;
+		for (int i = 0; i < this.size1; ++i) {
+			for (int j = 0; j < this.size2; ++j) {
+				this.factorBelief[i][j] = this.potential[i][j] * m1_in.measure[i] * m2_in.measure[j];
+				Z += this.factorBelief[i][j] ;
+			}
+		}
+		
+		for (int i = 0; i < this.size1; ++i) {
+			for (int j = 0; j < this.size2; ++j) {
+				this.factorBelief[i][j] /= Z;
+			}
+		}
+		
+	}
 
 	@Override
 	public void passMessage() {
@@ -132,9 +159,15 @@ public class BinaryFactor extends Factor {
 		this.potential = potential;
 	}
 	
+	
 	public void setPotential(int n, int m, double value) {
 		this.potential[n][m] = value;
 	}
+
+	public void setFactorBelief(double[][] factorBelief) {
+		this.factorBelief = factorBelief;
+	}
+	
 
 
 	public List<Integer> getFeatures() {
