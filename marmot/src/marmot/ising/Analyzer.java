@@ -10,11 +10,15 @@ public class Analyzer {
 	private List<Datum> data;
 	private List<IsingFactorGraph> factorGraphs;
 	
+	private UnaryFeatureExtractor ufe;
+	
 	public Analyzer(DataReader dr) {
 		this.dr = dr;
 		this.data = new LinkedList<Datum>();
 		this.factorGraphs = new LinkedList<IsingFactorGraph>();
 
+		this.ufe = new UnaryFeatureExtractor(5,5);
+		
 		
 		System.out.println("...num variables:\t" + dr.numVariables);
 		System.out.println("...num pairs:\t" + dr.pairs.size());
@@ -35,9 +39,12 @@ public class Analyzer {
 			
 			if (d.getTag().size() > 1) 
 				multiple += 1;
-			//System.out.println("START MAKING GRAPH");
+
+			
+			ufe.extract(d.getWord());
+			
+			
 			IsingFactorGraph fg = new IsingFactorGraph(dr.numVariables, dr.pairsLst, golden, dr.tagNames);
-			//System.out.println("STOP MAKING GRAPH");
 			this.factorGraphs.add(fg);
 			
 			++counter;
