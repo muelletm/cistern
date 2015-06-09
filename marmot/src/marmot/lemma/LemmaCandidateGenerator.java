@@ -8,6 +8,6 @@ import java.io.Serializable;
 
 public interface LemmaCandidateGenerator extends Serializable {
 
-	void addCandidates(Instance instance, LemmaCandidateSet set);  
+	void addCandidates(LemmaInstance instance, LemmaCandidateSet set);  
 	
 }

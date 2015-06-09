@@ -59,5 +59,6 @@ public class Analyzer {
 		DataReader dr = new MorphItReader(args[0]);
 		new Analyzer(dr);
 
+
 	}
 }

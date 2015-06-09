@@ -7,8 +7,8 @@ import java.util.List;
 
 public interface LemmaCandidateGeneratorTrainer {
 	
-	public LemmaCandidateGenerator train(List<Instance> instances, List<Instance> dev_instances);
+	public LemmaCandidateGenerator train(List<LemmaInstance> instances, List<LemmaInstance> dev_instances);
 
-	public Options getOptions();
+	public LemmaOptions getOptions();
 	
 }

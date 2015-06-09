@@ -8,10 +8,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import marmot.lemma.Instance;
+import marmot.lemma.LemmaInstance;
 import marmot.lemma.LemmaCandidateGenerator;
 import marmot.lemma.LemmaCandidateGeneratorTrainer;
-import marmot.lemma.Options;
+import marmot.lemma.LemmaOptions;
 import marmot.util.Counter;
 import marmot.util.edit.EditTree;
 import marmot.util.edit.EditTreeBuilder;
@@ -21,7 +21,7 @@ public class EditTreeGeneratorTrainer implements LemmaCandidateGeneratorTrainer 
 
 	private EditTreeGeneratorTrainerOptions options_;
 
-	public static class EditTreeGeneratorTrainerOptions extends Options {
+	public static class EditTreeGeneratorTrainerOptions extends LemmaOptions {
 
 		private static final long serialVersionUID = 1L;
 		public static final String MIN_COUNT = "min-count";
@@ -65,8 +65,8 @@ public class EditTreeGeneratorTrainer implements LemmaCandidateGeneratorTrainer 
 	}
 
 	@Override
-	public LemmaCandidateGenerator train(List<Instance> instances,
-			List<Instance> dev_instances) {
+	public LemmaCandidateGenerator train(List<LemmaInstance> instances,
+			List<LemmaInstance> dev_instances) {
 
 		EditTreeBuilder builder = new EditTreeBuilderTrainer(
 				options_.getRandom(), options_.getNumSteps(), options_.getMaxDepth()).train(instances);
@@ -74,7 +74,7 @@ public class EditTreeGeneratorTrainer implements LemmaCandidateGeneratorTrainer 
 		Map<String, Counter<EditTree>> map = new HashMap<String, Counter<EditTree>>();
 		map.put(options_.getUnknown(), new Counter<EditTree>());
 
-		for (Instance instance : instances) {
+		for (LemmaInstance instance : instances) {
 			String form = instance.getForm();
 			String lemma = instance.getLemma();
 			EditTree tree = builder.build(form, lemma);
@@ -116,7 +116,7 @@ public class EditTreeGeneratorTrainer implements LemmaCandidateGeneratorTrainer 
 	}
 
 	@Override
-	public Options getOptions() {
+	public LemmaOptions getOptions() {
 		return options_;
 	}
 

@@ -5,10 +5,10 @@ package marmot.lemma.toutanova;
 
 import java.util.List;
 
-import marmot.lemma.Instance;
+import marmot.lemma.LemmaInstance;
 
 public interface AlignerTrainer {
 
-	public Aligner train(List<Instance> instances);
+	public Aligner train(List<LemmaInstance> instances);
 	
 }

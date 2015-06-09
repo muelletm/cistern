@@ -5,7 +5,6 @@ package marmot.lemma.toutanova;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Logger;
 
 import marmot.util.edit.EditTree;
 import marmot.util.edit.EditTreeBuilder;

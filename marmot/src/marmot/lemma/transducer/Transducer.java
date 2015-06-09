@@ -12,7 +12,7 @@ import com.google.common.collect.Sets;
 
 import org.javatuples.Pair;
 
-import marmot.lemma.Instance;
+import marmot.lemma.LemmaInstance;
 import marmot.lemma.LemmatizerTrainer;
 import marmot.lemma.transducer.exceptions.NegativeContext;
 
@@ -40,8 +40,8 @@ public abstract class Transducer implements LemmatizerTrainer {
 	protected double[][][] weights;
 	
 	//data
-	protected List<Instance> trainingData;
-	protected List<Instance> devData;
+	protected List<LemmaInstance> trainingData;
+	protected List<LemmaInstance> devData;
 	
 	protected Map<Character,Integer> alphabet;
 	protected Map<Integer,Character> contextToCharacter;
@@ -123,7 +123,7 @@ public abstract class Transducer implements LemmatizerTrainer {
 		int max2 = 0;
 				
 		int alphabetCounter = 1;
-		for (Instance instance : this.trainingData) {
+		for (LemmaInstance instance : this.trainingData) {
 				max1 = Math.max(max1,instance.getFormPadded().length()+1);
 				max2 = Math.max(max2,instance.getLemmaPadded().length()+1);	
 						
@@ -144,7 +144,7 @@ public abstract class Transducer implements LemmatizerTrainer {
 				}
 		}
 		
-		for (Instance instance : this.devData) {
+		for (LemmaInstance instance : this.devData) {
 			max1 = Math.max(max1,instance.getFormPadded().length()+1);
 			max2 = Math.max(max2,instance.getLemmaPadded().length()+1);
 			
@@ -165,7 +165,7 @@ public abstract class Transducer implements LemmatizerTrainer {
 		return new Pair<Integer,Integer>(max1,max2);
 	}
 	
-	protected Pair<int[][],Integer> preextractUpperContexts(List<Instance> instances, int c1, int c2) {
+	protected Pair<int[][],Integer> preextractUpperContexts(List<LemmaInstance> instances, int c1, int c2) {
 		int[][] contexts = new int[instances.size()][];
 		
 		String END_SYMBOL = "$";
@@ -178,7 +178,7 @@ public abstract class Transducer implements LemmatizerTrainer {
 		int counter = 0;
 		int instanceI = 0;
 		
-		for (Instance instance : instances) {
+		for (LemmaInstance instance : instances) {
 			
 			String upper = instance.getFormPadded();
 			
@@ -222,7 +222,7 @@ public abstract class Transducer implements LemmatizerTrainer {
 	}
 	
 
-	protected Pair<int[][][],Integer> preextractContexts(List<Instance> instances, int c1, int c2, int c3, int c4) {
+	protected Pair<int[][][],Integer> preextractContexts(List<LemmaInstance> instances, int c1, int c2, int c3, int c4) {
 		int[][][] contexts = new int[instances.size()][][];
 		
 		String END_SYMBOL = "$";
@@ -235,7 +235,7 @@ public abstract class Transducer implements LemmatizerTrainer {
 		int counter = 0;
 		int instanceI = 0;
 		
-		for (Instance instance : instances) {
+		for (LemmaInstance instance : instances) {
 			
 			String upper = instance.getFormPadded();
 			String lower = instance.getLemmaPadded();

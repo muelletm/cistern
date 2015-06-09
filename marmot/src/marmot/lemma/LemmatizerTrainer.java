@@ -7,9 +7,9 @@ import java.util.List;
 
 public interface LemmatizerTrainer {
 
-	public Lemmatizer train(List<Instance> instances, List<Instance> dev_instances);
+	public Lemmatizer train(List<LemmaInstance> instances, List<LemmaInstance> dev_instances);
 	
-	public Options getOptions();
+	public LemmaOptions getOptions();
 	
 	
 	

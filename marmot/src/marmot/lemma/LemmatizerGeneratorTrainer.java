@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface LemmatizerGeneratorTrainer  extends LemmatizerTrainer, LemmaCandidateGeneratorTrainer {
 
-	public LemmatizerGenerator train(List<Instance> train_instances, List<Instance> test_instances);
+	public LemmatizerGenerator train(List<LemmaInstance> train_instances, List<LemmaInstance> test_instances);
 	
 }

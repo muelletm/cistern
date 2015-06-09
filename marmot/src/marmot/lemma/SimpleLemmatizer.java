@@ -20,7 +20,7 @@ public class SimpleLemmatizer implements LemmatizerGenerator {
 		options_ = options;
 	}
 
-	public static String toKey(Instance instance) {
+	public static String toKey(LemmaInstance instance) {
 		String pos_tag = instance.getPosTag();
 		if (pos_tag == null) {
 			return null;
@@ -31,7 +31,7 @@ public class SimpleLemmatizer implements LemmatizerGenerator {
 	}
 
 	@Override
-	public String lemmatize(Instance instance) {
+	public String lemmatize(LemmaInstance instance) {
 		Counter<String> lemmas = null;
 		String key = null;
 
@@ -62,7 +62,7 @@ public class SimpleLemmatizer implements LemmatizerGenerator {
 		return null;
 	}
 
-	public static String toSimpleKey(Instance instance) {
+	public static String toSimpleKey(LemmaInstance instance) {
 		return instance.getForm();
 	}
 
@@ -75,7 +75,7 @@ public class SimpleLemmatizer implements LemmatizerGenerator {
 	}
 	
 	@Override
-	public void addCandidates(Instance instance, LemmaCandidateSet set) {	
+	public void addCandidates(LemmaInstance instance, LemmaCandidateSet set) {	
 		String key = toKey(instance);
 		if (key != null) {
 			Counter<String> lemmas = map_.get(key);
@@ -91,7 +91,7 @@ public class SimpleLemmatizer implements LemmatizerGenerator {
 	}
 
 	@Override
-	public boolean isOOV(Instance instance) {
+	public boolean isOOV(LemmaInstance instance) {
 		return map_.get(toSimpleKey(instance)) == null;
 	}
 

@@ -1,0 +1,2262 @@
+motion	motion	<N>	<sg>
+
+X-ray	X-ray	<N>	<sg>
+
+is	be	<V>	<3sg><PRES>
+
+a	a	<Det>	_
+
+fluoroscopy	fluoroscopy	<N>	<sg>
+
+system	system	<N>	<sg>
+
+.	.	<Punct>	_
+
+the	the	<Det>	_
+
+next	next	<Adv>	_
+
+evolution	evolution	<N>	<sg>
+
+of	of	<Prep>	_
+
+static	static	<A>	_
+static	static	<N>	<sg>
+
+which	which	<Det>	<wh>
+which	which	<Pron>	<3sg><wh>
+
+coupled	couple	<V>	<PAST><WK>
+coupled	couple	<V>	<PPART><WK>
+
+with	with	<Prep>	_
+
+digital	digital	<A>	_
+digital	digital	<N>	<sg>
+
+and	and	<Conj>	_
+
+optic	optic	<A>	_
+optic	optic	<N>	<sg>
+
+technology	technology	<N>	<sg>
+
+,	,	<Conj>	_
+,	,	<Punct>	_
+
+allowing	allow	<V>	<PROG>
+
+clinicians	clinician	<N>	<pl>
+
+to	to	<Adv>	_
+to	to	<Conj>	_
+to	to	<Part>	_
+to	to	<Prep>	_
+
+view	view	<N>	<sg>
+
+spine	spine	<N>	<sg>
+
+extremity	extremity	<N>	<sg>
+
+articulations	articulation	<N>	<pl>
+
+in	in	<Adv>	_
+in	in	<Part>	_
+in	in	<Prep>	_
+
+real-time	real-time	<A>	_
+
+at	at	<Part>	_
+at	at	<Prep>	_
+
+exposures	exposure	<N>	<pl>
+
+per	per	<Prep>	_
+
+second	second	<Adv>	_
+
+procedure	procedure	<N>	<sg>
+
+performed	perform	<V>	<PAST><WK>
+performed	perform	<V>	<PPART><WK>
+
+patient	patient	<A>	_
+patient	patient	<N>	<sg>
+
+standing	standing	<A>	_
+standing	standing	<N>	<sg>
+
+actively	actively	<Adv>	_
+
+moving	moving	<A>	_
+
+weight	weight	<N>	<sg>
+
+bearing	bearing	<N>	<sg>
+
+position	position	<N>	<sg>
+
+within	within	<Adv>	_
+within	within	<Prep>	_
+
+allows	allow	<V>	<3sg><PRES>
+
+evaluate	evaluate	<V>	<INF>
+
+all	all	<Adv>	_
+all	all	<Det>	_
+
+major	major	<A>	_
+major	major	<N>	<sg>
+
+ligaments	ligament	<N>	<pl>
+
+cervical	cervical	<A>	_
+
+up	up	<Adv>	_
+up	up	<Part>	_
+up	up	<Prep>	_
+
+images	image	<N>	<pl>
+
+used	used	<A>	_
+
+find	find	<N>	<sg>
+
+ligament	ligament	<N>	<sg>
+
+damage	damage	<N>	<sg>
+
+that	that	<Adv>	_
+that	that	<Comp>	_
+that	that	<Det>	_
+that	that	<Pron>	_
+
+films	film	<N>	<pl>
+
+miss	miss	<N>	<sg>
+
+well	well	<Adv>	_
+
+founded	found	<V>	<PAST><WK>
+founded	found	<V>	<PPART><WK>
+
+based	base	<V>	<PAST><WK>
+based	base	<V>	<PPART><WK>
+
+on	on	<Adv>	_
+on	on	<Part>	_
+on	on	<Prep>	_
+
+sound	sound	<A>	_
+sound	sound	<N>	<sg>
+
+scientific	scientific	<A>	_
+
+principles	principle	<N>	<pl>
+
+H	H	<N>	<sg>
+
+K	K	<N>	<sg>
+
+M	M	<N>	<sg>
+
+analysis	analysis	<N>	<sg>
+
+normal	normal	<A>	_
+normal	normal	<N>	<sg>
+
+unstable	unstable	<A>	_
+
+spines	spine	<N>	<pl>
+
+using	use	<V>	<PROG>
+
+``	``	<Punct>	_
+
+vivo	vivo	<Adv>	_
+
+''	''	<Punct>	_
+
+study	study	<N>	<sg>
+
+Jan	Jan	<PropN>	<3sg>
+
+:	\:	<Punct>	_
+
+by	by	<Adv>	_
+by	by	<Part>	_
+by	by	<Prep>	_
+
+Gavin	Gavin	<PropN>	<3sg>
+
+comparison	comparison	<N>	<sg>
+
+collars	collar	<N>	<pl>
+
+J	J	<N>	<sg>
+
+observer	observer	<N>	<sg>
+
+Panjabi	Punjabi	<A>	_
+
+--	--	<Punct>	_
+
+N	N	<N>	<sg>
+
+May	May	<PropN>	<3sg>
+
+S	S	<N>	<sg>
+
+L	L	<N>	<sg>
+
+American	American	<A>	_
+American	American	<N>	<sg>
+
+P	P	<N>	<sg>
+
+Williams	William	<PropN>	<3pl>
+
+F	F	<N>	<sg>
+
+for	for	<Comp>	_
+for	for	<Prep>	_
+
+video	video	<A>	_
+video	video	<N>	<sg>
+
+-	-	<Punct>	_
+
+revised	revise	<V>	<PAST><WK>
+revised	revise	<V>	<PPART><WK>
+
+pages	page	<N>	<pl>
+
+syn	syn	<Adv>	_
+syn	syn	<Prep>	_
+
+var	var	<N>	<sg>
+
+japonica	japonica	<N>	<sg>
+
+Japanese	Japanese	<A>	_
+Japanese	Japanese	<N>	<pl>
+Japanese	Japanese	<N>	<sg>
+
+bird	bird	<N>	<sg>
+
+cherry	cherry	<A>	_
+cherry	cherry	<N>	<sg>
+
+or	or	<Conj>	_
+
+'s	's	<G>	_
+
+Chinese	Chinese	<A>	_
+Chinese	Chinese	<N>	<pl>
+Chinese	Chinese	<N>	<sg>
+
+ye	ye	<Det>	_
+ye	ye	<Pron>	<2pl><nomacc>
+
+chou	chou	<N>	<sg>
+
+species	specie	<N>	<pl>
+species	species	<N>	<sg>
+
+native	native	<A>	_
+native	native	<N>	<sg>
+
+Japan	Japan	<PropN>	<3sg>
+
+China	China	<PropN>	<3sg>
+
+occurring	occur	<V>	<PROG>
+
+medium	medium	<A>	_
+medium	medium	<N>	<sg>
+
+altitudes	altitude	<N>	<pl>
+
+m	m	<N>	<sg>
+
+temperate	temperate	<A>	_
+
+zone	zone	<N>	<sg>
+
+prefers	prefer	<V>	<3sg><PRES>
+
+sunshine	sunshine	<N>	<sg>
+
+moist	moist	<A>	_
+
+but	but	<Adv>	_
+but	but	<Conj>	_
+but	but	<Prep>	_
+
+drained	drain	<V>	<PAST><WK>
+drained	drain	<V>	<PPART><WK>
+
+soil	soil	<N>	<sg>
+
+small	small	<Adv>	_
+
+deciduous	deciduous	<A>	_
+
+tree	tree	<N>	<sg>
+
+reaching	reach	<V>	<PROG>
+
+height	height	<N>	<sg>
+
+trunk	trunk	<N>	<sg>
+
+slender	slender	<A>	_
+
+smooth	smooth	<Adv>	_
+
+grey	grey	<A>	_
+grey	grey	<N>	<sg>
+
+bark	bark	<N>	<sg>
+
+marked	marked	<A>	_
+
+horizontal	horizontal	<A>	_
+horizontal	horizontal	<N>	<sg>
+
+brown	brown	<A>	_
+brown	brown	<N>	<sg>
+
+lenticels	lenticel	<N>	<pl>
+
+strong	strong	<Adv>	_
+
+smell	smell	<N>	<sg>
+
+when	when	<Adv>	_
+when	when	<Prep>	_
+when	when	<Pron>	<3sg><wh>
+
+cut	cut	<A>	_
+cut	cut	<N>	<sg>
+
+leaves	leaf	<N>	<pl>
+leaves	leave	<N>	<pl>
+
+are	are	<N>	<sg>
+
+elliptical	elliptical	<A>	_
+
+ovoid	ovoid	<A>	_
+ovoid	ovoid	<N>	<sg>
+
+long	long	<Adv>	_
+
+broad	broad	<Adv>	_
+
+serrated	serrated	<A>	_
+
+margin	margin	<N>	<sg>
+
+aristate	aristate	<A>	_
+
+tips	tip	<N>	<pl>
+
+serrations	serration	<N>	<pl>
+
+lowest	low	<A>	<SUPER>
+
+teeth	tooth	<N>	<pl>
+
+leaf	leaf	<N>	<sg>
+
+feature	feature	<N>	<sg>
+
+two	two	<Det>	_
+
+glands	gland	<N>	<pl>
+
+flowers	flower	<N>	<pl>
+
+produced	produce	<V>	<PAST><WK>
+produced	produce	<V>	<PPART><WK>
+
+racemes	raceme	<N>	<pl>
+
+each	each	<Adv>	_
+each	each	<Det>	_
+each	each	<Pron>	<3sg><nomacc>
+
+flower	flower	<N>	<sg>
+
+diameter	diameter	<N>	<sg>
+
+five	five	<Det>	_
+
+white	white	<A>	_
+white	white	<N>	<sg>
+
+petals	petal	<N>	<pl>
+
+they	they	<Pron>	<3pl><nom>
+
+hermaphroditic	hermaphroditic	<A>	_
+
+appear	appear	<V>	<INF>
+
+after	after	<Adv>	_
+after	after	<Prep>	_
+
+fruit	fruit	<N>	<sg>
+
+drupe	drupe	<N>	<sg>
+
+about	about	<Adv>	_
+about	about	<Part>	_
+about	about	<Prep>	_
+
+green	green	<A>	_
+green	green	<N>	<sg>
+
+first	first	<Adv>	_
+
+then	then	<Adv>	_
+
+red	red	<A>	_
+red	red	<N>	<sg>
+
+finally	finally	<Adv>	_
+
+ripening	ripen	<V>	<PROG>
+
+black	black	<A>	_
+black	black	<N>	<sg>
+
+mid	amidst	<Prep>	_
+
+summer	summer	<N>	<sg>
+
+very	very	<Adv>	_
+
+closely	closely	<Adv>	_
+
+related	related	<A>	_
+
+differing	differ	<V>	<PROG>
+
+serration	serration	<N>	<sg>
+
+longer	longer	<Adv>	_
+
+style	style	<N>	<sg>
+
+seed	seed	<N>	<sg>
+
+edible	edible	<A>	_
+
+prepared	prepare	<V>	<PAST><WK>
+prepared	prepare	<V>	<PPART><WK>
+
+eaten	eat	<V>	<PPART><STR>
+
+can	can	<N>	<sg>
+
+be	be	<V>	<INF>
+
+preserved	preserve	<V>	<PAST><WK>
+preserved	preserve	<V>	<PPART><WK>
+
+salt	salt	<N>	<sg>
+salt	sulphonium	<N>	<sg>
+
+make	make	<N>	<sg>
+
+dish	dish	<N>	<sg>
+
+called	call	<V>	<PAST><WK>
+called	call	<V>	<PPART><WK>
+
+roots	root	<N>	<pl>
+
+source	source	<N>	<sg>
+
+dye	dye	<N>	<sg>
+
+wood	wood	<A>	_
+wood	wood	<N>	<sg>
+
+hard	hard	<Adv>	_
+
+various	various	<Det>	_
+various	various	<Pron>	<3pl>
+
+cabinet-making	cabinet-making	<N>	<sg>
+
+other	other	<Adv>	_
+other	other	<Det>	_
+
+ornamental	ornamental	<A>	_
+ornamental	ornamental	<N>	<sg>
+
+applications	application	<N>	<pl>
+
+taxon	taxon	<N>	<sg>
+
+was	be	<V>	<1sg><PAST><STR>
+was	be	<V>	<3sg><PAST><STR>
+
+described	describe	<V>	<PAST><WK>
+described	describe	<V>	<PPART><WK>
+
+as	as	<Adv>	_
+as	as	<Prep>	_
+
+basis	basis	<N>	<sg>
+
+specimens	specimen	<N>	<pl>
+
+collected	collected	<A>	_
+
+review	revue	<N>	<sg>
+
+previous	previous	<A>	_
+
+literature	literature	<N>	<sg>
+
+decided	decided	<A>	_
+
+distinct	distinct	<A>	_
+
+named	name	<V>	<PAST><WK>
+named	name	<V>	<PPART><WK>
+
+it	it	<Pron>	<3sg><neut>
+
+Stephen	Stephen	<PropN>	<3sg>
+
+prominent	prominent	<A>	_
+
+scholar	scholar	<N>	<sg>
+
+transatlantic	transatlantic	<A>	_
+
+relations	relation	<N>	<pl>
+relations	relations	<N>	<sg>
+
+has	have	<V>	<3sg><PRES>
+
+numerous	numerous	<A>	_
+
+articles	article	<N>	<pl>
+
+books	book	<N>	<pl>
+
+state	state	<N>	<sg>
+
+political	political	<A>	_
+
+security	security	<N>	<sg>
+
+matters	matter	<N>	<pl>
+
+most	most	<Adv>	_
+most	most	<Det>	_
+most	most	<Pron>	<3pl>
+
+notably	notably	<Adv>	_
+
+deterioration	deterioration	<N>	<sg>
+
+relationship	relationship	<N>	<sg>
+
+between	between	<Adv>	_
+between	between	<Prep>	_
+
+Washington	Washington	<PropN>	<3sg>
+
+Berlin	Berlin	<PropN>	<3sg>
+
+run-up	run-up	<N>	<sg>
+
+Iraq	Iraq	<PropN>	<3sg>
+
+German	German	<A>	_
+German	German	<N>	<sg>
+
+attributes	attribute	<N>	<pl>
+
+reunification	reunification	<N>	<sg>
+
+skillful	skilful	<A>	_
+
+leadership	leadership	<N>	<sg>
+
+adept	adept	<A>	_
+adept	adept	<N>	<sg>
+
+negotiations	negotiation	<N>	<pl>
+
+elites	elite	<N>	<pl>
+
+partnership	partnership	<N>	<sg>
+
+Hamburg	Hamburg	<PropN>	<3sg>
+
+Germany	Germany	<PropN>	<3sg>
+
+Robert	Robert	<PropN>	<3sg>
+
+forum	forum	<N>	<sg>
+
+research	research	<N>	<sg>
+
+dialogue	dialogue	<N>	<sg>
+
+scholars	scholar	<N>	<pl>
+
+policy	policy	<N>	<sg>
+
+experts	expert	<N>	<pl>
+
+authors	author	<N>	<pl>
+
+from	from	<Part>	_
+from	from	<Prep>	_
+
+both	both	<Conj>	_
+both	both	<Det>	_
+both	both	<Pron>	<3pl>
+
+sides	side	<N>	<pl>
+
+Atlantic	Atlantic	<A>	_
+
+purpose	purpose	<N>	<sg>
+
+strengthen	strengthen	<V>	<INF>
+
+bringing	bring	<V>	<PROG>
+
+together	together	<Adv>	_
+together	together	<Part>	_
+
+conduct	conduct	<N>	<sg>
+
+intensive	intensive	<A>	_
+intensive	intensive	<N>	<sg>
+
+discussion	discussion	<N>	<sg>
+
+single	single	<A>	_
+single	single	<N>	<sg>
+
+topic	topic	<N>	<sg>
+
+year	year	<N>	<sg>
+
+goal	goal	<N>	<sg>
+
+introducing	introduce	<V>	<PROG>
+
+their	their	<Det>	<GEN><ref3pl>
+their	their	<Pron>	<GEN><ref3pl>
+
+findings	finding	<N>	<pl>
+
+into	into	<Prep>	_
+
+discussions	discussion	<N>	<pl>
+
+joining	join	<V>	<PROG>
+
+had	have	<V>	<PAST><STR>
+had	have	<V>	<PPART><STR>
+
+been	be	<V>	<PPART><STR>
+
+Paul	Paul	<PropN>	<3sg>
+
+Johns	John	<PropN>	<3pl>
+
+where	where	<Prep>	_
+where	where	<Pron>	<3sg><wh>
+
+he	he	<Pron>	<3sg><masc><nom>
+
+served	serve	<V>	<PAST><WK>
+served	serve	<V>	<PPART><WK>
+
+Dean	Dean	<PropN>	<3sg>
+
+European	European	<A>	_
+European	European	<N>	<sg>
+
+West	West	<PropN>	<3sg>
+
+written	written	<A>	_
+
+foreign	foreign	<A>	_
+foreign	foreign	<N>	<sg>
+
+policies	policy	<N>	<pl>
+
+politics	politics	<N>	<pl>
+politics	politics	<N>	<sg>
+
+Europe	Europe	<PropN>	<3sg>
+
+received	receive	<V>	<PAST><WK>
+received	receive	<V>	<PPART><WK>
+
+his	his	<Det>	<GEN><ref3sg><refmasc>
+his	his	<Pron>	<GEN><ref3sg><refmasc>
+
+science	science	<N>	<sg>
+
+speaks	speak	<V>	<3sg><PRES>
+
+fluent	fluent	<A>	_
+
+addition	addition	<N>	<sg>
+
+English	English	<A>	_
+English	English	<N>	<sg>
+
+may	may	<N>	<sg>
+
+refer	refer	<V>	<INF>
+
+August	August	<PropN>	<3sg>
+
+Texas	Texas	<PropN>	<3sg>
+
+Jewish	Jewish	<A>	_
+
+philanthropist	philanthropist	<N>	<sg>
+
+founder	founder	<N>	<sg>
+
+public	public	<A>	_
+
+kindergarten	kindergarten	<N>	<sg>
+
+David	David	<PropN>	<3sg>
+
+born	bear	<V>	<PASSIVE><PPART><STR>
+
+June	June	<PropN>	<3sg>
+
+an	an	<Det>	_
+
+politician	politician	<N>	<sg>
+
+Maryland	Maryland	<PropN>	<3sg>
+
+member	member	<N>	<sg>
+
+Democratic	Democratic	<A>	_
+
+currently	currently	<Adv>	_
+
+serving	serving	<N>	<sg>
+
+term	term	<N>	<sg>
+
+representing	re-present	<V>	<PROG>
+representing	represent	<V>	<PROG>
+
+Cecil	Cecil	<PropN>	<3sg>
+
+serves	serve	<N>	<pl>
+
+legislature	legislature	<N>	<sg>
+
+since	since	<Adv>	_
+since	since	<Prep>	_
+
+January	January	<PropN>	<3sg>
+
+chair	chair	<N>	<sg>
+
+property	property	<N>	<sg>
+
+casualty	casualty	<N>	<sg>
+
+insurance	insurance	<N>	<sg>
+
+subcommittee	sub-committee	<N>	<sg>
+
+banking	banking	<N>	<sg>
+
+economic	economic	<A>	_
+
+development	development	<N>	<sg>
+
+unemployment	unemployment	<N>	<sg>
+
+workers	worker	<N>	<pl>
+
+'	'	<Punct>	_
+
+compensation	compensation	<N>	<sg>
+
+ethics	ethic	<N>	<pl>
+ethics	ethics	<N>	<pl>
+ethics	ethics	<N>	<sg>
+
+elections	election	<N>	<pl>
+
+finance	finance	<N>	<sg>
+
+resources	resource	<N>	<pl>
+
+children	child	<N>	<pl>
+
+youth	youth	<N>	<sg>
+
+health	health	<N>	<sg>
+
+long-term	long-term	<A>	_
+
+care	care	<V>	<INF>
+
+occupations	occupation	<N>	<pl>
+
+pharmaceuticals	pharmaceuticals	<N>	<pl>
+
+protection	protection	<N>	<sg>
+
+preservation	preservation	<N>	<sg>
+
+committee	committee	<N>	<sg>
+
+past	past	<Adv>	_
+past	past	<Part>	_
+past	past	<Prep>	_
+
+four	four	<Det>	_
+
+years	year	<N>	<pl>
+
+annually	annually	<Adv>	_
+
+voted	vote	<V>	<PAST><WK>
+voted	vote	<V>	<PPART><WK>
+
+support	support	<N>	<sg>
+
+classroom	classroom	<N>	<sg>
+
+teachers	teacher	<N>	<pl>
+
+schools	school	<N>	<pl>
+
+police	police	<N>	<sg>
+
+hospitals	hospital	<N>	<pl>
+
+funding	fund	<V>	<PROG>
+
+across	across	<Adv>	_
+across	across	<Part>	_
+across	across	<Prep>	_
+
+increased	increase	<V>	<PAST><WK>
+increased	increase	<V>	<PPART><WK>
+
+resulting	result	<V>	<PROG>
+
+being	being	<N>	<sg>
+
+ranked	rank	<V>	<PAST><WK>
+ranked	rank	<V>	<PPART><WK>
+
+top	top	<A>	_
+top	top	<N>	<sg>
+
+nation	nation	<N>	<sg>
+
+education	education	<N>	<sg>
+
+Jersey	Jersey	<PropN>	<3sg>
+
+raised	raise	<V>	<PAST><WK>
+raised	raise	<V>	<PPART><WK>
+
+North	North	<A>	_
+
+East	East	<A>	_
+
+started	start	<V>	<PAST><WK>
+started	start	<V>	<PPART><WK>
+
+teaching	teaching	<N>	<sg>
+
+career	career	<N>	<sg>
+
+taught	teach	<V>	<PAST><STR>
+taught	teach	<V>	<PPART><STR>
+
+promoted	promote	<V>	<PAST><WK>
+promoted	promote	<V>	<PPART><WK>
+
+school	school	<N>	<sg>
+
+also	also	<Adv>	_
+
+spent	spent	<A>	_
+
+Providence	Providence	<PropN>	<3sg>
+
+duties	duty	<N>	<pl>
+
+life	life	<N>	<sg>
+
+married	married	<A>	_
+married	married	<N>	<sg>
+
+Diana	Diana	<PropN>	<3sg>
+
+retired	retire	<V>	<PAST><WK>
+retired	retire	<V>	<PPART><WK>
+
+album	album	<N>	<sg>
+
+peaked	peaked	<A>	_
+
+pop	pop	<A>	_
+pop	pop	<N>	<sg>
+
+song	song	<N>	<sg>
+
+double	double	<Adv>	_
+
+official	official	<A>	_
+official	official	<N>	<sg>
+
+features	feature	<N>	<pl>
+
+found	found	<A>	_
+
+featuring	feature	<V>	<PROG>
+
+`	`	<Punct>	_
+
+boxer	boxer	<N>	<sg>
+
+flyweight	flyweight	<N>	<sg>
+
+division	division	<N>	<sg>
+
+who	who	<Pron>	<3sg><wh>
+
+briefly	briefly	<Adv>	_
+
+held	hold	<V>	<PAST><STR>
+held	hold	<V>	<PPART><STR>
+
+title	title	<N>	<sg>
+
+won	won	<N>	<pl>
+won	won	<N>	<sg>
+
+vacated	vacate	<V>	<PAST><WK>
+vacated	vacate	<V>	<PPART><WK>
+
+recently	recently	<Adv>	_
+
+defeating	defeat	<V>	<PROG>
+
+October	October	<PropN>	<3sg>
+
+disqualified	disqualify	<V>	<PAST><WK>
+disqualified	disqualify	<V>	<PPART><WK>
+
+due	due	<Adv>	_
+
+low	low	<Adv>	_
+
+blow	blow	<N>	<sg>
+
+seventh	seventh	<Adv>	_
+
+round	round	<Adv>	_
+round	round	<Part>	_
+
+met	meet	<V>	<PAST><STR>
+met	meet	<V>	<PPART><STR>
+
+again	again	<Adv>	_
+
+December	December	<PropN>	<3sg>
+
+match	match	<N>	<sg>
+
+contested	contest	<V>	<PAST><WK>
+contested	contest	<V>	<PPART><WK>
+
+above	above	<Adv>	_
+above	above	<Part>	_
+above	above	<Prep>	_
+
+limit	limit	<N>	<sg>
+
+beat	beat	<A>	_
+beat	beat	<N>	<sg>
+
+him	him	<Pron>	<3sg><acc><masc>
+
+decision	decision	<N>	<sg>
+
+stripped	strip	<V>	<PAST><WK>
+stripped	strip	<V>	<PPART><WK>
+
+showing	showing	<N>	<sg>
+
+bout	bout	<N>	<sg>
+
+later	later	<Adv>	_
+
+historian	historian	<N>	<sg>
+
+put	put	<N>	<sg>
+
+remains	remains	<N>	<sg>
+
+only	only	<Adv>	_
+
+time	time	<N>	<sg>
+
+boxing	boxing	<N>	<sg>
+
+history	history	<N>	<sg>
+
+champion	champion	<Adv>	_
+
+shorn	shear	<V>	<PPART><STR>
+
+poor	poor	<A>	_
+poor	poor	<N>	<sg>
+
+performance	performance	<N>	<sg>
+
+never	never	<Adv>	_
+
+fought	fight	<V>	<PAST><STR>
+fought	fight	<V>	<PPART><STR>
+
+inducted	induct	<V>	<PAST><WK>
+inducted	induct	<V>	<PPART><WK>
+
+Connecticut	Connecticut	<PropN>	<3sg>
+
+November	November	<PropN>	<3sg>
+
+built	build	<V>	<PAST><STR>
+built	build	<V>	<PPART><STR>
+
+during	during	<Prep>	_
+
+saw	saw	<N>	<sg>
+
+service	service	<N>	<sg>
+
+February	February	<PropN>	<3sg>
+
+placed	place	<V>	<PAST><WK>
+placed	place	<V>	<PPART><WK>
+
+reserve	reserve	<N>	<sg>
+
+March	March	<PropN>	<3sg>
+
+Korean	Korean	<A>	_
+Korean	Korean	<N>	<sg>
+
+remained	remain	<V>	<PAST><WK>
+remained	remain	<V>	<PPART><WK>
+
+commission	commission	<N>	<sg>
+
+until	until	<Prep>	_
+
+she	she	<Pron>	<3sg><fem><nom>
+
+reclassified	reclassify	<V>	<PAST><WK>
+reclassified	reclassify	<V>	<PPART><WK>
+
+reactivated	reactivate	<V>	<PAST><WK>
+reactivated	reactivate	<V>	<PPART><WK>
+
+sold	sell	<V>	<PAST><STR>
+sold	sell	<V>	<PPART><STR>
+
+Mexican	Mexican	<A>	_
+Mexican	Mexican	<N>	<sg>
+
+renamed	rename	<V>	<PAST><WK>
+renamed	rename	<V>	<PPART><WK>
+
+stricken	stricken	<A>	_
+
+her	her	<Pron>	<3sg><acc><fem>
+
+ultimate	ultimate	<A>	_
+ultimate	ultimate	<N>	<sg>
+
+fate	fate	<N>	<sg>
+
+not	not	<Adv>	_
+
+reported	report	<V>	<PAST><WK>
+reported	report	<V>	<PPART><WK>
+
+secondary	secondary	<A>	_
+secondary	stress	<N>	<sg>
+
+sources	source	<N>	<pl>
+
+launched	launch	<V>	<PAST><WK>
+launched	launch	<V>	<PPART><WK>
+
+Georgia	Georgia	<PropN>	<3sg>
+
+sponsored	sponsor	<V>	<PAST><WK>
+sponsored	sponsor	<V>	<PPART><WK>
+
+Lydia	Lydia	<PropN>	<3sg>
+
+commissioned	commissioned	<A>	_
+
+Charles	Charles	<PropN>	<3sg>
+
+command	command	<N>	<sg>
+
+shakedown	shake	<N>	<pl>
+shakedown	shake-down	<N>	<sg>
+
+out	out	<Adv>	_
+out	out	<Part>	_
+out	out	<Prep>	_
+
+Virginia	Virginia	<PropN>	<3sg>
+
+few	few	<Det>	_
+few	few	<Pron>	<3pl>
+
+weeks	week	<N>	<pl>
+
+escort	escort	<N>	<sg>
+
+duty	duty	<N>	<sg>
+
+area	area	<N>	<sg>
+
+assigned	assign	<V>	<PAST><WK>
+assigned	assign	<V>	<PPART><WK>
+
+Fleet	Fleet	<PropN>	<3sg>
+
+training	training	<N>	<sg>
+
+ship	ship	<N>	<sg>
+
+continued	continue	<V>	<PAST><WK>
+continued	continue	<V>	<PPART><WK>
+
+Cuba	Cuba	<PropN>	<3sg>
+
+operate	operate	<V>	<INF>
+
+ships	ship	<N>	<pl>
+
+radar	radar	<N>	<sg>
+
+countermeasure	countermeasure	<N>	<sg>
+
+Norfolk	Norfolk	<PropN>	<3sg>
+
+there	here	<Prep>	_
+there	there	<Adv>	_
+there	there	<Pron>	_
+
+sailed	sail	<V>	<PAST><WK>
+sailed	sail	<V>	<PPART><WK>
+
+outbreak	outbreak	<N>	<sg>
+
+began	begin	<V>	<PAST><STR>
+
+period	period	<N>	<sg>
+
+patrol	patrol	<N>	<sg>
+
+Charleston	Charleston	<N>	<sg>
+
+South	South	<A>	_
+
+Carolina	Carolina	<PropN>	<3sg>
+
+important	important	<A>	_
+
+operations	operation	<N>	<pl>
+
+along	along	<Part>	_
+along	along	<Prep>	_
+
+returned	return	<V>	<PAST><WK>
+returned	return	<V>	<PPART><WK>
+
+once	once	<Adv>	_
+once	once	<Prep>	_
+
+joined	join	<V>	<PAST><WK>
+joined	join	<V>	<PPART><WK>
+
+struck	struck	<A>	_
+
+Mexico	Mexico	<PropN>	<3sg>
+
+former	former	<A>	_
+former	former	<N>	<sg>
+
+acquired	acquire	<V>	<PAST><WK>
+acquired	acquire	<V>	<PPART><WK>
+
+cranberry	cranberry	<N>	<sg>
+
+village	village	<N>	<sg>
+
+located	locate	<V>	<PAST><WK>
+located	locate	<V>	<PPART><WK>
+
+west	west	<Adv>	_
+west	west	<Prep>	_
+
+Norwich	Norwich	<PropN>	<3sg>
+
+England	England	<PropN>	<3sg>
+
+primarily	primarily	<Adv>	_
+
+residential	residential	<A>	_
+
+includes	include	<V>	<3sg><PRES>
+
+large	large	<Adv>	_
+
+predominantly	predominantly	<Adv>	_
+
+occupied	occupy	<V>	<PAST><WK>
+occupied	occupy	<V>	<PPART><WK>
+
+sector	sector	<N>	<sg>
+
+one	one	<Det>	_
+one	one	<Pron>	<3sg><nomacc>
+
+shopping	shopping	<N>	<sg>
+
+centre	center	<N>	<sg>
+
+containing	contain	<V>	<PROG>
+
+supermarket	supermarket	<N>	<sg>
+
+smaller	small	<A>	<COMP>
+
+retail	retail	<Adv>	_
+
+outlets	outlet	<N>	<pl>
+
+station	station	<N>	<sg>
+
+community	community	<N>	<sg>
+
+hall	hall	<N>	<sg>
+
+situated	situated	<A>	_
+
+close	close	<Adv>	_
+
+present-day	present-day	<N>	<sg>
+
+developed	develop	<V>	<PAST><WK>
+developed	develop	<V>	<PPART><WK>
+
+onward	onward	<Adv>	_
+
+majority	majority	<N>	<sg>
+
+covered	cover	<V>	<PAST><WK>
+covered	cover	<V>	<PPART><WK>
+
+prefix	prefix	<N>	<sg>
+
+its	it	<Pron>	<GEN><ref3sg>
+its	its	<Det>	<GEN><ref3sg>
+
+standard	standard	<A>	_
+standard	standard	<N>	<sg>
+
+telephone	telephone	<N>	<sg>
+
+numbers	number	<N>	<pl>
+
+allocated	allocate	<V>	<PAST><WK>
+allocated	allocate	<V>	<PPART><WK>
+
+pool	pool	<N>	<sg>
+
+exchange	exchange	<N>	<sg>
+
+largest	large	<A>	<SUPER>
+
+these	these	<Det>	_
+
+areas	area	<N>	<pl>
+
+mix	mix	<N>	<sg>
+
+council	council	<N>	<sg>
+
+private	private	<A>	_
+private	private	<N>	<sg>
+
+housing	housing	<N>	<sg>
+
+making	making	<N>	<sg>
+
+almost	almost	<Adv>	_
+
+east	east	<Adv>	_
+east	east	<Prep>	_
+
+three	three	<Det>	_
+
+mainly	mainly	<Adv>	_
+
+estates	estate	<N>	<pl>
+
+took	take	<V>	<PAST><STR>
+
+place	place	<N>	<sg>
+
+early	early	<Adv>	_
+
+differs	differ	<V>	<3sg><PRES>
+
+nearby	nearby	<Adv>	_
+
+having	have	<V>	<PROG>
+
+high	high	<Adv>	_
+
+variability	variability	<N>	<sg>
+
+stock	stock	<A>	_
+stock	stock	<N>	<pl>
+stock	stock	<N>	<sg>
+
+centrally	centrally	<Adv>	_
+
+planned	plan	<V>	<PAST><WK>
+planned	plan	<V>	<PPART><WK>
+
+network	network	<N>	<sg>
+
+bus	bus	<N>	<sg>
+
+lanes	lane	<N>	<pl>
+
+open	open	<A>	_
+open	open	<N>	<sg>
+
+spaces	space	<N>	<pl>
+
+parks	park	<N>	<pl>
+
+border	border	<N>	<sg>
+
+periphery	periphery	<N>	<sg>
+
+estate	estate	<N>	<sg>
+
+north	north	<Adv>	_
+north	north	<Prep>	_
+
+Dereham	Dereham	<PropN>	<3sg>
+
+common	common	<A>	_
+common	common	<N>	<sg>
+
+bordering	border	<V>	<PROG>
+
+south	south	<Adv>	_
+south	south	<Prep>	_
+
+falls	fall	<V>	<3sg><PRES>
+
+constituency	constituency	<N>	<sg>
+
+despite	despite	<Prep>	_
+
+slightly	slightly	<Adv>	_
+
+MP	MP	<N>	<sg>
+
+Simon	Simon	<PropN>	<3sg>
+
+formerly	formerly	<Adv>	_
+
+safe	safe	<Adv>	_
+
+seat	seat	<N>	<sg>
+
+represented	re-present	<V>	<PAST><WK>
+represented	re-present	<V>	<PPART><WK>
+represented	represent	<V>	<PAST><WK>
+represented	represent	<V>	<PPART><WK>
+
+councillors	councillor	<N>	<pl>
+
+Antony	Antony	<PropN>	<3sg>
+
+Andrew	Andrew	<PropN>	<3sg>
+
+Wiltshire	Wiltshire	<PropN>	<3sg>
+
+George	George	<PropN>	<3sg>
+
+possesses	possess	<V>	<3sg><PRES>
+
+made	made	<A>	_
+
+infant	infant	<A>	_
+infant	infant	<N>	<sg>
+
+junior	junior	<A>	_
+junior	junior	<N>	<sg>
+
+originally	originally	<Adv>	_
+
+actually	actually	<Adv>	_
+
+knocked	knock	<V>	<PAST><WK>
+knocked	knock	<V>	<PPART><WK>
+
+down	down	<Adv>	_
+down	down	<Part>	_
+down	down	<Prep>	_
+
+replaced	replace	<V>	<PAST><WK>
+replaced	replace	<V>	<PPART><WK>
+
+fire	firebreak	<N>	<pl>
+
+nearest	near	<A>	<SUPER>
+
+previously	previously	<Adv>	_
+
+frequent	frequent	<A>	_
+
+operated	operate	<V>	<PAST><WK>
+operated	operate	<V>	<PPART><WK>
+
+makes	make	<V>	<3sg><PRES>
+
+significant	significant	<A>	_
+
+contribution	contribution	<N>	<sg>
+
+local	local	<A>	_
+local	local	<N>	<sg>
+
+sport	sport	<N>	<sg>
+
+providing	provided	<Conj>	_
+
+grounds	gray	<N>	<pl>
+grounds	ground	<N>	<pl>
+grounds	groundsheet	<N>	<pl>
+
+football	football	<N>	<sg>
+
+complex	complex	<A>	_
+complex	complex	<N>	<sg>
+
+home	home	<Adv>	_
+home	home	<Part>	_
+home	home	<Prep>	_
+
+sportsmen	sportsman	<N>	<pl>
+
+including	include	<V>	<PROG>
+
+Sunday	Sunday	<PropN>	<3sg>
+
+team	team	<N>	<sg>
+
+folded	fold	<V>	<PAST><WK>
+folded	fold	<V>	<PPART><WK>
+
+towards	towards	<Prep>	_
+
+end	end	<N>	<sg>
+
+lack	lack	<N>	<sg>
+
+club	club	<N>	<sg>
+
+many	many	<Det>	_
+many	many	<Pron>	<3pl>
+
+teams	team	<N>	<pl>
+
+ranging	ranging	<N>	<sg>
+
+Bob	Bob	<PropN>	<3sg>
+
+creator	creator	<N>	<sg>
+
+executive	executive	<A>	_
+executive	executive	<N>	<sg>
+
+producer	producer	<N>	<sg>
+
+host	host	<N>	<sg>
+
+talk	talk	<N>	<sg>
+
+radio	radio	<N>	<sg>
+
+program	programme	<N>	<sg>
+
+dedicated	dedicated	<A>	_
+
+topics	topic	<N>	<pl>
+
+animal	animal	<A>	_
+animal	animal	<N>	<sg>
+
+rights	right	<N>	<pl>
+
+environmentalism	environmentalism	<N>	<sg>
+
+successful	successful	<A>	_
+
+events	event	<N>	<pl>
+
+organizer	organizer	<N>	<sg>
+
+professional	professional	<A>	_
+professional	professional	<N>	<sg>
+
+promoter	promoter	<N>	<sg>
+
+played	play	<V>	<PAST><WK>
+played	play	<V>	<PPART><WK>
+
+role	role	<N>	<sg>
+
+conception	conception	<N>	<sg>
+
+promotion	promotion	<N>	<sg>
+
+San	Sammarinese	<A>	_
+
+created	create	<V>	<PAST><WK>
+created	create	<V>	<PPART><WK>
+
+concern	concern	<N>	<sg>
+
+advocacy	advocacy	<N>	<sg>
+
+increasing	increase	<V>	<PROG>
+
+involvement	involvement	<N>	<sg>
+
+movement	movement	<N>	<sg>
+
+seeks	seek	<V>	<3sg><PRES>
+
+address	address	<N>	<sg>
+
+wide	wide	<Adv>	_
+
+range	range	<N>	<sg>
+
+diet	diet	<N>	<sg>
+
+environment	environment	<N>	<sg>
+
+world	world	<N>	<sg>
+
+hunger	hunger	<N>	<sg>
+
+morality	morality	<N>	<sg>
+
+civil	civil	<A>	_
+
+liberties	liberty	<N>	<pl>
+
+justice	justice	<N>	<sg>
+
+peace	peace	<N>	<sg>
+
+product	product	<N>	<sg>
+
+reviews	revue	<N>	<pl>
+
+current	current	<A>	_
+current	current	<N>	<sg>
+
+vegan	vegan	<N>	<sg>
+
+cooking	cook	<V>	<PROG>
+
+recipes	recipe	<N>	<pl>
+
+interviews	interview	<N>	<pl>
+
+guests	guest	<N>	<pl>
+
+interviewed	interview	<V>	<PAST><WK>
+interviewed	interview	<V>	<PPART><WK>
+
+more	more	<Adv>	_
+
+than	than	<Prep>	_
+
+notable	notable	<A>	_
+notable	notable	<N>	<sg>
+
+Gary	Gary	<PropN>	<3sg>
+
+Will	Will	<PropN>	<3sg>
+
+Steve	Steve	<PropN>	<3sg>
+
+Naomi	Naomi	<PropN>	<3sg>
+
+John	John	<PropN>	<3sg>
+
+countless	countless	<A>	_
+
+celebrities	celebrity	<N>	<pl>
+
+activists	activist	<N>	<pl>
+
+York	York	<PropN>	<3sg>
+
+graduate	graduate	<N>	<sg>
+
+experience	experience	<N>	<sg>
+
+broadcaster	broadcaster	<N>	<sg>
+
+accomplishments	accomplishment	<N>	<pl>
+
+include	include	<V>	<INF>
+
+creating	create	<V>	<PROG>
+
+assuming	assuming	<A>	_
+
+Miami	Miami	<PropN>	<3sg>
+
+stations	station	<N>	<pl>
+
+Seattle	Seattle	<PropN>	<3sg>
+
+Atlanta	Atlanta	<PropN>	<3sg>
+
+work	work	<N>	<sg>
+
+featured	feature	<V>	<PAST><WK>
+featured	feature	<V>	<PPART><WK>
+
+independent	independent	<A>	_
+independent	independent	<N>	<sg>
+
+media	medium	<N>	<pl>
+
+copy	copy	<N>	<sg>
+
+writing	writing	<N>	<sg>
+
+TV	TV	<N>	<sg>
+
+advertisements	advertisement	<N>	<pl>
+
+billboard	billboard	<N>	<sg>
+
+campaigns	campaign	<N>	<pl>
+
+extensive	extensive	<A>	_
+
+broadcast	broadcast	<Adv>	_
+
+networks	network	<N>	<pl>
+
+influence	influence	<N>	<sg>
+
+steer	steer	<N>	<sg>
+
+toward	toward	<Prep>	_
+
+participation	participation	<N>	<sg>
+
+particularly	particularly	<Adv>	_
+
+regard	regard	<N>	<sg>
+
+advancing	advance	<V>	<PROG>
+
+environmental	environmental	<A>	_
+
+causes	cause	<N>	<pl>
+
+efforts	effort	<N>	<pl>
+
+often	often	<Adv>	_
+
+caused	cause	<V>	<PAST><WK>
+caused	cause	<V>	<PPART><WK>
+
+personal	personal	<A>	_
+personal	personal	<N>	<sg>
+
+conflict	conflict	<N>	<sg>
+
+campaigned	campaign	<V>	<PAST><WK>
+campaigned	campaign	<V>	<PPART><WK>
+
+opposition	opposition	<N>	<sg>
+
+creation	creation	<N>	<sg>
+
+nuclear	nuclear	<A>	_
+
+waste	waste	<A>	_
+waste	waste	<N>	<sg>
+
+dump	dump	<N>	<sg>
+
+working	working	<A>	_
+working	working	<N>	<sg>
+
+collect	collect	<N>	<sg>
+
+towels	towel	<N>	<pl>
+
+otters	otter	<N>	<pl>
+otters	otter	<N>	<sg>
+
+oil	oil	<N>	<sg>
+
+spill	spill	<N>	<sg>
+
+Alaska	Alaska	<PropN>	<3sg>
+
+advising	advise	<V>	<PROG>
+
+management	management	<N>	<sg>
+
+reject	reject	<N>	<sg>
+
+advertising	advertising	<N>	<sg>
+
+fur	fur	<N>	<sg>
+
+industry	industry	<N>	<sg>
+
+initiative	initiative	<A>	_
+initiative	initiative	<N>	<sg>
+
+Metro	Metro	<N>	<sg>
+
+aimed	aim	<V>	<PAST><WK>
+aimed	aim	<V>	<PPART><WK>
+
+fostering	foster	<V>	<PROG>
+
+cooperation	cooperation	<N>	<sg>
+
+sectors	sector	<N>	<pl>
+
+persuading	persuade	<V>	<PROG>
+
+ownership	ownership	<N>	<sg>
+
+refuse	refuse	<N>	<sg>
+
+profiting	profit	<V>	<PROG>
+
+revenue	revenue	<N>	<sg>
+
+generated	generate	<V>	<PAST><WK>
+generated	generate	<V>	<PPART><WK>
+
+initial	initial	<A>	_
+initial	initial	<N>	<sg>
+
+setback	set-back	<N>	<sg>
+setback	setback	<N>	<sg>
+
+eventually	eventually	<Adv>	_
+
+convinced	convince	<V>	<PAST><WK>
+convinced	convince	<V>	<PPART><WK>
+
+owners	owner	<N>	<pl>
+
+donate	donate	<V>	<INF>
+
+money	money	<N>	<sg>
+
+Progressive	Progressive	<A>	_
+
+success	success	<N>	<sg>
+
+economically	economically	<Adv>	_
+
+commercially	commercially	<Adv>	_
+
+programming	programme	<V>	<PROG>
+
+became	become	<V>	<PAST><STR>
+
+increasingly	increasedly	<Adv>	_
+
+conflicted	conflict	<V>	<PAST><WK>
+conflicted	conflict	<V>	<PPART><WK>
+
+contributing	contribute	<V>	<PROG>
+
+industries	industry	<N>	<pl>
+
+profit	profit	<N>	<sg>
+
+sale	sale	<N>	<sg>
+
+products	product	<N>	<pl>
+
+conflicts	conflict	<N>	<pl>
+
+ultimately	ultimately	<Adv>	_
+
+inspiration	inspiration	<N>	<sg>
+
+show	show	<N>	<sg>
+
+guest	guest	<N>	<sg>
+
+appearing	appear	<V>	<PROG>
+
+live	live	<A>	_
+
+global	global	<A>	_
+
+social	social	<A>	_
+social	social	<N>	<sg>
+
+transcribed	transcribe	<V>	<PAST><WK>
+transcribed	transcribe	<V>	<PPART><WK>
+
+online	on-line	<A>	_
+
+site	site	<N>	<sg>
+
+opposed	oppose	<V>	<PAST><WK>
+opposed	oppose	<V>	<PPART><WK>
+
+California	California	<PropN>	<3sg>
+
+ballot	ballot	<N>	<sg>
+
+proposition	proposition	<N>	<sg>
+
+prohibit	prohibit	<V>	<INF>
+
+confinement	confinement	<N>	<sg>
+
+certain	certain	<Det>	_
+
+farm	farm	<N>	<sg>
+
+animals	animal	<N>	<pl>
+
+manner	manner	<N>	<sg>
+
+does	doe	<N>	<pl>
+
+allow	allow	<V>	<INF>
+
+them	them	<Det>	_
+them	them	<Pron>	<3pl><acc>
+
+turn	turn	<N>	<sg>
+
+around	around	<Adv>	_
+around	around	<Part>	_
+around	around	<Prep>	_
+
+freely	freely	<Adv>	_
+
+lie	lie	<N>	<sg>
+
+stand	stand	<N>	<sg>
+
+fully	fully	<Adv>	_
+
+extend	extend	<V>	<INF>
+
+limbs	limb	<N>	<pl>
+
+resides	reside	<V>	<3sg><PRES>
+
+speaker	speaker	<N>	<sg>
+
+emcee	emcee	<N>	<sg>
+
+game	game	<A>	_
+game	game	<N>	<sg>
+
+known	known	<A>	_
+known	known	<N>	<sg>
+
+simply	simply	<Adv>	_
+
+pastime	pastime	<N>	<sg>
+
+attempting	attempt	<V>	<PROG>
+
+resolve	resolve	<N>	<sg>
+
+anomalies	anomaly	<N>	<pl>
+
+clarify	clarify	<V>	<INF>
+
+implied	implied	<A>	_
+
+details	detail	<N>	<pl>
+
+short	short	<A>	_
+short	short	<N>	<sg>
+
+stories	storey	<N>	<pl>
+
+novels	novel	<N>	<pl>
+
+Arthur	Arthur	<PropN>	<3sg>
+
+treats	treat	<N>	<pl>
+
+real	real	<A>	_
+real	real	<N>	<sg>
+
+people	people	<N>	<pl>
+
+uses	use	<N>	<pl>
+
+aspects	aspect	<N>	<pl>
+
+canonical	canonical	<A>	_
+
+combined	combine	<V>	<PAST><WK>
+combined	combine	<V>	<PPART><WK>
+
+era	era	<N>	<sg>
+
+tales	tale	<N>	<pl>
+tales	tales	<N>	<sg>
+
+composition	composition	<N>	<sg>
+
+construct	construct	<N>	<sg>
+
+fanciful	fanciful	<A>	_
+
+biographies	biography	<N>	<pl>
+
+pair	pair	<N>	<sg>
+
+examining	examine	<V>	<PROG>
+
+if	if	<Comp>	_
+if	if	<Prep>	_
+
+were	be	<V>	<2sg><PAST><STR>
+were	be	<V>	<PAST><STR><pl>
+
+nonfiction	non-fiction	<N>	<sg>
+nonfiction	nonfiction	<N>	<sg>
+
+twentieth	twentieth	<A>	_
+twentieth	twentieth	<N>	<sg>
+
+century	century	<N>	<sg>
+
+examples	example	<N>	<pl>
+
+essays	essay	<N>	<pl>
+
+Maurice	Maurice	<PropN>	<3sg>
+
+Frank	Frank	<PropN>	<3sg>
+
+published	publish	<V>	<PAST><WK>
+published	publish	<V>	<PPART><WK>
+
+much	much	<Adv>	_
+much	much	<Det>	_
+much	much	<Pron>	<3sg><nomacc>
+
+notice	notice	<N>	<sg>
+
+canon	canyon	<N>	<sg>
+
+included	included	<A>	_
+
+Ronald	Ronald	<PropN>	<3sg>
+
+Britain	Britain	<PropN>	<3sg>
+
+Christopher	Christopher	<PropN>	<3sg>
+
+Morley	Morley	<PropN>	<3sg>
+
+Dorothy	Dorothy	<PropN>	<3sg>
+
+detective	detective	<A>	_
+detective	detective	<N>	<sg>
+
+Peter	Peter	<PropN>	<3sg>
+
+wrote	write	<V>	<PAST><STR>
+
+several	several	<Det>	_
+
+speculation	speculation	<N>	<sg>
+
+foreword	foreword	<N>	<sg>
+
+this	this	<Adv>	_
+this	this	<Det>	_
+
+book	book	<N>	<sg>
+
+notes	note	<N>	<pl>
+notes	notes	<N>	<sg>
+
+applying	apply	<V>	<PROG>
+
+methods	method	<N>	<pl>
+
+begun	begin	<V>	<PPART><STR>
+
+ago	ago	<Adv>	_
+ago	ago	<Prep>	_
+
+Monsignor	Monsignor	<N>	<sg>
+
+aim	aim	<N>	<sg>
+
+those	those	<Det>	_
+
+could	could	<V>	<PRES>
+
+disintegrate	disintegrate	<V>	<INF>
+
+modern	modern	<A>	_
+modern	modern	<N>	<sg>
+
+classic	classic	<A>	_
+classic	classic	<N>	<sg>
+
+speciously	speciously	<Adv>	_
+
+critics	critic	<N>	<pl>
+
+have	have	<V>	<INF>
+
+endeavoured	endeavour	<V>	<PAST><WK>
+endeavoured	endeavour	<V>	<PPART><WK>
+
+Bible	Bible	<N>	<sg>
+
+thing	thing	<N>	<sg>
+
+become	become	<V>	<INF>
+
+hobby	hobby	<N>	<sg>
+
+among	amongst	<Prep>	_
+
+select	select	<A>	_
+
+set	set	<A>	_
+set	set	<N>	<sg>
+
+jesters	jester	<N>	<pl>
+
+here	here	<Adv>	_
+here	here	<Prep>	_
+here	here	<Pron>	_
+
+America	America	<PropN>	<3sg>
+
+said	said	<A>	_
+said	sayyid	<N>	<pl>
+
+must	musth	<N>	<sg>
+
+solemnly	solemnly	<Adv>	_
+
+county	county	<N>	<sg>
+
+cricket	cricket	<N>	<sg>
+
+slightest	slight	<A>	<SUPER>
+
+touch	touch	<N>	<sg>
+
+extravagance	extravagance	<N>	<sg>
+
+burlesque	burlesque	<A>	_
+burlesque	burlesque	<N>	<sg>
+
+ruins	ruin	<N>	<pl>
+
+atmosphere	atmosphere	<N>	<sg>
+
+student	student	<N>	<sg>
+
+Oxford	Oxford	<PropN>	<3sg>
+
+issued	issue	<V>	<PAST><WK>
+issued	issue	<V>	<PPART><WK>
+
+essay	essay	<N>	<sg>
+
+regarded	regard	<V>	<PAST><WK>
+regarded	regard	<V>	<PPART><WK>
+
+founding	found	<V>	<PROG>
+
+text	text	<N>	<sg>
+
+scholarship	scholarship	<N>	<sg>
+
+others	other	<N>	<pl>
+
+following	following	<Prep>	_
+
+Sydney	Sydney	<PropN>	<3sg>
+
+Roberts	Robert	<PropN>	<3pl>
+
+professor	professor	<N>	<sg>
+
+Cambridge	Cambridge	<PropN>	<3sg>
+
+reply	reply	<N>	<sg>
+
+arguments	argument	<N>	<pl>
+
+booklet	booklet	<N>	<sg>
+
+entitled	entitle	<V>	<PAST><WK>
+entitled	entitle	<V>	<PPART><WK>
+
+complete	complete	<A>	_
+
+biography	biography	<N>	<sg>
+
+followed	follow	<V>	<PAST><WK>
+followed	follow	<V>	<PPART><WK>
+
+commonly	commonly	<Adv>	_
+
+referred	refer	<V>	<PAST><WK>
+referred	refer	<V>	<PPART><WK>
+
+note	note	<N>	<sg>
+
+bibliographer	bibliographer	<N>	<sg>
+
+collector	collector	<N>	<sg>
+
+Vincent	Vincent	<PropN>	<3sg>
+
+archaeologist	archaeologist	<N>	<sg>
+
+Harold	Harold	<PropN>	<3sg>
+
+aspect	aspect	<N>	<sg>
+
+traditional	traditional	<A>	_
+
+form	forme	<N>	<sg>
+
+effort	effort	<N>	<sg>
+
+explain	explain	<V>	<INF>
+
+away	away	<Adv>	_
+away	away	<Part>	_
+away	away	<Prep>	_
+
+contradictions	contradiction	<N>	<pl>
+
+such	such	<Adv>	_
+such	such	<Det>	_
+such	such	<Prep>	_
+
+location	location	<N>	<sg>
+
+war	war	<N>	<sg>
+
+wound	wound	<N>	<sg>
+
+shoulder	shoulder	<N>	<sg>
+
+leg	leg	<N>	<sg>
+
+name	name	<N>	<sg>
+
+given	given	<A>	_
+
+James	James	<PropN>	<3sg>
+
+works	works	<N>	<sg>
+
+chief	chief	<Adv>	_
+
+speculations	speculation	<N>	<pl>
+
+playing	play	<V>	<PROG>
+
+William	William	<PropN>	<3sg>
+
+author	author	<N>	<sg>
+
+Street	Street	<PropN>	<3sg>
+
+recent	recent	<A>	_
+
+Nick	Nick	<PropN>	<3sg>
+
+Leslie	Leslie	<PropN>	<3sg>
+
+editing	edit	<V>	<PROG>
+
+Indianapolis	Indianapolis	<PropN>	<3sg>
+
+sums	sum	<N>	<pl>
+
+available	available	<A>	_
+

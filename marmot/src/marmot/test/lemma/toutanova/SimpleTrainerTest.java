@@ -8,10 +8,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import junit.framework.AssertionFailedError;
-import marmot.lemma.Instance;
+import marmot.lemma.LemmaInstance;
 import marmot.lemma.Lemmatizer;
 import marmot.lemma.LemmatizerTrainer;
-import marmot.lemma.Result;
+import marmot.lemma.LemmaResult;
 import marmot.lemma.SimpleLemmatizerTrainer;
 import marmot.lemma.SimpleLemmatizerTrainer.SimpleLemmatizerTrainerOptions;
 import marmot.morph.io.SentenceReader;
@@ -47,9 +47,9 @@ public class SimpleTrainerTest {
 		return String.format("res:///%s/%s", "marmot/test/lemma", name);
 	}
 	
-	protected List<Instance> getCopyInstances(List<Instance> instances) {
-		List<Instance> new_instances = new LinkedList<>();
-		for (Instance instance : instances) {
+	protected List<LemmaInstance> getCopyInstances(List<LemmaInstance> instances) {
+		List<LemmaInstance> new_instances = new LinkedList<>();
+		for (LemmaInstance instance : instances) {
 			if (instance.getForm().equals(instance.getLemma())) {
 					new_instances.add(instance);
 			}
@@ -91,27 +91,27 @@ public class SimpleTrainerTest {
 		String trainfile = indexes+ getResourceFile(trainfile_name);
 		
 		
-		List<Instance> training_instances = Instance.getInstances(new SentenceReader(trainfile));
+		List<LemmaInstance> training_instances = LemmaInstance.getInstances(new SentenceReader(trainfile));
 		Lemmatizer lemmatizer = trainer.train(training_instances, null);
 			
 		assertAccuracy(lemmatizer, training_instances, train_acc);
 		
 		String testfile = indexes + getResourceFile("dev.tsv");
-		List<Instance> instances = Instance.getInstances(new SentenceReader(testfile));
+		List<LemmaInstance> instances = LemmaInstance.getInstances(new SentenceReader(testfile));
 		assertAccuracy(lemmatizer, instances, test_acc);
 		
 		testfile = indexes + getResourceFile("dev.tsv.morfette");
-		instances = Instance.getInstances(new SentenceReader(testfile));
+		instances = LemmaInstance.getInstances(new SentenceReader(testfile));
 		assertAccuracy(lemmatizer, instances, 1.);
 	}
 	
 	protected void testIfLemmatizerIsSerializable(LemmatizerTrainer trainer) {
 		String trainfile = pos_indexes + getResourceFile("trn_sml.tsv");
-		Copy.clone(trainer.train(Instance.getInstances(trainfile), null));
+		Copy.clone(trainer.train(LemmaInstance.getInstances(trainfile), null));
 	}
 
-	protected void assertAccuracy(Lemmatizer lemmatizer, Collection<Instance> instances, double min_accuracy) {
-		Result result = Result.test(lemmatizer, instances);
+	protected void assertAccuracy(Lemmatizer lemmatizer, Collection<LemmaInstance> instances, double min_accuracy) {
+		LemmaResult result = LemmaResult.test(lemmatizer, instances);
 		
 		double accuracy = result.getTokenAccuracy();
 		

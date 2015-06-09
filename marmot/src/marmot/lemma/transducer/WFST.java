@@ -14,9 +14,9 @@ import org.javatuples.Pair;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
 
-import marmot.lemma.Instance;
+import marmot.lemma.LemmaInstance;
 import marmot.lemma.Lemmatizer;
-import marmot.lemma.Options;
+import marmot.lemma.LemmaOptions;
 import marmot.lemma.transducer.exceptions.LabelBiasException;
 import marmot.lemma.transducer.exceptions.NegativeContext;
 import marmot.util.Numerics;
@@ -46,7 +46,7 @@ public class WFST extends Transducer {
 	
 	protected void observedCounts(double[][][] gradient, int instanceId) {
 		// get data instance
-		Instance instance = this.trainingData.get(instanceId);
+		LemmaInstance instance = this.trainingData.get(instanceId);
 		String upper = instance.getForm();
 		String lower = instance.getLemma();
 				
@@ -115,7 +115,7 @@ public class WFST extends Transducer {
 	
 	protected void expectedCounts(double[][][] gradient, int instanceId) {
 		// get data instance
-		Instance instance = this.trainingData.get(instanceId);
+		LemmaInstance instance = this.trainingData.get(instanceId);
 		String upper = instance.getForm();
 		String lower = instance.getLemma();
 				
@@ -419,8 +419,8 @@ public class WFST extends Transducer {
 
 
 	@Override
-	public Lemmatizer train(List<Instance> instances,
-			List<Instance> dev_instances) {
+	public Lemmatizer train(List<LemmaInstance> instances,
+			List<LemmaInstance> dev_instances) {
 		
 		LOGGER.info("Instantiating WFST...");
 		
@@ -503,7 +503,7 @@ public class WFST extends Transducer {
 	}
 
 	@Override
-	public Options getOptions() {
+	public LemmaOptions getOptions() {
 		return null;
 	}
 

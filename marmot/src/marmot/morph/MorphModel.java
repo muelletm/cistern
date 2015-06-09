@@ -27,7 +27,7 @@ import marmot.core.Trainer;
 import marmot.core.TrainerFactory;
 import marmot.core.WeightVector;
 import marmot.lemma.GoldLemmaGenerator;
-import marmot.lemma.Instance;
+import marmot.lemma.LemmaInstance;
 import marmot.lemma.LemmaCandidate;
 import marmot.lemma.LemmaCandidateGenerator;
 import marmot.lemma.LemmaCandidateSet;
@@ -41,6 +41,7 @@ import marmot.morph.analyzer.Analyzer;
 import marmot.morph.signature.Trie;
 import marmot.util.Copy;
 import marmot.util.Counter;
+import marmot.util.FeatUtil;
 import marmot.util.FileUtils;
 import marmot.util.StringUtils;
 import marmot.util.StringUtils.Mode;
@@ -198,7 +199,7 @@ public class MorphModel extends Model {
 		roptions.setOption(RankerTrainerOptions.ASPELL_LANG, options.getLemmaAspellLang());
 		roptions.setOption(RankerTrainerOptions.USE_SHAPE_LEXICON, options.getLemmaUseShapeLexicon());
 		
-		List<Instance> instances = Instance.getInstances(sentences, false, false);
+		List<LemmaInstance> instances = LemmaInstance.getInstances(sentences, false, false);
 		
 		if (options.getGoldLemma()) {
 			generators_ = Collections.singletonList((LemmaCandidateGenerator) new GoldLemmaGenerator());
@@ -545,19 +546,14 @@ public class MorphModel extends Model {
 	private boolean lemma_use_morph_;
 
 	private void addCharIndexes(Word word, String form, boolean insert) {
-		short[] char_indexes = new short[form.length()];
+		short[] char_indexes = FeatUtil.getCharIndexes(form, char_table_, insert);
 		for (int index = 0; index < form.length(); index++) {
 			char c = form.charAt(index);
-
-			char_indexes[index] = (short) char_table_.toIndex(c, -1, insert);
-
 			if (char_indexes[index] < 0) {
 				if (verbose_) {
-
 					if (unseen_char_set_ == null) {
 						unseen_char_set_ = new HashSet<Character>();
 					}
-
 					if (!unseen_char_set_.contains(c)) {
 						System.err
 								.format("Warning: Unknown character: %c\n", c);
@@ -576,34 +572,9 @@ public class MorphModel extends Model {
 
 		Integer signature = signature_cache.get(form);
 		if (signature == null) {
-			signature = 0;
-
-			if (special_signature_) {
-				if (StringUtils.containsSpecial(form)) {
-					signature += 1;
-				}
-				signature *= 2;
-			}
-
-			if (StringUtils.containsDigit(form)) {
-				signature += 1;
-			}
-			signature *= 2;
-			if (StringUtils.containsHyphon(form)) {
-				signature += 1;
-			}
-			signature *= 2;
-			if (StringUtils.containsUpperCase(form)) {
-				signature += 1;
-			}
-			signature *= 2;
-			if (StringUtils.containsLowerCase(form)) {
-				signature += 1;
-			}
-
+			signature = FeatUtil.getSignature(form, special_signature_);
 			signature_cache.put(form, signature);
 		}
-
 		word.setWordSignature(signature);
 	}
 
@@ -682,7 +653,7 @@ public class MorphModel extends Model {
 	
 	private void addLemmaInstance(Word word) {
 		if (lemma_model_ != null && word.getInstance() == null) {
-			Instance instance = Instance.getInstance(word, false, false);
+			LemmaInstance instance = LemmaInstance.getInstance(word, false, false);
 			RankerInstance rinstance = RankerInstance.getInstance(instance, generators_);
 			word.setInstance(rinstance);
 			addLemmaFeatures(word);
@@ -1058,7 +1029,7 @@ public class MorphModel extends Model {
 	}
 
 	public int getMaxSignature() {
-		return (special_signature_) ? 64 : 32;
+		return FeatUtil.getMaxSignature(special_signature_);
 	}
 
 	public static Tagger train(MorphOptions options,

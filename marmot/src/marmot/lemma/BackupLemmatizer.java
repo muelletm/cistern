@@ -15,7 +15,7 @@ public class BackupLemmatizer implements Lemmatizer, LemmatizerGenerator {
 	}
 	
 	@Override
-	public String lemmatize(Instance instance) {
+	public String lemmatize(LemmaInstance instance) {
 		String lemma = lemmatizer_.lemmatize(instance);
 		if (lemma != null) {
 			return lemma;
@@ -25,13 +25,13 @@ public class BackupLemmatizer implements Lemmatizer, LemmatizerGenerator {
 	}
 
 	@Override
-	public void addCandidates(Instance instance, LemmaCandidateSet set) {
+	public void addCandidates(LemmaInstance instance, LemmaCandidateSet set) {
 		lemmatizer_.addCandidates(instance, set);
 		backup_.addCandidates(instance, set);
 	}
 
 	@Override
-	public boolean isOOV(Instance instance) {
+	public boolean isOOV(LemmaInstance instance) {
 		return lemmatizer_.isOOV(instance) && backup_.isOOV(instance);
 	}
 

@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import marmot.lemma.Instance;
+import marmot.lemma.LemmaInstance;
 import marmot.lemma.LemmaCandidateSet;
 import marmot.lemma.edit.EditTreeGenerator;
 import marmot.lemma.edit.EditTreeGeneratorTrainer;
@@ -27,14 +27,14 @@ public class EditTreeGeneratorTest {
 		trainer.getOptions().setOption(EditTreeGeneratorTrainerOptions.MIN_COUNT, 0);
 		trainer.getOptions().setOption(EditTreeGeneratorTrainerOptions.NUM_STEPS, 1);
 		
-		List<Instance> instances = new LinkedList<>();
+		List<LemmaInstance> instances = new LinkedList<>();
 		
-		instances.add(new Instance("abc", "ab", null, "C"));
-		instances.add(new Instance("dec", "de", null, "C"));
-		instances.add(new Instance("ccc", "cc", null, "C"));
-		instances.add(new Instance("abc", "abc", null, "B"));
-		instances.add(new Instance("dec", "dec", null, "B"));
-		instances.add(new Instance("dec", "decc", null, null));
+		instances.add(new LemmaInstance("abc", "ab", null, "C"));
+		instances.add(new LemmaInstance("dec", "de", null, "C"));
+		instances.add(new LemmaInstance("ccc", "cc", null, "C"));
+		instances.add(new LemmaInstance("abc", "abc", null, "B"));
+		instances.add(new LemmaInstance("dec", "dec", null, "B"));
+		instances.add(new LemmaInstance("dec", "decc", null, null));
 				
 		EditTreeGenerator gen = (EditTreeGenerator) trainer.train(instances, null);
 		
@@ -42,17 +42,17 @@ public class EditTreeGeneratorTest {
 		
 		
 		set = new LemmaCandidateSet();
-		gen.addCandidates(new Instance("fgc", null, null, "C"), set);
+		gen.addCandidates(new LemmaInstance("fgc", null, null, "C"), set);
 		assertEquals(1, set.size()); 
 		assertTrue(set.contains("fg"));
 		
 		set = new LemmaCandidateSet();
-		gen.addCandidates(new Instance("fgc", null, null, "B"), set);
+		gen.addCandidates(new LemmaInstance("fgc", null, null, "B"), set);
 		assertEquals(1, set.size()); 
 		assertTrue(set.contains("fgc"));
 		
 		set = new LemmaCandidateSet();
-		gen.addCandidates(new Instance("fgc", null, null, null), set);
+		gen.addCandidates(new LemmaInstance("fgc", null, null, null), set);
 		assertEquals(3, set.size()); 
 		assertTrue(set.contains("fgc"));
 		assertTrue(set.contains("fg"));

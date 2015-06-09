@@ -7,8 +7,8 @@ import java.io.Serializable;
 
 public interface Lemmatizer extends Serializable {
 
-	public String lemmatize(Instance instance);
+	public String lemmatize(LemmaInstance instance);
 
-	public boolean isOOV(Instance instance);
+	public boolean isOOV(LemmaInstance instance);
 
 }

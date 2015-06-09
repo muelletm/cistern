@@ -12,7 +12,7 @@ import marmot.lemma.toutanova.ToutanovaTrainer;
 
 public class BackupLemmatizerTrainer implements LemmatizerGeneratorTrainer {
 
-	public static class BackupLemmatizerTrainerOptions extends Options {
+	public static class BackupLemmatizerTrainerOptions extends LemmaOptions {
 		
 		private static final long serialVersionUID = 1L;
 		public static final String LEMMATIZER_TRAINER = "lemmatizer-trainer";
@@ -37,7 +37,7 @@ public class BackupLemmatizerTrainer implements LemmatizerGeneratorTrainer {
 		
 		
 		@Override 
-		public Options setOption(String name, Object value) {
+		public LemmaOptions setOption(String name, Object value) {
 			name = name.toLowerCase();
 			
 			if (name.startsWith(TRAINER_PREF)) {
@@ -101,8 +101,8 @@ public class BackupLemmatizerTrainer implements LemmatizerGeneratorTrainer {
 	}
 
 	@Override
-	public LemmatizerGenerator train(List<Instance> instances,
-			List<Instance> dev_instances) {
+	public LemmatizerGenerator train(List<LemmaInstance> instances,
+			List<LemmaInstance> dev_instances) {
 		
 		LemmatizerGeneratorTrainer trainer;
 		
@@ -125,7 +125,7 @@ public class BackupLemmatizerTrainer implements LemmatizerGeneratorTrainer {
 	}
 
 	@Override
-	public Options getOptions() {
+	public LemmaOptions getOptions() {
 		return options_;
 	}
 	

@@ -7,11 +7,11 @@ import java.util.List;
 
 import marmot.lemma.BackupLemmatizerTrainer;
 import marmot.lemma.BackupLemmatizerTrainer.BackupLemmatizerTrainerOptions;
-import marmot.lemma.Instance;
+import marmot.lemma.LemmaInstance;
 import marmot.lemma.Lemmatizer;
 import marmot.lemma.LemmatizerGeneratorTrainer;
 import marmot.lemma.LemmatizerTrainer;
-import marmot.lemma.Options;
+import marmot.lemma.LemmaOptions;
 import marmot.lemma.SimpleLemmatizerTrainer;
 import marmot.lemma.SimpleLemmatizerTrainer.SimpleLemmatizerTrainerOptions;
 import marmot.lemma.toutanova.EditTreeAlignerTrainer;
@@ -40,10 +40,10 @@ public class ToutanovaTrainerTest extends SimpleTrainerTest {
 		String trainfile = indexes + getResourceFile("trn_sml.tsv");
 		String testfile = indexes + getResourceFile("dev_sml.tsv");
 
-		List<Instance> training_instances = getCopyInstances(Instance.getInstances(new SentenceReader(trainfile)));
+		List<LemmaInstance> training_instances = getCopyInstances(LemmaInstance.getInstances(new SentenceReader(trainfile)));
 		Lemmatizer lemmatizer = trainer.train(training_instances, null);
 
-		List<Instance> instances = Instance.getInstances(new SentenceReader(
+		List<LemmaInstance> instances = LemmaInstance.getInstances(new SentenceReader(
 				testfile));
 		assertAccuracy(lemmatizer, getCopyInstances(instances), 99.1935);
 	}
@@ -52,7 +52,7 @@ public class ToutanovaTrainerTest extends SimpleTrainerTest {
 	public void moderateZeroOrderAlignerPosTest() {
 
 		BackupLemmatizerTrainer trainer = new BackupLemmatizerTrainer();
-		Options options = trainer.getOptions();
+		LemmaOptions options = trainer.getOptions();
 		
 		options.setOption(BackupLemmatizerTrainerOptions.TRAINER_PREF + SimpleLemmatizerTrainerOptions.USE_BACKUP, false);
 		options.setOption(BackupLemmatizerTrainerOptions.BACKUP_PREF + ToutanovaOptions.SEED, 10L);
@@ -82,7 +82,7 @@ public class ToutanovaTrainerTest extends SimpleTrainerTest {
 		LemmatizerGeneratorTrainer simple_trainer = new SimpleLemmatizerTrainer();
 		simple_trainer.getOptions().setOption(SimpleLemmatizerTrainerOptions.HANDLE_UNSEEN, false);
 		simple_trainer.getOptions().setOption(SimpleLemmatizerTrainerOptions.USE_BACKUP, false);
-		simple_trainer.getOptions().setOption(Options.USE_POS, true);
+		simple_trainer.getOptions().setOption(LemmaOptions.USE_POS, true);
 		simple_trainer.getOptions().setOption(SimpleLemmatizerTrainerOptions.ABSTAIN_IF_AMBIGIOUS, true);
 
 		ToutanovaTrainer trainer = new ToutanovaTrainer();
@@ -101,7 +101,7 @@ public class ToutanovaTrainerTest extends SimpleTrainerTest {
 		LemmatizerGeneratorTrainer simple_trainer = new SimpleLemmatizerTrainer();
 		simple_trainer.getOptions().setOption(SimpleLemmatizerTrainerOptions.HANDLE_UNSEEN, false);
 		simple_trainer.getOptions().setOption(SimpleLemmatizerTrainerOptions.USE_BACKUP, false);
-		simple_trainer.getOptions().setOption(Options.USE_POS, true);
+		simple_trainer.getOptions().setOption(LemmaOptions.USE_POS, true);
 		simple_trainer.getOptions().setOption(SimpleLemmatizerTrainerOptions.ABSTAIN_IF_AMBIGIOUS, true);
 		
 		ToutanovaTrainer trainer = new ToutanovaTrainer();

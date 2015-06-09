@@ -6,6 +6,7 @@ package marmot.lemma;
 import java.util.List;
 
 import marmot.lemma.toutanova.EditTreeAligner;
+import marmot.util.FeatUtil;
 import marmot.util.SymbolTable;
 import marmot.util.edit.EditTree;
 import marmot.util.edit.EditTreeBuilder;
@@ -14,7 +15,7 @@ public class LemmaCandidate {
 
 	private double score_;
 	private int[] feature_indexes_;
-	private int[] lemma_chars_;
+	private short[] lemma_chars_;
 	private List<Integer> alignment_;
 	private Integer tree_index_;
 	
@@ -34,13 +35,9 @@ public class LemmaCandidate {
 		feature_indexes_ = feature_indexes;
 	}
 	
-	public int[] getLemmaChars(SymbolTable<Character> char_table_, String lemma, boolean insert) {
+	public short[] getLemmaChars(SymbolTable<Character> char_table, String lemma, boolean insert) {
 		if (lemma_chars_ == null) {
-			lemma_chars_ = new int[lemma.length()];
-			for (int i = 0; i < lemma.length(); i++) {
-				int c = char_table_.toIndex(lemma.charAt(i), -1, insert);
-				lemma_chars_[i] = c;
-			}
+			lemma_chars_ = FeatUtil.getCharIndexes(lemma, char_table, insert);
 		}
 		return lemma_chars_;
 	}

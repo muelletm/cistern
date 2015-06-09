@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import marmot.lemma.Instance;
+import marmot.lemma.LemmaInstance;
 import marmot.lemma.LemmaCandidate;
 import marmot.lemma.LemmaCandidateSet;
 import marmot.lemma.ranker.RankerTrainer.RankerTrainerOptions;
@@ -313,7 +313,7 @@ public class RankerModel implements Serializable {
 		context_.insert = insert;
 		// context_.shape = instance.getInstance().getShape();
 
-		int[] form_chars = instance.getFormChars(char_table_, false);
+		short[] form_chars = instance.getFormChars(char_table_, false);
 
 		for (Map.Entry<String, LemmaCandidate> candidate_pair : set) {
 			context_.list.clear();
@@ -365,7 +365,7 @@ public class RankerModel implements Serializable {
 			}
 
 			if (use_alignment_features_) {
-				int[] lemma_chars = candidate.getLemmaChars(char_table_, lemma,
+				short[] lemma_chars = candidate.getLemmaChars(char_table_, lemma,
 						false);
 
 				List<Integer> alignment = candidate.getAlignment(aligner_,
@@ -415,7 +415,7 @@ public class RankerModel implements Serializable {
 
 	}
 
-	private void addPrefixFeatures(int[] chars) {
+	private void addPrefixFeatures(short[] chars) {
 		encoder_.append(false);
 		for (int i = 0; i < Math.min(chars.length, max_affix_length_); i++) {
 			int c = chars[i];
@@ -426,7 +426,7 @@ public class RankerModel implements Serializable {
 		}
 	}
 
-	private void addSuffixFeatures(int[] chars) {
+	private void addSuffixFeatures(short[] chars) {
 		encoder_.append(true);
 		for (int i = chars.length - 1; i >= Math.max(0, chars.length
 				- max_affix_length_); i--) {
@@ -438,7 +438,7 @@ public class RankerModel implements Serializable {
 		}
 	}
 
-	private void addAffixIndexes(int[] lemma_chars) {
+	private void addAffixIndexes(short[] lemma_chars) {
 		encoder_.append(Features.affix_feature.ordinal(), feature_bits_);
 		addPrefixFeatures(lemma_chars);
 		encoder_.reset();
@@ -448,7 +448,7 @@ public class RankerModel implements Serializable {
 		encoder_.reset();
 	}
 
-	private void addAlignmentIndexes(int[] form_chars, int[] lemma_chars,
+	private void addAlignmentIndexes(short[] form_chars, short[] lemma_chars,
 			List<Integer> alignment) {
 
 		Iterator<Integer> iterator = alignment.iterator();
@@ -470,8 +470,8 @@ public class RankerModel implements Serializable {
 		}
 	}
 
-	private void addAlignmentSegmentIndexes(int[] form_chars,
-			int[] lemma_chars, int input_start, int input_end,
+	private void addAlignmentSegmentIndexes(short[] form_chars,
+			short[] lemma_chars, int input_start, int input_end,
 			int output_start, int output_end) {
 
 		if (isCopySegment(form_chars, lemma_chars, input_start, input_end,
@@ -501,7 +501,7 @@ public class RankerModel implements Serializable {
 		encoder_.reset();
 	}
 
-	private void addWindow(int[] form_chars, int[] lemma_chars,
+	private void addWindow(short[] form_chars, short[] lemma_chars,
 			int input_start, int input_end, int output_start, int output_end) {
 		encoder_.storeState();
 
@@ -531,7 +531,7 @@ public class RankerModel implements Serializable {
 		}
 	}
 
-	private boolean isCopySegment(int[] form_chars, int[] lemma_chars,
+	private boolean isCopySegment(short[] form_chars, short[] lemma_chars,
 			int input_start, int input_end, int output_start, int output_end) {
 		if (input_end - input_start != 1)
 			return false;
@@ -543,7 +543,7 @@ public class RankerModel implements Serializable {
 		return form_chars[input_start] == lemma_chars[output_start];
 	}
 
-	private void addSegment(int[] chars, int start, int end) {
+	private void addSegment(short[] chars, int start, int end) {
 		encoder_.append(end - start, length_bits_);
 
 		for (int i = start; i < end; i++) {
@@ -700,7 +700,7 @@ public class RankerModel implements Serializable {
 		return morph_table_;
 	}
 
-	public boolean isOOV(Instance instance) {
+	public boolean isOOV(LemmaInstance instance) {
 		return form_table_.toIndex(instance.getForm(), -1) == -1;
 	}
 

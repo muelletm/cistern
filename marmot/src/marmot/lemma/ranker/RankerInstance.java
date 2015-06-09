@@ -7,23 +7,24 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import marmot.lemma.Instance;
+import marmot.lemma.LemmaInstance;
 import marmot.lemma.LemmaCandidateGenerator;
 import marmot.lemma.LemmaCandidateSet;
 import marmot.util.Converter;
+import marmot.util.FeatUtil;
 import marmot.util.SymbolTable;
 
 public class RankerInstance {
 
 	public static final int[] EMPTY_ARRAY = {};
 
-	private Instance instance_;
+	private LemmaInstance instance_;
 	private LemmaCandidateSet set_;
-	private int[] form_chars_;
+	private short[] form_chars_;
 	private int pos_index_;
 	private int[] morph_indexes_;
 
-	public RankerInstance(Instance instance, LemmaCandidateSet set) {
+	public RankerInstance(LemmaInstance instance, LemmaCandidateSet set) {
 		instance_ = instance;
 		set_ = set;
 		form_chars_ = null;
@@ -31,7 +32,7 @@ public class RankerInstance {
 		morph_indexes_ = null;
 	}
 
-	public Instance getInstance() {
+	public LemmaInstance getInstance() {
 		return instance_;
 	}
 
@@ -39,14 +40,9 @@ public class RankerInstance {
 		return set_;
 	}
 
-	public int[] getFormChars(SymbolTable<Character> char_table_, boolean insert) {
+	public short[] getFormChars(SymbolTable<Character> char_table_, boolean insert) {
 		if (form_chars_ == null) {
-			String form = instance_.getForm();
-			form_chars_ = new int[form.length()];
-			for (int i = 0; i < form.length(); i++) {
-				int c = char_table_.toIndex(form.charAt(i), -1, insert);
-				form_chars_[i] = c;
-			}
+			form_chars_ = FeatUtil.getCharIndexes(instance_.getForm(), char_table_, insert);
 		}
 		return form_chars_;
 	}
@@ -95,16 +91,16 @@ public class RankerInstance {
 		}
 	}
 
-	public static List<RankerInstance> getInstances(List<Instance> instances,
+	public static List<RankerInstance> getInstances(List<LemmaInstance> instances,
 			List<LemmaCandidateGenerator> generators) {
 		List<RankerInstance> rinstances = new LinkedList<>();
-		for (Instance instance : instances) {
+		for (LemmaInstance instance : instances) {
 			rinstances.add(getInstance(instance, generators));	
 		}
 		return rinstances;
 	}
 
-	public static RankerInstance getInstance(Instance instance,
+	public static RankerInstance getInstance(LemmaInstance instance,
 			List<LemmaCandidateGenerator> generators) {
 		LemmaCandidateSet set = new LemmaCandidateSet();
 		for (LemmaCandidateGenerator generator : generators) {

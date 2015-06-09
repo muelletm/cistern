@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import junit.framework.AssertionFailedError;
-import marmot.lemma.Instance;
+import marmot.lemma.LemmaInstance;
 import marmot.lemma.toutanova.Decoder;
 import marmot.lemma.toutanova.ToutanovaModel;
 import marmot.lemma.toutanova.NbestDecoder;
@@ -32,7 +32,7 @@ public class NbestDecoderTest {
 	public void trainDecodeTest(String trainfile, String devfile, int num_iters, int rank_max) {
 		
 		// Train a standard Toutanova model.
-		List<Instance> train_instances = Instance.getInstances(new SentenceReader(trainfile));
+		List<LemmaInstance> train_instances = LemmaInstance.getInstances(new SentenceReader(trainfile));
 		ToutanovaTrainer trainer = new ToutanovaTrainer();
 
 		ToutanovaLemmatizer lemmatizer = (ToutanovaLemmatizer) trainer.train(train_instances, null);
@@ -49,13 +49,13 @@ public class NbestDecoderTest {
 		NbestDecoder nbest_decoder = new ZeroOrderNbestDecoder(rank_max);
 		nbest_decoder.init(model);
 		
-		List<Instance> test_instances = Instance.getInstances(new SentenceReader(devfile));
+		List<LemmaInstance> test_instances = LemmaInstance.getInstances(new SentenceReader(devfile));
 		
 		int correct = 0;
 		int nbest_correct = 0;
 		int total = 0;
 		
-		for (Instance instance : test_instances) {
+		for (LemmaInstance instance : test_instances) {
 			
 			ToutanovaInstance tinstance = new ToutanovaInstance(instance, null);
 			model.addIndexes(tinstance, false);

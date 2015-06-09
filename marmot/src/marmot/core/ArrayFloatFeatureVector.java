@@ -65,5 +65,5 @@ public class ArrayFloatFeatureVector implements FloatFeatureVector {
 	public int[] getFeatures() {
 		return features_;
 	}
-	
+
 }

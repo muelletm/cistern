@@ -40,5 +40,9 @@ public class DenseArrayFloatFeatureVector implements FloatFeatureVector {
 		}
 		return score;
 	}
+
+	public double[] getValues() {
+		return weights_;
+	}
 	
 }

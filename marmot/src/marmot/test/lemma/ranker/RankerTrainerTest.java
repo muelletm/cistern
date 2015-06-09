@@ -5,10 +5,10 @@ package marmot.test.lemma.ranker;
 
 import java.util.List;
 
-import marmot.lemma.Instance;
+import marmot.lemma.LemmaInstance;
 import marmot.lemma.Lemmatizer;
-import marmot.lemma.Options;
-import marmot.lemma.Result;
+import marmot.lemma.LemmaOptions;
+import marmot.lemma.LemmaResult;
 import marmot.lemma.ranker.RankerTrainer;
 import marmot.lemma.ranker.RankerTrainer.RankerTrainerOptions;
 import marmot.test.lemma.toutanova.SimpleTrainerTest;
@@ -45,7 +45,7 @@ public class RankerTrainerTest extends SimpleTrainerTest {
 //				Apr 22, 2015 3:40:02 PM marmot.lemma.Result logAccuracy
 //				INFORMATION:  73640 /  76704 = 96,0054 (OOV:  23714 /  26505 = 89,4699)
 		
-		trainer.getOptions().setOption(Options.USE_MORPH, false);
+		trainer.getOptions().setOption(LemmaOptions.USE_MORPH, false);
 		trainer.getOptions().setOption(RankerTrainerOptions.USE_HASH_FEATURE_TABLE, true);
 		
 //		INFORMATION:   9501 /   9504 = 99,9684 (Type:  3809 /  3812 = 99,9213)
@@ -96,19 +96,19 @@ public class RankerTrainerTest extends SimpleTrainerTest {
 		
 		
 		
-		List<Instance> instances = Instance.getInstances(PipelineTest.getSentences(trainfile, 100));
+		List<LemmaInstance> instances = LemmaInstance.getInstances(PipelineTest.getSentences(trainfile, 100));
 		
 		System.err.println(instances.size());
 		
 		RankerTrainer trainer = new RankerTrainer();
 		trainer.getOptions().setOption(RankerTrainerOptions.USE_PERCEPTRON, false).setOption(RankerTrainerOptions.QUADRATIC_PENALTY, 0.0);
-		trainer.getOptions().setOption(Options.USE_MORPH, false);
-		trainer.getOptions().setOption(Options.USE_POS, false);
+		trainer.getOptions().setOption(LemmaOptions.USE_MORPH, false);
+		trainer.getOptions().setOption(LemmaOptions.USE_POS, false);
 		
 		Lemmatizer lemmatizer = trainer.train(instances, null);
 	
-		instances = Instance.getInstances(PipelineTest.getSentences(devfile, 100));
-		Result result = Result.test(lemmatizer, instances);
+		instances = LemmaInstance.getInstances(PipelineTest.getSentences(devfile, 100));
+		LemmaResult result = LemmaResult.test(lemmatizer, instances);
 		
 		result.logAccuracy();
 	}
@@ -121,14 +121,14 @@ public class RankerTrainerTest extends SimpleTrainerTest {
 		String devfile = "form-index=1,lemma-index=2,tag-index=4,morph-index=6,res:///marmot/test/morph/tst.txt";
 		
 		trainer.getOptions().setOption(RankerTrainerOptions.USE_PERCEPTRON, false).setOption(RankerTrainerOptions.QUADRATIC_PENALTY, 0.0);
-		trainer.getOptions().setOption(Options.USE_MORPH, true);
+		trainer.getOptions().setOption(LemmaOptions.USE_MORPH, true);
 		
-		List<Instance> instances = Instance.getInstances(PipelineTest.getSentences(trainfile, 100));
+		List<LemmaInstance> instances = LemmaInstance.getInstances(PipelineTest.getSentences(trainfile, 100));
 		
 		Lemmatizer lemmatizer = trainer.train(instances, null);
 	
-		instances = Instance.getInstances(PipelineTest.getSentences(devfile, 100));
-		Result result = Result.test(lemmatizer, instances);
+		instances = LemmaInstance.getInstances(PipelineTest.getSentences(devfile, 100));
+		LemmaResult result = LemmaResult.test(lemmatizer, instances);
 		
 		result.logAccuracy();
 		
