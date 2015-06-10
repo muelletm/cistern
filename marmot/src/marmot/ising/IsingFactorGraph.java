@@ -167,7 +167,6 @@ public class IsingFactorGraph {
 				// generally -1 
 				int n = v.getNeighbors().size() - 2;
 				if (n != 0) {
-					System.out.println( v.getBelief().measure[i]);
 					betheFreeEnergy += n * v.getBelief().measure[i] * Math.log(v.getBelief().measure[i]);
 					
 				}
@@ -370,8 +369,7 @@ public class IsingFactorGraph {
 			
 			
 			for (Integer feat : uf.getFeaturesNegative()) {
-				System.out.println(Arrays.toString(uf.getPotential()));
-				System.out.println("MARGINAL:\t" + this.variables.get(uf.getI()).getBelief().measure[0]);
+			
 				gradient[feat] -= this.variables.get(uf.getI()).getBelief().measure[0];
 			}
 	
