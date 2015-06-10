@@ -75,6 +75,10 @@ public class Analyzer {
 		for (int i = 0; i < this.gradient.length; ++i) {
 			this.gradient[i] = 0.0;
 		}
+		
+	
+		parameters[4] = 1.0;
+		
 		for (IsingFactorGraph ig : this.factorGraphs) {
 			ig.updatePotentials(parameters);
 			ig.featurizedGradient(gradient);

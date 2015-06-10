@@ -47,7 +47,7 @@ public class MorphItReader extends DataReader {
             		this.numVariables = this.tag2Integer.size();
 		            this.tagNames.add(tag);
 		            
-		            if (lines == 2) {
+		            if (lines == 1) {
 		            	break;
 		            }
 		            
