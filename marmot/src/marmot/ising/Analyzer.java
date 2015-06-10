@@ -11,7 +11,7 @@ public class Analyzer {
 	
 	private DataReader dr;
 	private List<Datum> data;
-	private List<IsingFactorGraph> factorGraphs;
+	private List<IsingFactorGraph> trainingFactorGraphs;
 	
 	private UnaryFeatureExtractor ufe;
 	
@@ -21,7 +21,7 @@ public class Analyzer {
 	public Analyzer(DataReader dr) {
 		this.dr = dr;
 		this.data = new LinkedList<Datum>();
-		this.factorGraphs = new LinkedList<IsingFactorGraph>();
+		this.trainingFactorGraphs = new LinkedList<IsingFactorGraph>();
 
 		this.ufe = new UnaryFeatureExtractor(5,5);
 		
@@ -60,8 +60,8 @@ public class Analyzer {
 
 			
 			
-			IsingFactorGraph fg = new IsingFactorGraph(d.getWord(), ufe, dr.numVariables, dr.pairsLst, golden, dr.tagNames);
-			this.factorGraphs.add(fg);
+			IsingFactorGraph fg = new IsingFactorGraph(d.getWord(), ufe, 10, dr.numVariables, dr.pairsLst, golden, dr.tagNames);
+			this.trainingFactorGraphs.add(fg);
 			
 			++counter;
 		}
@@ -78,7 +78,7 @@ public class Analyzer {
 		
 		for (int iter = 0; iter < numIterations; ++iter) {
 			double likelihood = 0.0;
-			for (IsingFactorGraph ig : this.factorGraphs) {
+			for (IsingFactorGraph ig : this.trainingFactorGraphs) {
 				ig.updatePotentials(parameters);
 				ig.featurizedGradient(gradient);
 				likelihood += ig.logLikelihood();
@@ -93,12 +93,14 @@ public class Analyzer {
 		
 	}
 
-	public double logLikelihood() {
-		return 0.0;
-	}
 	
-	public void gradient() {
+	public double decodeTrain() {
+		double accuracy = 0.0;
+		for (IsingFactorGraph ig : this.trainingFactorGraphs) {
+			
+		}
 		
+		return accuracy;
 	}
 	
 	public static void main(String[] args) {

@@ -20,8 +20,9 @@ public class IsingFactorGraph {
 	
 	protected int numParameters;
 	protected UnaryFeatureExtractor ufe;
+	private int inferenceIterations;
 
-	public IsingFactorGraph(String word, UnaryFeatureExtractor ufe, int numVariables, List<Pair<Integer,Integer>> pairwise, List<Integer> golden, List<String> tagNames) {
+	public IsingFactorGraph(String word, UnaryFeatureExtractor ufe, int inferenceIterations, int numVariables, List<Pair<Integer,Integer>> pairwise, List<Integer> golden, List<String> tagNames) {
 		this.numVariables = numVariables;
 		
 		this.variables = new ArrayList<Variable>();
@@ -29,6 +30,7 @@ public class IsingFactorGraph {
 		this.binaryFactors = new ArrayList<BinaryFactor>();
 		
 		this.ufe = ufe;
+		this.inferenceIterations = inferenceIterations;
 		
 		this.golden = golden;
 		
@@ -234,7 +236,7 @@ public class IsingFactorGraph {
 	public List<String> posteriorDecode() {
 		
 		List<String> tags = new LinkedList<String>();
-		this.inference(10, 0.01);
+		this.inference(this.inferenceIterations, 0.01);
 		
 		for (Variable v: this.variables) {
 			Belief b = v.getBelief();
