@@ -1,6 +1,8 @@
 package marmot.analyzer;
 
-public class AnalyzerTag {
+import java.io.Serializable;
+
+public class AnalyzerTag implements Serializable {
 
 	private String pos_tag_;
 	private String morph_tag_;

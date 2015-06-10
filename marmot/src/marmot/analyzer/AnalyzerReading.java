@@ -65,7 +65,7 @@ public class AnalyzerReading {
 		return new LinkedList<>(tags);
 	}
 
-	private AnalyzerTag getTag() {
+	public AnalyzerTag getTag() {
 		return tag_;
 	}
 

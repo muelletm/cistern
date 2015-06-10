@@ -1,5 +1,6 @@
 package marmot.analyzer.simple;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -19,7 +20,7 @@ import marmot.util.FeatUtil;
 import marmot.util.FeatureTable;
 import marmot.util.SymbolTable;
 
-public class SimpleAnalyzerModel {
+public class SimpleAnalyzerModel implements Serializable {
 
 	private SymbolTable<AnalyzerTag> tag_table_;
 	private SymbolTable<String> pos_table_;
@@ -38,7 +39,7 @@ public class SimpleAnalyzerModel {
 	private int sig_bits_;
 	private Encoder encoder_;
 	private FeatureTable feature_table_;
-	private Context context_;
+	transient private Context context_;
 	private FloatHashDictionary dict_;
 
 	private boolean special_signature_ = true;
@@ -84,11 +85,11 @@ public class SimpleAnalyzerModel {
 			init(instance, true);
 		}
 
-		logger.info(String.format("tags: %d %s", tag_table_.size(), tag_table_));
-		logger.info(String.format("pos tags: %d %s", pos_table_.size(),
-				pos_table_));
-		logger.info(String.format("morph tags: %d %s", morph_table_.size(),
-				morph_table_));
+//		logger.info(String.format("tags: %d %s", tag_table_.size(), tag_table_));
+//		logger.info(String.format("pos tags: %d %s", pos_table_.size(),
+//				pos_table_));
+//		logger.info(String.format("morph tags: %d %s", morph_table_.size(),
+//				morph_table_));
 
 		sig_bits_ = Encoder.bitsNeeded(FeatUtil
 				.getMaxSignature(special_signature_));
@@ -96,7 +97,7 @@ public class SimpleAnalyzerModel {
 
 		encoder_ = new Encoder(6);
 		feature_table_ = FeatureTable.StaticMethods.create(use_hash_table_);
-		context_ = new Context();
+		
 
 		for (SimpleAnalyzerInstance instance : instances) {
 			add_features(instance, true);
@@ -107,6 +108,9 @@ public class SimpleAnalyzerModel {
 	}
 
 	private void add_features(SimpleAnalyzerInstance instance, boolean insert) {
+		if (context_ == null) {
+			context_ = new Context();
+		}
 		context_.insert = insert;
 		context_.list.clear();
 

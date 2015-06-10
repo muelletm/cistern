@@ -547,6 +547,7 @@ public class MorphModel extends Model {
 
 	private void addCharIndexes(Word word, String form, boolean insert) {
 		short[] char_indexes = FeatUtil.getCharIndexes(form, char_table_, insert);
+		assert char_indexes != null;
 		for (int index = 0; index < form.length(); index++) {
 			char c = form.charAt(index);
 			if (char_indexes[index] < 0) {

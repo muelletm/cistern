@@ -50,6 +50,10 @@ public class ZeroOrderSumLattice implements SumLattice {
 
 	@Override
 	public List<List<State>> prune() {
+		return prune(log_threshold_);
+	}
+		
+	public List<List<State>> prune(double log_threshold) {
 		init();
 		List<List<State>> candidates = new ArrayList<List<State>>(
 				candidates_.size());
@@ -75,7 +79,7 @@ public class ZeroOrderSumLattice implements SumLattice {
 					is_oracle_state = gold_candidate_indexes_.get(index) == state_index;	
 				}
 				
-				if (score > log_threshold_ || is_oracle_state) {
+				if (score > log_threshold || is_oracle_state) {
 					states.add(state);
 				}
 
