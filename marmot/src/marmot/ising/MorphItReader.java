@@ -45,11 +45,12 @@ public class MorphItReader extends DataReader {
             		}
             		
             		this.numVariables = this.tag2Integer.size();
-		            this.tagNames.add(tag);
+            		
+            		if (!this.tagNames.contains(tag)) {
+            			this.tagNames.add(tag);
+            		}
 		            
-		            if (lines == 10) {
-		            	break;
-		            }
+		           
 		            
 		            ++lines;
 

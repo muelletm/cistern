@@ -16,6 +16,7 @@ public class UnaryFeatureExtractor extends FeatureExtractor {
 	private Map<Pair<Integer,String>, Integer> prefixFeatures;
 	private Map<Pair<Integer,String>, Integer> suffixFeatures;
 
+	private Map<Integer, String> int2Features;
 
 	
 	private int numFeatures = 0;
@@ -29,6 +30,8 @@ public class UnaryFeatureExtractor extends FeatureExtractor {
 		
 		this.prefixFeatures = new HashMap<Pair<Integer,String>,Integer>();
 		this.suffixFeatures = new HashMap<Pair<Integer,String>,Integer>();
+		
+		this.int2Features = new HashMap<Integer,String>();
 
 		
 		setNumFeatures(0);
@@ -49,6 +52,9 @@ public class UnaryFeatureExtractor extends FeatureExtractor {
 					Pair<Integer,String> key = new Pair<>(v, prefix);
 					if (!this.prefixFeatures.containsKey(key)) {
 						this.prefixFeatures.put(key,numFeatures);
+						this.int2Features.put(numFeatures, "" + key + "\t POS");
+						this.int2Features.put(numFeatures + 1, "" + key + "\t NEG");
+
 						numFeatures += 2;
 					}	
 				}
@@ -62,6 +68,9 @@ public class UnaryFeatureExtractor extends FeatureExtractor {
 					Pair<Integer,String> key = new Pair<>(v, suffix);
 					if (!this.suffixFeatures.containsKey(key)) {
 						this.suffixFeatures.put(key,numFeatures);
+						
+						this.int2Features.put(numFeatures, "" + key + "\t POS");
+						this.int2Features.put(numFeatures + 1, "" + key + "\t NEG");
 						numFeatures += 2;
 					}				
 				}
@@ -87,7 +96,7 @@ public class UnaryFeatureExtractor extends FeatureExtractor {
 				
 			}
 		}
-		for (int i = 2; i < this.maxSuffix; ++i) {
+		for (int i = 0; i < this.maxSuffix; ++i) {
 			if (word.length() - i >= 0) {
 				String suffix = word.substring(word.length() - i, word.length());
 		
@@ -145,5 +154,9 @@ public class UnaryFeatureExtractor extends FeatureExtractor {
 
 	public void setNumFeatures(int numFeatures) {
 		this.numFeatures = numFeatures;
+	}
+	
+	public Map<Integer,String> getInt2Feature() {
+		return this.int2Features;
 	}
 }

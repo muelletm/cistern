@@ -37,7 +37,7 @@ public class IsingFactorGraph {
 		// ADD VARIABLES AND UNARY FACTORS
 		for (int i = 0; i < this.numVariables; ++i) {
 			Variable v = new Variable(2,i,tagNames.get(i));
-			UnaryFactor uf = new UnaryFactor(word, 2, i, ufe);
+			UnaryFactor uf = new UnaryFactor(word, tagNames.get(i), 2, i, ufe);
 			
 			// add neighbors to variable
 			v.getNeighbors().add(uf);
@@ -203,7 +203,7 @@ public class IsingFactorGraph {
 			for (UnaryFactor ur : this.unaryFactors) {
 				ur.passMessage();
 			}
-			
+			/*
 			// update binary factors
 			for (BinaryFactor bf : this.binaryFactors)
 			{
@@ -213,7 +213,7 @@ public class IsingFactorGraph {
 			// update variables
 			for (Variable v : this.variables) {
 				v.passMessage();
-			}
+			}*/
 		}
 		
 		for (Variable v : this.variables) {
@@ -346,15 +346,15 @@ public class IsingFactorGraph {
 	 * 
 	 * @return
 	 */
-	public void featurizedGradient(double[] gradient) {
-		this.inference(10, 0.01);
+	public void featurizedGradient(double[] gradient, int numData) {
+		this.inference(this.inferenceIterations, 0.01);
 			
 		for (UnaryFactor uf : this.unaryFactors) {
 			
 			if (this.golden.get(uf.getI()) == 1) {
 				
 				for (Integer feat : uf.getFeaturesPositive()) {
-					gradient[feat] += 1.0;
+					gradient[feat] += 1.0 ;
 				}
 			}
 			
@@ -456,5 +456,13 @@ public class IsingFactorGraph {
 
 	public void setWord(String word) {
 		this.word = word;
+	}
+	
+	public List<Variable> getVariables() {
+		return this.variables;
+	}
+	
+	public List<UnaryFactor> getUnaryFactor() {
+		return this.unaryFactors;
 	}
 }

@@ -20,10 +20,12 @@ public class UnaryFactor extends Factor {
 	private List<Integer> featuresNegative;
 	
 	private String word;
+	private String tag;
 	
 	
-	public UnaryFactor(String word, int size, int i, UnaryFeatureExtractor ufe) {
+	public UnaryFactor(String word, String tag, int size, int i, UnaryFeatureExtractor ufe) {
 		this.word = word;
+		this.tag = tag;
 		this.setSize(size);
 		this.setPotential(new double[this.size]);
 		
@@ -138,4 +140,8 @@ public class UnaryFactor extends Factor {
 		this.featuresPositive = featuresPositive;
 	}
 	
+	public String getTag() {
+		return this.tag;
+	}
+
 }
