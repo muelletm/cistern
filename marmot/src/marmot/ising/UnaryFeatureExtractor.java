@@ -2,6 +2,7 @@ package marmot.ising;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -9,13 +10,13 @@ import org.javatuples.Pair;
 
 public class UnaryFeatureExtractor extends FeatureExtractor {
 
-	
-	
 	private int maxPrefix;
 	private int maxSuffix;
 
-	private Map<String, Integer> prefix2Integer;
-	private Map<String, Integer> suffix2Integer;
+	private Map<Pair<Integer,String>, Integer> prefixFeatures;
+	private Map<Pair<Integer,String>, Integer> suffixFeatures;
+
+
 	
 	private int numFeatures = 0;
 	
@@ -26,8 +27,9 @@ public class UnaryFeatureExtractor extends FeatureExtractor {
 		this.setMaxPrefix(maxPrefix);
 		this.setMaxSuffix(maxSuffix);
 		
-		this.setPrefix2Integer(new HashMap<String, Integer>());
-		this.setSuffix2Integer(new HashMap<String, Integer>());
+		this.prefixFeatures = new HashMap<Pair<Integer,String>,Integer>();
+		this.suffixFeatures = new HashMap<Pair<Integer,String>,Integer>();
+
 		
 		setNumFeatures(0);
 
@@ -43,70 +45,65 @@ public class UnaryFeatureExtractor extends FeatureExtractor {
 			if (i <= word.length()) {
 				String prefix = word.substring(0, i);
 				
-				// suffixes
-				if (!this.prefix2Integer.containsKey(prefix)) {
-					this.prefix2Integer.put(prefix, this.prefix2Integer.size());
+				for (int v = 0; v < this.totalNumVariables; ++v) {
+					Pair<Integer,String> key = new Pair<>(v, prefix);
+					if (!this.prefixFeatures.containsKey(key)) {
+						this.prefixFeatures.put(key,numFeatures);
+						numFeatures += 2;
+					}	
 				}
-				
 			}
 		}
 		for (int i = 0; i < this.maxSuffix; ++i) {
 			if (word.length() - i >= 0) {
 				String suffix = word.substring(word.length() - i, word.length());
-				//prefixes
-				if (!this.suffix2Integer.containsKey(suffix)) {
-					this.suffix2Integer.put(suffix, this.suffix2Integer.size());
+		
+				for (int v = 0; v < this.totalNumVariables; ++v) {
+					Pair<Integer,String> key = new Pair<>(v, suffix);
+					if (!this.suffixFeatures.containsKey(key)) {
+						this.suffixFeatures.put(key,numFeatures);
+						numFeatures += 2;
+					}				
 				}
 				
 			}
 		}		
 
-		int numPrefixes = this.prefix2Integer.size();
-		int numSuffixes = this.suffix2Integer.size();
-		this.numFeatures = this.startFeature + numSuffixes * this.totalNumVariables * 4;
 	}
 	
 	public Pair<List<Integer>, List<Integer>> getFeatures(int variableId, String word) {
-		int numSuffixes = this.suffix2Integer.size();
-		int numPrefixes = this.prefix2Integer.size();
-		
-		int posPrefixOffset = this.startFeature;
-		int negPrefixOffset = this.startFeature + numPrefixes * this.totalNumVariables;
-		int posSuffixOffset = this.startFeature + numSuffixes * this.totalNumVariables * 2;
-		int negSuffixOffset = this.startFeature + numSuffixes * this.totalNumVariables * 3;
-		
-		
-		List<Integer> listPos = new ArrayList<Integer>();
-		List<Integer> listNeg = new ArrayList<Integer>();
-
+		List<Integer> featuresPos = new LinkedList<Integer>();
+		List<Integer> featuresNeg = new LinkedList<Integer>();
 		
 		for (int i = 0; i < this.maxPrefix; ++i) {
 			if (i <= word.length()) {
 				String prefix = word.substring(0, i);
-				int prefixId = this.prefix2Integer.get(prefix) + variableId;
-				listPos.add(posPrefixOffset + prefixId);
-				listNeg.add(negPrefixOffset + prefixId);
-
+				
+				Pair<Integer,String> key = new Pair<>(variableId, prefix);
+					
+				int feat = this.prefixFeatures.get(key);
+				featuresPos.add(feat);
+				featuresNeg.add(feat + 1);
+				
 			}
 		}
-		for (int i = 0; i < this.maxSuffix; ++i) {
+		for (int i = 1; i < this.maxSuffix; ++i) {
 			if (word.length() - i >= 0) {
 				String suffix = word.substring(word.length() - i, word.length());
-				int suffixId = this.suffix2Integer.get(suffix) + variableId;
 		
-				listPos.add(posSuffixOffset + suffixId);
-				listNeg.add(negSuffixOffset + suffixId);
-
+				
+				Pair<Integer,String> key = new Pair<>(variableId, suffix);
+					
+				int feat = this.suffixFeatures.get(key);
+				featuresPos.add(feat);
+				featuresNeg.add(feat + 1);
+				
+			
 			}
-		}
-		return new Pair<>(listPos, listNeg);
+		}		
+		return new Pair<>(featuresPos, featuresNeg);
 	
 	}
-
-	public int numAtomicFeatures() {
-		return this.prefix2Integer.size() + this.suffix2Integer.size();
-	}
-	
 	
 	public int getStartFeature() {
 		return startFeature;
@@ -140,22 +137,6 @@ public class UnaryFeatureExtractor extends FeatureExtractor {
 
 	public void setMaxPrefix(int maxPrefix) {
 		this.maxPrefix = maxPrefix;
-	}
-
-	public Map<String, Integer> getSuffix2Integer() {
-		return suffix2Integer;
-	}
-
-	public void setSuffix2Integer(Map<String, Integer> suffix2Integer) {
-		this.suffix2Integer = suffix2Integer;
-	}
-
-	public Map<String, Integer> getPrefix2Integer() {
-		return prefix2Integer;
-	}
-
-	public void setPrefix2Integer(Map<String, Integer> prefix2Integer) {
-		this.prefix2Integer = prefix2Integer;
 	}
 
 	public int getNumFeatures() {
