@@ -24,7 +24,7 @@ public class Analyzer {
 		this.data = new LinkedList<Datum>();
 		this.trainingFactorGraphs = new LinkedList<IsingFactorGraph>();
 
-		this.ufe = new UnaryFeatureExtractor(5,5);
+		this.ufe = new UnaryFeatureExtractor(0,5);
 		
 		
 		System.out.println("...num variables:\t" + dr.numVariables);
