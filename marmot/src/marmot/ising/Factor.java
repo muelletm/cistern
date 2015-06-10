@@ -11,7 +11,7 @@ public abstract class Factor {
 		//messages 
 		protected List<Message> messages;
 
-		
+		public abstract void computeFactorBelief();
 		public abstract void passMessage();
 		public abstract void renormalize();
 		

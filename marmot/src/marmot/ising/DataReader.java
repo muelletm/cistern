@@ -13,9 +13,12 @@ public class DataReader {
 	
 	
 	protected int numVariables;
-	protected Map<String,Integer> atoms2Integer;
-	protected Map<Integer,String> integer2Atoms;
-
+	protected Map<String,Integer> tag2Integer;
+	protected Map<Integer,String> integer2Tag;
+	protected Map<String,Set<String>> word2Tags;
+	protected Map<String,Set<Pair<String,String>>> word2LemmaTag;
+	
+	
 	protected List<Datum> data;
 	protected Set<Pair<Integer, Integer>> pairs;
 	protected List<String> tagNames;
@@ -26,8 +29,11 @@ public class DataReader {
 	
 	public DataReader() {
 		this.numVariables = 0;
-		this.atoms2Integer = new HashMap<String,Integer>();
-		this.integer2Atoms = new HashMap<Integer,String>();
+		this.tag2Integer = new HashMap<String,Integer>();
+		this.integer2Tag = new HashMap<Integer,String>();
+		
+		this.word2Tags = new HashMap<String,Set<String>>();
+		this.word2LemmaTag = new HashMap<String,Set<Pair<String,String>>>();
 
 		this.data = new ArrayList<Datum>();
 		this.pairs = new HashSet<Pair<Integer, Integer>>();
