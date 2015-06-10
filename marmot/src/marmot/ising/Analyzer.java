@@ -75,8 +75,9 @@ public class Analyzer {
 		for (IsingFactorGraph ig : this.factorGraphs) {
 			ig.updatePotentials(parameters);
 			ig.featurizedGradient(gradient);
-			System.out.println(Arrays.toString(gradient));
-			System.out.println(Arrays.toString(ig.finiteDifference(parameters, 0.01)));
+			System.out.println("GRADIENT:\t" + Arrays.toString(gradient));
+			System.out.println("FINITE DIFFERENCE:\t" + Arrays.toString(ig.finiteDifference(parameters, 0.01)));
+			System.exit(0);
 		}
 		
 	}

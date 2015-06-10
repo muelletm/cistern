@@ -69,13 +69,17 @@ public class UnaryFactor extends Factor {
 		
 		this.potential[0] = 0.0;
 		for (Integer feat : this.featuresNegative) {
-			this.potential[0] += Math.exp(parameters[feat]);
+			this.potential[0] += parameters[feat];
 		}
 		
 		this.potential[1] = 0.0;
 		for (Integer feat : this.featuresPositive) {
-			this.potential[1] += Math.exp(parameters[feat]);
+			this.potential[1] += parameters[feat];
 		}
+		
+		this.potential[0] = Math.exp(this.potential[0]);
+		this.potential[1] = Math.exp(this.potential[1]);
+
 	}
 	
 	@Override

@@ -85,6 +85,8 @@ public class UnaryFeatureExtractor extends FeatureExtractor {
 				listNeg.add(negPrefixOffset + prefixId);
 
 			}
+		}
+		for (int i = 0; i < this.maxSuffix; ++i) {
 			if (word.length() - i >= 0) {
 				String suffix = word.substring(word.length() - i, word.length());
 				int suffixId = this.suffix2Integer.get(suffix);
