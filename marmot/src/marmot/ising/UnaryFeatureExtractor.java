@@ -87,7 +87,7 @@ public class UnaryFeatureExtractor extends FeatureExtractor {
 				
 			}
 		}
-		for (int i = 1; i < this.maxSuffix; ++i) {
+		for (int i = 2; i < this.maxSuffix; ++i) {
 			if (word.length() - i >= 0) {
 				String suffix = word.substring(word.length() - i, word.length());
 		
