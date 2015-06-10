@@ -2,6 +2,7 @@ package marmot.ising;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -67,7 +68,8 @@ public class Analyzer {
 		}
 
 		train(1000,0.01);
-		
+		double accuracy = decodeTrain();
+		System.out.println("...train accuracy:\t" + accuracy);
 	}
 
 	public void train(int numIterations, double eta) {
@@ -95,12 +97,36 @@ public class Analyzer {
 
 	
 	public double decodeTrain() {
-		double accuracy = 0.0;
+		double correct = 0.0;
+		int total = 0;
 		for (IsingFactorGraph ig : this.trainingFactorGraphs) {
+			List<String> decoded = ig.posteriorDecode();
+			List<String> golden = new LinkedList<String>();
 			
+			int counter = 0;
+			for (Integer g : ig.golden) {
+				
+				if (g == 1) {
+					String tag = this.dr.integer2Tag.get(counter);
+					golden.add(tag);
+				}
+				++counter;
+			}
+			
+			Collections.sort(decoded);
+			Collections.sort(golden);
+			
+			if (decoded.equals(golden)) {
+				correct += 1;
+			} else {
+				System.out.println("...word:\t" + ig.getWord());
+				System.out.println("...predicted:\t" + decoded);
+				System.out.println("...golden:\t" + golden);
+			}
+			total += 1;
 		}
 		
-		return accuracy;
+		return correct / total;
 	}
 	
 	public static void main(String[] args) {

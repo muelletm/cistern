@@ -28,7 +28,7 @@ public class IsingFactorGraph {
 		this.variables = new ArrayList<Variable>();
 		this.unaryFactors = new ArrayList<UnaryFactor>();
 		this.binaryFactors = new ArrayList<BinaryFactor>();
-		
+		this.word = word;
 		this.ufe = ufe;
 		this.inferenceIterations = inferenceIterations;
 		
@@ -448,5 +448,13 @@ public class IsingFactorGraph {
 		}
 		
 		return gradient;
+	}
+
+	public String getWord() {
+		return word;
+	}
+
+	public void setWord(String word) {
+		this.word = word;
 	}
 }
