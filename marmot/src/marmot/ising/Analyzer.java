@@ -23,7 +23,7 @@ public class Analyzer {
 		this.data = new LinkedList<Datum>();
 		this.factorGraphs = new LinkedList<IsingFactorGraph>();
 
-		this.ufe = new UnaryFeatureExtractor(0,4);
+		this.ufe = new UnaryFeatureExtractor(5,5);
 		
 		
 		System.out.println("...num variables:\t" + dr.numVariables);
@@ -66,27 +66,29 @@ public class Analyzer {
 			++counter;
 		}
 
-		train();
+		train(1000,0.01);
 		
 	}
 
-	public void train() {
+	public void train(int numIterations, double eta) {
 		// train
 		for (int i = 0; i < this.gradient.length; ++i) {
 			this.gradient[i] = 0.0;
 		}
 		
-	
-		for (int i = 0; i < this.parameters.length; ++i) {
-			this.parameters[i] = Math.random();
-		}
-		for (IsingFactorGraph ig : this.factorGraphs) {
-			ig.updatePotentials(parameters);
-			ig.featurizedGradient(gradient);
-			System.out.println("GRADIENT:\t" + Arrays.toString(gradient));
-			System.out.println("FINITE DIFFERENCE:\t" + Arrays.toString(ig.finiteDifference(parameters, 0.01)));
-			System.out.println(Numerics.approximatelyEqual(gradient, ig.finiteDifference(parameters, 0.01), 0.01));
-			System.exit(0);
+		for (int iter = 0; iter < numIterations; ++iter) {
+			double likelihood = 0.0;
+			for (IsingFactorGraph ig : this.factorGraphs) {
+				ig.updatePotentials(parameters);
+				ig.featurizedGradient(gradient);
+				likelihood += ig.logLikelihood();
+			}
+			System.out.println("...likelihood:\t" + likelihood);
+			// descent
+			for (int i = 0; i < this.gradient.length; ++i) {
+				this.parameters[i] += eta * this.gradient[i];
+				this.gradient[i] = 0.0;
+			}
 		}
 		
 	}
