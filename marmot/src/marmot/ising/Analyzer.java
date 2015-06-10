@@ -77,8 +77,9 @@ public class Analyzer {
 		}
 		
 	
-		parameters[4] = Math.log(2);
-		
+		for (int i = 0; i < this.parameters.length; ++i) {
+			this.parameters[i] = Math.random();
+		}
 		for (IsingFactorGraph ig : this.factorGraphs) {
 			ig.updatePotentials(parameters);
 			ig.featurizedGradient(gradient);

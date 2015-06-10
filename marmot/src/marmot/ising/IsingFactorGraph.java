@@ -260,14 +260,10 @@ public class IsingFactorGraph {
 		 // sum over unary factors
 		for (UnaryFactor uf : this.unaryFactors) {
 			int value = this.golden.get(uf.getI());
-			System.out.println("POTENTIAL VALUE:\t" + uf.potential[value]);
 			configurationScore *= uf.potential[value];
 
 			
 		}
-		System.out.println("CONFIGURATION SCORE:\t" + configurationScore);
-		System.out.println("BETHE:\t" + logZ_B);
-		System.out.println("APPROXIMATE Z:\t" + this.approximateZ());
 
 		 /*
 		 // sum over binary factors
@@ -294,14 +290,11 @@ public class IsingFactorGraph {
 			this.updatePotentials(parameters);
 			this.inference(10, 1.0);
 			double val1 = this.logLikelihood();
-			System.out.println("VAL1:\t" + val1);
 			parameters[i] -= 2 * epsilon;
 			this.updatePotentials(parameters);
 			this.inference(10, 1.0);
 
 			double val2 = this.logLikelihood();
-			System.out.println("VAL2:\t" + val2);
-
 
 			gradient[i] = (val1 - val2) / (2 * epsilon);
 			
@@ -365,8 +358,7 @@ public class IsingFactorGraph {
 			}
 			
 			for (Integer feat : uf.getFeaturesPositive()) {
-				System.out.println("FEAT:\t" + feat + "\t" + this.variables.get(uf.getI()).getBelief().measure[0]);
-				gradient[feat] -= this.variables.get(uf.getI()).getBelief().measure[0];
+				gradient[feat] -= this.variables.get(uf.getI()).getBelief().measure[1];
 			}
 
 			
@@ -379,8 +371,8 @@ public class IsingFactorGraph {
 			
 			for (Integer feat : uf.getFeaturesNegative()) {
 				System.out.println(Arrays.toString(uf.getPotential()));
-				System.out.println("MARGINAL:\t" + this.variables.get(uf.getI()).getBelief().measure[1]);
-				gradient[feat] -= this.variables.get(uf.getI()).getBelief().measure[1];
+				System.out.println("MARGINAL:\t" + this.variables.get(uf.getI()).getBelief().measure[0]);
+				gradient[feat] -= this.variables.get(uf.getI()).getBelief().measure[0];
 			}
 	
 		}
