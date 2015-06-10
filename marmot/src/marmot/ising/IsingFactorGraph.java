@@ -166,7 +166,7 @@ public class IsingFactorGraph {
 				// -2 to get rid of unary factor
 				// generally -1 
 				int n = v.getNeighbors().size() - 2;
-				if (n > 0) {
+				if (n != 0) {
 					betheFreeEnergy += n * v.getBelief().measure[i] * Math.log(v.getBelief().measure[i]);
 					
 				}
