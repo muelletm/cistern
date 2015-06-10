@@ -170,11 +170,13 @@ public class IsingFactorGraph {
 					betheFreeEnergy += n * v.getBelief().measure[i] * Math.log(v.getBelief().measure[i]);
 					
 				}
-				betheFreeEnergy += v.getBelief().measure[i] * Math.log(uf.potential[i]);
+				//betheFreeEnergy += v.getBelief().measure[i] * Math.log(uf.potential[i]);
 				
 				
 			}
 		}
+		System.out.println("BETHE:\t" + betheFreeEnergy);
+		System.exit(0);
 		return betheFreeEnergy;
 	}
 	

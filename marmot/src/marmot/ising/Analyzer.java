@@ -77,7 +77,7 @@ public class Analyzer {
 		}
 		
 	
-		parameters[4] = 0.1;
+		parameters[4] = Math.log(2);
 		
 		for (IsingFactorGraph ig : this.factorGraphs) {
 			ig.updatePotentials(parameters);
