@@ -1,6 +1,7 @@
 package marmot.ising;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,12 +13,15 @@ public class Analyzer {
 	
 	private UnaryFeatureExtractor ufe;
 	
+	private double[] parameters;
+	private double[] gradient;
+	
 	public Analyzer(DataReader dr) {
 		this.dr = dr;
 		this.data = new LinkedList<Datum>();
 		this.factorGraphs = new LinkedList<IsingFactorGraph>();
 
-		this.ufe = new UnaryFeatureExtractor(5,5);
+		this.ufe = new UnaryFeatureExtractor(0,2);
 		
 		
 		System.out.println("...num variables:\t" + dr.numVariables);
@@ -26,8 +30,19 @@ public class Analyzer {
 		int counter = 0;
 		int multiple = 0;
 		for (Datum d : dr.data) {
-			
-			//System.out.println(counter);
+			ufe.extract(d.getWord());
+		}
+		
+		ufe.setStartFeature(0);
+		ufe.setTotalNumVariables(dr.numVariables);
+	
+		
+		System.out.println("...num parameters:\t" + ufe.getNumFeatures());
+		this.parameters = new double[ufe.getNumFeatures()];
+		this.gradient = new double[ufe.getNumFeatures()];
+		
+		for (Datum d : dr.data) {
+			System.out.println(counter + "\t" + d.getWord() + "\t" + d.getTag().size());
 			
 			ArrayList<Integer> golden = new ArrayList<Integer>();
 			for (int i = 0; i < dr.numVariables; ++i) {
@@ -41,18 +56,30 @@ public class Analyzer {
 				multiple += 1;
 
 			
-			ufe.extract(d.getWord());
 			
-			
-			IsingFactorGraph fg = new IsingFactorGraph(dr.numVariables, dr.pairsLst, golden, dr.tagNames);
+			IsingFactorGraph fg = new IsingFactorGraph(d.getWord(), ufe, dr.numVariables, dr.pairsLst, golden, dr.tagNames);
 			this.factorGraphs.add(fg);
 			
 			++counter;
 		}
-		System.out.println("DONE");
-		System.out.println("MULTIPLE:\t" + multiple);
+
+		train();
+		
 	}
 
+	public void train() {
+		// train
+		for (int i = 0; i < this.gradient.length; ++i) {
+			this.gradient[i] = 0.0;
+		}
+		for (IsingFactorGraph ig : this.factorGraphs) {
+			ig.updatePotentials(parameters);
+			ig.featurizedGradient(gradient);
+			System.out.println(Arrays.toString(gradient));
+			System.out.println(Arrays.toString(ig.finiteDifference(parameters, 0.01)));
+		}
+		
+	}
 
 	public double logLikelihood() {
 		return 0.0;

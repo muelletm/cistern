@@ -43,6 +43,13 @@ public class BinaryFactor extends Factor {
 		
 		this.setMessageIds(new ArrayList<Integer>());
 		this.setMessages(new ArrayList<Message>());
+		
+		
+		for (int one = 0; one < this.size1; ++one) {
+			for (int two = 0; two< this.size2; ++two) {
+				this.potential[one][two] = 1.0;
+			}
+		}
 	}
 	
 	

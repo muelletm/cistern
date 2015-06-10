@@ -15,6 +15,7 @@ public class MorphItReader extends DataReader {
 	
 	public MorphItReader(String fileName) {
 		super();
+		int lines = 0;
 		System.out.println("...reading in:\t" + fileName);
 		try {
 			
@@ -45,6 +46,12 @@ public class MorphItReader extends DataReader {
             		
             		this.numVariables = this.tag2Integer.size();
 		            this.tagNames.add(tag);
+		            
+		            if (lines == 2) {
+		            	break;
+		            }
+		            
+		            ++lines;
 
 	            }
 	        }
@@ -69,7 +76,7 @@ public class MorphItReader extends DataReader {
 					int int2 = this.tag2Integer.get(tag2);
 					
 					if (int1 != int2) {
-						this.pairs.add(new Pair<>(int1,int2));
+						//this.pairs.add(new Pair<>(int1,int2));
 					}
 				}
 			}

@@ -9,6 +9,7 @@ import org.javatuples.Pair;
 
 public class IsingFactorGraph {
 	
+	private String word;
 	private int numVariables;
 
 	protected List<Variable> variables;
@@ -18,21 +19,23 @@ public class IsingFactorGraph {
 	protected List<Integer> golden;
 	
 	protected int numParameters;
-	
+	protected UnaryFeatureExtractor ufe;
 
-	public IsingFactorGraph(int numVariables, List<Pair<Integer,Integer>> pairwise, List<Integer> golden, List<String> tagNames) {
+	public IsingFactorGraph(String word, UnaryFeatureExtractor ufe, int numVariables, List<Pair<Integer,Integer>> pairwise, List<Integer> golden, List<String> tagNames) {
 		this.numVariables = numVariables;
 		
 		this.variables = new ArrayList<Variable>();
 		this.unaryFactors = new ArrayList<UnaryFactor>();
 		this.binaryFactors = new ArrayList<BinaryFactor>();
 		
+		this.ufe = ufe;
+		
 		this.golden = golden;
 		
 		// ADD VARIABLES AND UNARY FACTORS
 		for (int i = 0; i < this.numVariables; ++i) {
 			Variable v = new Variable(2,i,tagNames.get(i));
-			UnaryFactor uf = new UnaryFactor(2,i);
+			UnaryFactor uf = new UnaryFactor(word, 2, i, ufe);
 			
 			// add neighbors to variable
 			v.getNeighbors().add(uf);
@@ -63,12 +66,10 @@ public class IsingFactorGraph {
 			v1.getMessageIds().add(0);
 			bf.getMessages().add(new Message(2));
 
-			
 			v2.getNeighbors().add(bf);
 			v2.getMessageIds().add(1);
 			bf.getMessages().add(new Message(2));
 
-			
 			// add neighbors to factor
 			bf.getNeighbors().add(v1);
 			bf.getMessageIds().add(v1.getMessages().size());
@@ -84,6 +85,7 @@ public class IsingFactorGraph {
 		
 		this.numParameters = 2 * this.unaryFactors.size() + 4 * this.binaryFactors.size();
 
+		
 	}
 	
 	/**
@@ -273,7 +275,9 @@ public class IsingFactorGraph {
 
 
 		}
-		//System.out.println("CONFIGURATION SCORE:\t" + configurationScore);
+		System.out.println("CONFIGURATION SCORE:\t" + configurationScore);
+		System.out.println("LOG Z:\t" + logZ_B);
+
 		return Math.log(configurationScore) - logZ_B;
 	}
 	
@@ -284,12 +288,12 @@ public class IsingFactorGraph {
 	public double[] finiteDifference(double[] parameters, double epsilon) {
 		double[] gradient = new double[parameters.length];
 		
-		for (int i = 0; i < this.numParameters; ++i) {
+		for (int i = 0; i < parameters.length; ++i) {
 			parameters[i] += epsilon;
 			this.updatePotentials(parameters);
 			this.inference(10, 1.0);
 			double val1 = this.logLikelihood();
-		
+			System.out.println("Val1:\t" + val1);
 			parameters[i] -= 2 * epsilon;
 			this.updatePotentials(parameters);
 			this.inference(10, 1.0);
@@ -304,7 +308,7 @@ public class IsingFactorGraph {
 		return gradient;
 	}
 	
-	public void updatePotentials(double[] parameters) {
+	public void updatePotentials2(double[] parameters) {
 		int counter = 0;
 		for (UnaryFactor uf : this.unaryFactors) {
 			uf.setPotential(0, Math.exp(parameters[counter]));
@@ -332,6 +336,49 @@ public class IsingFactorGraph {
 			
 		}
 	}
+	
+	public void updatePotentials(double[] parameters) {
+		for (UnaryFactor uf : this.unaryFactors) {
+			uf.updatePotential(parameters);
+		}
+	}
+	
+	
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public void featurizedGradient(double[] gradient) {
+		this.inference(10, 0.01);
+			
+		for (UnaryFactor uf : this.unaryFactors) {
+			
+			if (this.golden.get(uf.getI()) == 0) {
+				
+				for (Integer feat : uf.getFeaturesPositive()) {
+					gradient[feat] += 1.0;
+				}
+			}
+			
+			for (Integer feat : uf.getFeaturesPositive()) {
+				gradient[feat] -= this.variables.get(uf.getI()).getBelief().measure[0];
+			}
+
+			if (this.golden.get(uf.getI()) == 1) {
+				for (Integer feat : uf.getFeaturesNegative()) {	
+					gradient[feat] += 1.0;
+				}
+			}
+			
+			
+			for (Integer feat : uf.getFeaturesNegative()) {
+				gradient[feat] -= this.variables.get(uf.getI()).getBelief().measure[0];
+			}
+	
+		}
+	}
+		
 	
 	/**
 	 * 
