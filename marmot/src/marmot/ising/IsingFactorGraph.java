@@ -345,7 +345,7 @@ public class IsingFactorGraph {
 			
 		for (UnaryFactor uf : this.unaryFactors) {
 			
-			if (this.golden.get(uf.getI()) == 0) {
+			if (this.golden.get(uf.getI()) == 1) {
 				
 				for (Integer feat : uf.getFeaturesPositive()) {
 					gradient[feat] += 1.0;
@@ -357,8 +357,8 @@ public class IsingFactorGraph {
 				gradient[feat] -= this.variables.get(uf.getI()).getBelief().measure[0];
 			}
 
-			/*
-			if (this.golden.get(uf.getI()) == 1) {
+			
+			if (this.golden.get(uf.getI()) == 0) {
 				for (Integer feat : uf.getFeaturesNegative()) {	
 					gradient[feat] += 1.0;
 				}
@@ -367,7 +367,7 @@ public class IsingFactorGraph {
 			
 			for (Integer feat : uf.getFeaturesNegative()) {
 				gradient[feat] -= this.variables.get(uf.getI()).getBelief().measure[1];
-			}*/
+			}
 	
 		}
 	}

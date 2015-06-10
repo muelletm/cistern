@@ -59,8 +59,11 @@ public class UnaryFeatureExtractor extends FeatureExtractor {
 				}
 				
 			}
-		}
-		this.numFeatures = this.prefix2Integer.size() + this.suffix2Integer.size();
+		}		
+
+		int numPrefixes = this.prefix2Integer.size();
+		int numSuffixes = this.suffix2Integer.size();
+		this.numFeatures = this.startFeature + numSuffixes * this.totalNumVariables * 4;
 	}
 	
 	public Pair<List<Integer>, List<Integer>> getFeatures(int variableId, String word) {
@@ -69,8 +72,9 @@ public class UnaryFeatureExtractor extends FeatureExtractor {
 		
 		int posPrefixOffset = this.startFeature;
 		int negPrefixOffset = this.startFeature + numPrefixes * this.totalNumVariables;
-		int posSuffixOffset = this.startFeature + numPrefixes * this.totalNumVariables * 2;
-		int negSuffixOffset = this.startFeature + numPrefixes * this.totalNumVariables * 3;
+		int posSuffixOffset = this.startFeature + numSuffixes * this.totalNumVariables * 2;
+		int negSuffixOffset = this.startFeature + numSuffixes * this.totalNumVariables * 3;
+		
 		
 		List<Integer> listPos = new ArrayList<Integer>();
 		List<Integer> listNeg = new ArrayList<Integer>();
@@ -79,8 +83,7 @@ public class UnaryFeatureExtractor extends FeatureExtractor {
 		for (int i = 0; i < this.maxPrefix; ++i) {
 			if (i <= word.length()) {
 				String prefix = word.substring(0, i);
-				int prefixId = this.prefix2Integer.get(prefix);
-				
+				int prefixId = this.prefix2Integer.get(prefix) + variableId;
 				listPos.add(posPrefixOffset + prefixId);
 				listNeg.add(negPrefixOffset + prefixId);
 
@@ -89,8 +92,8 @@ public class UnaryFeatureExtractor extends FeatureExtractor {
 		for (int i = 0; i < this.maxSuffix; ++i) {
 			if (word.length() - i >= 0) {
 				String suffix = word.substring(word.length() - i, word.length());
-				int suffixId = this.suffix2Integer.get(suffix);
-				
+				int suffixId = this.suffix2Integer.get(suffix) + variableId;
+		
 				listPos.add(posSuffixOffset + suffixId);
 				listNeg.add(negSuffixOffset + suffixId);
 

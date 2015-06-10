@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import marmot.util.Numerics;
+
 public class Analyzer {
 	
 	private DataReader dr;
@@ -21,7 +23,7 @@ public class Analyzer {
 		this.data = new LinkedList<Datum>();
 		this.factorGraphs = new LinkedList<IsingFactorGraph>();
 
-		this.ufe = new UnaryFeatureExtractor(0,2);
+		this.ufe = new UnaryFeatureExtractor(0,1);
 		
 		
 		System.out.println("...num variables:\t" + dr.numVariables);
@@ -29,12 +31,13 @@ public class Analyzer {
 
 		int counter = 0;
 		int multiple = 0;
+		ufe.setStartFeature(0);
+		ufe.setTotalNumVariables(dr.numVariables);
 		for (Datum d : dr.data) {
 			ufe.extract(d.getWord());
 		}
 		
-		ufe.setStartFeature(0);
-		ufe.setTotalNumVariables(dr.numVariables);
+	
 	
 		
 		System.out.println("...num parameters:\t" + ufe.getNumFeatures());
@@ -77,6 +80,7 @@ public class Analyzer {
 			ig.featurizedGradient(gradient);
 			System.out.println("GRADIENT:\t" + Arrays.toString(gradient));
 			System.out.println("FINITE DIFFERENCE:\t" + Arrays.toString(ig.finiteDifference(parameters, 0.01)));
+			System.out.println(Numerics.approximatelyEqual(gradient, ig.finiteDifference(parameters, 0.01), 0.01));
 			System.exit(0);
 		}
 		
