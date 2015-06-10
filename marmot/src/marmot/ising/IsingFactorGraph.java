@@ -171,7 +171,7 @@ public class IsingFactorGraph {
 					
 				}
 				betheFreeEnergy += v.getBelief().measure[i] * Math.log(uf.potential[i]);
-
+				
 				
 			}
 		}
