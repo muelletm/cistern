@@ -9,16 +9,19 @@ import marmot.analyzer.Analyzer;
 import marmot.analyzer.AnalyzerInstance;
 import marmot.analyzer.AnalyzerReading;
 import marmot.analyzer.AnalyzerTag;
+import marmot.core.FeatureVector;
 import marmot.core.State;
 import marmot.core.lattice.ZeroOrderSumLattice;
 import marmot.morph.MorphModel;
 import marmot.morph.MorphTagger;
+import marmot.morph.MorphWeightVector;
 import marmot.morph.Sentence;
 import marmot.morph.Word;
 import marmot.util.SymbolTable;
 
 public class TaggerAnalyzer implements Analyzer {
 
+	private static final long serialVersionUID = 1L;
 	private MorphTagger tagger_;
 	private double log_threshold_;
 
@@ -56,6 +59,24 @@ public class TaggerAnalyzer implements Analyzer {
 		}
 		
 		return readings;
+	}
+
+	@Override
+	public String represent(AnalyzerInstance instance) {
+		MorphModel model = (MorphModel) tagger_.getModel();
+		Word word = new Word(instance.getForm(), null, null);
+		model.addIndexes(word, false);
+		Sentence sentence = new Sentence(Collections.singletonList(word));
+
+		MorphWeightVector weights = (MorphWeightVector) tagger_.getWeightVector();
+		
+		FeatureVector vector = weights.extractStateFeatures(sentence, 0);
+		return vector.toString();
+	}
+
+	@Override
+	public int getNumTags() {
+		throw new UnsupportedOperationException();
 	}
 
 }

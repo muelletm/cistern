@@ -6,6 +6,14 @@ package marmot.core;
 import java.util.Arrays;
 
 public class FeatureVector {
+	@Override
+	public String toString() {
+		return "[features_=" + Arrays.toString(features_)
+				+ ", length_=" + length_ + ", is_state_=" + is_state_
+				+ ", concat_=" + concat_ + ", sub_vector_=" + sub_vector_
+				+ ", float_vector_=" + float_vector_ + "]";
+	}
+
 	private int[] features_;
 
 	private int length_;

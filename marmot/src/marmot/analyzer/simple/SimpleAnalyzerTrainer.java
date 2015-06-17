@@ -13,20 +13,41 @@ import cc.mallet.optimize.Optimizable.ByGradientValue;
 import marmot.analyzer.Analyzer;
 import marmot.analyzer.AnalyzerInstance;
 import marmot.analyzer.AnalyzerReading;
-import marmot.analyzer.AnalyzerResult;
 import marmot.analyzer.AnalyzerTag;
 import marmot.analyzer.AnalyzerTrainer;
+import marmot.analyzer.simple.SimpleAnalyzer.Mode;
 import marmot.morph.MorphDictionaryOptions;
-import marmot.util.Sys;
 
 public class SimpleAnalyzerTrainer extends AnalyzerTrainer {
 
+	private Mode train_mode_;
+	private Mode tag_mode_;
+	private double penalty_;
+	public final String MODE = "mode";
+	private final String PENALTY = "penalty";
+
 	public SimpleAnalyzerTrainer() {
+		
 	}
 	
 	@Override
 	public Analyzer train(Collection<AnalyzerInstance> instances) {
+		boolean use_simple_optimizer = false;
+		tag_mode_ = Mode.binary;
+		train_mode_ = Mode.binary;
+		if (options_.containsKey(MODE)) {
+			Mode mode = Mode.valueOf(options_.get(MODE));
+			tag_mode_ = mode;
+			train_mode_ = mode;
+		}
+		System.err.format("Modes: %s / %s\n", tag_mode_, train_mode_);
 		
+		penalty_ = 1.0;	
+		if (options_.containsKey(PENALTY)) {
+			penalty_ = Double.valueOf(options_.get(PENALTY));
+		}
+		System.err.format("Penalty: %g\n", penalty_);
+				
 		Collection<SimpleAnalyzerInstance> simple_instances = new LinkedList<>(); 
 		for (AnalyzerInstance instance : instances) {
 			Collection<AnalyzerTag> tags = AnalyzerReading.toTags(instance.getReadings());
@@ -45,7 +66,7 @@ public class SimpleAnalyzerTrainer extends AnalyzerTrainer {
 		Logger logger =Logger.getLogger(getClass().getName());
 		
 		logger.info("Start optimization");
-		ByGradientValue objective = new SimpleAnalyzerObjective(2.0, model, simple_instances);
+		ByGradientValue objective = new SimpleAnalyzerObjective(penalty_ , model, simple_instances, train_mode_);
 		Optimizer optimizer = new LimitedMemoryBFGS(objective);
 		Logger.getLogger(optimizer.getClass().getName()).setLevel(Level.OFF);
 		objective.setParameters(model.getWeights());
@@ -76,30 +97,14 @@ public class SimpleAnalyzerTrainer extends AnalyzerTrainer {
         } catch (OptimizationException e) {
         }
         
-        //logger.info("Finished optimization");
+        SimpleThresholdOptimizer opt = new SimpleThresholdOptimizer(use_simple_optimizer);
         
-        double [] thresholds = {0.5, 0.45, 0.35, 0.25};
-		double best_threshold = 0.0;
-		double best_fscore = -1;
-		for (double threshold : thresholds) {
-			double fscore = getFscore(model, instances, threshold);
-			if (fscore > best_fscore) {
-				best_fscore = fscore;
-				best_threshold = threshold;
-			}		
-		}
-		System.err.println("Best threshold: " + best_threshold);
+        double best_threshold = opt.findTreshold(model, instances, tag_mode_);
+		System.err.println("Best threshold on train: " + best_threshold);
         
-		SimpleAnalyzer analyzer = new SimpleAnalyzer(model, best_threshold);
+		SimpleAnalyzer analyzer = new SimpleAnalyzer(model, best_threshold, tag_mode_);
 		return analyzer;
 	}
 
-	private double getFscore(SimpleAnalyzerModel model,
-			Collection<AnalyzerInstance> instances, double threshold) {
-		SimpleAnalyzer analyzer = new SimpleAnalyzer(model, threshold);
-		AnalyzerResult result = AnalyzerResult.test(analyzer, instances);
-		double fscore = result.getFscore();
-		return fscore;
-	}
 
 }

@@ -10,6 +10,11 @@ public class Evaluator {
 		this.test = test;
 	}
 	
+	public Evaluator() {
+		// TODO Auto-generated constructor stub
+		throw new UnsupportedOperationException();
+	}
+
 	public void evaluate() {
 		
 	}

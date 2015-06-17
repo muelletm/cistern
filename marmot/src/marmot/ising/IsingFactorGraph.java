@@ -90,6 +90,12 @@ public class IsingFactorGraph {
 		
 	}
 	
+	public IsingFactorGraph(int numVariables2,
+			List<Pair<Integer, Integer>> pairs, List<Integer> golden2,
+			List<String> tagNames) {
+		throw new UnsupportedOperationException();
+	}
+
 	/**
 	 * Brute force inference for the Ising factor graph
 	 */

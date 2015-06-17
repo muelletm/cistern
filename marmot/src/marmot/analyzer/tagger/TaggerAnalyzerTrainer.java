@@ -3,7 +3,6 @@ package marmot.analyzer.tagger;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
-import java.util.List;
 
 import marmot.analyzer.Analyzer;
 import marmot.analyzer.AnalyzerInstance;
@@ -13,8 +12,6 @@ import marmot.analyzer.AnalyzerTag;
 import marmot.analyzer.AnalyzerTrainer;
 import marmot.core.Options;
 import marmot.core.Sequence;
-import marmot.core.State;
-import marmot.core.lattice.ZeroOrderSumLattice;
 import marmot.morph.MorphModel;
 import marmot.morph.MorphOptions;
 import marmot.morph.MorphTagger;
@@ -46,6 +43,7 @@ public class TaggerAnalyzerTrainer extends AnalyzerTrainer {
 		options.setProperty(Options.ORDER, "0");
 		options.setProperty(MorphOptions.FEATURE_TEMPLATES, "affix,sig");
 		options.setProperty(MorphOptions.OBSERVED_FEATURE, "false");
+		options.setProperty(Options.PENALTY, "0.0");
 		if (options_.containsKey(AnalyzerTrainer.FLOAT_DICT_)) {
 			options.setProperty(MorphOptions.FLOAT_TYPE_DICT, options_.get(AnalyzerTrainer.FLOAT_DICT_));
 		}
