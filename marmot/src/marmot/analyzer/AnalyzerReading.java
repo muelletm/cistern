@@ -1,5 +1,6 @@
 package marmot.analyzer;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -7,7 +8,7 @@ import java.util.Set;
 
 import marmot.morph.Word;
 
-public class AnalyzerReading {
+public class AnalyzerReading implements Serializable {
 
 	private String lemma_;
 	private AnalyzerTag tag_;

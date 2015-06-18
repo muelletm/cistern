@@ -1,5 +1,6 @@
 package marmot.analyzer.simple;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
@@ -7,7 +8,7 @@ import marmot.analyzer.AnalyzerInstance;
 import marmot.analyzer.AnalyzerTag;
 import marmot.core.FloatFeatureVector;
 
-public class SimpleAnalyzerInstance {
+public class SimpleAnalyzerInstance implements Serializable {
 
 	private AnalyzerInstance instance_;
 	private Collection<AnalyzerTag> tags_;

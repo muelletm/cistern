@@ -1,5 +1,6 @@
 package marmot.analyzer;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -12,7 +13,7 @@ import marmot.core.Token;
 import marmot.morph.Word;
 import marmot.morph.io.SentenceReader;
 
-public class AnalyzerInstance {
+public class AnalyzerInstance implements Serializable {
 
 	private String form_;
 	private Collection<AnalyzerReading> readings_;

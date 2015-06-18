@@ -125,7 +125,7 @@ public class SimpleThresholdOptimizer {
 	private double getFscore(SimpleAnalyzerModel model,
 			Collection<AnalyzerInstance> instances, double threshold,
 			Mode tag_mode) {
-		SimpleAnalyzer analyzer = new SimpleAnalyzer(model, threshold, tag_mode);
+		SimpleAnalyzer analyzer = new SimpleAnalyzer(model, threshold, tag_mode, null);
 		AnalyzerResult result = AnalyzerResult.test(analyzer, instances);
 		double fscore = result.getFscore();
 		return fscore;

@@ -31,10 +31,10 @@ public class SimpleAnalyzerTest {
 		for (AnalyzerTrainer trainer : trainers) {
 
 			Analyzer analyzer = trainer.train(AnalyzerInstance
-					.getInstances(getFilenameName("en.trn_1k.tsv")));
+					.getInstances(getFilenameName("de.trn_1k.tsv")));
 			AnalyzerResult
-					.logResult(analyzer, getFilenameName("en.trn_1k.tsv"));
-			AnalyzerResult.logResult(analyzer, getFilenameName("en.dev.tsv"), 0);
+					.logResult(analyzer, getFilenameName("de.trn_1k.tsv"));
+			AnalyzerResult.logResult(analyzer, getFilenameName("de.dev.tsv"), 0);
 
 //			analyzer = trainer.train(AnalyzerInstance
 //					.getInstances(getFilenameName("de.trn_10k.tsv")));
