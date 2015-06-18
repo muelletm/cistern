@@ -21,7 +21,7 @@ public class Analyzer {
 	private double[] parameters;
 	private double[] gradient;
 	
-	public Analyzer(DataReader drTrain, DataReader drDev) {
+	public Analyzer(DataReader drTrain) {
 		this.drTrain = drTrain;
 		this.drDev = drDev;
 		
@@ -42,38 +42,13 @@ public class Analyzer {
 		for (Datum d : drTrain.data) {
 			ufe.extract(d.getWord());
 		}
-		for (Datum d : drDev.data) {
-			ufe.extract(d.getWord());
-		}
 		
-	
 		
 		System.out.println("...num parameters:\t" + ufe.getNumFeatures());
 		this.parameters = new double[ufe.getNumFeatures()];
 		this.gradient = new double[ufe.getNumFeatures()];
-		// dev
-		for (Datum d : drDev.data) {
-			System.out.println(counter + "\t" + d.getWord() + "\t" + d.getTag().size());
-			
-			ArrayList<Integer> golden = new ArrayList<Integer>();
-			for (int i = 0; i < drTrain.numVariables; ++i) {
-				golden.add(0);
-			}
-			for (Integer t : d.getTag()) {
-				golden.set(t, 1);
-			}
-			
-			if (d.getTag().size() > 1) 
-				multiple += 1;
-
-			
-			
-			IsingFactorGraph fg = new IsingFactorGraph(d.getWord(), ufe, 1, drTrain.numVariables, drTrain.pairsLst, golden, drTrain.tagNames);
-			this.devFactorGraphs.add(fg);
-			
-			++counter;
-		}
 		
+		int datumI = 0;
 		for (Datum d : drTrain.data) {
 			System.out.println(counter + "\t" + d.getWord() + "\t" + d.getTag().size());
 			
@@ -91,15 +66,21 @@ public class Analyzer {
 			
 			
 			IsingFactorGraph fg = new IsingFactorGraph(d.getWord(), ufe, 1, drTrain.numVariables, drTrain.pairsLst, golden, drTrain.tagNames);
-			this.trainingFactorGraphs.add(fg);
+		
+			if (datumI < 844) {
+				this.trainingFactorGraphs.add(fg);
+			} else {
+				this.devFactorGraphs.add(fg);
+			}
 			
 			++counter;
+			++datumI;
 		}
 		
 
 		train(50,2.0);
-		System.out.println("...train accuracy:\t" + decodeTrain());
-		System.out.println("...dev accuracy:\t" + decodeDev());
+		System.out.println("...train accuracy:\t" + decode(this.trainingFactorGraphs));
+		System.out.println("...dev accuracy:\t" + decode(this.devFactorGraphs));
 ;
 		System.exit(0);
 		System.out.println("...feature dump:\t");
@@ -147,10 +128,13 @@ public class Analyzer {
 	}
 
 	
-	public double decodeTrain() {
+	public double decode(List<IsingFactorGraph> factorGraphs) {
 		double correct = 0.0;
 		int total = 0;
-		for (IsingFactorGraph ig : this.trainingFactorGraphs) {
+		for (IsingFactorGraph ig : factorGraphs) {
+			System.out.println(ig);
+			ig.updatePotentials(this.parameters);
+			ig.inference(1, 0.01);
 			List<String> decoded = ig.posteriorDecode();
 			List<String> golden = new LinkedList<String>();
 			
@@ -164,6 +148,7 @@ public class Analyzer {
 				++counter;
 			}
 			
+			
 			Collections.sort(decoded);
 			Collections.sort(golden);
 			
@@ -180,43 +165,13 @@ public class Analyzer {
 		return correct / total;
 	}
 	
-	public double decodeDev() {
-		double correct = 0.0;
-		int total = 0;
-		for (IsingFactorGraph ig : this.devFactorGraphs) {
-			List<String> decoded = ig.posteriorDecode();
-			List<String> golden = new LinkedList<String>();
-			
-			int counter = 0;
-			for (Integer g : ig.golden) {
-				
-				if (g == 1) {
-					String tag = this.drDev.integer2Tag.get(counter);
-					golden.add(tag);
-				}
-				++counter;
-			}
-			
-			Collections.sort(decoded);
-			Collections.sort(golden);
-			
-			if (decoded.equals(golden)) {
-				correct += 1;
-			} else {
-				System.out.println("...word:\t" + ig.getWord());
-				System.out.println("...predicted:\t" + decoded);
-				System.out.println("...golden:\t" + golden);
-			}
-			total += 1;
-		}
-		
-		return correct / total;
-	}
 	
 	public static void main(String[] args) {
-		DataReader drTrain = new ThomasReader(args[0]);
-		DataReader drDev = new ThomasReader(args[1]);
-		new Analyzer(drTrain, drDev);
+		//DataReader drTrain = new ThomasReader(args[0]);
+		//DataReader drDev = new ThomasReader(args[1]);
+		DataReader drTrain = new MorphItReader(args[0]);
+		
+		new Analyzer(drTrain);
 
 
 	}
