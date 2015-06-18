@@ -26,22 +26,21 @@ public class SimpleAnalyzerTest {
 		MorphDictionaryOptions options = MorphDictionaryOptions
 				.parse("dense=true,res:///marmot/test/analyzer/cwindow_d100_w5.txt");
 
-		AnalyzerTrainer[] trainers = { new TaggerAnalyzerTrainer(),
-				new SimpleAnalyzerTrainer(null) };
+		AnalyzerTrainer[] trainers = { new SimpleAnalyzerTrainer() };
 
 		for (AnalyzerTrainer trainer : trainers) {
 
 			Analyzer analyzer = trainer.train(AnalyzerInstance
-					.getInstances(getFilenameName("en.trn_10k.tsv")));
+					.getInstances(getFilenameName("en.trn_1k.tsv")));
 			AnalyzerResult
-					.logResult(analyzer, getFilenameName("en.trn_10k.tsv"));
-			AnalyzerResult.logResult(analyzer, getFilenameName("en.dev.tsv"));
+					.logResult(analyzer, getFilenameName("en.trn_1k.tsv"));
+			AnalyzerResult.logResult(analyzer, getFilenameName("en.dev.tsv"), 0);
 
-			analyzer = trainer.train(AnalyzerInstance
-					.getInstances(getFilenameName("de.trn_10k.tsv")));
-			AnalyzerResult
-					.logResult(analyzer, getFilenameName("de.trn_10k.tsv"));
-			AnalyzerResult.logResult(analyzer, getFilenameName("de.dev.tsv"));
+//			analyzer = trainer.train(AnalyzerInstance
+//					.getInstances(getFilenameName("de.trn_10k.tsv")));
+//			AnalyzerResult
+//					.logResult(analyzer, getFilenameName("de.trn_10k.tsv"));
+//			AnalyzerResult.logResult(analyzer, getFilenameName("de.dev.tsv"));
 			
 		}
 

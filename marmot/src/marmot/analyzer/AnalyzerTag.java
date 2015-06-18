@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 public class AnalyzerTag implements Serializable {
 
+	private static final long serialVersionUID = 1L;
 	private String pos_tag_;
 	private String morph_tag_;
 	

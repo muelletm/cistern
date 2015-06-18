@@ -23,6 +23,10 @@ public class AnalyzerReading {
 
 	@Override
 	public String toString() {
+		if (lemma_ == null) {
+			return tag_.toString();
+		}
+		
 		return String.format("%s %s", tag_, lemma_);
 	}
 

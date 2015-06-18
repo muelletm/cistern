@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import marmot.analyzer.AnalyzerInstance;
+import marmot.analyzer.AnalyzerReading;
 import marmot.analyzer.AnalyzerTag;
 import marmot.core.DenseArrayFloatFeatureVector;
 import marmot.core.FloatFeatureVector;
@@ -22,6 +23,7 @@ import marmot.util.SymbolTable;
 
 public class SimpleAnalyzerModel implements Serializable {
 
+	private static final long serialVersionUID = 1L;
 	private SymbolTable<AnalyzerTag> tag_table_;
 	private SymbolTable<String> pos_table_;
 	private SymbolTable<String> morph_table_;
@@ -85,11 +87,12 @@ public class SimpleAnalyzerModel implements Serializable {
 			init(instance, true);
 		}
 
-//		logger.info(String.format("tags: %d %s", tag_table_.size(), tag_table_));
-//		logger.info(String.format("pos tags: %d %s", pos_table_.size(),
-//				pos_table_));
-//		logger.info(String.format("morph tags: %d %s", morph_table_.size(),
-//				morph_table_));
+		// logger.info(String.format("tags: %d %s", tag_table_.size(),
+		// tag_table_));
+		// logger.info(String.format("pos tags: %d %s", pos_table_.size(),
+		// pos_table_));
+		// logger.info(String.format("morph tags: %d %s", morph_table_.size(),
+		// morph_table_));
 
 		sig_bits_ = Encoder.bitsNeeded(FeatUtil
 				.getMaxSignature(special_signature_));
@@ -97,7 +100,6 @@ public class SimpleAnalyzerModel implements Serializable {
 
 		encoder_ = new Encoder(6);
 		feature_table_ = FeatureTable.StaticMethods.create(use_hash_table_);
-		
 
 		for (SimpleAnalyzerInstance instance : instances) {
 			add_features(instance, true);
@@ -139,11 +141,13 @@ public class SimpleAnalyzerModel implements Serializable {
 	private void init(SimpleAnalyzerInstance instance, boolean insert) {
 		List<Integer> tag_indexes = new LinkedList<>();
 
-		if (insert) {
-			for (AnalyzerTag tag : instance.getTags()) {
-				int tag_index = tag_table_.toIndex(tag, insert);
+		for (AnalyzerTag tag : instance.getTags()) {
+			int tag_index = tag_table_.toIndex(tag, -1, insert);
 
-				if (tag_to_sub_.size() <= tag_index) {
+			if (tag_index >= 0) {
+				tag_indexes.add(tag_index);
+
+				if (tag_to_sub_.size() <= tag_index && insert) {
 					assert insert;
 					assert tag_to_sub_.size() == tag_index;
 					int pos_index = pos_table_.toIndex(tag.getPosTag(), true);
@@ -152,7 +156,6 @@ public class SimpleAnalyzerModel implements Serializable {
 					tag_to_sub_.add(Arrays.asList(pos_index, morph_index));
 				}
 
-				tag_indexes.add(tag_index);
 			}
 		}
 
@@ -247,7 +250,8 @@ public class SimpleAnalyzerModel implements Serializable {
 				double[] values = instance.getFloatValues();
 				for (int i = 0; i < float_feat_indexes.length; i++) {
 					double value = values[i];
-					updateScores(float_feat_indexes[i], scores, updates, tag_index, value);
+					updateScores(float_feat_indexes[i], scores, updates,
+							tag_index, value);
 				}
 			}
 		}
@@ -296,8 +300,12 @@ public class SimpleAnalyzerModel implements Serializable {
 	}
 
 	public SimpleAnalyzerInstance getInstance(AnalyzerInstance instance) {
+
+		Collection<AnalyzerTag> tags = AnalyzerReading.toTags(instance
+				.getReadings());
+
 		SimpleAnalyzerInstance simple_instance = new SimpleAnalyzerInstance(
-				instance, null);
+				instance, tags);
 		init(simple_instance, false);
 		add_features(simple_instance, false);
 		return simple_instance;

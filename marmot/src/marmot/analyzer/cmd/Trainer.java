@@ -3,10 +3,14 @@
 
 package marmot.analyzer.cmd;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Collection;
 
 import marmot.analyzer.Analyzer;
 import marmot.analyzer.AnalyzerInstance;
+import marmot.analyzer.AnalyzerReading;
 import marmot.analyzer.AnalyzerResult;
 import marmot.analyzer.AnalyzerTrainer;
 import marmot.util.FileUtils;
@@ -20,35 +24,48 @@ public class Trainer {
 		String output_file = args[2];
 		String train_file = args[3];
 		
-		Analyzer lemmatizer = train(model_type, options_string, train_file);
+		Analyzer analyzer = train(model_type, options_string, train_file);
 		
-		for (int i=4; i < args.length; i += 1) {
+		for (int i=3; i < args.length; i += 2) {
 			String test_file = args[i];
-			test(lemmatizer, test_file);
+			String pred_file = args[i + 1];
+			System.err.println("File:" + test_file);
+			test(analyzer, test_file);
+			annotate(analyzer, test_file, pred_file);			
 		}
 		
-		FileUtils.saveToFile(lemmatizer, output_file);
+		FileUtils.saveToFile(analyzer, output_file);
 	}
 	
-//	static void annotate(Analyzer lemmatizer, String test_file, String pred_file) {
-//		
-//		try {
-//			BufferedWriter writer = new BufferedWriter(new FileWriter(pred_file));
-//			for (Sequence sequence : new SentenceReader(test_file)) {
-//				for (Token token : sequence) {
-//					LemmaInstance instance = LemmaInstance.getInstance((Word) token);
-//					String plemma = lemmatizer.lemmatize(instance);
-//					
-//					writer.write(String.format("%s\t%s\n", instance, plemma));
-//				}
-//				writer.write('\n');				
-//			}
-//			writer.close();			
-//		} catch (IOException e) {
-//			throw new RuntimeException(e);
-//		}
-//		
-//	}
+	private static void annotate(Analyzer analyzer, String test_file,
+			String pred_file) {
+		Collection<AnalyzerInstance> instances = AnalyzerInstance.getInstances(test_file);
+		
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter(pred_file));
+			
+			for (AnalyzerInstance instance : instances) {
+				
+				Collection<AnalyzerReading> readings = analyzer.analyze(instance);
+				
+				writer.write(instance.getForm());
+				writer.write('\t');
+				writer.write(analyzer.represent(instance));
+				writer.write('\t');
+				writer.write(readings.toString());
+				writer.newLine();
+				
+			}
+			
+			writer.close();
+			
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		
+		
+		
+	}
 
 	public static Analyzer train(String model_type, String options_string,
 			String train_file) {
@@ -63,19 +80,14 @@ public class Trainer {
 		
 		trainer.setOptions(options_string);
 		
-		//LemmaOptions options = trainer.getOptions();	
-		//options.readArguments(options_string);
-		//Logger logger = Logger.getLogger(Trainer.class.getName());
-		//logger.info(options.report());
-
 		Collection<AnalyzerInstance> training_instances = AnalyzerInstance.getInstances(train_file);
-		Analyzer lemmatizer = trainer.train(training_instances);
+		Analyzer analyzer = trainer.train(training_instances);
 		
-		return lemmatizer;
+		return analyzer;
 	}
 
-	public static void test(Analyzer lemmatizer, String test_file) {
-		AnalyzerResult.logResult(lemmatizer, test_file);
+	public static void test(Analyzer analyzer, String test_file) {
+		AnalyzerResult.logResult(analyzer, test_file);
 	}
 
 }

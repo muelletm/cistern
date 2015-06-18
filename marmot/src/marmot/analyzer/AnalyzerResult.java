@@ -43,17 +43,21 @@ public class AnalyzerResult {
 	};
 	
 	private Collection<Error> errors_;
+	private int label_correct_;
+	private int label_total_;
 	
 	public AnalyzerResult() {
-		this(0, 0, 0., 0., new LinkedList<Error>());
+		this(0, 0, 0., 0., new LinkedList<Error>(), 0, 0);
 	}
 	
-	public AnalyzerResult(int num_errors, int total, double macro_pre, double macro_rec, Collection<Error> errors) {
+	public AnalyzerResult(int num_errors, int total, double macro_pre, double macro_rec, Collection<Error> errors, int label_correct, int label_total) {
 		num_errors_ = num_errors;
 		total_ = total;
 		macro_pre_ = macro_pre;
 		macro_rec_ = macro_rec;
 		errors_ = errors;
+		label_correct_ = label_correct;
+		label_total_ = label_total;
 	}
 	
 	public void increment(AnalyzerResult result) {
@@ -62,13 +66,12 @@ public class AnalyzerResult {
 		macro_pre_ += result.macro_pre_;
 		macro_rec_ += result.macro_rec_;
 		errors_.addAll(result.errors_);
+		label_correct_ += result.label_correct_;
+		label_total_ += result.label_total_;
 	}
 
 	public static void logResult(Analyzer analyzer, String filename) {
-		AnalyzerResult result = test(analyzer, filename);
-		result.logAcc();
-		result.logFscore();
-		result.logErrors();
+		logResult(analyzer, filename, 100);
 	}
 	
 	public static AnalyzerResult test(Analyzer analyzer, String filename) {
@@ -106,6 +109,9 @@ public class AnalyzerResult {
 			}
 		}
 		
+		int label_total = analyzer.getNumTags();
+		int label_correct = label_total - (toomuch.size() + missed.size());
+		
 		double macro_pre;
 		if (actual.isEmpty())
 			macro_pre = 1.0;
@@ -124,7 +130,7 @@ public class AnalyzerResult {
 			errors = Collections.singletonList(new Error(instance, missed, toomuch));
 		}
 		
-		return new AnalyzerResult(num_errors, total, macro_pre, macro_rec, errors);
+		return new AnalyzerResult(num_errors, total, macro_pre, macro_rec, errors, label_correct, label_total);
 	}
 	
 	public void logFscore() {
@@ -142,8 +148,13 @@ public class AnalyzerResult {
 		logger.info(String.format("Acc: %g", 100. * (total_ - num_errors_) / total_));
 	}
 	
-	public void logErrors() {
-		logSubList(errors_, 50);
+	public void logLabelAcc() {
+		Logger logger = Logger.getLogger(getClass().getName());
+		logger.info(String.format("Label Acc: %d / %d = %g", label_correct_, label_total_, 100. * (label_correct_) / label_total_));
+	}
+	
+	public void logErrors(int num_errors) {
+		logSubList(errors_, 0);
 	}
 
 	private void logSubList(Collection<Error> errors, int first) {
@@ -172,6 +183,14 @@ public class AnalyzerResult {
 		}
 		
 		return macro_fsc;
+	}
+
+	public static void logResult(Analyzer analyzer, String filename, int num_errors) {
+		AnalyzerResult result = test(analyzer, filename);
+		result.logAcc();
+		result.logLabelAcc();
+		result.logFscore();
+		result.logErrors(num_errors);
 	}
 
 }

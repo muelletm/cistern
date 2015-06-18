@@ -16,11 +16,12 @@ public abstract class AnalyzerTrainer {
 	private static final String COMMA_SYM = "%%COMMA%%"; 
 	private static final String SEMICOL_SYM = "%%SEMICOL%%";
 	
+	public AnalyzerTrainer() {
+		options_= new HashMap<>();
+	}
+	
+	
 	public void setOptions(String options_string) {
-		if (options_ == null) {
-			options_= new HashMap<>();
-		}
-		
 		if (options_string.equals("_"))
 			return;
 		
