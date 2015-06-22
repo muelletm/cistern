@@ -17,8 +17,6 @@ public class SegmenterTrainer {
 	private Random random_ = new Random(42);
 
 	public Segmenter train(Collection<Word> words) {
-		System.err.println("words.size: " + words.size());
-
 		SegmenterModel model = new SegmenterModel();
 
 		System.err.println("init");
@@ -108,9 +106,12 @@ public class SegmenterTrainer {
 					total, (seg_correct + correct) * 100. / total));
 
 		}
-
-		System.err.println("ret");
-		return null;
+		
+		Segmenter segmenter = new Segmenter(model);
+		Scorer scorer = new Scorer();
+		scorer.eval(words, segmenter);
+		logger.info(scorer.report());
+		return segmenter;
 	}
 
 }
