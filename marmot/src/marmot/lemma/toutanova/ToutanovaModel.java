@@ -98,8 +98,6 @@ public class ToutanovaModel implements Serializable {
 		if (pos_table_ != null)
 			num_pos_bits = Encoder.bitsNeeded(pos_table_.size());
 
-		setupTemp();
-
 		weights_ = new DynamicWeights(options.getRandom());
 
 		SymbolTable<Feature> feature_map = new SymbolTable<>();

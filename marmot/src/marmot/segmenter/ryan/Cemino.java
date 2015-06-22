@@ -1,6 +1,7 @@
-package marmot.segmenter;
+package marmot.segmenter.ryan;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -9,44 +10,30 @@ import marmot.util.Numerics;
 
 public class Cemino {
 	
-	private SegmentationDataReader sdr;
 	private double[] weights;
 	private double[] gradient;
 	
-	private Map<String,Integer> tag2int;
 	private Map<String,Integer> seg2int;
-	private Map<String,Integer> seg2count;
 	
 	private List<Word> trainingData;
-	private List<Word> devData;
-	private List<Word> testData;
 	private int[][] tagtag2int;
 	private int[][] tagseg2int;
 	private int numTags;
 	private int numSegs;
 	private int maxLength;
-	private int numContexts;
-	private int[] context2int;
-
+	
 	public Cemino(SegmentationDataReader sdr) {
 		
-		this.sdr = sdr;
-		this.tag2int = sdr.getTag2int();
 		this.seg2int = sdr.getSeg2int();
-		this.seg2count = sdr.getSeg2count();
 		
-		this.trainingData = sdr.getTrainingData();
-		this.devData = sdr.getDevData();
-		this.testData = sdr.getTestData();
+		this.trainingData = new LinkedList<>(sdr.getData());
 	
 		this.maxLength = sdr.getMaxLength();
 		this.numSegs = sdr.getNumSegs();
 		this.numTags = sdr.getNumTags();
-		this.numContexts = sdr.getNumContexts();
 				
 		this.tagtag2int = new int[this.numTags][this.numTags];
 		this.tagseg2int = new int[this.numTags][this.numSegs];
-		this.context2int = new int[this.numContexts];
 		
 		this.gradient = new double[this.numTags * this.numSegs + this.numTags * this.numTags];
 		this.weights = new double[this.numTags * this.numSegs + this.numTags * this.numTags];
@@ -100,7 +87,7 @@ public class Cemino {
 	}
 	
 	public static void main(String[] args) {
-		SegmentationDataReader sdr = new SegmentationDataReader(args[0],args[1],args[2],1);
+		SegmentationDataReader sdr = new SegmentationDataReader(args[0]);
 		Cemino cemino = new Cemino(sdr);
 	}
 

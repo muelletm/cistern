@@ -1,4 +1,4 @@
-package marmot.segmenter;
+package marmot.segmenter.ryan;
 
 import java.util.Map;
 
