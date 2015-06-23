@@ -1,10 +1,13 @@
 package marmot.segmenter;
 
+import java.io.Serializable;
+
 import marmot.segmenter.Word;
 
-public class Segmenter {
+public class Segmenter implements Serializable {
 
-	SegmenterModel model_;
+	private static final long serialVersionUID = 1L;
+	private SegmenterModel model_;
 
 	public Segmenter(SegmenterModel model) {
 		model_ = model;

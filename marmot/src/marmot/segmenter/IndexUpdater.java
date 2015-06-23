@@ -25,7 +25,7 @@ public class IndexUpdater extends IndexConsumer {
 	@Override
 	public void consume(int index) {
 		if (index >= 0) {
-			weights_.incremen(index, update_);
+			weights_.increment(index, update_);
 		}
 	}
 

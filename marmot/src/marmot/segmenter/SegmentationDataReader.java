@@ -3,22 +3,20 @@ package marmot.segmenter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import cc.mallet.util.CommandOption.Set;
 
 import marmot.util.LineIterator;
 
 public class SegmentationDataReader {
 
-	private List<Word> data;
+	private List<Word> data_;
+	private boolean keep_tag_;
 	
-	public SegmentationDataReader(String filepath) {
-		this.data = new ArrayList<Word>();		
-		readFile(filepath, data);
+	public SegmentationDataReader(String filepath, boolean keep_tag) {
+		data_ = new ArrayList<Word>();		
+		readFile(filepath, data_);
 	}
 	
 	private void readFile(String fileIn, List<Word> words) {
@@ -56,8 +54,9 @@ public class SegmentationDataReader {
 						}
 						
 						String segment = reading.substring(0, index);
-						//String tag = reading.substring(index + 1);
-						String tag = "<TAG>";
+						String tag = reading.substring(index + 1);
+						if (!keep_tag_)
+							tag = "<TAG>";
 						
 						segments.add(segment);
 						tags.add(tag);
@@ -65,15 +64,13 @@ public class SegmentationDataReader {
 					}
 					
 					word.add(new SegmentationReading(segments, tags));
-					
-					break;
 				}
 			}
 		}
 	}
 	
 	public Collection<Word> getData() {
-		return data;
+		return data_;
 	}
 
 }

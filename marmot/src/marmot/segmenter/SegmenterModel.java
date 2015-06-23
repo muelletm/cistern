@@ -1,24 +1,26 @@
 package marmot.segmenter;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 
 import marmot.core.Feature;
 import marmot.util.DynamicWeights;
 import marmot.util.Encoder;
 import marmot.util.SymbolTable;
 
-public class SegmenterModel {
+public class SegmenterModel implements Serializable {
 
+	private static final long serialVersionUID = 1L;
 	private SymbolTable<String> tag_table_;
 	private SymbolTable<Character> char_table_;
 
 	private int max_segment_length_;
-	transient private Encoder encoder;
+	transient private Encoder encoder_;
 
 	private int num_char_bits;
 	private int num_tag_bits;
@@ -26,8 +28,6 @@ public class SegmenterModel {
 
 	private IndexScorer scorer_;
 	private IndexUpdater updater_;
-	private DynamicWeights weights_;
-	private int num_segment_bits;
 
 	private final static int FEATURE_BITS = Encoder.bitsNeeded(2);
 	private final static int TRANS_FEAT = 0;
@@ -66,17 +66,15 @@ public class SegmenterModel {
 		num_char_bits = Encoder.bitsNeeded(char_table_.size());
 		max_segment_length_bits_ = Encoder.bitsNeeded(max_segment_length_);
 
-		weights_ = new DynamicWeights(new Random(42));
-
 		SymbolTable<Feature> feature_map = new SymbolTable<>();
-		scorer_ = new IndexScorer(weights_, feature_map);
-		updater_ = new IndexUpdater(weights_, feature_map);
-
-		setupTemp();
+		scorer_ = new IndexScorer(null, feature_map);
+		updater_ = new IndexUpdater(null, feature_map);
 	}
 
-	private void setupTemp() {
-		encoder = new Encoder(10);
+	private void prepareEncoder() {
+		if (encoder_ == null)
+			encoder_ = new Encoder(10);
+		encoder_.reset();
 	}
 
 	public int getNumTags() {
@@ -116,29 +114,32 @@ public class SegmenterModel {
 
 	public void consumeTagFeature(IndexConsumer consumer,
 			SegmentationInstance instance, int l_start, int l_end, int tag) {
-		// encoder.reset();
-		// encoder.append(TAG_FEAT, FEATURE_BITS);
-		// encoder.append(tag, num_tag_bits);
-		// consumer.consume(instance, encoder);
+		prepareEncoder();
+		encoder_.append(TAG_FEAT, FEATURE_BITS);
+		encoder_.append(tag, num_tag_bits);
+		consumer.consume(instance, encoder_);
 	}
 
 	public void consumePairFeature(IndexConsumer consumer,
 			SegmentationInstance instance, int l_start, int l_end, int tag) {
-
-		encoder.reset();
-
+		prepareEncoder();
 		short[] chars = instance.getFormCharIndexes(char_table_);
-		encoder.append(PAIR_FEAT, FEATURE_BITS);
-		encoder.append(tag, num_tag_bits);
-		encoder.append(l_end - l_start, max_segment_length_bits_);
+		encoder_.append(PAIR_FEAT, FEATURE_BITS);
+		encoder_.append(tag, num_tag_bits);
+		encoder_.append(l_end - l_start, max_segment_length_bits_);
 		for (int l = l_start; l < l_end; l++) {
 			int c = chars[l];
 			if (c < 0) {
 				return;
 			}
-			encoder.append(c, num_char_bits);
+			encoder_.append(c, num_char_bits);
 		}
-		consumer.consume(instance, encoder);
+		consumer.consume(instance, encoder_);
+
+		// if (consumer == scorer_)
+		// System.err.format("consumePairFeature (%d %d %d) %g\n", l_start,
+		// l_end, tag, scorer_.getScore());
+
 	}
 
 	public void consumeTransitionFeature(IndexConsumer consumer,
@@ -147,33 +148,34 @@ public class SegmenterModel {
 		if (last_tag < 0) {
 			return;
 		}
-		// encoder.reset();
-		// encoder.append(TRANS_FEAT, FEATURE_BITS);
-		// encoder.append(last_tag, num_tag_bits);
-		// encoder.append(tag, num_tag_bits);
-		// consumer.consume(instance, encoder);
+		prepareEncoder();
+		encoder_.append(TRANS_FEAT, FEATURE_BITS);
+		encoder_.append(last_tag, num_tag_bits);
+		encoder_.append(tag, num_tag_bits);
+		consumer.consume(instance, encoder_);
 	}
 
 	public void update(SegmentationInstance instance,
 			SegmentationResult result, double update) {
 		updater_.setUpdate(update);
-		Iterator<Integer> output_iterator = result.getTags().iterator();
+		Iterator<Integer> tag_iterator = result.getTags().iterator();
 		Iterator<Integer> input_iterator = result.getInputIndexes().iterator();
 
-		int last_o = -1;
+		int last_tag = -1;
 		int l_start = 0;
 
-		while (output_iterator.hasNext()) {
-			int o = output_iterator.next();
+		while (tag_iterator.hasNext()) {
+			int tag = tag_iterator.next();
 			int l_end = input_iterator.next();
 
-			if (last_o >= 0) {
-				consumeTransition(updater_, instance, l_start, l_end, last_o, o);
+			if (last_tag >= 0) {
+				consumeTransition(updater_, instance, l_start, l_end, last_tag,
+						tag);
 			}
 
-			consumeTagPair(updater_, instance, l_start, l_end, o);
+			consumeTagPair(updater_, instance, l_start, l_end, tag);
 
-			last_o = o;
+			last_tag = tag;
 			l_start = l_end;
 		}
 
@@ -183,30 +185,27 @@ public class SegmenterModel {
 			SegmentationResult result) {
 		scorer_.reset();
 
-		Iterator<Integer> output_iterator = result.getTags().iterator();
+		Iterator<Integer> tag_iterator = result.getTags().iterator();
 		Iterator<Integer> input_iterator = result.getInputIndexes().iterator();
 
-		int last_o = -1;
+		int last_tag = -1;
 		int l_start = 0;
 
-		while (output_iterator.hasNext()) {
-			int o = output_iterator.next();
+		while (tag_iterator.hasNext()) {
+			int tag = tag_iterator.next();
 			int l_end = input_iterator.next();
 
-			if (last_o >= 0) {
-				consumeTransition(scorer_, instance, l_start, l_end, last_o, o);
+			if (last_tag >= 0) {
+				consumeTransition(scorer_, instance, l_start, l_end, last_tag,
+						tag);
 			}
 
-			consumeTagPair(scorer_, instance, l_start, l_end, o);
-			last_o = o;
+			consumeTagPair(scorer_, instance, l_start, l_end, tag);
+			last_tag = tag;
 			l_start = l_end;
 		}
 
 		return scorer_.getScore();
-	}
-
-	public DynamicWeights getWeights() {
-		return weights_;
 	}
 
 	public SegmentationInstance getInstance(Word word) {
@@ -237,7 +236,16 @@ public class SegmenterModel {
 	}
 
 	public void setWeights(DynamicWeights weights) {
-		weights_ = weights;
+		setScorerWeights(weights);
+		setUpdaterWeights(weights);
+	}
+
+	public void setScorerWeights(DynamicWeights weights) {
+		scorer_.setWeights(weights);
+	}
+
+	public void setUpdaterWeights(DynamicWeights weights) {
+		updater_.setWeights(weights);
 	}
 
 	public Word toWord(String form, SegmentationResult result) {
@@ -256,6 +264,30 @@ public class SegmenterModel {
 		Word word = new Word(form);
 		word.add(new SegmentationReading(segments, tags));
 		return word;
+	}
+
+	public void update(SegmentationInstance instance, int l_start, int l_end,
+			int tag, double update) {
+		updater_.setUpdate(update);
+		consumeTagPair(updater_, instance, l_start, l_end, tag);
+	}
+
+	public void update(SegmentationInstance instance, int l_start, int l_end,
+			int last_tag, int tag, double update) {
+		updater_.setUpdate(update);
+		consumeTransition(updater_, instance, l_start, l_end, last_tag, tag);
+	}
+
+	public void printWeights() {
+		System.err.println(Arrays.toString(scorer_.getWeights().getWeights()));
+		System.err.println(Arrays.toString(updater_.getWeights().getWeights()));
+	}
+
+	public void setFinal() {
+		updater_ = null;
+		scorer_.setInsert(false);
+		scorer_.getWeights().setExapnd(false);
+		encoder_ = null;
 	}
 
 }

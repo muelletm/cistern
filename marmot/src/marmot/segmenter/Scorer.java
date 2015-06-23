@@ -63,9 +63,6 @@ public class Scorer {
 	}
 	
 	public void eval(Collection<Word> words, Segmenter segmenter) {
-		
-		
-		
 		for (Word word : words) {
 			
 			SegmentationReading reading = segmenter.segment(word);
@@ -85,9 +82,9 @@ public class Scorer {
 	}
 	
 	public String report() {
-		double p = precision.score / precision.total;
-		double r = recall.score / recall.total;
-		double f = (2. * p * r) / (p + r);
+		double p = getPrecision();
+		double r = getRecall();
+		double f = getFscore();
 		return String.format("F1: %g Pr: %g / %g = %g Re:%g / %g = %g", f, precision.score, precision.total, p, recall.score, recall.total, r);
 	}
 	
@@ -129,8 +126,23 @@ public class Scorer {
 	    }
 	    Set<Bracket> intersect = new HashSet<>(pre);
 	    intersect.retainAll(ref);
-	    s.score = intersect.size() / (int) total;
+	    s.score = intersect.size() / (double) total;
 	    s.total = total;
+	}
+
+	public double getFscore() {
+		double p = getPrecision();
+		double r = getRecall();
+		double f = (2. * p * r) / (p + r);
+		return f;
+	}
+
+	private double getRecall() {
+		return 100. * recall.score / recall.total;
+	}
+
+	private double getPrecision() {
+		return 100. * precision.score / precision.total;
 	}
 	
 }

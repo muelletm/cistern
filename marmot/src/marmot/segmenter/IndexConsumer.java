@@ -34,4 +34,7 @@ public abstract class IndexConsumer implements Serializable {
 		weights_ = weights;
 	}
 	
+	public DynamicWeights getWeights() {
+		return weights_;
+	}
 }

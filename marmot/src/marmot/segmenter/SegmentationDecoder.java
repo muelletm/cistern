@@ -15,7 +15,6 @@ public class SegmentationDecoder {
 	private int[] tag_array_;
 	private int[] index_array_;
 	private int input_length_;
-	private SegmentationInstance instance_;
 
 	public SegmentationDecoder(SegmenterModel model) {
 		model_ = model;
@@ -24,7 +23,6 @@ public class SegmentationDecoder {
 	}
 	
 	SegmentationResult decode(SegmentationInstance instance) {
-		instance_ = instance;
 		input_length_ = instance.getLength();
 		
 		checkArraySize(num_tags_ * input_length_);
@@ -32,16 +30,16 @@ public class SegmentationDecoder {
 		Arrays.fill(tag_array_, -1);
 		Arrays.fill(index_array_, -1);
 		
-		for (int l = 1; l < input_length_ + 1; l++) {
-			for (int o = 0; o < num_tags_; o++) {
+		for (int l_end = 1; l_end < input_length_ + 1; l_end++) {
+			for (int tag = 0; tag < num_tags_; tag++) {
 
 				double best_score = Double.NEGATIVE_INFINITY;
 				int best_output = -1;
 				int best_index = -1;
 
-				for (int l_start = Math.max(0, l - max_segment_length); l_start < l; l_start++) {
+				for (int l_start = Math.max(0, l_end - max_segment_length); l_start < l_end; l_start++) {
 
-					double pair_score = model_.getPairScore(instance, l_start, l, o);
+					double pair_score = model_.getPairScore(instance, l_start, l_end, tag);
 					
 					if (l_start == 0) {
 
@@ -55,25 +53,25 @@ public class SegmentationDecoder {
 
 					} else {
 
-						for (int last_o = 0; last_o < num_tags_; last_o++) {
-							double prev_cost = score_array_[getIndex(last_o, l_start - 1)];
-							double transiton_score = model_.getTransitionScore(instance, last_o, o,
-									l_start, l);
+						for (int last_tag = 0; last_tag < num_tags_; last_tag++) {
+							double prev_cost = score_array_[getIndex(last_tag, l_start - 1)];
+							double transiton_score = model_.getTransitionScore(instance, last_tag, tag,
+									l_start, l_end);
 							
 							double score = pair_score + transiton_score + prev_cost;
 
 							if (score > best_score) {
 								best_score = score;
-								best_output = last_o;
+								best_output = last_tag;
 								best_index = l_start;
 							}
 						}
 					}
 				}
 
-				score_array_[getIndex(o, l - 1)] = best_score;
-				tag_array_[getIndex(o, l - 1)] = best_output;
-				index_array_[getIndex(o, l - 1)] = best_index;
+				score_array_[getIndex(tag, l_end - 1)] = best_score;
+				tag_array_[getIndex(tag, l_end - 1)] = best_output;
+				index_array_[getIndex(tag, l_end - 1)] = best_index;
 
 			}
 		}
@@ -87,32 +85,32 @@ public class SegmentationDecoder {
 		List<Integer> input_indexes = new LinkedList<>();
 		int end_index = input_length_;
 		double best_score = Double.NEGATIVE_INFINITY;
-		int end_output = -1;
+		int end_tag = -1;
 
-		for (int o = 0; o < num_tags_; o++) {
-			double score = score_array_[getIndex(o, end_index - 1)];
+		for (int tag = 0; tag < num_tags_; tag++) {
+			double score = score_array_[getIndex(tag, end_index - 1)];
 
 			if (score > best_score) {
 				best_score = score;
-				end_output = o;
+				end_tag = tag;
 			}
 		}
 
-		tags.add(end_output);
+		tags.add(end_tag);
 		input_indexes.add(end_index);
 
 		while (true) {
 
-			int start_index = index_array_[getIndex(end_output, end_index - 1)];
-			int start_output = tag_array_[getIndex(end_output, end_index - 1)];
+			int start_index = index_array_[getIndex(end_tag, end_index - 1)];
+			int start_tag = tag_array_[getIndex(end_tag, end_index - 1)];
 			
-			if (start_output < 0)
+			if (start_tag < 0)
 				break;
 			
-			tags.add(start_output);
+			tags.add(start_tag);
 			input_indexes.add(start_index);
 			
-			end_output = start_output;
+			end_tag = start_tag;
 			end_index = start_index;
 		}
 
@@ -121,8 +119,8 @@ public class SegmentationDecoder {
 		return new SegmentationResult(tags, input_indexes, best_score);
 	}
 
-	private int getIndex(int output, int index) {
-		return output * input_length_ + index;
+	private int getIndex(int tag, int index) {
+		return tag * input_length_ + index;
 	}
 
 	private void checkArraySize(int required_length) {

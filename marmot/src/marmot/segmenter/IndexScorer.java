@@ -10,10 +10,12 @@ import marmot.util.SymbolTable;
 public class IndexScorer extends IndexConsumer {
 
 	private static final long serialVersionUID = 1L;
+	private boolean insert_;
 
 	public IndexScorer(DynamicWeights weights,
 			SymbolTable<Feature> feature_map) {
 		super(weights, feature_map);
+		insert_ = true;
 	}
 
 	double score_;
@@ -35,7 +37,11 @@ public class IndexScorer extends IndexConsumer {
 
 	@Override
 	protected boolean getInsert() {
-		return false;
+		return insert_;
+	}
+
+	public void setInsert(boolean insert) {
+		insert_ = insert;
 	}
 
 }

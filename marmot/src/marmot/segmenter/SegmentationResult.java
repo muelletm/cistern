@@ -4,6 +4,11 @@ import java.util.List;
 
 public class SegmentationResult {
 
+	@Override
+	public String toString() {
+		return "[" + tags_ + " " + input_indexes_ + "]";
+	}
+
 	private List<Integer> tags_;
 	private List<Integer> input_indexes_;
 	private double score_;
