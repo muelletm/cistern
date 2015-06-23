@@ -246,7 +246,6 @@ public class IsingFactorGraph {
 		
 		for (Variable v: this.variables) {
 			Belief b = v.getBelief();
-			
 			if (b.measure[1] > b.measure[0]) {
 				tags.add(v.getTagName());
 			}

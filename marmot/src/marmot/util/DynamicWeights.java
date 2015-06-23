@@ -12,10 +12,21 @@ public class DynamicWeights implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private double[] weights_;
 	private Random random_;
+	private boolean clip_;
+	private boolean expand_;
 
 	public DynamicWeights(Random random) {
 		weights_ = new double[0];
 		random_ = random;
+		clip_ = false;
+		expand_ = true;
+	}
+
+	public DynamicWeights(double[] params, boolean clip, boolean expand) {
+		weights_ = params;
+		random_ = null;
+		clip_ = clip;
+		expand_ = expand;
 	}
 
 	public double[] getWeights() {
@@ -27,16 +38,24 @@ public class DynamicWeights implements Serializable {
 	}
 
 	public double get(int index) {
-		checkCapacity(index);
+		index = checkCapacity(index);
 		return weights_[index];
 	}
 
-	private void checkCapacity(int index) {
+	private int checkCapacity(int index) {
 		if (index >= weights_.length) {
-			int old_length = weights_.length;
-			int new_length = Math.max(index + 10, (weights_.length * 2) / 3);		
-			expandArray(old_length, new_length);
+			if (clip_) {
+				index = index % weights_.length;
+			} else if (expand_) {
+				int old_length = weights_.length;
+				int new_length = Math.max(index + 10, (weights_.length * 2) / 3);		
+				expandArray(old_length, new_length);
+			}
 		}
+		
+		
+		
+		return index;
 	}
 
 	private void expandArray(int old_length, int new_length) {
@@ -48,13 +67,13 @@ public class DynamicWeights implements Serializable {
 		}
 	}
 
-	public void incremen(int index, double update) {
-		checkCapacity(index);
+	public void increment(int index, double update) {
+		index = checkCapacity(index);
 		weights_[index] += update;
 	}
 	
 	public void set(int index, double update) {
-		checkCapacity(index);
+		index = checkCapacity(index);
 		weights_[index] = update;
 	}
 
@@ -64,6 +83,10 @@ public class DynamicWeights implements Serializable {
 
 	public void setLength(int new_length) {
 		expandArray(weights_.length, new_length);
+	}
+
+	public void setExapnd(boolean expand) {
+		expand_ = false;
 	}
 
 }

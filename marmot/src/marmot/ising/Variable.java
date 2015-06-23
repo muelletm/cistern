@@ -13,11 +13,11 @@ public class Variable {
 	private int size;
 	
 	// neighbors 
-	private List<Factor> neighbors;
-	private List<Integer> messageIds;
+	private ArrayList<Factor> neighbors;
+	private ArrayList<Integer> messageIds;
 	
 	//messages 
-	private List<Message> messages;
+	private ArrayList<Message> messages;
 
 	public Variable(int size, int i, String tagName) {
 		this.setSize(size);
@@ -94,7 +94,7 @@ public class Variable {
 		return messageIds;
 	}
 
-	public void setMessageIds(List<Integer> messageIds) {
+	public void setMessageIds(ArrayList<Integer> messageIds) {
 		this.messageIds = messageIds;
 	}
 
@@ -102,7 +102,7 @@ public class Variable {
 		return messages;
 	}
 
-	public void setMessages(List<Message> messages) {
+	public void setMessages(ArrayList<Message> messages) {
 		this.messages = messages;
 	}
 
@@ -110,7 +110,7 @@ public class Variable {
 		return neighbors;
 	}
 
-	public void setNeighbors(List<Factor> neighbors) {
+	public void setNeighbors(ArrayList<Factor> neighbors) {
 		this.neighbors = neighbors;
 	}
 

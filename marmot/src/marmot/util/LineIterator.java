@@ -14,21 +14,33 @@ import java.util.NoSuchElementException;
 
 public class LineIterator implements Iterator<List<String>> {
 	
+	private final static String DefaultSeperator_ = "\\s+";
 	private BufferedReader reader_;
+	private String seperator_;
 	
 	public LineIterator(String filename){
+		this(filename, DefaultSeperator_);
+	}
+	
+	public LineIterator(InputStream in) {
+		this(in, DefaultSeperator_);
+	}
+	
+	public LineIterator(InputStream in, String seperator) {
+		seperator_ = seperator;
 		try {
-			reader_ = FileUtils.openFile(filename);
-		} catch(FileNotFoundException e){
-			throw new RuntimeException(e);			
+			reader_ = FileUtils.openStream(in);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
-	
-	public LineIterator(InputStream in) {
+
+	public LineIterator(String filename, String seperator) {
+		seperator_ = seperator;
 		try {
-			reader_ = FileUtils.openStream(in);
+			reader_ = FileUtils.openFile(filename);
+		} catch(FileNotFoundException e){
+			throw new RuntimeException(e);			
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -51,8 +63,7 @@ public class LineIterator implements Iterator<List<String>> {
 		
 		try {
 			String line = reader_.readLine();
-						
-			String[] tokens = line.split("\\s+");
+			String[] tokens = line.split(seperator_);
 			ArrayList<String> list = new ArrayList<String>(tokens.length);
 			for (int i=0;i<tokens.length;i++){
 				if (!tokens[i].isEmpty()){

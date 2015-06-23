@@ -315,4 +315,10 @@ public class SimpleAnalyzerModel implements Serializable {
 		return tag_table_;
 	}
 
+	public double score(SimpleAnalyzerInstance simpleAnalyzerInstance,
+			int tagIndex) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }

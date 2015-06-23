@@ -1,7 +1,7 @@
 // Copyright 2015 Thomas Müller
 // This file is part of MarMoT, which is licensed under GPLv3.
 
-package marmot.lemma.toutanova;
+package marmot.segmenter;
 
 import marmot.core.Feature;
 import marmot.util.DynamicWeights;
@@ -12,8 +12,8 @@ public class IndexUpdater extends IndexConsumer {
 	private static final long serialVersionUID = 1L;
 
 	public IndexUpdater(DynamicWeights weights,
-			SymbolTable<Feature> feature_map, int num_pos_bits) {
-		super(weights, feature_map, num_pos_bits);
+			SymbolTable<Feature> feature_map) {
+		super(weights, feature_map);
 	}
 
 	private double update_;
