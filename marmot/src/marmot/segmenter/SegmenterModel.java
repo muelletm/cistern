@@ -21,21 +21,32 @@ public class SegmenterModel implements Serializable {
 
 	private int max_segment_length_;
 	transient private Encoder encoder_;
+	transient private Encoder.State encoder_state_;
 
+	private int window_length_bits_;
 	private int num_char_bits;
 	private int num_tag_bits;
 	private int max_segment_length_bits_;
 
 	private IndexScorer scorer_;
 	private IndexUpdater updater_;
-
-	private final static int FEATURE_BITS = Encoder.bitsNeeded(2);
+	
+	private int max_character_window_;
+	private boolean use_segment_context_ = true;
+	private boolean use_character_feature_ = true;
+	
+	private final static int FEATURE_BITS = Encoder.bitsNeeded(3);
 	private final static int TRANS_FEAT = 0;
 	private final static int TAG_FEAT = 1;
 	private final static int PAIR_FEAT = 2;
+	private final static int CHARACTER_FEAT = 3;
 
-	public void init(Collection<Word> words) {
 
+	public void init(Collection<Word> words, int max_character_window, boolean use_segment_context, boolean use_character_feature) {
+		max_character_window_ = max_character_window;
+		use_segment_context_ = use_segment_context;
+		use_character_feature_ = use_character_feature;
+		
 		tag_table_ = new SymbolTable<>(true);
 		char_table_ = new SymbolTable<>();
 
@@ -65,6 +76,7 @@ public class SegmenterModel implements Serializable {
 		num_tag_bits = Encoder.bitsNeeded(tag_table_.size());
 		num_char_bits = Encoder.bitsNeeded(char_table_.size());
 		max_segment_length_bits_ = Encoder.bitsNeeded(max_segment_length_);
+		window_length_bits_ = Encoder.bitsNeeded(max_character_window_ + 1);
 
 		SymbolTable<Feature> feature_map = new SymbolTable<>();
 		scorer_ = new IndexScorer(null, feature_map);
@@ -72,8 +84,10 @@ public class SegmenterModel implements Serializable {
 	}
 
 	private void prepareEncoder() {
-		if (encoder_ == null)
+		if (encoder_ == null) {
 			encoder_ = new Encoder(10);
+			encoder_state_ = new Encoder.State();
+		}
 		encoder_.reset();
 	}
 
@@ -101,8 +115,39 @@ public class SegmenterModel implements Serializable {
 
 	private void consumeTagPair(IndexConsumer consumer,
 			SegmentationInstance instance, int l_start, int l_end, int tag) {
+		assert l_start >= 0 && l_end <= instance.getLength();
+		
 		consumePairFeature(consumer, instance, l_start, l_end, tag);
+		consumeCharacterFeature(consumer, instance, l_start, l_end, tag);
 		consumeTagFeature(consumer, instance, l_start, l_end, tag);
+	}
+
+	private void consumeCharacterFeature(IndexConsumer consumer,
+			SegmentationInstance instance, int l_start, int l_end, int tag) {
+		
+		if (use_character_feature_) {
+			short[] chars = instance.getFormCharIndexes(char_table_);
+			
+			prepareEncoder();
+			encoder_.append(CHARACTER_FEAT, FEATURE_BITS);
+			encoder_.append(0, 2);
+			encoder_.storeState(encoder_state_);
+			for (int window = 1; window <= max_character_window_; window++) {
+				encoder_.restoreState(encoder_state_);
+				addSegment(chars, l_start, l_start + window);
+				consumer.consume(instance, encoder_);
+			}
+
+			prepareEncoder();
+			encoder_.append(CHARACTER_FEAT, FEATURE_BITS);
+			encoder_.append(2, 2);
+			encoder_.storeState(encoder_state_);
+			for (int window = 1; window <= max_character_window_; window++) {
+				encoder_.restoreState(encoder_state_);
+				addSegment(chars, l_end - window, l_end);
+				consumer.consume(instance, encoder_);
+			}
+		}
 	}
 
 	private void consumeTransition(IndexConsumer consumer,
@@ -122,8 +167,12 @@ public class SegmenterModel implements Serializable {
 
 	public void consumePairFeature(IndexConsumer consumer,
 			SegmentationInstance instance, int l_start, int l_end, int tag) {
+		assert l_start >= 0 && l_end <= instance.getLength();
+		
 		prepareEncoder();
 		short[] chars = instance.getFormCharIndexes(char_table_);
+		assert chars.length == instance.getLength();
+		
 		encoder_.append(PAIR_FEAT, FEATURE_BITS);
 		encoder_.append(tag, num_tag_bits);
 		encoder_.append(l_end - l_start, max_segment_length_bits_);
@@ -135,11 +184,7 @@ public class SegmenterModel implements Serializable {
 			encoder_.append(c, num_char_bits);
 		}
 		consumer.consume(instance, encoder_);
-
-		// if (consumer == scorer_)
-		// System.err.format("consumePairFeature (%d %d %d) %g\n", l_start,
-		// l_end, tag, scorer_.getScore());
-
+		addCharacterContext(instance, consumer, l_start, l_end);
 	}
 
 	public void consumeTransitionFeature(IndexConsumer consumer,
@@ -167,12 +212,14 @@ public class SegmenterModel implements Serializable {
 		while (tag_iterator.hasNext()) {
 			int tag = tag_iterator.next();
 			int l_end = input_iterator.next();
+			assert l_end <= instance.getLength();
 
 			if (last_tag >= 0) {
 				consumeTransition(updater_, instance, l_start, l_end, last_tag,
 						tag);
 			}
 
+			assert l_start >= 0 && l_end <= instance.getLength();
 			consumeTagPair(updater_, instance, l_start, l_end, tag);
 
 			last_tag = tag;
@@ -224,6 +271,9 @@ public class SegmenterModel implements Serializable {
 			int index = 0;
 			for (String segment : reading.getSegments()) {
 				index += segment.length();
+				
+				assert index <= word.getLength() : word + " " + reading;
+				
 				input_indexes.add(index);
 			}
 
@@ -288,6 +338,52 @@ public class SegmenterModel implements Serializable {
 		scorer_.setInsert(false);
 		scorer_.getWeights().setExapnd(false);
 		encoder_ = null;
+	}
+
+	public IndexScorer getScorer() {
+		return scorer_;
+	}
+
+	public IndexUpdater getUpdater() {
+		return updater_;
+	}
+
+	private void addCharacterContext(SegmentationInstance instance,
+			IndexConsumer consumer, int l_start, int l_end) {
+		if (use_segment_context_ ) {
+
+			encoder_.storeState(encoder_state_);
+			
+			for (int window = 1; window <= max_character_window_; window++) {
+				encoder_.restoreState(encoder_state_);
+				encoder_.append(0, 1);
+				addSegment(instance.getFormCharIndexes(char_table_), l_start- window, l_start);
+				consumer.consume(instance, encoder_);
+			}
+
+			for (int window = 1; window <= max_character_window_; window++) {
+				encoder_.restoreState(encoder_state_);
+				encoder_.append(1, 1);
+				addSegment(instance.getFormCharIndexes(char_table_), l_end, l_end + window);
+				consumer.consume(instance, encoder_);
+			}
+		}
+	}
+
+	private void addSegment(short[] chars, int start, int end) {
+		encoder_.append(end - start, window_length_bits_);
+		for (int i = start; i < end; i++) {
+
+			int c;
+			if (i >= 0 && i < chars.length) {
+				c = chars[i];
+			} else {
+				c = char_table_.size();
+			}
+			if (c < 0)
+				return;
+			encoder_.append(c, num_char_bits);
+		}
 	}
 
 }

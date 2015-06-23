@@ -108,7 +108,7 @@ public class SumLatticeTest {
 		words.add(toWord(Arrays.asList("aa", "c"), Arrays.asList("A", "C")));
 
 		SegmenterModel model = new SegmenterModel();
-		model.init(words);
+		model.init(words, 0, false, false);
 
 		SegmentationSumLattice lattice = new SegmentationSumLattice(model);
 				

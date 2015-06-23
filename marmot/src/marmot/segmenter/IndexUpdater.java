@@ -13,7 +13,7 @@ public class IndexUpdater extends IndexConsumer {
 
 	public IndexUpdater(DynamicWeights weights,
 			SymbolTable<Feature> feature_map) {
-		super(weights, feature_map);
+		super(weights, feature_map, true);
 	}
 
 	private double update_;
@@ -24,14 +24,8 @@ public class IndexUpdater extends IndexConsumer {
 	
 	@Override
 	public void consume(int index) {
-		if (index >= 0) {
-			weights_.increment(index, update_);
-		}
-	}
-
-	@Override
-	protected boolean getInsert() {
-		return true;
+		assert index >= 0;
+		weights_.increment(index, update_);
 	}
 
 }

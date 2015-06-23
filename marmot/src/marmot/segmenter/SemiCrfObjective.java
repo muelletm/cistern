@@ -16,36 +16,64 @@ public class SemiCrfObjective implements ByGradientValue {
 	private double[] weights_;
 	private double penalty_;
 
-	public SemiCrfObjective(SegmenterModel model, Collection<Word> words,
-			double[] params) {
+	public SemiCrfObjective(SegmenterModel model, Collection<Word> words, double penalty) {
 		model_ = model;
 		words_ = words;
-		weights_ = params;
-		gradient_ = new double[params.length];
-
-		model.setScorerWeights(new DynamicWeights(weights_, false, false));
-		model.setUpdaterWeights(new DynamicWeights(gradient_, false, false));
+		penalty_ = penalty;
+	}
+	
+	public void init() {
+		DynamicWeights weights = new DynamicWeights(null);
+		model_.setScorerWeights(weights);
+		DynamicWeights gradient = new DynamicWeights(null);
+		model_.setUpdaterWeights(gradient);
+		model_.getUpdater().setInsert(false);
+		
+		calcLikelihood();
+		
+		DynamicWeights scorer = model_.getScorer().getWeights();
+		DynamicWeights updater = model_.getUpdater().getWeights();
+		
+		if (scorer.getLength() != updater.getLength()) {
+			int length = Math.max(scorer.getLength(), updater.getLength());
+			scorer.setLength(length);
+			updater.setLength(length);
+		}
+		
+		weights_ = scorer.getWeights();
+		scorer.setExapnd(false);
+		gradient_ = updater.getWeights();
+		updater.setExapnd(false);
+		
+		assert weights_.length == gradient_.length : weights_.length + " " + gradient_.length;
+		
+		System.err.format("Num parameters: %d\n", weights_.length);
+		calcPenalty();
 	}
 
 	public void update() {
 		value_ = 0.;
 		Arrays.fill(gradient_, 0.);
+		calcLikelihood();
+		calcPenalty();
+		// System.err.println("value: " + value_);
+	}
 
-		SegmentationSumLattice lattice = new SegmentationSumLattice(model_);
-
-		for (Word word : words_) {
-			SegmentationInstance instance = model_.getInstance(word);
-			value_ += lattice.update(instance, true);
-		}
-
-		System.err.println("value: " + value_);
-
+	private void calcPenalty() {
 		if (penalty_ > 0.0) {
 			for (int i = 0; i < weights_.length; i++) {
 				double w = weights_[i];
 				value_ -= penalty_ * w * w;
 				gradient_[i] -= 2. * penalty_ * w;
 			}
+		}
+	}
+
+	private void calcLikelihood() {
+		SegmentationSumLattice lattice = new SegmentationSumLattice(model_);
+		for (Word word : words_) {
+			SegmentationInstance instance = model_.getInstance(word);
+			value_ += lattice.update(instance, true);
 		}
 	}
 

@@ -1,0 +1,33 @@
+Semi-Perceptron				76.51
+Semi-Perceptron + Context		85.76
+Averaged Semi-Perceptron + Context	87.06
+
+Semi-CRF + Context (l2=0.00)		86.55
+Semi-CRF + Context (l2=0.001)		86.47
+Semi-CRF + Context (l2=0.01)		86.43
+Semi-CRF + Context (l2=0.10)		85.83
+
+\software{CRF-Morph}            86.10
+\software{CRF-Morph} +LSV       86.71
+First-order CRF                 86.45
+Higher-order CRF                86.45
+\modelname                      86.34
+\modelname +Morph               86.25
+\modelname +Affix               86.15
+\modelname +Affix,+Morph        86.71
+\modelname +Dict                87.59
+\modelname +Dict,+Morph         88.82
+\modelname +Dict,+Affix         87.69
+\modelname +Dict,+Affix,+Morph  88.71
+
+
+
+				En    Fi    De    Tr
+
+Avg Semi-Perc + Context(3)	86.92 81.66 87.11 89.82
+Avg Semi-Perc + Context(4)	86.78 81.77 86.60 89.67
+
+
+\software{CRF-Morph}            86.10 82.09 85.67 88.05
+\modelname                      86.34 82.34 84.63 90.11
+

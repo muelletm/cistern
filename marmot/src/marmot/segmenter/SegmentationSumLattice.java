@@ -75,8 +75,6 @@ public class SegmentationSumLattice {
 		double backward_sum = sumTag(backward_score_array_, 0);
 		double sum = backward_sum;
 		
-		//System.err.println("Lattice Sum: " + sum + " " + forward_sum);
-		
 		for (int l_end = 1; l_end < input_length_ + 1; l_end++) {
 			for (int tag = 0; tag < num_tags_; tag++) {
 				for (int l_start = Math.max(0, l_end - max_segment_length); l_start < l_end; l_start++) {
@@ -100,11 +98,7 @@ public class SegmentationSumLattice {
 						double update = -prob;
 						
 						if (do_update) {
-//							System.err.println("update pair score");
-//							model_.printWeights();
 							model_.update(instance, l_start, l_end, tag, update);
-//							model_.printWeights();
-//							System.err.println("updated");
 						}
 					} else {
 						

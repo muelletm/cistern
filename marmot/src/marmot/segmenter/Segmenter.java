@@ -20,4 +20,8 @@ public class Segmenter implements Serializable {
 		return model_.toWord(word.getWord(), result).getReadings().iterator().next();
 	}
 
+	public SegmenterModel getModel() {
+		return model_;
+	}
+
 }

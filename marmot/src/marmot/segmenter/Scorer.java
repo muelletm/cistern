@@ -14,15 +14,15 @@ public class Scorer {
 	Score precision = new Score();
 	Score recall = new Score();
 	
-	private static class Bracket{
+	private static class Boundary{
 		@Override
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + end_;
-			result = prime * result + start_;
+			result = prime * result + position_;
 			return result;
 		}
+
 		@Override
 		public boolean equals(Object obj) {
 			if (this == obj)
@@ -31,31 +31,31 @@ public class Scorer {
 				return false;
 			if (getClass() != obj.getClass())
 				return false;
-			Bracket other = (Bracket) obj;
-			if (end_ != other.end_)
-				return false;
-			if (start_ != other.start_)
+			Boundary other = (Boundary) obj;
+			if (position_ != other.position_)
 				return false;
 			return true;
 		}
-		public Bracket(int start, int end) {
-			start_ = start;
-			end_ = end;
+
+		public Boundary(int position) {
+			position_ = position;
 		}
 		
-		int start_;
-		int end_;
+		int position_;
+
 	}
 	
-	private Set<Bracket> getBrackets(SegmentationReading reading) {
-		Set<Bracket> brackets = new HashSet<>();
+	private Set<Boundary> getBrackets(SegmentationReading reading, int length) {
+		Set<Boundary> brackets = new HashSet<>();
 		int start = 0;
 		Iterator<String> segment_iterator = reading.getSegments().iterator();
 		while (segment_iterator.hasNext()) {
 			String segment = segment_iterator.next();
+			
 			int end = start + segment.length();
 			
-			brackets.add(new Bracket(start, end));
+			if (end < length)
+				brackets.add(new Boundary(end));
 			
 			start = end;
 		}
@@ -66,12 +66,12 @@ public class Scorer {
 		for (Word word : words) {
 			
 			SegmentationReading reading = segmenter.segment(word);
-			Set<Bracket> brackets = getBrackets(reading);
-			List<Set<Bracket>> predicted = Collections.singletonList(brackets);
+			Set<Boundary> brackets = getBrackets(reading, word.getLength());
+			List<Set<Boundary>> predicted = Collections.singletonList(brackets);
 			
-			List<Set<Bracket>> reference = new LinkedList<>();
+			List<Set<Boundary>> reference = new LinkedList<>();
 			for (SegmentationReading ref_reading : word.getReadings()) {
-				reference.add(getBrackets(ref_reading));
+				reference.add(getBrackets(ref_reading, word.getLength()));
 			}
 			
 			eval(predicted, reference, recall);
@@ -93,14 +93,14 @@ public class Scorer {
 		double total;
 	}
 	
-	void eval(Collection<Set<Bracket>> predicted, Collection<Set<Bracket>> reference, Score s) {
+	void eval(Collection<Set<Boundary>> predicted, Collection<Set<Boundary>> reference, Score s) {
 			double max_score = 0;
 	        double max_total = -1;
-	        for (Set<Bracket> ref : reference) {
+	        for (Set<Boundary> ref : reference) {
 	        	
 	        	double total = ref.size();
 	        	
-	            for (Set<Bracket> pre : predicted) {
+	            for (Set<Boundary> pre : predicted) {
 	            	Score m_tmp = new Score();
 	                eval_single(pre, ref, m_tmp);
 	                if (max_total == -1 || m_tmp.score > max_score) {
@@ -117,14 +117,14 @@ public class Scorer {
 	        s.score += max_score;
 	}
 
-	private void eval_single(Set<Bracket> pre, Set<Bracket> ref, Score s) {
+	private void eval_single(Set<Boundary> pre, Set<Boundary> ref, Score s) {
 	    int total = ref.size();
 	    if (total == 0) {
 	    	s.score = 1.0;
 	    	s.total = 0.0;
 	        return;
 	    }
-	    Set<Bracket> intersect = new HashSet<>(pre);
+	    Set<Boundary> intersect = new HashSet<>(pre);
 	    intersect.retainAll(ref);
 	    s.score = intersect.size() / (double) total;
 	    s.total = total;
