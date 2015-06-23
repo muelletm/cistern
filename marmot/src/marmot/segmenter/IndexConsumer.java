@@ -15,26 +15,44 @@ public abstract class IndexConsumer implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private SymbolTable<Feature> feature_map_;
 	protected DynamicWeights weights_;
+	private boolean insert_;
 
 	public abstract void consume(int index);
 
-	public IndexConsumer(DynamicWeights weights, SymbolTable<Feature> feature_map) {
+	public IndexConsumer(DynamicWeights weights, SymbolTable<Feature> feature_map, boolean insert) {
 		setWeights(weights);
 		feature_map_ = feature_map;
+		insert_ = insert;
 	}
 	
 	public void consume(SegmentationInstance instance, Encoder encoder) {
 		int index = feature_map_.toIndex(encoder.getFeature(), -1, getInsert());
+		
+		String name = "scorer";
+		if (this instanceof IndexUpdater) {
+			name = "updater";
+		}
+		
 		consume(index);
 	}
 	
-	protected abstract boolean getInsert();
-
 	public void setWeights(DynamicWeights weights) {
 		weights_ = weights;
 	}
 	
 	public DynamicWeights getWeights() {
 		return weights_;
+	}
+	
+	public SymbolTable<Feature> getFeatureTable() {
+		return feature_map_;
+	}
+	
+	protected boolean getInsert() {
+		return insert_;
+	}
+
+	public void setInsert(boolean insert) {
+		insert_ = insert;
 	}
 }

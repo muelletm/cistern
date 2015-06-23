@@ -1,7 +1,6 @@
 package marmot.segmenter;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,9 +27,10 @@ public class SegmentationDataReader {
 		while(iterator.hasNext()) {
 			
 			List<String> line = iterator.next();
-
+			assert line.size() == 2;
+			
 			if (line.size() > 0) {
-				String word_string = line.get(0).toLowerCase();
+				String word_string = line.get(0);
 				Word word = vocab.get(word_string);
 				if (word == null) {
 					word = new Word(word_string);
@@ -38,29 +38,39 @@ public class SegmentationDataReader {
 					vocab.put(word_string, word);
 				}
 				
-				for (int i=1; i<line.size(); i++) {
+				String[] word_readings = line.get(1).split(", "); 
+				
+				for (String word_reading : word_readings) {
 					
-					String[] readings = line.get(i).split(" ");
+					String[] readings = word_reading.split(" ");
 					List<String> segments = new LinkedList<>();
 					List<String> tags = new LinkedList<>();
 					
 					for (String reading : readings) {
 						
-						reading = reading.replace(",","");
+						//reading = reading.replace(",","");
 						int index = reading.indexOf(':');
 						
+						String segment;
+						String tag;
+						
 						if (index < 0) {
-							throw new RuntimeException(String.format("Invalid pair: %s in line %s", reading, line));
+							segment = reading;
+							tag = "<TAG>";
+						} else {
+							segment = reading.substring(0, index);
+							tag = reading.substring(index + 1);	
 						}
 						
-						String segment = reading.substring(0, index);
-						String tag = reading.substring(index + 1);
 						if (!keep_tag_)
 							tag = "<TAG>";
 						
-						segments.add(segment);
-						tags.add(tag);
-						
+						if (segment.equals("~")) {
+							System.err.println("Skipping segment: ~ from line " + line);
+						} else {
+							segments.add(segment);
+							tags.add(tag);
+						}
 					}
 					
 					word.add(new SegmentationReading(segments, tags));
@@ -69,7 +79,7 @@ public class SegmentationDataReader {
 		}
 	}
 	
-	public Collection<Word> getData() {
+	public List<Word> getData() {
 		return data_;
 	}
 
