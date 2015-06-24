@@ -13,6 +13,7 @@ public class SegmentationDataReader {
 	private List<Word> data_;
 	private boolean keep_tag_;
 	private StringNormalizer normalizer_;
+	private Map<String, Word> vocab_;
 	
 	public SegmentationDataReader(String filepath, String lang, boolean keep_tag) {
 		data_ = new ArrayList<Word>();		
@@ -20,9 +21,24 @@ public class SegmentationDataReader {
 		readFile(filepath, data_);
 	}
 	
+	public List<Word> map(List<Word> words) {
+		List<Word> new_words = new LinkedList<>();
+		for (Word word : words) {
+			Word new_word = vocab_.get(word.getWord());
+			assert new_word != null;
+			
+			if (!new_word.equals(word)) {
+				System.err.println("diff:\n" + word + "\n" + new_word );
+			}
+			
+			new_words.add(new_word);
+		}
+		return new_words;
+	}
+	
 	private void readFile(String fileIn, List<Word> words) {
 		
-		Map<String, Word> vocab = new HashMap<>();
+		vocab_ = new HashMap<>();
 		
 		LineIterator iterator = new LineIterator(fileIn, "\t");
 		
@@ -36,11 +52,11 @@ public class SegmentationDataReader {
 				
 				word_string = normalizer_.normalize(word_string);
 				
-				Word word = vocab.get(word_string);
+				Word word = vocab_.get(word_string);
 				if (word == null) {
 					word = new Word(word_string);
 					words.add(word);
-					vocab.put(word_string, word);
+					vocab_.put(word_string, word);
 				}
 				
 				String[] word_readings = line.get(1).split(", "); 

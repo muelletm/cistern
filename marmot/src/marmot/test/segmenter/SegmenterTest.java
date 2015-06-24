@@ -113,5 +113,61 @@ public class SegmenterTest {
 					/ num_chunks));
 		}
 	}
+	
+	@Test
+	public void trainCrossfoldTest3() {
+		Logger logger = Logger.getLogger(getClass().getName());
+
+		
+
+		int num_chunks = 10;
+
+		String[] langs = { "eng" };
+
+		for (String lang : langs) {
+			
+			String global_trainfile = String.format(
+					"res:///marmot/test/segmenter/data/%s/trn", lang);
+			
+			SegmentationDataReader global_reader = new SegmentationDataReader(global_trainfile, lang, false);
+
+			double score_sum = 0.0;
+			
+			for (int i = 0; i < num_chunks; i++) {
+				String trainfile = String.format(
+						"res:///marmot/test/segmenter/data/%s/%d.trn", lang, i);
+				String testfile = String.format(
+						"res:///marmot/test/segmenter/data/%s/%d.tst", lang, i);
+
+				List<Word> train = new SegmentationDataReader(trainfile, lang, false)
+						.getData();
+				train = global_reader.map(train);
+				
+				List<Word> test = new SegmentationDataReader(testfile, lang, false)
+						.getData();
+				test = global_reader.map(test);
+
+				SegmenterTrainer trainer = new SegmenterTrainer(lang);
+				
+				trainer.addDictionary(String.format(
+						"res:///marmot/test/segmenter/data/%s/wiktionary.txt", lang));
+				trainer.addDictionary(String.format(
+						"res:///marmot/test/segmenter/data/%s/aspell.txt", lang));
+				trainer.addDictionary(String.format(
+						"res:///marmot/test/segmenter/data/%s/wordlist.txt", lang));
+				
+				
+				Segmenter segmenter = trainer.train(train);
+				Scorer scorer = new Scorer();
+				scorer.eval(test, segmenter);
+				logger.info(String.format("%s F1 of chunk %d: %s\n", lang, i,
+						scorer.report()));
+				score_sum += scorer.getFscore();
+
+			}
+			logger.info(String.format("%s Average F1: %g\n", lang, score_sum
+					/ num_chunks));
+		}
+	}
 
 }
