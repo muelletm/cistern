@@ -17,8 +17,6 @@ import marmot.util.SymbolTable;
 
 import org.javatuples.Pair;
 
-import com.google.common.collect.Table;
-
 public class SimpleAnalyzer implements Analyzer {
 
 	private static final long serialVersionUID = 1L;

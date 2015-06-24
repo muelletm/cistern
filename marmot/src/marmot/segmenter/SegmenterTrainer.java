@@ -3,6 +3,7 @@ package marmot.segmenter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
@@ -25,11 +26,18 @@ public class SegmenterTrainer {
 	private int max_character_window_ = 3;
 	private boolean use_segment_context_ = true;
 	private boolean use_character_feature_ = true;
+	private List<String> dictionary_paths_;
+	private String lang_;
+	
+	public SegmenterTrainer(String lang) {
+		lang_ = lang;
+		dictionary_paths_ = new LinkedList<>();
+	}
 
 	public Segmenter train(Collection<Word> words) {
 		SegmenterModel model = new SegmenterModel();
 
-		model.init(words, max_character_window_, use_segment_context_, use_character_feature_);
+		model.init(lang_, words, max_character_window_, use_segment_context_, use_character_feature_, dictionary_paths_);
 
 		if (use_crf)
 			run_crf(model, words);
@@ -42,6 +50,11 @@ public class SegmenterTrainer {
 		return segmenter;
 	}
 
+	public SegmenterTrainer addDictionary(String path) {
+		dictionary_paths_.add(path);
+		return this;
+	}	
+	
 	private void run_crf(SegmenterModel model, Collection<Word> words) {
 		SemiCrfObjective objective = new SemiCrfObjective(model, words,
 				penalty_);

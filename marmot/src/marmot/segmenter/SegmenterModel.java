@@ -35,14 +35,17 @@ public class SegmenterModel implements Serializable {
 	private boolean use_segment_context_ = true;
 	private boolean use_character_feature_ = true;
 	
-	private final static int FEATURE_BITS = Encoder.bitsNeeded(3);
+	private final static int FEATURE_BITS = Encoder.bitsNeeded(4);
 	private final static int TRANS_FEAT = 0;
 	private final static int TAG_FEAT = 1;
 	private final static int PAIR_FEAT = 2;
 	private final static int CHARACTER_FEAT = 3;
+	private final static int DICT_FEAT = 4;
+	
+	private List<Dictionary> dictionaries_;
+	private int dictionary_bits_;
 
-
-	public void init(Collection<Word> words, int max_character_window, boolean use_segment_context, boolean use_character_feature) {
+	public void init(String lang, Collection<Word> words, int max_character_window, boolean use_segment_context, boolean use_character_feature, List<String> dictionary_paths_) {
 		max_character_window_ = max_character_window;
 		use_segment_context_ = use_segment_context;
 		use_character_feature_ = use_character_feature;
@@ -72,11 +75,21 @@ public class SegmenterModel implements Serializable {
 				char_table_.toIndex(c, true);
 			}
 		}
+		
+		dictionaries_ = new LinkedList<>();
+		for (String path : dictionary_paths_) {
+			Dictionary dictionary = new Dictionary(path, lang, max_segment_length_);
+			dictionaries_.add(dictionary);
+		}
 
 		num_tag_bits = Encoder.bitsNeeded(tag_table_.size());
 		num_char_bits = Encoder.bitsNeeded(char_table_.size());
 		max_segment_length_bits_ = Encoder.bitsNeeded(max_segment_length_);
 		window_length_bits_ = Encoder.bitsNeeded(max_character_window_ + 1);
+		
+		if (!dictionaries_.isEmpty()) {
+			dictionary_bits_ = Encoder.bitsNeeded(dictionaries_.size());
+		}
 
 		SymbolTable<Feature> feature_map = new SymbolTable<>();
 		scorer_ = new IndexScorer(null, feature_map);
@@ -117,9 +130,40 @@ public class SegmenterModel implements Serializable {
 			SegmentationInstance instance, int l_start, int l_end, int tag) {
 		assert l_start >= 0 && l_end <= instance.getLength();
 		
+		
 		consumePairFeature(consumer, instance, l_start, l_end, tag);
 		consumeCharacterFeature(consumer, instance, l_start, l_end, tag);
 		consumeTagFeature(consumer, instance, l_start, l_end, tag);
+		
+		if (!dictionaries_.isEmpty()) {
+			String segment = instance.getWord().getWord().substring(l_start, l_end);
+			int length = l_end - l_start;
+			assert segment.length() == length;
+			assert length <= max_segment_length_;
+			
+			int dict_index = 0;
+			for (Dictionary dictionary : dictionaries_) {
+				
+				boolean value = dictionary.contains(segment);
+				prepareEncoder();
+				encoder_.append(DICT_FEAT, FEATURE_BITS);
+				encoder_.append(dict_index, dictionary_bits_);
+				encoder_.append(0, max_segment_length_bits_);
+				encoder_.append(value);
+				consumer.consume(instance, encoder_);
+				
+				prepareEncoder();
+				encoder_.append(DICT_FEAT, FEATURE_BITS);
+				encoder_.append(dict_index, dictionary_bits_);
+				encoder_.append(length, max_segment_length_bits_);
+				encoder_.append(value);
+				consumer.consume(instance, encoder_);
+				
+				dict_index ++;
+			}
+			
+		}
+		
 	}
 
 	private void consumeCharacterFeature(IndexConsumer consumer,

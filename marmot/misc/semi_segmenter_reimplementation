@@ -24,10 +24,15 @@ Higher-order CRF                86.45
 
 				En    Fi    De    Tr
 
-Avg Semi-Perc + Context(3)	86.92 81.66 87.11 89.82
-Avg Semi-Perc + Context(4)	86.78 81.77 86.60 89.67
+Avg Perc + Con(3)		86.92 81.66 87.11 89.82
+Avg Perc + Con(4)		86.78 81.77 86.60 89.67
+
+Avg Perc + Con(3) + Dict   	86.80       88.82
+Avg Perc + Con(3) + Dict + DiL	89.10	    90.10
 
 
 \software{CRF-Morph}            86.10 82.09 85.67 88.05
 \modelname                      86.34 82.34 84.63 90.11
+\modelname +Dict,+Affix		87.69 86.21 89.45 91.66
+\modelname +Dict,+Affix,+Morph  88.71 86.92 89.75 93.21
 

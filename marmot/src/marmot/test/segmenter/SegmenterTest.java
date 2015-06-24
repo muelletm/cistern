@@ -21,9 +21,9 @@ public class SegmenterTest {
 	@Test
 	public void trainAccuracyTest() {
 		String trainfile = "res:///marmot/test/segmenter/en.trn";
-		SegmentationDataReader reader = new SegmentationDataReader(trainfile,
+		SegmentationDataReader reader = new SegmentationDataReader(trainfile, "eng",
 				false);
-		SegmenterTrainer trainer = new SegmenterTrainer();
+		SegmenterTrainer trainer = new SegmenterTrainer("eng");
 		Segmenter segmenter = trainer.train(reader.getData());
 
 		segmenter = Copy.clone(segmenter);
@@ -42,7 +42,7 @@ public class SegmenterTest {
 	public void trainCrossfoldTest() {
 		Logger logger = Logger.getLogger(getClass().getName());
 		String trainfile = "res:///marmot/test/segmenter/en.trn";
-		SegmentationDataReader reader = new SegmentationDataReader(trainfile,
+		SegmentationDataReader reader = new SegmentationDataReader(trainfile, "eng",
 				false);
 
 		List<List<Word>> chunks = ListUtils.chunk(reader.getData(), 10);
@@ -53,7 +53,7 @@ public class SegmenterTest {
 			List<Word> train = ListUtils.complement(chunks, i);
 			List<Word> test = chunks.get(i);
 
-			SegmenterTrainer trainer = new SegmenterTrainer();
+			SegmenterTrainer trainer = new SegmenterTrainer("eng");
 			Segmenter segmenter = trainer.train(train);
 
 			Scorer scorer = new Scorer();
@@ -74,7 +74,7 @@ public class SegmenterTest {
 
 		int num_chunks = 10;
 
-		String[] langs = { "ger", "tur" };
+		String[] langs = { "fin" };
 
 		for (String lang : langs) {
 
@@ -86,12 +86,21 @@ public class SegmenterTest {
 				String testfile = String.format(
 						"res:///marmot/test/segmenter/data/%s/%d.tst", lang, i);
 
-				List<Word> train = new SegmentationDataReader(trainfile, false)
+				List<Word> train = new SegmentationDataReader(trainfile, lang, false)
 						.getData();
-				List<Word> test = new SegmentationDataReader(testfile, false)
+				List<Word> test = new SegmentationDataReader(testfile, lang, false)
 						.getData();
 
-				SegmenterTrainer trainer = new SegmenterTrainer();
+				SegmenterTrainer trainer = new SegmenterTrainer(lang);
+				
+				trainer.addDictionary(String.format(
+						"res:///marmot/test/segmenter/data/%s/wiktionary.txt", lang));
+				trainer.addDictionary(String.format(
+						"res:///marmot/test/segmenter/data/%s/aspell.txt", lang));
+				trainer.addDictionary(String.format(
+						"res:///marmot/test/segmenter/data/%s/wordlist.txt", lang));
+				
+				
 				Segmenter segmenter = trainer.train(train);
 				Scorer scorer = new Scorer();
 				scorer.eval(test, segmenter);

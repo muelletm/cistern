@@ -12,9 +12,11 @@ public class SegmentationDataReader {
 
 	private List<Word> data_;
 	private boolean keep_tag_;
+	private StringNormalizer normalizer_;
 	
-	public SegmentationDataReader(String filepath, boolean keep_tag) {
+	public SegmentationDataReader(String filepath, String lang, boolean keep_tag) {
 		data_ = new ArrayList<Word>();		
+		normalizer_ = StringNormalizer.labeledCreate(lang);
 		readFile(filepath, data_);
 	}
 	
@@ -31,6 +33,9 @@ public class SegmentationDataReader {
 			
 			if (line.size() > 0) {
 				String word_string = line.get(0);
+				
+				word_string = normalizer_.normalize(word_string);
+				
 				Word word = vocab.get(word_string);
 				if (word == null) {
 					word = new Word(word_string);
@@ -61,6 +66,8 @@ public class SegmentationDataReader {
 							segment = reading.substring(0, index);
 							tag = reading.substring(index + 1);	
 						}
+						
+						segment = normalizer_.normalize(segment);
 						
 						if (!keep_tag_)
 							tag = "<TAG>";
