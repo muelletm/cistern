@@ -36,7 +36,7 @@ public class SegmenterTrainer {
 	private boolean use_character_feature_ = true;
 	private List<String> dictionary_paths_;
 	private String lang_;
-	
+
 	public SegmenterTrainer(String lang) {
 		lang_ = lang;
 		dictionary_paths_ = new LinkedList<>();
@@ -45,15 +45,16 @@ public class SegmenterTrainer {
 	public Segmenter train(Collection<Word> words) {
 		SegmenterModel model = new SegmenterModel();
 
-		model.init(lang_, words, max_character_window_, use_segment_context_, use_character_feature_, dictionary_paths_);
+		model.init(lang_, words, max_character_window_, use_segment_context_,
+				use_character_feature_, dictionary_paths_);
 
 		if (crf_mode_) {
 			System.err.println("Training CRF");
 			run_crf(model, words);
-		}
-		else
+		} else {
 			System.err.println("Training Perceptron");
 			run_perceptron(model, words);
+		}
 
 		model.setFinal();
 
@@ -64,8 +65,8 @@ public class SegmenterTrainer {
 	public SegmenterTrainer addDictionary(String path) {
 		dictionary_paths_.add(path);
 		return this;
-	}	
-	
+	}
+
 	private void run_crf(SegmenterModel model, Collection<Word> words) {
 		SemiCrfObjective objective = new SemiCrfObjective(model, words,
 				penalty_);
@@ -116,8 +117,9 @@ public class SegmenterTrainer {
 
 				if (!result.isCorrect(instance)) {
 
-					SegmentationResult closest_result = Scorer.closest(result, instance.getResults(), instance.getLength());
-					
+					SegmentationResult closest_result = Scorer.closest(result,
+							instance.getResults(), instance.getLength());
+
 					model.update(instance, result, -1.);
 					model.update(instance, closest_result, +1.);
 
@@ -126,8 +128,7 @@ public class SegmenterTrainer {
 						assert amount > 0;
 						model.setWeights(sum_weights);
 						model.update(instance, result, -amount);
-						model.update(instance, closest_result,
-								+amount);
+						model.update(instance, closest_result, +amount);
 						model.setWeights(weights);
 					}
 
@@ -147,94 +148,114 @@ public class SegmenterTrainer {
 			}
 		}
 	}
-	
+
 	public static void main(String[] args) throws JSAPException, IOException {
-		
+
 		FlaggedOption opt;
 		JSAP jsap = new JSAP();
 
 		opt = new FlaggedOption("dir").setRequired(true).setLongFlag("dir");
 		jsap.registerParameter(opt);
-		
+
 		opt = new FlaggedOption("out").setRequired(true).setLongFlag("out");
 		jsap.registerParameter(opt);
 
 		opt = new FlaggedOption("lang").setRequired(true).setLongFlag("lang");
 		jsap.registerParameter(opt);
-		
-		opt = new FlaggedOption("crf-mode").setStringParser(JSAP.BOOLEAN_PARSER).setLongFlag("crf-mode").setDefault("false");
-		jsap.registerParameter(opt);
-		
-		opt = new FlaggedOption("tag-level").setStringParser(JSAP.INTEGER_PARSER).setLongFlag("tag-level").setDefault("0");
+
+		opt = new FlaggedOption("crf-mode")
+				.setStringParser(JSAP.BOOLEAN_PARSER).setLongFlag("crf-mode")
+				.setDefault("false");
 		jsap.registerParameter(opt);
 
-		opt = new FlaggedOption("num-chunks").setStringParser(JSAP.INTEGER_PARSER).setLongFlag("num-chunks").setDefault("10");
+		opt = new FlaggedOption("tag-level")
+				.setStringParser(JSAP.INTEGER_PARSER).setLongFlag("tag-level")
+				.setDefault("0");
+		jsap.registerParameter(opt);
+
+		opt = new FlaggedOption("num-chunks")
+				.setStringParser(JSAP.INTEGER_PARSER).setLongFlag("num-chunks")
+				.setDefault("10");
+		jsap.registerParameter(opt);
+
+		opt = new FlaggedOption("penalty").setStringParser(JSAP.DOUBLE_PARSER)
+				.setLongFlag("penalty").setDefault("0.00");
+		jsap.registerParameter(opt);
+
+		opt = new FlaggedOption("use-dict")
+				.setStringParser(JSAP.BOOLEAN_PARSER).setLongFlag("use-dict")
+				.setDefault("true");
 		jsap.registerParameter(opt);
 
 		JSAPResult config = jsap.parse(args);
-		
-        if (!config.success()) {
-        	for (Iterator<?> errs = config.getErrorMessageIterator();
-                    errs.hasNext();) {
-                System.err.println("Error: " + errs.next());
-            }
-            System.err.println("Usage: ");
-            System.err.println(jsap.getUsage());
-            System.err.println(jsap.getHelp());
-            System.err.println();
-            System.exit(1);
-        }
-        
-        String dir = config.getString("dir");
-        String out = config.getString("out");
-        String lang = config.getString("lang");
+
+		if (!config.success()) {
+			for (Iterator<?> errs = config.getErrorMessageIterator(); errs
+					.hasNext();) {
+				System.err.println("Error: " + errs.next());
+			}
+			System.err.println("Usage: ");
+			System.err.println(jsap.getUsage());
+			System.err.println(jsap.getHelp());
+			System.err.println();
+			System.exit(1);
+		}
+
+		String dir = config.getString("dir");
+		String out = config.getString("out");
+		String lang = config.getString("lang");
 		int tag_level = config.getInt("tag-level");
 		int num_chunks = config.getInt("num-chunks");
 		boolean crf_mode = config.getBoolean("crf-mode");
+		double penalty = config.getDouble("penalty");
+		boolean use_dict = config.getBoolean("use-dict");
+
 		Logger logger = Logger.getLogger(SegmenterTrainer.class.getName());
-		
-		String global_trainfile = String.format(
-				"%s/%s/trn", dir, lang);
-		
-		SegmentationDataReader global_reader = new SegmentationDataReader(global_trainfile, lang, tag_level);
+
+		String global_trainfile = String.format("%s/%s/trn", dir, lang);
+
+		SegmentationDataReader global_reader = new SegmentationDataReader(
+				global_trainfile, lang, tag_level);
 
 		double score_sum = 0.0;
-		
+
 		int start_chunk = 0;
 		int end_chunk = num_chunks;
-		
+
 		if (num_chunks < 10) {
 			start_chunk = num_chunks;
 			end_chunk = num_chunks + 1;
 			num_chunks = 1;
 		}
-		
+
 		for (int i = start_chunk; i < end_chunk; i++) {
 			System.err.format("chunk: %d\n", i);
-			
-			String trainfile = String.format(
-					"%s/%s/%d.trn", dir, lang, i);
-			String testfile = String.format(
-					"%s/%s/%d.tst", dir, lang, i);
-			
+
+			String trainfile = String.format("%s/%s/%d.trn", dir, lang, i);
+			String testfile = String.format("%s/%s/%d.tst", dir, lang, i);
+
 			List<Word> train = new SegmentationDataReader(trainfile, lang, 0)
 					.getData();
 			train = global_reader.map(train);
-			
+
 			List<Word> test = new SegmentationDataReader(testfile, lang, 0)
 					.getData();
 			test = global_reader.map(test);
 
 			SegmenterTrainer trainer = new SegmenterTrainer(lang);
-			
-			trainer.addDictionary(String.format(
-					"%s/%s/wiktionary.txt", dir, lang));
-			trainer.addDictionary(String.format(
-					"%s/%s/aspell.txt", dir, lang));
-			trainer.addDictionary(String.format(
-					"%s/%s/wordlist.txt", dir, lang));
+
+			if (use_dict) {
+				trainer.addDictionary(String.format("%s/%s/wiktionary.txt",
+						dir, lang));
+				trainer.addDictionary(String.format("%s/%s/aspell.txt", dir,
+						lang));
+				trainer.addDictionary(String.format("%s/%s/wordlist.txt", dir,
+						lang));
+			}
+
 			trainer.setCrfMode(crf_mode);
-			
+			trainer.setPenalty(penalty);
+
 			Segmenter segmenter = trainer.train(train);
 			Scorer scorer = new Scorer();
 			scorer.eval(test, segmenter);
@@ -243,16 +264,20 @@ public class SegmenterTrainer {
 			score_sum += scorer.getFscore();
 
 			FileUtils.mkDir(String.format("%s/%s", out, lang));
-			
+
 			String outfile = String.format("%s/%s/%d.tst", out, lang, i);
 			segmenter.segmentToFile(outfile, test);
-			
+
 		}
-		
+
 		logger.info(String.format("%s Average F1: %g\n", lang, score_sum
 				/ num_chunks));
-		
-		
+
+	}
+
+	private void setPenalty(double penalty) {
+		System.err.println("Penalty: " + penalty);
+		penalty_ = penalty;
 	}
 
 	public void setCrfMode(boolean crf_mode) {

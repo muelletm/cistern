@@ -20,12 +20,17 @@ public class TagSet {
 		
 		for (String subtag : subtags) {
 			
-			if (subtag.equals("ROOT") || subtag.equals("PREFIX") || subtag.equals("SUFFIX")) {
+			if (subtag.equals("UNK")) {
+				
+			} else if (subtag.equals("ROOT") || subtag.equals("PREFIX") || subtag.equals("SUFFIX")) {
 				newtags.add(subtag);
-			} else if (tag_level > 1 && (subtag.equals("INFL") || subtag.equals("DERI"))) {
+			} else if (tag_level > 1 && (countDoubleColon(subtag) == 0)) {
+				newtags.add(subtag);
+			} else if (tag_level > 2 && (countDoubleColon(subtag) < 2)) {
+				newtags.add(subtag);
+			} else if (tag_level > 3) {
 				newtags.add(subtag);
 			}
-			
 			
 		}
 		
@@ -34,6 +39,24 @@ public class TagSet {
 		return join(newtags);
 	}
 	
+	private static int countDoubleColon(String subtag) {
+		int count = 0;
+		int index = 0;
+		
+		while (index < subtag.length()) {
+			index = subtag.indexOf("::", index);
+			
+			if (index < 0) {
+				return count;
+			}
+			
+			index += 2;
+			count ++;
+		}
+		
+		return count;
+	}
+
 	private static String join(Collection<String> subtags) {
 		StringBuilder sb = new StringBuilder();
 		for (String subtag : subtags) {

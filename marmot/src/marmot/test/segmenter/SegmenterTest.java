@@ -122,14 +122,14 @@ public class SegmenterTest {
 
 		int num_chunks = 10;
 
-		String[] langs = { "eng" };
+		String[] langs = { "tur" };
 
 		for (String lang : langs) {
 			
 			String global_trainfile = String.format(
 					"res:///marmot/test/segmenter/data/%s/trn", lang);
 			
-			SegmentationDataReader global_reader = new SegmentationDataReader(global_trainfile, lang, 0);
+			SegmentationDataReader global_reader = new SegmentationDataReader(global_trainfile, lang, 4);
 
 			double score_sum = 0.0;
 			

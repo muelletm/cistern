@@ -79,6 +79,7 @@ public class SegmenterModel implements Serializable {
 		}
 		
 		System.err.println(tag_table_);
+		System.err.println("Num tags: " + tag_table_.size());
 		
 		tags_to_subtags_ = new ArrayList<>();
 		for (int i=0;i<tag_table_.size(); i++) {
