@@ -4,9 +4,11 @@ import java.io.Serializable;
 
 public abstract class StringNormalizer implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+
 	abstract public String normalize(String string);
 	
-	public static StringNormalizer labeledCreate(String lang) {
+	static public StringNormalizer labeledCreate(String lang) {
 		
 		if (lang.equalsIgnoreCase("tur")) {
 			return new TurkishStringNormalizer();

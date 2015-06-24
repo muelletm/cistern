@@ -74,7 +74,7 @@ public class SegmenterTest {
 
 		int num_chunks = 10;
 
-		String[] langs = { "fin" };
+		String[] langs = { "tur" };
 
 		for (String lang : langs) {
 

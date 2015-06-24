@@ -150,14 +150,14 @@ public class SegmenterModel implements Serializable {
 				encoder_.append(dict_index, dictionary_bits_);
 				encoder_.append(0, max_segment_length_bits_);
 				encoder_.append(value);
-				consumer.consume(instance, encoder_);
+				consumer.consume(encoder_);
 				
 				prepareEncoder();
 				encoder_.append(DICT_FEAT, FEATURE_BITS);
 				encoder_.append(dict_index, dictionary_bits_);
 				encoder_.append(length, max_segment_length_bits_);
 				encoder_.append(value);
-				consumer.consume(instance, encoder_);
+				consumer.consume(encoder_);
 				
 				dict_index ++;
 			}
@@ -179,7 +179,7 @@ public class SegmenterModel implements Serializable {
 			for (int window = 1; window <= max_character_window_; window++) {
 				encoder_.restoreState(encoder_state_);
 				addSegment(chars, l_start, l_start + window);
-				consumer.consume(instance, encoder_);
+				consumer.consume(encoder_);
 			}
 
 			prepareEncoder();
@@ -189,7 +189,7 @@ public class SegmenterModel implements Serializable {
 			for (int window = 1; window <= max_character_window_; window++) {
 				encoder_.restoreState(encoder_state_);
 				addSegment(chars, l_end - window, l_end);
-				consumer.consume(instance, encoder_);
+				consumer.consume(encoder_);
 			}
 		}
 	}
@@ -206,7 +206,7 @@ public class SegmenterModel implements Serializable {
 		prepareEncoder();
 		encoder_.append(TAG_FEAT, FEATURE_BITS);
 		encoder_.append(tag, num_tag_bits);
-		consumer.consume(instance, encoder_);
+		consumer.consume(encoder_);
 	}
 
 	public void consumePairFeature(IndexConsumer consumer,
@@ -227,7 +227,7 @@ public class SegmenterModel implements Serializable {
 			}
 			encoder_.append(c, num_char_bits);
 		}
-		consumer.consume(instance, encoder_);
+		consumer.consume(encoder_);
 		addCharacterContext(instance, consumer, l_start, l_end);
 	}
 
@@ -241,7 +241,7 @@ public class SegmenterModel implements Serializable {
 		encoder_.append(TRANS_FEAT, FEATURE_BITS);
 		encoder_.append(last_tag, num_tag_bits);
 		encoder_.append(tag, num_tag_bits);
-		consumer.consume(instance, encoder_);
+		consumer.consume(encoder_);
 	}
 
 	public void update(SegmentationInstance instance,
@@ -402,14 +402,14 @@ public class SegmenterModel implements Serializable {
 				encoder_.restoreState(encoder_state_);
 				encoder_.append(0, 1);
 				addSegment(instance.getFormCharIndexes(char_table_), l_start- window, l_start);
-				consumer.consume(instance, encoder_);
+				consumer.consume(encoder_);
 			}
 
 			for (int window = 1; window <= max_character_window_; window++) {
 				encoder_.restoreState(encoder_state_);
 				encoder_.append(1, 1);
 				addSegment(instance.getFormCharIndexes(char_table_), l_end, l_end + window);
-				consumer.consume(instance, encoder_);
+				consumer.consume(encoder_);
 			}
 		}
 	}

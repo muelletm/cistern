@@ -2,6 +2,8 @@ package marmot.segmenter;
 
 public class TurkishStringNormalizer extends StringNormalizer {
 
+	private static final long serialVersionUID = 1L;
+
 	@Override
 	public String normalize(String string) {
 		

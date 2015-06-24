@@ -26,9 +26,7 @@ Higher-order CRF                86.45
 
 Avg Perc + Con(3)		86.92 81.66 87.11 89.82
 Avg Perc + Con(4)		86.78 81.77 86.60 89.67
-
-Avg Perc + Con(3) + Dict   	86.80       88.82
-Avg Perc + Con(3) + Dict + DiL	89.10	    90.10
+Avg Perc + Con(3) +Dict +Affix	89.10 86.61 90.10 92.39
 
 
 \software{CRF-Morph}            86.10 82.09 85.67 88.05

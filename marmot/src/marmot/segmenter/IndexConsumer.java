@@ -25,14 +25,8 @@ public abstract class IndexConsumer implements Serializable {
 		insert_ = insert;
 	}
 	
-	public void consume(SegmentationInstance instance, Encoder encoder) {
+	public void consume(Encoder encoder) {
 		int index = feature_map_.toIndex(encoder.getFeature(), -1, getInsert());
-		
-		String name = "scorer";
-		if (this instanceof IndexUpdater) {
-			name = "updater";
-		}
-		
 		consume(index);
 	}
 	
