@@ -12,8 +12,8 @@ public class IndexUpdater extends IndexConsumer {
 	private static final long serialVersionUID = 1L;
 
 	public IndexUpdater(DynamicWeights weights,
-			SymbolTable<Feature> feature_map) {
-		super(weights, feature_map, true);
+			SymbolTable<Feature> feature_map, int num_tag_bits) {
+		super(weights, feature_map, true, num_tag_bits);
 	}
 
 	private double update_;

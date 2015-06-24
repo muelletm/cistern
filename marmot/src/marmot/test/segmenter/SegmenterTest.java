@@ -22,7 +22,7 @@ public class SegmenterTest {
 	public void trainAccuracyTest() {
 		String trainfile = "res:///marmot/test/segmenter/en.trn";
 		SegmentationDataReader reader = new SegmentationDataReader(trainfile, "eng",
-				false);
+				0);
 		SegmenterTrainer trainer = new SegmenterTrainer("eng");
 		Segmenter segmenter = trainer.train(reader.getData());
 
@@ -43,7 +43,7 @@ public class SegmenterTest {
 		Logger logger = Logger.getLogger(getClass().getName());
 		String trainfile = "res:///marmot/test/segmenter/en.trn";
 		SegmentationDataReader reader = new SegmentationDataReader(trainfile, "eng",
-				false);
+				0);
 
 		List<List<Word>> chunks = ListUtils.chunk(reader.getData(), 10);
 
@@ -86,9 +86,9 @@ public class SegmenterTest {
 				String testfile = String.format(
 						"res:///marmot/test/segmenter/data/%s/%d.tst", lang, i);
 
-				List<Word> train = new SegmentationDataReader(trainfile, lang, false)
+				List<Word> train = new SegmentationDataReader(trainfile, lang, 0)
 						.getData();
-				List<Word> test = new SegmentationDataReader(testfile, lang, false)
+				List<Word> test = new SegmentationDataReader(testfile, lang, 0)
 						.getData();
 
 				SegmenterTrainer trainer = new SegmenterTrainer(lang);
@@ -129,7 +129,7 @@ public class SegmenterTest {
 			String global_trainfile = String.format(
 					"res:///marmot/test/segmenter/data/%s/trn", lang);
 			
-			SegmentationDataReader global_reader = new SegmentationDataReader(global_trainfile, lang, false);
+			SegmentationDataReader global_reader = new SegmentationDataReader(global_trainfile, lang, 0);
 
 			double score_sum = 0.0;
 			
@@ -139,11 +139,11 @@ public class SegmenterTest {
 				String testfile = String.format(
 						"res:///marmot/test/segmenter/data/%s/%d.tst", lang, i);
 
-				List<Word> train = new SegmentationDataReader(trainfile, lang, false)
+				List<Word> train = new SegmentationDataReader(trainfile, lang, 0)
 						.getData();
 				train = global_reader.map(train);
 				
-				List<Word> test = new SegmentationDataReader(testfile, lang, false)
+				List<Word> test = new SegmentationDataReader(testfile, lang, 0)
 						.getData();
 				test = global_reader.map(test);
 

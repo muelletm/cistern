@@ -34,8 +34,8 @@ public class SegmentationInstance {
 		return results_;
 	}
 
-	public SegmentationResult getFirstResult() {
-		return results_.iterator().next();
-	}
+//	public SegmentationResult getFirstResult() {
+//		return results_.iterator().next();
+//	}
 
 }

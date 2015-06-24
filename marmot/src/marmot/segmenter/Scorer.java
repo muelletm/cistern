@@ -8,6 +8,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import marmot.util.Numerics;
+
 
 public class Scorer {
 
@@ -62,6 +64,24 @@ public class Scorer {
 		return brackets;
 	}
 	
+	private static Set<Boundary> getBoundary(SegmentationResult candidate, int length) {
+		Set<Boundary> brackets = new HashSet<>();
+		Iterator<Integer> index_iterator = candidate.getInputIndexes().iterator();
+		while (index_iterator.hasNext()) {
+			
+			int end = index_iterator.next();
+			
+			if (end < length)
+				brackets.add(new Boundary(end));
+		}
+		return brackets;
+	}
+	
+	public void eval(List<Set<Boundary>> predicted, List<Set<Boundary>> reference) {
+			eval(predicted, reference, recall);
+			eval(reference, predicted, precision);
+	}
+	
 	public void eval(Collection<Word> words, Segmenter segmenter) {
 		for (Word word : words) {
 			
@@ -74,8 +94,7 @@ public class Scorer {
 				reference.add(getBrackets(ref_reading, word.getLength()));
 			}
 			
-			eval(predicted, reference, recall);
-			eval(reference, predicted, precision);
+			eval(reference, predicted);
 			
 		}
 		
@@ -133,6 +152,11 @@ public class Scorer {
 	public double getFscore() {
 		double p = getPrecision();
 		double r = getRecall();
+		
+		if (Numerics.approximatelyLesserEqual(p + r, 0.0)) {
+			return 0.0;
+		}
+		
 		double f = (2. * p * r) / (p + r);
 		return f;
 	}
@@ -144,5 +168,32 @@ public class Scorer {
 	private double getPrecision() {
 		return 100. * precision.score / precision.total;
 	}
-	
+
+	public static SegmentationResult closest(SegmentationResult result,
+			Collection<SegmentationResult> results, int length) {
+		double best_score = Double.NEGATIVE_INFINITY;
+		SegmentationResult best_result = null;
+		Set<Boundary> brackets = getBoundary(result, length);
+		
+		for (SegmentationResult candidate : results) {
+			
+			Set<Boundary> other = getBoundary(candidate, length);
+			
+			Scorer scorer = new Scorer();
+			scorer.eval(Collections.singletonList(brackets), Collections.singletonList(other));
+			
+			double score = scorer.getFscore();
+			
+			assert !Double.isNaN(score);
+			assert !Double.isInfinite(score);
+			
+			if (score > best_score) {
+				best_result = candidate;
+				best_score = score;
+			}
+		}
+		
+		return best_result;
+	}
+
 }

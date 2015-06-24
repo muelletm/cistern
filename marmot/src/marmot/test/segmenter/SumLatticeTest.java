@@ -38,10 +38,14 @@ public class SumLatticeTest {
 			double prob = Math.exp(log_prob);
 			model.update(instance, result, -prob);
 		}
+
+		assert instance.getResults().size() == 1;
+		SegmentationResult result = instance.getResults().iterator().next();
 		
-		double score = model.getScore(instance, instance.getFirstResult());
+		double score = model.getScore(instance, result);
 		double log_prob = score - score_sum;
-		model.update(instance, instance.getFirstResult(), 1.0);
+		
+		model.update(instance, result, 1.0);
 		
 		return log_prob;
 	}

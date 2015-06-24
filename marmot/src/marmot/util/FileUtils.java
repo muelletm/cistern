@@ -134,4 +134,17 @@ public class FileUtils {
 		saveToFile(object, file, true);
 	}
 
+	public static boolean mkDir(String path) {
+		File file = new File(path);
+		
+		if (file.exists()) {
+			if (!file.isDirectory()) {
+				throw new RuntimeException("File exists and is not a directory: " + path);
+			}
+			return true;
+		}
+		
+		return file.mkdirs();
+	}
+
 }

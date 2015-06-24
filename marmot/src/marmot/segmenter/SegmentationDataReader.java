@@ -11,13 +11,14 @@ import marmot.util.LineIterator;
 public class SegmentationDataReader {
 
 	private List<Word> data_;
-	private boolean keep_tag_;
+	private int tag_level_;
 	private StringNormalizer normalizer_;
 	private Map<String, Word> vocab_;
 	
-	public SegmentationDataReader(String filepath, String lang, boolean keep_tag) {
+	public SegmentationDataReader(String filepath, String lang, int tag_level) {
 		data_ = new ArrayList<Word>();		
 		normalizer_ = StringNormalizer.labeledCreate(lang);
+		tag_level_ = tag_level;
 		readFile(filepath, data_);
 	}
 	
@@ -27,9 +28,9 @@ public class SegmentationDataReader {
 			Word new_word = vocab_.get(word.getWord());
 			assert new_word != null;
 			
-			if (!new_word.equals(word)) {
-				System.err.println("diff:\n" + word + "\n" + new_word );
-			}
+//			if (!new_word.equals(word)) {
+//				System.err.println("diff:\n" + word + "\n" + new_word );
+//			}
 			
 			new_words.add(new_word);
 		}
@@ -69,7 +70,6 @@ public class SegmentationDataReader {
 					
 					for (String reading : readings) {
 						
-						//reading = reading.replace(",","");
 						int index = reading.indexOf(':');
 						
 						String segment;
@@ -77,23 +77,17 @@ public class SegmentationDataReader {
 						
 						if (index < 0) {
 							segment = reading;
-							tag = "<TAG>";
+							tag = null;
 						} else {
 							segment = reading.substring(0, index);
 							tag = reading.substring(index + 1);	
 						}
 						
 						segment = normalizer_.normalize(segment);
+						tag = TagSet.getTag(tag, tag_level_);
 						
-						if (!keep_tag_)
-							tag = "<TAG>";
-						
-						if (segment.equals("~")) {
-							System.err.println("Skipping segment: ~ from line " + line);
-						} else {
-							segments.add(segment);
-							tags.add(tag);
-						}
+						segments.add(segment);
+						tags.add(tag);
 					}
 					
 					word.add(new SegmentationReading(segments, tags));
