@@ -2,12 +2,12 @@ package marmot.test.analyzer;
 
 import static org.junit.Assert.*;
 
-import marmot.analyzer.Analyzer;
-import marmot.analyzer.AnalyzerInstance;
-import marmot.analyzer.AnalyzerResult;
-import marmot.analyzer.AnalyzerTrainer;
-import marmot.analyzer.simple.SimpleAnalyzerTrainer;
-import marmot.analyzer.tagger.TaggerAnalyzerTrainer;
+import marmot.experimental.analyzer.Analyzer;
+import marmot.experimental.analyzer.AnalyzerInstance;
+import marmot.experimental.analyzer.AnalyzerResult;
+import marmot.experimental.analyzer.AnalyzerTrainer;
+import marmot.experimental.analyzer.simple.SimpleAnalyzerTrainer;
+import marmot.experimental.analyzer.tagger.TaggerAnalyzerTrainer;
 import marmot.morph.MorphDictionaryOptions;
 
 import org.junit.Test;
