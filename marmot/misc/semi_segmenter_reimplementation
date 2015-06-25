@@ -4,7 +4,7 @@ Per 	   	  		86.84 82.94 86.96 89.57
 CRF				86.30 82.65 85.78 91.12
 
 Per + Dict + Affix		88.67 86.52 89.72 92.19
-CRF + Dict + Affix		88.20       89.99 93.66
+CRF + Dict + Affix		88.20 87.29 89.99 93.66
 
 Per + Dict + Affix + Morph1	88.98 86.29 89.98 92.90
 CRF + Dict + Affix + Morph1	89.09       90.42 94.02

@@ -59,7 +59,7 @@ public class SegmenterTrainer {
 
 		model.setFinal();
 
-		Segmenter segmenter = new Segmenter(model);
+		Segmenter segmenter = new StatSegmenter(model);
 		return segmenter;
 	}
 

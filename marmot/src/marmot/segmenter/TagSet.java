@@ -6,8 +6,11 @@ import java.util.List;
 
 public class TagSet {
 
-	private static final String SEGMENT = "<SEGMENT>";
-
+	private static final String SEGMENT = "SEGMENT";
+	public static final String NUMBER = "NUM";
+	public static final String ALPHA = "ALPHA";
+	public static String SPECIAL = "SPECIAL";
+	
 	public static String getTag(String tag, int tag_level) {
 		
 		if (tag == null || tag_level < 1) {
