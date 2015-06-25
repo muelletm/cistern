@@ -1,20 +1,21 @@
-package marmot.test.segmenter;
+package chipmunk.test.segmenter;
 
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 import java.util.logging.Logger;
 
-import marmot.segmenter.Scorer;
-import marmot.segmenter.SegmentationDataReader;
-import marmot.segmenter.Segmenter;
-import marmot.segmenter.SegmenterTrainer;
-import marmot.segmenter.Word;
 import marmot.util.Copy;
 import marmot.util.ListUtils;
 import marmot.util.Numerics;
 
 import org.junit.Test;
+
+import chipmunk.segmenter.Scorer;
+import chipmunk.segmenter.SegmentationDataReader;
+import chipmunk.segmenter.Segmenter;
+import chipmunk.segmenter.SegmenterTrainer;
+import chipmunk.segmenter.Word;
 
 public class SegmenterTest {
 

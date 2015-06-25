@@ -1,4 +1,4 @@
-package marmot.segmenter;
+package chipmunk.segmenter;
 
 import java.io.IOException;
 import java.util.ArrayList;

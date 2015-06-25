@@ -1,4 +1,4 @@
-package marmot.segmenter;
+package chipmunk.segmenter;
 
 import java.io.Serializable;
 import java.util.ArrayList;

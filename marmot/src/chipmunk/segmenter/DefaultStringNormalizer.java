@@ -1,4 +1,4 @@
-package marmot.segmenter;
+package chipmunk.segmenter;
 
 public class DefaultStringNormalizer extends StringNormalizer {
 

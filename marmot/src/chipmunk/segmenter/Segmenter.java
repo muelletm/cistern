@@ -1,4 +1,4 @@
-package marmot.segmenter;
+package chipmunk.segmenter;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -7,7 +7,8 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 
-import marmot.segmenter.Word;
+import chipmunk.segmenter.Word;
+
 
 public abstract class Segmenter implements Serializable {
 

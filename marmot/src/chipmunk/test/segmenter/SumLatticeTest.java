@@ -1,4 +1,4 @@
-package marmot.test.segmenter;
+package chipmunk.test.segmenter;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -6,17 +6,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-import marmot.segmenter.SegmentationInstance;
-import marmot.segmenter.SegmentationReading;
-import marmot.segmenter.SegmentationResult;
-import marmot.segmenter.SegmentationSumLattice;
-import marmot.segmenter.SegmenterModel;
-import marmot.segmenter.Word;
 import marmot.util.DynamicWeights;
 import marmot.util.Numerics;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import chipmunk.segmenter.SegmentationInstance;
+import chipmunk.segmenter.SegmentationReading;
+import chipmunk.segmenter.SegmentationResult;
+import chipmunk.segmenter.SegmentationSumLattice;
+import chipmunk.segmenter.SegmenterModel;
+import chipmunk.segmenter.Word;
 
 public class SumLatticeTest {
 

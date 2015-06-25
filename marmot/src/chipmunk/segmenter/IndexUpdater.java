@@ -1,7 +1,7 @@
 // Copyright 2015 Thomas Müller
 // This file is part of MarMoT, which is licensed under GPLv3.
 
-package marmot.segmenter;
+package chipmunk.segmenter;
 
 import marmot.core.Feature;
 import marmot.util.DynamicWeights;

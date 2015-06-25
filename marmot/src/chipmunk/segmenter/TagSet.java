@@ -1,4 +1,4 @@
-package marmot.segmenter;
+package chipmunk.segmenter;
 
 import java.util.Collection;
 import java.util.LinkedList;

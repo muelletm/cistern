@@ -1,16 +1,17 @@
-package marmot.test.segmenter;
+package chipmunk.test.segmenter;
 
 import java.util.Arrays;
 import java.util.List;
 
-import marmot.segmenter.Word;
-import marmot.segmenter.RulebasedSegmenter;
-import marmot.segmenter.SegmentationReading;
-import marmot.segmenter.Segmenter;
-import marmot.segmenter.TagSet;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import chipmunk.segmenter.RulebasedSegmenter;
+import chipmunk.segmenter.SegmentationReading;
+import chipmunk.segmenter.Segmenter;
+import chipmunk.segmenter.TagSet;
+import chipmunk.segmenter.Word;
 
 public class RulebasedSegmenterTest {
 
