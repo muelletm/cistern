@@ -72,9 +72,9 @@ public class SegmenterTest {
 
 		
 
-		int num_chunks = 10;
+		int num_chunks = 1;
 
-		String[] langs = { "tur" };
+		String[] langs = { "eng", "fin", "ger", "tur" };
 
 		for (String lang : langs) {
 
@@ -90,23 +90,27 @@ public class SegmenterTest {
 						.getData();
 				List<Word> test = new SegmentationDataReader(testfile, lang, 0)
 						.getData();
+				
+				Word.printStats(train);
+				
+				continue;
 
-				SegmenterTrainer trainer = new SegmenterTrainer(lang);
-				
-				trainer.addDictionary(String.format(
-						"res:///marmot/test/segmenter/data/%s/wiktionary.txt", lang));
-				trainer.addDictionary(String.format(
-						"res:///marmot/test/segmenter/data/%s/aspell.txt", lang));
-				trainer.addDictionary(String.format(
-						"res:///marmot/test/segmenter/data/%s/wordlist.txt", lang));
-				
-				
-				Segmenter segmenter = trainer.train(train);
-				Scorer scorer = new Scorer();
-				scorer.eval(test, segmenter);
-				logger.info(String.format("%s F1 of chunk %d: %s\n", lang, i,
-						scorer.report()));
-				score_sum += scorer.getFscore();
+//				SegmenterTrainer trainer = new SegmenterTrainer(lang);
+//				
+//				trainer.addDictionary(String.format(
+//						"res:///marmot/test/segmenter/data/%s/wiktionary.txt", lang));
+//				trainer.addDictionary(String.format(
+//						"res:///marmot/test/segmenter/data/%s/aspell.txt", lang));
+//				trainer.addDictionary(String.format(
+//						"res:///marmot/test/segmenter/data/%s/wordlist.txt", lang));
+//				
+//				
+//				Segmenter segmenter = trainer.train(train);
+//				Scorer scorer = new Scorer();
+//				scorer.eval(test, segmenter);
+//				logger.info(String.format("%s F1 of chunk %d: %s\n", lang, i,
+//						scorer.report()));
+//				score_sum += scorer.getFscore();
 
 			}
 			logger.info(String.format("%s Average F1: %g\n", lang, score_sum
@@ -122,7 +126,7 @@ public class SegmenterTest {
 
 		int num_chunks = 10;
 
-		String[] langs = { "tur" };
+		String[] langs = { "fin" };
 
 		for (String lang : langs) {
 			
@@ -147,22 +151,22 @@ public class SegmenterTest {
 						.getData();
 				test = global_reader.map(test);
 
-				SegmenterTrainer trainer = new SegmenterTrainer(lang);
-				
-				trainer.addDictionary(String.format(
-						"res:///marmot/test/segmenter/data/%s/wiktionary.txt", lang));
-				trainer.addDictionary(String.format(
-						"res:///marmot/test/segmenter/data/%s/aspell.txt", lang));
-				trainer.addDictionary(String.format(
-						"res:///marmot/test/segmenter/data/%s/wordlist.txt", lang));
-				
-				
-				Segmenter segmenter = trainer.train(train);
-				Scorer scorer = new Scorer();
-				scorer.eval(test, segmenter);
-				logger.info(String.format("%s F1 of chunk %d: %s\n", lang, i,
-						scorer.report()));
-				score_sum += scorer.getFscore();
+//				SegmenterTrainer trainer = new SegmenterTrainer(lang);
+//				
+//				trainer.addDictionary(String.format(
+//						"res:///marmot/test/segmenter/data/%s/wiktionary.txt", lang));
+//				trainer.addDictionary(String.format(
+//						"res:///marmot/test/segmenter/data/%s/aspell.txt", lang));
+//				trainer.addDictionary(String.format(
+//						"res:///marmot/test/segmenter/data/%s/wordlist.txt", lang));
+//				
+//				
+//				Segmenter segmenter = trainer.train(train);
+//				Scorer scorer = new Scorer();
+//				scorer.eval(test, segmenter);
+//				logger.info(String.format("%s F1 of chunk %d: %s\n", lang, i,
+//						scorer.report()));
+//				score_sum += scorer.getFscore();
 
 			}
 			logger.info(String.format("%s Average F1: %g\n", lang, score_sum

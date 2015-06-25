@@ -2,6 +2,7 @@ package marmot.segmenter;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 
 public class Word {
 
@@ -64,6 +65,55 @@ public class Word {
 
 	public Collection<SegmentationReading> getReadings() {
 		return readings_;
+	}
+	
+	static public void printStats(List<Word> words) {
+		int word_length = 0;
+		int very_long_words = 0;
+		int max_word_length = 0;
+		int max_segment_length = 0;
+		int segment_length = 0;
+		int num_segments = 0;
+		int num_words = 0;
+		int num_readings = 0;
+		
+		int words_with_many_readings = 0;
+		
+		for (Word word : words) {
+			
+			max_word_length = Math.max(max_segment_length, word.getLength());
+			
+			word_length += word.getLength();
+			
+			if (word.getLength() > 15) {
+				very_long_words ++;
+			}
+			
+			for (SegmentationReading reading : word.getReadings()) {				
+				for (String segment : reading.getSegments()) {
+					
+					max_segment_length = Math.max(max_segment_length, segment.length());
+					
+					num_segments ++;
+					segment_length += segment.length();
+				}
+				num_readings ++;	
+			}
+			
+			if (word.getReadings().size() > 3) {
+				words_with_many_readings ++;
+			}
+			
+			num_words ++;
+		}
+		System.err.format("Avg word length: %d/%d = %g\n", word_length, num_words, word_length * 1.0 / num_words);
+		System.err.format("Num very long words (> 15): %d\n", very_long_words);
+		System.err.format("Max word length: %d\n", max_word_length);
+		System.err.format("Avg segment length: %d/%d = %g\n", segment_length, num_segments, segment_length * 1.0 / num_segments);
+		System.err.format("Max segment length: %d\n", max_segment_length);
+		System.err.format("Segments / reading: %d/%d = %g\n", num_segments, num_readings, num_segments * 1.0 / num_readings);
+		System.err.format("Readings / word: %d/%d = %g\n", num_readings, num_words, num_readings * 1.0 / num_words);
+		System.err.format("Words with many readings (> 3): %d\n", words_with_many_readings);
 	}
 	
 }

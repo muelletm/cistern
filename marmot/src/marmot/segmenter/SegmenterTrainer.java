@@ -36,6 +36,7 @@ public class SegmenterTrainer {
 	private boolean use_character_feature_ = true;
 	private List<String> dictionary_paths_;
 	private String lang_;
+	private int max_word_length_ = -1;
 
 	public SegmenterTrainer(String lang) {
 		lang_ = lang;
@@ -69,7 +70,7 @@ public class SegmenterTrainer {
 
 	private void run_crf(SegmenterModel model, Collection<Word> words) {
 		SemiCrfObjective objective = new SemiCrfObjective(model, words,
-				penalty_);
+				penalty_, max_word_length_ );
 		objective.init();
 
 		Optimizer optimizer = new LimitedMemoryBFGS(objective);
@@ -172,6 +173,11 @@ public class SegmenterTrainer {
 				.setStringParser(JSAP.INTEGER_PARSER).setLongFlag("tag-level")
 				.setDefault("0");
 		jsap.registerParameter(opt);
+		
+		opt = new FlaggedOption("max-word-length")
+		.setStringParser(JSAP.INTEGER_PARSER).setLongFlag("max-word-length")
+		.setDefault("-1");
+		jsap.registerParameter(opt);
 
 		opt = new FlaggedOption("num-chunks")
 				.setStringParser(JSAP.INTEGER_PARSER).setLongFlag("num-chunks")
@@ -209,6 +215,7 @@ public class SegmenterTrainer {
 		boolean crf_mode = config.getBoolean("crf-mode");
 		double penalty = config.getDouble("penalty");
 		boolean use_dict = config.getBoolean("use-dict");
+		int max_word_length = config.getInt("max-word-length");
 
 		Logger logger = Logger.getLogger(SegmenterTrainer.class.getName());
 
@@ -255,6 +262,7 @@ public class SegmenterTrainer {
 
 			trainer.setCrfMode(crf_mode);
 			trainer.setPenalty(penalty);
+			trainer.setMaxWordLength(max_word_length);
 
 			Segmenter segmenter = trainer.train(train);
 			Scorer scorer = new Scorer();
@@ -273,6 +281,10 @@ public class SegmenterTrainer {
 		logger.info(String.format("%s Average F1: %g\n", lang, score_sum
 				/ num_chunks));
 
+	}
+
+	private void setMaxWordLength(int max_word_length) {
+		max_word_length_ = max_word_length;
 	}
 
 	private void setPenalty(double penalty) {

@@ -15,38 +15,42 @@ public class SemiCrfObjective implements ByGradientValue {
 	private double[] gradient_;
 	private double[] weights_;
 	private double penalty_;
+	private int max_word_length_;
 
-	public SemiCrfObjective(SegmenterModel model, Collection<Word> words, double penalty) {
+	public SemiCrfObjective(SegmenterModel model, Collection<Word> words,
+			double penalty, int max_word_length) {
 		model_ = model;
 		words_ = words;
 		penalty_ = penalty;
+		max_word_length_ = max_word_length;
 	}
-	
+
 	public void init() {
 		DynamicWeights weights = new DynamicWeights(null);
 		model_.setScorerWeights(weights);
 		DynamicWeights gradient = new DynamicWeights(null);
 		model_.setUpdaterWeights(gradient);
 		model_.getUpdater().setInsert(false);
-		
+
 		calcLikelihood();
-		
+
 		DynamicWeights scorer = model_.getScorer().getWeights();
 		DynamicWeights updater = model_.getUpdater().getWeights();
-		
+
 		if (scorer.getLength() != updater.getLength()) {
 			int length = Math.max(scorer.getLength(), updater.getLength());
 			scorer.setLength(length);
 			updater.setLength(length);
 		}
-		
+
 		weights_ = scorer.getWeights();
 		scorer.setExapnd(false);
 		gradient_ = updater.getWeights();
 		updater.setExapnd(false);
-		
-		assert weights_.length == gradient_.length : weights_.length + " " + gradient_.length;
-		
+
+		assert weights_.length == gradient_.length : weights_.length + " "
+				+ gradient_.length;
+
 		System.err.format("Num parameters: %d\n", weights_.length);
 		calcPenalty();
 	}
@@ -71,9 +75,12 @@ public class SemiCrfObjective implements ByGradientValue {
 
 	private void calcLikelihood() {
 		SegmentationSumLattice lattice = new SegmentationSumLattice(model_);
+		
 		for (Word word : words_) {
-			SegmentationInstance instance = model_.getInstance(word);
-			value_ += lattice.update(instance, true);
+			if (max_word_length_ < 0 || word.getLength() < max_word_length_) {
+				SegmentationInstance instance = model_.getInstance(word);
+				value_ += lattice.update(instance, true);
+			}
 		}
 	}
 

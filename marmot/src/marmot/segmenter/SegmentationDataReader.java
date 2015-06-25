@@ -69,13 +69,29 @@ public class SegmentationDataReader {
 					List<String> tags = new LinkedList<>();
 					
 					for (String reading : readings) {
-						
-						int index = reading.indexOf(':');
+
+						int index = -1;
+						for (int i=0; i< reading.length(); i++) {
+							
+							char c = reading.charAt(i);
+							
+							if (c == ':') {
+								
+								index = i;
+								if (i  + 1< reading.length() && reading.charAt(i + 1) == ':') {
+									index = i + 1;
+								}
+								
+								break;
+								
+							}
+							
+						}
 						
 						String segment;
 						String tag;
 						
-						if (index < 0) {
+						if (index < 0 || index == reading.length() - 1) {
 							segment = reading;
 							tag = null;
 						} else {
@@ -88,6 +104,16 @@ public class SegmentationDataReader {
 						
 						segments.add(segment);
 						tags.add(tag);
+					}
+					
+					StringBuilder rejoint_word = new StringBuilder(word.getLength());
+					for (String segment : segments) {
+						rejoint_word.append(segment);
+					}
+					assert rejoint_word.toString().equals(word.getWord()) : line + " " + segments;
+					
+					if (word.getWord().equals("mtk:hon")) {
+						System.err.format("%s %s %s\n", word, segments, tags);
 					}
 					
 					word.add(new SegmentationReading(segments, tags));
