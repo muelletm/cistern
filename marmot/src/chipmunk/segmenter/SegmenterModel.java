@@ -338,7 +338,7 @@ public class SegmenterModel implements Serializable {
 
 			List<Integer> tags = new ArrayList<>();
 			for (String tag : reading.getTags()) {
-				int tag_index = tag_table_.toIndex(tag);
+				int tag_index = tag_table_.toIndex(tag, -1, false);
 				tags.add(tag_index);
 			}
 

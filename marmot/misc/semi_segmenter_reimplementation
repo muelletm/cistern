@@ -12,8 +12,11 @@ CRF + Dict + Affix + Morph1	89.09 86.27 90.42 94.02
 Per + Dict + Affix + Morph2	89.33 86.71 90.11 93.24
 CRF + Dict + Affix + Morph2	88.67 86.62 90.38 94.14
 
-Per + Dict + Affix + Morph3	89.24 
-Per + Dict + Affix + Morph3
+Per + Dict + Affix + Morph3	89.24 87.30 
+CRF + Dict + Affix + Morph3
+
+Per + Dict + Affix + Morph4     89.55
+CRF + Dict + Affix + Morph4     
 
 \software{CRF-Morph}            86.10 82.09 85.67 88.05
 \modelname                      86.34 82.34 84.63 90.11
