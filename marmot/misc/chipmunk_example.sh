@@ -2,11 +2,12 @@
 
 set -ue
 
-LIBS=bin:lib/mallet.jar:lib/JSAP-2.1.jar
+LIBS=marmot-2015-06-26.jar:mallet.jar:JSAP-2.1.jar
 lang=eng
 
-# wget ...
-# tar xzf supplement.tar.gz
+wget cistern.cis.lmu.de/chipmunk/2015-06-26/{marmot-2015-06-26.jar,mallet.jar,JSAP-2.1.jar}
+wget cistern.cis.lmu.de/chipmunk/supplement.tar.gz
+tar xzf supplement.tar.gz
 
 java -cp $LIBS chipmunk.segmenter.cmd.Train\
    --train-file supplement/seg/${lang}/trn\

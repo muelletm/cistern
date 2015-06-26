@@ -95,13 +95,15 @@ public class SegmenterModel implements Serializable {
 			tags_to_subtags_.set(entry.getValue(), indexes);
 		}
 
-		if (options_.getBoolean(SegmenterOptions.VERBOSE));
-		System.err.println("Tag table: " + tag_table_);
-		System.err.println("Num tags: " + tag_table_.size());
+		if (options_.getBoolean(SegmenterOptions.VERBOSE)) {
+			System.err.println("Tag table: " + tag_table_);
+			System.err.println("Num tags: " + tag_table_.size());
+		}
 		
 		dictionaries_ = new LinkedList<>();
 		Collection<String> dictionary_paths = options_.getDictionaries();
 		for (String path : dictionary_paths) {
+			
 			Dictionary dictionary = new Dictionary(path, options_.getString(SegmenterOptions.LANG), max_segment_length_);
 			
 			if (options_.getBoolean(SegmenterOptions.VERBOSE)) {
