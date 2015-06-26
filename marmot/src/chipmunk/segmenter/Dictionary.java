@@ -49,12 +49,14 @@ public class Dictionary implements Serializable {
 			}
 		}
 
-		System.err.format("Created dictionary with %d entries from %s\n",
-				set_.size(), path);
 	}
 
 	boolean contains(String segment) {
 		return set_.contains(segment);
+	}
+
+	public int size() {
+		return set_.size();
 	}
 
 }

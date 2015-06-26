@@ -1,7 +1,6 @@
 package chipmunk.test.segmenter;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -17,6 +16,7 @@ import chipmunk.segmenter.SegmentationReading;
 import chipmunk.segmenter.SegmentationResult;
 import chipmunk.segmenter.SegmentationSumLattice;
 import chipmunk.segmenter.SegmenterModel;
+import chipmunk.segmenter.SegmenterOptions;
 import chipmunk.segmenter.Word;
 
 public class SumLatticeTest {
@@ -114,7 +114,10 @@ public class SumLatticeTest {
 		words.add(toWord(Arrays.asList("aa", "c"), Arrays.asList("A", "C")));
 
 		SegmenterModel model = new SegmenterModel();
-		model.init(null, words, 0, false, false, Collections.<String> emptyList());
+		SegmenterOptions options = new SegmenterOptions();
+		options.setOption(SegmenterOptions.USE_CHARACTER_FEATURE, false);
+		options.setOption(SegmenterOptions.USE_SEGMENT_CONTEXT, false);
+		model.init(options, words);
 
 		SegmentationSumLattice lattice = new SegmentationSumLattice(model);
 				

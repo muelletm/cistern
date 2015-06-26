@@ -15,14 +15,12 @@ public class SemiCrfObjective implements ByGradientValue {
 	private double[] gradient_;
 	private double[] weights_;
 	private double penalty_;
-	private int max_word_length_;
 
 	public SemiCrfObjective(SegmenterModel model, Collection<Word> words,
-			double penalty, int max_word_length) {
+			double penalty) {
 		model_ = model;
 		words_ = words;
 		penalty_ = penalty;
-		max_word_length_ = max_word_length;
 	}
 
 	public void init() {
@@ -50,8 +48,6 @@ public class SemiCrfObjective implements ByGradientValue {
 
 		assert weights_.length == gradient_.length : weights_.length + " "
 				+ gradient_.length;
-
-		System.err.format("Num parameters: %d\n", weights_.length);
 		calcPenalty();
 	}
 
@@ -60,7 +56,6 @@ public class SemiCrfObjective implements ByGradientValue {
 		Arrays.fill(gradient_, 0.);
 		calcLikelihood();
 		calcPenalty();
-		// System.err.println("value: " + value_);
 	}
 
 	private void calcPenalty() {
@@ -75,12 +70,10 @@ public class SemiCrfObjective implements ByGradientValue {
 
 	private void calcLikelihood() {
 		SegmentationSumLattice lattice = new SegmentationSumLattice(model_);
-		
+
 		for (Word word : words_) {
-			if (max_word_length_ < 0 || word.getLength() < max_word_length_) {
-				SegmentationInstance instance = model_.getInstance(word);
-				value_ += lattice.update(instance, true);
-			}
+			SegmentationInstance instance = model_.getInstance(word);
+			value_ += lattice.update(instance, true);
 		}
 	}
 

@@ -32,10 +32,6 @@ public class SegmenterModel implements Serializable {
 	private IndexScorer scorer_;
 	private IndexUpdater updater_;
 	
-	private int max_character_window_;
-	private boolean use_segment_context_ = true;
-	private boolean use_character_feature_ = true;
-	
 	private final static int FEATURE_BITS = Encoder.bitsNeeded(4);
 	private final static int TRANS_FEAT = 0;
 	private final static int TAG_FEAT = 1;
@@ -46,12 +42,10 @@ public class SegmenterModel implements Serializable {
 	private List<Dictionary> dictionaries_;
 	private int dictionary_bits_;
 	private List<List<Integer>> tags_to_subtags_;
+	private SegmenterOptions options_;
 
-	public void init(String lang, Collection<Word> words, int max_character_window, boolean use_segment_context, boolean use_character_feature, List<String> dictionary_paths_) {
-		max_character_window_ = max_character_window;
-		use_segment_context_ = use_segment_context;
-		use_character_feature_ = use_character_feature;
-		
+	public void init(SegmenterOptions options, Collection<Word> words) {
+		options_ = options;
 		tag_table_ = new SymbolTable<>(true);
 		char_table_ = new SymbolTable<>();
 
@@ -78,8 +72,6 @@ public class SegmenterModel implements Serializable {
 			}
 		}
 		
-		System.err.println(tag_table_);
-		System.err.println("Num tags: " + tag_table_.size());
 		
 		tags_to_subtags_ = new ArrayList<>();
 		for (int i=0;i<tag_table_.size(); i++) {
@@ -102,20 +94,27 @@ public class SegmenterModel implements Serializable {
 			
 			tags_to_subtags_.set(entry.getValue(), indexes);
 		}
-		
-		System.err.println(subtag_table);
-		System.err.println(tags_to_subtags_);
+
+		if (options_.getBoolean(SegmenterOptions.VERBOSE));
+		System.err.println("Tag table: " + tag_table_);
+		System.err.println("Num tags: " + tag_table_.size());
 		
 		dictionaries_ = new LinkedList<>();
-		for (String path : dictionary_paths_) {
-			Dictionary dictionary = new Dictionary(path, lang, max_segment_length_);
+		Collection<String> dictionary_paths = options_.getDictionaries();
+		for (String path : dictionary_paths) {
+			Dictionary dictionary = new Dictionary(path, options_.getString(SegmenterOptions.LANG), max_segment_length_);
+			
+			if (options_.getBoolean(SegmenterOptions.VERBOSE)) {
+				System.err.format("Created dictionary with %d entries from %s\n", dictionary.size(), path);
+			}
+			
 			dictionaries_.add(dictionary);
 		}
 
 		num_tag_bits_ = Encoder.bitsNeeded(subtag_table.size());
 		num_char_bits_ = Encoder.bitsNeeded(char_table_.size());
 		max_segment_length_bits_ = Encoder.bitsNeeded(max_segment_length_);
-		window_length_bits_ = Encoder.bitsNeeded(max_character_window_ + 1);
+		window_length_bits_ = Encoder.bitsNeeded(options_.getInt(SegmenterOptions.MAX_CHARACTER_WINDOW) + 1);
 		
 		if (!dictionaries_.isEmpty()) {
 			dictionary_bits_ = Encoder.bitsNeeded(dictionaries_.size());
@@ -199,14 +198,14 @@ public class SegmenterModel implements Serializable {
 	private void consumeCharacterFeature(IndexConsumer consumer,
 			SegmentationInstance instance, int l_start, int l_end, int tag) {
 		
-		if (use_character_feature_) {
+		if (options_.getBoolean(SegmenterOptions.USE_CHARACTER_FEATURE)) {
 			short[] chars = instance.getFormCharIndexes(char_table_);
 			
 			prepareEncoder();
 			encoder_.append(CHARACTER_FEAT, FEATURE_BITS);
 			encoder_.append(0, 2);
 			encoder_.storeState(encoder_state_);
-			for (int window = 1; window <= max_character_window_; window++) {
+			for (int window = 1; window <= options_.getInt(SegmenterOptions.MAX_CHARACTER_WINDOW); window++) {
 				encoder_.restoreState(encoder_state_);
 				addSegment(chars, l_start, l_start + window);
 				consumer.consume(encoder_, tags_to_subtags_.get(tag));
@@ -216,7 +215,7 @@ public class SegmenterModel implements Serializable {
 			encoder_.append(CHARACTER_FEAT, FEATURE_BITS);
 			encoder_.append(2, 2);
 			encoder_.storeState(encoder_state_);
-			for (int window = 1; window <= max_character_window_; window++) {
+			for (int window = 1; window <= options_.getInt(SegmenterOptions.MAX_CHARACTER_WINDOW); window++) {
 				encoder_.restoreState(encoder_state_);
 				addSegment(chars, l_end - window, l_end);
 				consumer.consume(encoder_, tags_to_subtags_.get(tag));
@@ -424,18 +423,18 @@ public class SegmenterModel implements Serializable {
 
 	private void addCharacterContext(SegmentationInstance instance,
 			IndexConsumer consumer, int l_start, int l_end, int tag_index) {
-		if (use_segment_context_ ) {
+		if (options_.getBoolean(SegmenterOptions.USE_SEGMENT_CONTEXT)) {
 
 			encoder_.storeState(encoder_state_);
 			
-			for (int window = 1; window <= max_character_window_; window++) {
+			for (int window = 1; window <= options_.getInt(SegmenterOptions.MAX_CHARACTER_WINDOW); window++) {
 				encoder_.restoreState(encoder_state_);
 				encoder_.append(0, 1);
 				addSegment(instance.getFormCharIndexes(char_table_), l_start- window, l_start);
 				consumer.consume(encoder_, tags_to_subtags_.get(tag_index));
 			}
 
-			for (int window = 1; window <= max_character_window_; window++) {
+			for (int window = 1; window <= options_.getInt(SegmenterOptions.MAX_CHARACTER_WINDOW); window++) {
 				encoder_.restoreState(encoder_state_);
 				encoder_.append(1, 1);
 				addSegment(instance.getFormCharIndexes(char_table_), l_end, l_end + window);
