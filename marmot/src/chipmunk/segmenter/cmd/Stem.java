@@ -7,18 +7,19 @@ import marmot.util.FileUtils;
 import chipmunk.segmenter.SegmentationDataReader;
 import chipmunk.segmenter.Segmenter;
 import chipmunk.segmenter.SegmenterOptions;
-import chipmunk.segmenter.TwoPhaseSegmenter;
+import chipmunk.segmenter.Stemmer;
 
 import com.martiansoftware.jsap.FlaggedOption;
 import com.martiansoftware.jsap.JSAP;
 import com.martiansoftware.jsap.JSAPException;
 import com.martiansoftware.jsap.JSAPResult;
 
-public class Segment {
+public class Stem {
 
 	private static final String INPUT_FILE = "input-file";
 	private static final String MODEL_FILE = "model-file";
 	private static final String OUTPUT_FILE = "output-file";
+	private static final String MODE = "mode";
 	
 	public static void main(String[] args) throws JSAPException, IOException {
 		FlaggedOption opt;
@@ -31,6 +32,9 @@ public class Segment {
 		jsap.registerParameter(opt);
 
 		opt = new FlaggedOption(MODEL_FILE).setRequired(true).setLongFlag(MODEL_FILE);
+		jsap.registerParameter(opt);
+		
+		opt = new FlaggedOption(MODE ).setDefault("ROOT_DETECTION").setLongFlag(MODE);
 		jsap.registerParameter(opt);
 
 		SegmenterOptions options = new SegmenterOptions();
@@ -50,12 +54,16 @@ public class Segment {
 			System.exit(1);
 		}
 
+		Stemmer.Mode mode = Stemmer.Mode.valueOf(config.getString(MODE).toUpperCase().replace("-", "_"));
+		
 		options.setOptions(config);
 		
 		Segmenter segmenter = FileUtils.loadFromFile(config.getString(MODEL_FILE));
-		segmenter = new TwoPhaseSegmenter(segmenter);
 		SegmentationDataReader reader = new SegmentationDataReader(config.getString(INPUT_FILE), options.getString(SegmenterOptions.LANG), options.getInt(SegmenterOptions.TAG_LEVEL));
-		segmenter.segmentToFile(config.getString(OUTPUT_FILE), reader);		
+		
+		Stemmer stemmer = new Stemmer(segmenter, mode);
+		
+		stemmer.stemToFile(config.getString(OUTPUT_FILE), reader);		
 	}
 	
 }
