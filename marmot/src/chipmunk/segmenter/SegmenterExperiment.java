@@ -14,6 +14,8 @@ import com.martiansoftware.jsap.JSAPResult;
 
 public class SegmenterExperiment {
 
+	private final static String STEM_DICT = "stem-dict";
+
 	public static void main(String[] args) throws JSAPException, IOException {
 
 		FlaggedOption opt;
@@ -23,6 +25,9 @@ public class SegmenterExperiment {
 		jsap.registerParameter(opt);
 
 		opt = new FlaggedOption("out").setRequired(true).setLongFlag("out").setDefault("");
+		jsap.registerParameter(opt);
+		
+		opt = new FlaggedOption(STEM_DICT).setRequired(true).setLongFlag(STEM_DICT).setDefault("_");
 		jsap.registerParameter(opt);
 
 		opt = new FlaggedOption("num-chunks")
@@ -58,14 +63,22 @@ public class SegmenterExperiment {
 		String lang = options.getString(SegmenterOptions.LANG);
 		int num_chunks = config.getInt("num-chunks");
 		boolean use_dict = config.getBoolean("use-dict");
-
-		
+		String stem_dicts = config.getString(STEM_DICT);
+		String dict_path = "_";
 
 		if (use_dict) {
-			options.setOption(SegmenterOptions.DICTIONARY_PATHS, String.format(
+			dict_path = String.format(
 					"%s/%s/wiktionary.txt %s/%s/aspell.txt %s/%s/wordlist.txt",
-					dir, lang, dir, lang, dir, lang));
+					dir, lang, dir, lang, dir, lang);
+			if (!stem_dicts.equals("_")) {
+				dict_path = dict_path + " " + stem_dicts;
+			}
+			
 		}
+		
+		options.setOption(SegmenterOptions.VERBOSE, true);
+		
+		options.setOption(SegmenterOptions.DICTIONARY_PATHS, dict_path);
 
 		Logger logger = Logger.getLogger(SegmenterTrainer.class.getName());
 
