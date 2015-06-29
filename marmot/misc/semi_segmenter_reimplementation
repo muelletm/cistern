@@ -19,6 +19,7 @@ Per + Dict + Affix + Morph4     89.55
 CRF + Dict + Affix + Morph4     88.91
 
 Per + Dict + Affix + StemDict	92.58 89.43 92.95 92.47
+Per + Dict + Affix + StemDict	88.82 	    	  92.36
 
 \software{CRF-Morph}            86.10 82.09 85.67 88.05
 \modelname                      86.34 82.34 84.63 90.11

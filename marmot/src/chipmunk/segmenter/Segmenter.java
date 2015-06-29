@@ -17,10 +17,10 @@ public abstract class Segmenter implements Serializable {
 	public void segmentToFile(String outfile, Iterable<Word> words) throws IOException {
 		BufferedWriter writer = new BufferedWriter(new FileWriter(outfile));
 		for (Word word : words) {
-			SegmentationReading result = segment(word);
+			SegmentationReading reading = segment(word);
 			writer.write(word.getWord());
 			writer.write('\t');
-			writer.write(result.toString());
+			writer.write(reading.toString());
 			writer.write('\n');
 		}
 		writer.close();
