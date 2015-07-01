@@ -128,7 +128,8 @@ public class SimpleAnalyzer implements Analyzer {
 			int tag_index = entry.getValue();
 			
 			if (activated[tag_index]) {
-				readings.add(new AnalyzerReading(entry.getKey(), null));
+				AnalyzerTag tag = entry.getKey();
+				readings.add(new AnalyzerReading(tag, null));
 			}
 			
 			double prob = scores[tag_index];
@@ -179,6 +180,11 @@ public class SimpleAnalyzer implements Analyzer {
 	@Override
 	public int getNumTags() {
 		return model_.getNumTags();
+	}
+
+	@Override
+	public boolean isUnknown(AnalyzerInstance instance) {
+		return model_.isUnknown(instance);
 	}
 
 }

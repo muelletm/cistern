@@ -10,8 +10,10 @@ import marmot.morph.Word;
 
 public class AnalyzerReading implements Serializable {
 
+	private static final long serialVersionUID = 1L;
 	private String lemma_;
 	private AnalyzerTag tag_;
+	private int count_;
 	
 	public AnalyzerReading(AnalyzerTag tag, String lemma) {
 		tag_ = tag;
@@ -72,6 +74,14 @@ public class AnalyzerReading implements Serializable {
 
 	public AnalyzerTag getTag() {
 		return tag_;
+	}
+
+	public void setCount(int count) {
+		count_ = count;
+	}
+
+	public int getCount() {
+		return count_;
 	}
 
 }

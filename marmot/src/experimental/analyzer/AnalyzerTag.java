@@ -7,7 +7,7 @@ public class AnalyzerTag implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private String pos_tag_;
 	private String morph_tag_;
-	
+		
 	public AnalyzerTag(String pos_tag, String morph_tag) {
 		pos_tag_ = pos_tag;
 		morph_tag_ = morph_tag;
@@ -58,5 +58,5 @@ public class AnalyzerTag implements Serializable {
 	public String getMorphTag() {
 		return morph_tag_;
 	}
-	
+
 }

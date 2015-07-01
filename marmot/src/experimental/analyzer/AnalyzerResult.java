@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.logging.Logger;
 
+
+
 public class AnalyzerResult {
 
 	private int num_errors_;
@@ -23,7 +25,6 @@ public class AnalyzerResult {
 			instance_ = instance;
 			missed_ = missed;
 			toomuch_ = tomuch;
-			
 		}
 		
 		@Override
@@ -102,6 +103,8 @@ public class AnalyzerResult {
 				toomuch.add(tag);
 			}
 		}
+		
+		
 		
 		for (AnalyzerTag tag : expected) {
 			if (!actual.contains(tag)) {

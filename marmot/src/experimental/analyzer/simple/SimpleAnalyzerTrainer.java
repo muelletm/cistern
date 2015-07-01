@@ -2,9 +2,11 @@ package experimental.analyzer.simple;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,13 +33,13 @@ public class SimpleAnalyzerTrainer extends AnalyzerTrainer {
 	private double penalty_;
 	public final String MODE = "mode";
 	private final String PENALTY = "penalty";
-
-	public SimpleAnalyzerTrainer() {
-
-	}
+	private boolean optimize_threshold_ = false;
+	private boolean mallet_ = false;
 
 	@Override
 	public Analyzer train(Collection<AnalyzerInstance> instances) {
+		System.err.format("Num instances: %d\n", instances.size());
+
 		boolean use_simple_optimizer = false;
 		boolean couple_tags = false;
 		tag_mode_ = Mode.binary;
@@ -54,7 +56,7 @@ public class SimpleAnalyzerTrainer extends AnalyzerTrainer {
 			penalty_ = Double.valueOf(options_.get(PENALTY));
 		}
 		System.err.format("Penalty: %g\n", penalty_);
-		
+
 		Collection<Pair<AnalyzerTag, AnalyzerTag>> coupled = null;
 		if (couple_tags)
 			coupled = getCoupledTags(instances);
@@ -76,8 +78,49 @@ public class SimpleAnalyzerTrainer extends AnalyzerTrainer {
 
 		model.init(simple_instances, options);
 
-		Logger logger = Logger.getLogger(getClass().getName());
+		if (mallet_) {
+			run_mallet(model, simple_instances);
+		} else {
+			run_sgd(model, simple_instances, 10, true, 0.1);
+		}
+		
+		double best_threshold = 0.01;
+		if (optimize_threshold_) {
 
+			SimpleThresholdOptimizer opt = new SimpleThresholdOptimizer(
+					use_simple_optimizer);
+
+			best_threshold = opt.findTreshold(model, instances, tag_mode_);
+			System.err.println("Best threshold on train: " + best_threshold);
+
+		}
+
+		SimpleAnalyzer analyzer = new SimpleAnalyzer(model, best_threshold,
+				tag_mode_, coupled);
+		return analyzer;
+	}
+
+	private void run_sgd(SimpleAnalyzerModel model,
+			Collection<SimpleAnalyzerInstance> simple_instances, int steps_, boolean verbose_, double step_width_) {
+		List<SimpleAnalyzerInstance> instances = new LinkedList<>(simple_instances);
+		SimpleAnalyzerObjective objective = new SimpleAnalyzerObjective(penalty_,
+				model, simple_instances, train_mode_);
+		int number = 0;
+		for (int step = 0; step < steps_; step++) {
+			if (verbose_)
+				System.err.println("step: " + step);
+			Collections.shuffle(instances, new Random(42));
+			for (SimpleAnalyzerInstance instance : instances) {
+				double step_width = step_width_ / (1 + (number / (double) instances.size()));
+				objective.update(instance, step_width, true);
+				number++;
+			}
+		}
+	}
+
+	private void run_mallet(SimpleAnalyzerModel model,
+			Collection<SimpleAnalyzerInstance> simple_instances) {
+		Logger logger = Logger.getLogger(getClass().getName());
 		logger.info("Start optimization");
 		ByGradientValue objective = new SimpleAnalyzerObjective(penalty_,
 				model, simple_instances, train_mode_);
@@ -98,45 +141,26 @@ public class SimpleAnalyzerTrainer extends AnalyzerTrainer {
 
 			for (int i = 0; i < 200 && !optimizer.isConverged(); i++) {
 				optimizer.optimize(1);
-				// logger.info(String.format("Iteration: %3d / %3d: %g", i + 1,
-				// 200, objective.getValue()));
-				//
-				// if (i % 10 == 0) {
-				// logger.info("Train results:");
-				// AnalyzerResult result = AnalyzerResult.test(analyzer,
-				// instances);
-				// result.logAcc();
-				// result.logFscore();
-				// }
-
+				 logger.info(String.format("Iteration: %3d / %3d: %g", i + 1, 200, objective.getValue()));
+				
 			}
 
 		} catch (IllegalArgumentException e) {
 		} catch (OptimizationException e) {
 		}
-
-		SimpleThresholdOptimizer opt = new SimpleThresholdOptimizer(
-				use_simple_optimizer);
-
-		double best_threshold = opt.findTreshold(model, instances, tag_mode_);
-		System.err.println("Best threshold on train: " + best_threshold);
-
-		SimpleAnalyzer analyzer = new SimpleAnalyzer(model, best_threshold,
-				tag_mode_, coupled);
-		return analyzer;
+		
 	}
 
 	private Collection<Pair<AnalyzerTag, AnalyzerTag>> getCoupledTags(
 			Collection<AnalyzerInstance> instances) {
-		
+
 		Counter<AnalyzerTag> tag_counts = new Counter<>();
 		Counter<Pair<AnalyzerTag, AnalyzerTag>> tag_tag_counts = new Counter<>();
 
-		
 		for (AnalyzerInstance instance : instances) {
 			Collection<AnalyzerTag> tags = AnalyzerReading.toTags(instance
 					.getReadings());
-		
+
 			for (AnalyzerTag tag : tags) {
 				tag_counts.increment(tag, 1.0);
 			}
@@ -146,17 +170,19 @@ public class SimpleAnalyzerTrainer extends AnalyzerTrainer {
 				AnalyzerTag tag = tag_list.get(i);
 				for (int j = i + 1; j < tag_list.size(); j++) {
 					AnalyzerTag other_tag = tag_list.get(j);
-					
+
 					if (tag.hashCode() < other_tag.hashCode()) {
-						tag_tag_counts.increment(new Pair<>(other_tag, tag), 1.0);
+						tag_tag_counts.increment(new Pair<>(other_tag, tag),
+								1.0);
 					} else {
-						tag_tag_counts.increment(new Pair<>(tag, other_tag), 1.0);	
+						tag_tag_counts.increment(new Pair<>(tag, other_tag),
+								1.0);
 					}
 				}
 			}
 
 		}
-		
+
 		Collection<Pair<AnalyzerTag, AnalyzerTag>> coupled = new LinkedList<>();
 		for (Map.Entry<Pair<AnalyzerTag, AnalyzerTag>, Double> entry : tag_tag_counts
 				.entrySet()) {

@@ -10,13 +10,13 @@ Per + Dict + Affix + Morph1	88.98 86.29 89.98 92.90
 CRF + Dict + Affix + Morph1	89.09 86.27 90.42 94.02
 
 Per + Dict + Affix + Morph2	89.33 86.71 90.11 93.24
-CRF + Dict + Affix + Morph2	88.67 86.62 90.38 94.14
+CRF + Dict + Affix + Morph2	88.67 86.62 90.38 94.14		
 
-Per + Dict + Affix + Morph3	89.24 87.51 90.52 93.31
-CRF + Dict + Affix + Morph3     88.56       89.54 94.38
+Per + Dict + Affix + Morph3	89.24 87.51 90.52 93.31		# German, Finnish
+CRF + Dict + Affix + Morph3     88.56 87.11 89.54 94.38		# Turkish		
 
-Per + Dict + Affix + Morph4     89.55       90.16 93.18
-CRF + Dict + Affix + Morph4     88.91       89.66 94.10
+Per + Dict + Affix + Morph4     89.55 87.41 90.16 93.18		# English
+CRF + Dict + Affix + Morph4     88.91 87.74 89.66 94.10
 
 \software{CRF-Morph}            86.10 82.09 85.67 88.05
 \modelname                      86.34 82.34 84.63 90.11

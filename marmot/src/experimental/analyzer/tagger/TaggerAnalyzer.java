@@ -80,4 +80,11 @@ public class TaggerAnalyzer implements Analyzer {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
+	public boolean isUnknown(AnalyzerInstance instance) {
+		MorphModel model = (MorphModel) tagger_.getModel();
+		int form_index = model.getWordTable().toIndex(instance.getForm());
+		return model.isOOV(form_index);
+	}
+
 }

@@ -4,13 +4,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
-
-import experimental.analyzer.AnalyzerInstance;
-import experimental.analyzer.AnalyzerReading;
-import experimental.analyzer.AnalyzerTag;
 
 import marmot.core.DenseArrayFloatFeatureVector;
 import marmot.core.FloatFeatureVector;
@@ -21,6 +19,9 @@ import marmot.util.Encoder;
 import marmot.util.FeatUtil;
 import marmot.util.FeatureTable;
 import marmot.util.SymbolTable;
+import experimental.analyzer.AnalyzerInstance;
+import experimental.analyzer.AnalyzerReading;
+import experimental.analyzer.AnalyzerTag;
 
 public class SimpleAnalyzerModel implements Serializable {
 
@@ -29,6 +30,7 @@ public class SimpleAnalyzerModel implements Serializable {
 	private SymbolTable<String> pos_table_;
 	private SymbolTable<String> morph_table_;
 	private SymbolTable<Character> char_table_;
+	private Set<String> vocab_;
 	private List<List<Integer>> tag_to_sub_;
 
 	private static enum Features {
@@ -70,7 +72,8 @@ public class SimpleAnalyzerModel implements Serializable {
 		morph_table_ = new SymbolTable<>();
 		tag_to_sub_ = new ArrayList<>();
 		char_table_ = new SymbolTable<>();
-
+		vocab_ = new HashSet<>();
+		
 		Logger logger = Logger.getLogger(getClass().getName());
 
 		if (options != null) {
@@ -84,6 +87,9 @@ public class SimpleAnalyzerModel implements Serializable {
 
 		}
 
+		
+		
+		
 		for (SimpleAnalyzerInstance instance : instances) {
 			init(instance, true);
 		}
@@ -141,6 +147,10 @@ public class SimpleAnalyzerModel implements Serializable {
 
 	private void init(SimpleAnalyzerInstance instance, boolean insert) {
 		List<Integer> tag_indexes = new LinkedList<>();
+		
+		if (insert) {
+			vocab_.add(instance.getInstance().getForm());
+		}
 
 		for (AnalyzerTag tag : instance.getTags()) {
 			int tag_index = tag_table_.toIndex(tag, -1, insert);
@@ -316,10 +326,8 @@ public class SimpleAnalyzerModel implements Serializable {
 		return tag_table_;
 	}
 
-	public double score(SimpleAnalyzerInstance simpleAnalyzerInstance,
-			int tagIndex) {
-		// TODO Auto-generated method stub
-		return 0;
+	public boolean isUnknown(AnalyzerInstance instance) {
+		return !vocab_.contains(instance.getForm());
 	}
 
 }

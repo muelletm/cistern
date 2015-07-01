@@ -10,5 +10,7 @@ public interface Analyzer extends Serializable {
 	String represent(AnalyzerInstance instance);
 
 	int getNumTags();
+
+	boolean isUnknown(AnalyzerInstance instance);
 	
 }
