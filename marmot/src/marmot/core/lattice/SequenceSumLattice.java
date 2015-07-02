@@ -8,10 +8,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
+import lemming.lemma.ranker.RankerCandidate;
 import marmot.core.State;
 import marmot.core.Transition;
 import marmot.core.WeightVector;
-import marmot.lemma.ranker.RankerCandidate;
 import marmot.util.Check;
 import marmot.util.Numerics;
 

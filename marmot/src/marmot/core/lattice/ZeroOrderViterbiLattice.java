@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Set;
 
+import lemming.lemma.ranker.RankerCandidate;
 import marmot.core.State;
-import marmot.lemma.ranker.RankerCandidate;
 import marmot.util.HashableIntArray;
 
 public class ZeroOrderViterbiLattice implements ViterbiLattice {

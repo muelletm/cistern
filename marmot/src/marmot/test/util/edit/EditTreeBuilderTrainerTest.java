@@ -15,9 +15,9 @@ import java.util.Random;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import marmot.lemma.LemmaInstance;
-import marmot.lemma.toutanova.Aligner.Pair;
-import marmot.lemma.toutanova.EditTreeAligner;
+import lemming.lemma.LemmaInstance;
+import lemming.lemma.toutanova.EditTreeAligner;
+import lemming.lemma.toutanova.Aligner.Pair;
 import marmot.morph.io.SentenceReader;
 import marmot.util.Numerics;
 import marmot.util.edit.EditTree;

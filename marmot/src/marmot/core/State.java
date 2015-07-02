@@ -5,7 +5,7 @@ package marmot.core;
 
 import java.util.List;
 
-import marmot.lemma.ranker.RankerCandidate;
+import lemming.lemma.ranker.RankerCandidate;
 import marmot.util.Check;
 import marmot.util.Numerics;
 

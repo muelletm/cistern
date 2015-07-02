@@ -6,7 +6,7 @@ package marmot.util.edit;
 import java.util.List;
 import java.util.Random;
 
-import marmot.lemma.LemmaInstance;
+import lemming.lemma.LemmaInstance;
 import marmot.util.Counter;
 
 public class EditTreeBuilderTrainer {

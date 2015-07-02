@@ -6,15 +6,15 @@ package marmot.morph;
 import java.util.ArrayList;
 import java.util.List;
 
+import lemming.lemma.LemmaInstance;
+import lemming.lemma.Lemmatizer;
+import lemming.lemma.ranker.RankerCandidate;
 import marmot.core.Model;
 import marmot.core.Sequence;
 import marmot.core.SimpleTagger;
 import marmot.core.State;
 import marmot.core.Token;
 import marmot.core.WeightVector;
-import marmot.lemma.LemmaInstance;
-import marmot.lemma.Lemmatizer;
-import marmot.lemma.ranker.RankerCandidate;
 
 public class MorphTagger extends SimpleTagger {
 

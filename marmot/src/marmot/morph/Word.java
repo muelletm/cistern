@@ -5,9 +5,9 @@ package marmot.morph;
 
 import java.util.Arrays;
 
+import lemming.lemma.ranker.RankerInstance;
 import marmot.core.FeatureVector;
 import marmot.core.Token;
-import marmot.lemma.ranker.RankerInstance;
 
 
 public class Word implements Token {

@@ -6,6 +6,7 @@ package marmot.morph;
 import java.util.Arrays;
 import java.util.Collection;
 
+import lemming.lemma.ranker.RankerModel;
 import marmot.core.ArrayFloatFeatureVector;
 import marmot.core.FeatureVector;
 import marmot.core.FloatFeatureVector;
@@ -14,7 +15,6 @@ import marmot.core.Model;
 import marmot.core.Sequence;
 import marmot.core.State;
 import marmot.core.WeightVector;
-import marmot.lemma.ranker.RankerModel;
 import marmot.util.Encoder;
 import marmot.util.FeatureTable;
 

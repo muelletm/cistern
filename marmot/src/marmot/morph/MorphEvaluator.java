@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import lemming.lemma.ranker.RankerCandidate;
 import marmot.core.Evaluator;
 import marmot.core.Options;
 import marmot.core.Sequence;
@@ -20,7 +21,6 @@ import marmot.core.lattice.SumLattice;
 import marmot.core.lattice.ViterbiLattice;
 import marmot.core.lattice.ZeroOrderSumLattice;
 import marmot.core.lattice.ZeroOrderViterbiLattice;
-import marmot.lemma.ranker.RankerCandidate;
 import marmot.morph.cmd.Trainer;
 import marmot.morph.io.SentenceReader;
 import marmot.util.Copy;

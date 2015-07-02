@@ -12,8 +12,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import lemming.lemma.Lemmatizer;
 import marmot.core.Sequence;
-import marmot.lemma.Lemmatizer;
 import marmot.morph.MorphDictionary;
 import marmot.morph.MorphOptions;
 import marmot.morph.MorphTagger;

@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import lemming.lemma.ranker.RankerCandidate;
 import marmot.core.State;
 import marmot.core.WeightVector;
-import marmot.lemma.ranker.RankerCandidate;
 import marmot.util.Check;
 import marmot.util.Numerics;
 
