@@ -67,7 +67,7 @@ public class SimpleAnalyzerModel implements Serializable {
 	public void init(Collection<SimpleAnalyzerInstance> instances,
 			MorphDictionaryOptions options) {
 
-		tag_table_ = new SymbolTable<>();
+		tag_table_ = new SymbolTable<>(true);
 		pos_table_ = new SymbolTable<>();
 		morph_table_ = new SymbolTable<>();
 		tag_to_sub_ = new ArrayList<>();
