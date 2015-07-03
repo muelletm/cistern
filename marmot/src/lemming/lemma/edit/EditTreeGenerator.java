@@ -26,7 +26,7 @@ public class EditTreeGenerator implements LemmaCandidateGenerator {
 	public void addCandidates(LemmaInstance instance, LemmaCandidateSet set) {
 		String form = instance.getForm();
 		
-		String tag = instance.getMorphTag();
+		String tag = instance.getPosTag();
 		
 		List<EditTree> trees_ = null;
 		if (tag != null) {

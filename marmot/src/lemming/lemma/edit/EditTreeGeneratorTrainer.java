@@ -83,7 +83,7 @@ public class EditTreeGeneratorTrainer implements LemmaCandidateGeneratorTrainer 
 			counter.increment(tree, 1.0);
 
 			if (options_.getIsTagDependent()) {
-				String tag = instance.getMorphTag();
+				String tag = instance.getPosTag();
 				if (tag != null) {
 					counter = map.get(tag);
 					if (counter == null) {
