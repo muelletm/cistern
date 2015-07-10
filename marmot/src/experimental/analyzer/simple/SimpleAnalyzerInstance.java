@@ -6,20 +6,19 @@ import java.util.List;
 
 import experimental.analyzer.AnalyzerInstance;
 import experimental.analyzer.AnalyzerTag;
-
-import marmot.core.FloatFeatureVector;
+import experimental.analyzer.simple.FloatDict.Vector;
 
 public class SimpleAnalyzerInstance implements Serializable {
 
+	private static final long serialVersionUID = 1L;
 	private AnalyzerInstance instance_;
 	private Collection<AnalyzerTag> tags_;
 	private List<Integer> tag_indexes_;
 	private int signature_;
 	private short[] form_chars_;
 	private int[] feat_indexes_;
-	private FloatFeatureVector vector_;
+	private FloatDict.Vector vector_;
 	private int[] float_feat_indexes_;
-	private double[] float_values_;
 	
 	public SimpleAnalyzerInstance(AnalyzerInstance instance, Collection<AnalyzerTag> tags) {
 		instance_ = instance;
@@ -66,20 +65,8 @@ public class SimpleAnalyzerInstance implements Serializable {
 		return feat_indexes_;
 	}
 
-	public void setVector(FloatFeatureVector vector) {
+	public void setVector(FloatDict.Vector vector) {
 		vector_ = vector;
-	}
-
-	public FloatFeatureVector getVector() {
-		return vector_;
-	}
-
-	public void setFloatFeatIndexes(int[] indexes) {
-		float_feat_indexes_ = indexes;
-	}
-
-	public void setFloatValues(double[] values) {
-		float_values_ = values;
 	}
 
 	public int[] getFloatFeatIndexes() {
@@ -87,7 +74,15 @@ public class SimpleAnalyzerInstance implements Serializable {
 	}
 
 	public double[] getFloatValues() {
-		return float_values_;
+		return vector_.getValues();
+	}
+
+	public Vector getVector() {
+		return vector_;
+	}
+
+	public void setFloatFeatIndexes(int[] indexes) {
+		float_feat_indexes_ = indexes;
 	}
 	
 }

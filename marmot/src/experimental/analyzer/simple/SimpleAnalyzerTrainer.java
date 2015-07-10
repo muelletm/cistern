@@ -11,7 +11,6 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import marmot.morph.MorphDictionaryOptions;
 import marmot.util.Counter;
 import marmot.util.Mutable;
 
@@ -29,15 +28,23 @@ import experimental.analyzer.AnalyzerTrainer;
 import experimental.analyzer.simple.SimpleAnalyzer.Mode;
 
 public class SimpleAnalyzerTrainer extends AnalyzerTrainer {
-
 	private Mode train_mode_;
 	private Mode tag_mode_;
 	private double penalty_;
-	public final String MODE = "mode";
-	private final String PENALTY = "penalty";
+	
+	public final static String MODE = "mode";
+	public final static String PENALTY = "penalty";
+	public final static String PAIR_CONSTRAINT = "pair-constraint";
+	public final static String PAIR_CONSTRAINT_THRESHOLD = "pair-constraint-threshold";
+	
 	private boolean optimize_threshold_ = false;
 	private boolean mallet_ = false;
-	private boolean pair_constraints_ = false;
+	
+	enum PairConstraint {simple, weighted, none};
+	
+	private PairConstraint pair_constraint_ = PairConstraint.weighted;
+	private double pair_constraint_threshold_ = 0.1;
+	private Map<AnalyzerTag, Map<AnalyzerTag, Mutable<Double>>> relative_counts_ = null;
 
 	@Override
 	public Analyzer train(Collection<AnalyzerInstance> instances) {
@@ -52,6 +59,15 @@ public class SimpleAnalyzerTrainer extends AnalyzerTrainer {
 			tag_mode_ = mode;
 			train_mode_ = mode;
 		}
+		
+		if (options_.containsKey(PAIR_CONSTRAINT)) {
+			pair_constraint_ = PairConstraint.valueOf(options_.get(PAIR_CONSTRAINT));
+		}
+		
+		if (options_.containsKey(PAIR_CONSTRAINT_THRESHOLD)) {
+			pair_constraint_threshold_ = Double.valueOf(options_.get(PAIR_CONSTRAINT_THRESHOLD));
+		}
+		
 		System.err.format("Modes: %s / %s\n", tag_mode_, train_mode_);
 
 		penalty_ = 1.0;
@@ -64,7 +80,7 @@ public class SimpleAnalyzerTrainer extends AnalyzerTrainer {
 		if (couple_tags)
 			coupled = getCoupledTags(instances);
 
-		if (pair_constraints_) {
+		if (pair_constraint_ != PairConstraint.none) {
 			preparePairConstraints(instances);
 		}
 
@@ -77,13 +93,11 @@ public class SimpleAnalyzerTrainer extends AnalyzerTrainer {
 
 		SimpleAnalyzerModel model = new SimpleAnalyzerModel();
 
-		MorphDictionaryOptions options = null;
+		String float_dict_file = null;
 		if (options_.containsKey(AnalyzerTrainer.FLOAT_DICT_)) {
-			options = MorphDictionaryOptions.parse(options_
-					.get(AnalyzerTrainer.FLOAT_DICT_));
+			float_dict_file = options_.get(AnalyzerTrainer.FLOAT_DICT_);
 		}
-
-		model.init(simple_instances, options);
+		model.init(simple_instances, float_dict_file);
 
 		if (mallet_) {
 			run_mallet(model, simple_instances);
@@ -107,8 +121,6 @@ public class SimpleAnalyzerTrainer extends AnalyzerTrainer {
 		return analyzer;
 	}
 
-	Map<AnalyzerTag, Map<AnalyzerTag, Mutable<Double>>> relative_counts_ = null;
-	
 	private void preparePairConstraints(Collection<AnalyzerInstance> instances) {
 
 		TagStats stats = getTagStates(instances);
@@ -155,7 +167,7 @@ public class SimpleAnalyzerTrainer extends AnalyzerTrainer {
 
 		double prob = tag_tag_count / tag_count;
 
-		if (prob > 0.1) {
+		if (prob > pair_constraint_threshold_) {
 			Map<AnalyzerTag, Mutable<Double>> map = relative_counts.get(tag);
 			if (map == null) {
 				map = new HashMap<>();
@@ -173,7 +185,7 @@ public class SimpleAnalyzerTrainer extends AnalyzerTrainer {
 		List<SimpleAnalyzerInstance> instances = new LinkedList<>(
 				simple_instances);
 		SimpleAnalyzerObjective objective = new SimpleAnalyzerObjective(
-				penalty_, model, simple_instances, train_mode_, relative_counts_);
+				penalty_, model, simple_instances, train_mode_, relative_counts_, pair_constraint_);
 		int number = 0;
 		for (int step = 0; step < steps_; step++) {
 			if (verbose_)
@@ -193,7 +205,7 @@ public class SimpleAnalyzerTrainer extends AnalyzerTrainer {
 		Logger logger = Logger.getLogger(getClass().getName());
 		logger.info("Start optimization");
 		ByGradientValue objective = new SimpleAnalyzerObjective(penalty_,
-				model, simple_instances, train_mode_, relative_counts_);
+				model, simple_instances, train_mode_, relative_counts_, pair_constraint_);
 		Optimizer optimizer = new LimitedMemoryBFGS(objective);
 		Logger.getLogger(optimizer.getClass().getName()).setLevel(Level.OFF);
 		objective.setParameters(model.getWeights());

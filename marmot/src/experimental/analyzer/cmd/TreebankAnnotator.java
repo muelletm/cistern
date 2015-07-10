@@ -6,6 +6,7 @@ package experimental.analyzer.cmd;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 
 import marmot.util.FileUtils;
@@ -14,6 +15,8 @@ import experimental.analyzer.AnalyzerInstance;
 import experimental.analyzer.AnalyzerReading;
 import experimental.analyzer.AnalyzerTrainer;
 import experimental.analyzer.TreebankAnalyzerResult;
+import experimental.analyzer.simple.SimpleAnalyzer;
+import experimental.analyzer.simple.SimpleEvaluator;
 
 public class TreebankAnnotator {
 
@@ -39,14 +42,11 @@ public class TreebankAnnotator {
 					new FileWriter(pred_file));
 			for (AnalyzerInstance instance : instances) {
 				if (analyzer.isUnknown(instance)) {
-
 					Collection<AnalyzerReading> readings = analyzer
 							.analyze(instance);
 
 					writer.write(instance.getForm());
 					writer.write('\t');
-//					writer.write(analyzer.represent(instance));
-//					writer.write('\t');
 					writer.write(readings.toString());
 					writer.newLine();
 				}
@@ -79,6 +79,11 @@ public class TreebankAnnotator {
 
 	public static void test(Analyzer analyzer, String test_file) {
 		TreebankAnalyzerResult.logResult(analyzer, test_file);
+		if (analyzer instanceof SimpleAnalyzer) {
+			SimpleAnalyzer sanalyzer = (SimpleAnalyzer) analyzer;
+			SimpleEvaluator evaluator = new SimpleEvaluator();
+			evaluator.eval(sanalyzer, AnalyzerInstance.getTreebankInstances(test_file), Arrays.asList(1.0, 1.5, 2.0, 2.5, 5.0));
+		}
 	}
 
 }

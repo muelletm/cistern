@@ -10,10 +10,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import marmot.core.DenseArrayFloatFeatureVector;
-import marmot.core.FloatFeatureVector;
-import marmot.morph.FloatHashDictionary;
-import marmot.morph.MorphDictionaryOptions;
 import marmot.util.Converter;
 import marmot.util.Encoder;
 import marmot.util.FeatUtil;
@@ -45,7 +41,7 @@ public class SimpleAnalyzerModel implements Serializable {
 	private Encoder encoder_;
 	private FeatureTable feature_table_;
 	transient private Context context_;
-	private FloatHashDictionary dict_;
+	private FloatDict dict_;
 
 	private boolean special_signature_ = true;
 	private int max_affix_length_ = 10;
@@ -64,8 +60,7 @@ public class SimpleAnalyzerModel implements Serializable {
 	private long feat_length_;
 	private int dict_bits_;
 
-	public void init(Collection<SimpleAnalyzerInstance> instances,
-			MorphDictionaryOptions options) {
+	public void init(Collection<SimpleAnalyzerInstance> instances, String dictfile) {
 
 		tag_table_ = new SymbolTable<>(true);
 		pos_table_ = new SymbolTable<>();
@@ -76,9 +71,8 @@ public class SimpleAnalyzerModel implements Serializable {
 		
 		Logger logger = Logger.getLogger(getClass().getName());
 
-		if (options != null) {
-			dict_ = new FloatHashDictionary();
-			dict_.init(options);
+		if (dictfile != null && !dictfile.isEmpty()) {
+			dict_ = FloatDict.fromFile(dictfile);
 			dict_bits_ = Encoder.bitsNeeded(dict_.getDimension());
 
 			logger.info(String.format(
@@ -132,16 +126,14 @@ public class SimpleAnalyzerModel implements Serializable {
 		instance.setFeatureIndexes(Converter.toIntArray(context_.list));
 		context_.list.clear();
 
-		DenseArrayFloatFeatureVector vector = (DenseArrayFloatFeatureVector) instance
-				.getVector();
+		FloatDict.Vector vector = instance.getVector();
 		if (vector != null) {
-			for (int i = 0; i < vector.getDim(); i++) {
+			for (int index : vector.getIndexes()) {
 				encoder_.append(Features.dict_feature.ordinal(), feature_bits_);
-				encoder_.append(i, dict_bits_);
+				encoder_.append(index, dict_bits_);
 				addFeature(true);
 			}
 			instance.setFloatFeatIndexes(Converter.toIntArray(context_.list));
-			instance.setFloatValues(vector.getValues());
 		}
 	}
 
@@ -186,8 +178,7 @@ public class SimpleAnalyzerModel implements Serializable {
 		instance.setFormChars(form_chars);
 
 		if (dict_ != null) {
-			FloatFeatureVector vector = dict_.getVector(form);
-			instance.setVector(vector);
+			instance.setVector(dict_.getVector(form));
 		}
 
 	}

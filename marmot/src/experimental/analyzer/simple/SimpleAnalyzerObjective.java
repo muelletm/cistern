@@ -12,6 +12,7 @@ import marmot.util.Numerics;
 import cc.mallet.optimize.Optimizable.ByGradientValue;
 import experimental.analyzer.AnalyzerTag;
 import experimental.analyzer.simple.SimpleAnalyzer.Mode;
+import experimental.analyzer.simple.SimpleAnalyzerTrainer.PairConstraint;
 
 public class SimpleAnalyzerObjective implements ByGradientValue {
 
@@ -25,10 +26,15 @@ public class SimpleAnalyzerObjective implements ByGradientValue {
 	private double[] scores;
 	private double[] updates;
 	private Map<AnalyzerTag, Map<AnalyzerTag, Mutable<Double>>> relative_counts_;
+	private PairConstraint pair_constraint_;
 
-	public SimpleAnalyzerObjective(double penalty, SimpleAnalyzerModel model,
-			Collection<SimpleAnalyzerInstance> instances, Mode mode,
-			Map<AnalyzerTag, Map<AnalyzerTag, Mutable<Double>>> relative_counts) {
+	public SimpleAnalyzerObjective(
+			double penalty,
+			SimpleAnalyzerModel model,
+			Collection<SimpleAnalyzerInstance> instances,
+			Mode mode,
+			Map<AnalyzerTag, Map<AnalyzerTag, Mutable<Double>>> relative_counts,
+			PairConstraint pair_constraint) {
 		model_ = model;
 		instances_ = instances;
 		weights_ = model.getWeights();
@@ -40,6 +46,8 @@ public class SimpleAnalyzerObjective implements ByGradientValue {
 		int num_tags = model_.getNumTags();
 		scores = new double[num_tags];
 		updates = new double[num_tags];
+
+		pair_constraint_ = pair_constraint;
 	}
 
 	public void update() {
@@ -111,26 +119,36 @@ public class SimpleAnalyzerObjective implements ByGradientValue {
 					* Math.exp(scores[tag_index] - sum);
 		}
 
-		if (relative_counts_ != null) {
+		if (pair_constraint_ != PairConstraint.none) {
 			for (int tag_index : instance.getTagIndexes()) {
 				AnalyzerTag tag = model_.getTagTable().toSymbol(tag_index);
 
 				Map<AnalyzerTag, Mutable<Double>> map = relative_counts_
 						.get(tag);
 
-				if (map == null) {
-					value += scores[tag_index];
-					updates[tag_index] += 1.0;
-				} else {
+				if (map != null) {
 					for (Map.Entry<AnalyzerTag, Mutable<Double>> entry : map
 							.entrySet()) {
 						int new_tag_index = model_.getTagTable().toIndex(
 								entry.getKey());
 						double count = entry.getValue().get();
-						value += count * scores[new_tag_index];
-						updates[new_tag_index] += count;
+						
+						if (pair_constraint_ == PairConstraint.weighted) {
+							value += count * scores[new_tag_index];
+							updates[new_tag_index] += count;
+						} else {
+							if (new_tag_index != tag_index) {
+								updates[new_tag_index] = 0;	
+							}
+						}
 					}
 				}
+
+				if (map == null || pair_constraint_ == PairConstraint.simple) {
+					value += scores[tag_index];
+					updates[tag_index] += 1.0;
+				}
+
 			}
 		} else {
 			for (int tag_index : instance.getTagIndexes()) {

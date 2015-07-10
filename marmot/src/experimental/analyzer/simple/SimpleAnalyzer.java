@@ -187,4 +187,12 @@ public class SimpleAnalyzer implements Analyzer {
 		return model_.isUnknown(instance);
 	}
 
+	public SimpleAnalyzerModel getModel() {
+		return model_;
+	}
+
+	public Mode getMode() {
+		return mode_;
+	}
+
 }
