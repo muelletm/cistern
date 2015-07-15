@@ -52,6 +52,7 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
 		public static final String USE_HASH_FEATURE_TABLE = "use-hash-feature-table";
 		public static final String USE_MALLET = "use-mallet";
 		public static final String OFFLINE_FEATURE_EXTRACTION = "offline-feature-extraction";
+		public static final String CLUSTER_FILE = "cluster-file";
 
 		public RankerTrainerOptions() {
 			map_.put(GENERATOR_TRAINERS, Arrays.asList(
@@ -74,6 +75,7 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
 			map_.put(EDIT_TREE_MAX_DEPTH, -1);
 			map_.put(USE_MALLET, true);
 			map_.put(OFFLINE_FEATURE_EXTRACTION, true);
+			map_.put(CLUSTER_FILE, "");
 		}
 
 		@SuppressWarnings("unchecked")
@@ -173,6 +175,10 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
 		public boolean getUseOfflineFeatureExtraction() {
 			return (Boolean) getOption(OFFLINE_FEATURE_EXTRACTION);
 		}
+
+		public String getClusterFile() {
+			return (String) getOption(CLUSTER_FILE);
+		}
 	}
 
 	private RankerTrainerOptions options_;
@@ -249,11 +255,13 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
 		RankerObjective objective = new RankerObjective(options_, model,
 				instances, MAX_NUM_DUPLICATES_);
 
+		Random random = options_.getRandom();	
+		
 		int number = 0;
 		for (int step = 0; step < options_.getNumIterations(); step++) {
 			logger.info("SGD step: " + step);
 
-			Collections.shuffle(instances, new Random(42));
+			Collections.shuffle(instances, random);
 			for (RankerInstance instance : instances) {
 				double step_width = initial_step_width
 						/ (1 + (number / (double) instances.size()));

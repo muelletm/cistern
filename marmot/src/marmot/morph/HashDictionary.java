@@ -85,4 +85,8 @@ public class HashDictionary extends MorphDictionary {
 		return index_map_.get(form);
 	}
 
+	public int size() {
+		return index_map_.size();
+	}
+
 }

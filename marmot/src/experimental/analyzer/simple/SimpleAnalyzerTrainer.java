@@ -187,10 +187,13 @@ public class SimpleAnalyzerTrainer extends AnalyzerTrainer {
 		SimpleAnalyzerObjective objective = new SimpleAnalyzerObjective(
 				penalty_, model, simple_instances, train_mode_, relative_counts_, pair_constraint_);
 		int number = 0;
+		
+		Random random = new Random(42);
+		
 		for (int step = 0; step < steps_; step++) {
 			if (verbose_)
 				System.err.println("step: " + step);
-			Collections.shuffle(instances, new Random(42));
+			Collections.shuffle(instances, random);
 			for (SimpleAnalyzerInstance instance : instances) {
 				double step_width = step_width_
 						/ (1 + (number / (double) instances.size()));

@@ -18,6 +18,8 @@ import lemming.lemma.LemmaCandidateSet;
 import lemming.lemma.LemmaInstance;
 import lemming.lemma.ranker.RankerTrainer.RankerTrainerOptions;
 import lemming.lemma.toutanova.EditTreeAligner;
+import marmot.morph.HashDictionary;
+import marmot.morph.MorphDictionaryOptions;
 import marmot.util.AspellLexicon;
 import marmot.util.Converter;
 import marmot.util.Encoder;
@@ -44,7 +46,7 @@ public class RankerModel implements Serializable {
 	private static final int max_affix_length_ = 10;
 
 	private static enum Features {
-		lemma_feature, lemma_form_feature, align_feature, align_copy_feature, tree_feature, affix_feature, lexicon_feature, align_feature_output
+		lemma_feature, lemma_form_feature, align_feature, align_copy_feature, tree_feature, affix_feature, lexicon_feature, align_feature_output, tree_cluster_feature
 	}
 
 	private static final int feature_bits_ = Encoder.bitsNeeded(Features
@@ -58,6 +60,7 @@ public class RankerModel implements Serializable {
 
 	private Set<Integer> ignores_indexes_;
 
+	private int cluster_bits_;
 	private int lemma_bits_;
 	private int form_bits_;
 	private int char_bits_;
@@ -82,7 +85,8 @@ public class RankerModel implements Serializable {
 	private transient double[] accumulated_penalties_;
 	private double accumulated_penalty_;
 	private boolean copy_conjunctions_;
-	
+	private HashDictionary cluster_dict_;
+		
 	private final static double EPSILON = 1e-10;
 
 	private static class Context {
@@ -164,6 +168,12 @@ public class RankerModel implements Serializable {
 		unigram_lexicons_ = new LinkedList<>();
 		for (Object unigram_file : unigram_files)
 			prepareUnigramFeature((String) unigram_file);
+		
+		String cluster_file = options.getClusterFile();
+		cluster_dict_ = null;
+		if (!cluster_file.isEmpty()) {
+			prepareClusterFeature(cluster_file);
+		}
 
 		String aspell_path = options.getAspellPath();
 		if (!aspell_path.isEmpty()) {
@@ -175,6 +185,10 @@ public class RankerModel implements Serializable {
 		}
 
 		unigram_lexicons_bits_ = Encoder.bitsNeeded(unigram_lexicons_.size());
+		if (cluster_dict_ != null) {
+			cluster_bits_ = Encoder.bitsNeeded(cluster_dict_.numTags());
+		}
+		
 		use_shape_lexicon_ = options.getUseShapeLexicon();
 		use_core_features_ = options.getUseCoreFeatures();
 		use_alignment_features_ = options.getUseAlignmentFeatures();
@@ -233,6 +247,17 @@ public class RankerModel implements Serializable {
 		}
 	}
 
+	private void prepareClusterFeature(String cluster_file) {
+		MorphDictionaryOptions options = MorphDictionaryOptions.parse(cluster_file + ",indexes=[1],norm=umlaut");
+		cluster_dict_ = new HashDictionary();
+		cluster_dict_.init(options);
+		
+		Logger logger = Logger.getLogger(getClass().getName());
+		logger.info(String
+				.format("Creating cluster lexicon from file: %s with %d entries and %d tags",
+						cluster_file, cluster_dict_.size() , cluster_dict_.numTags()));
+	}
+	
 	private void prepareUnigramFeature(String unigram_file) {
 		Logger logger = Logger.getLogger(getClass().getName());
 
@@ -316,6 +341,11 @@ public class RankerModel implements Serializable {
 
 	public void addIndexes(RankerInstance instance, LemmaCandidateSet set,
 			boolean insert) {
+		
+		int[] cluster_indexes = null;
+		if (cluster_dict_ != null)
+			cluster_indexes = cluster_dict_.getIndexes(instance.getInstance().getForm());
+		
 		if (context_ == null) {
 			context_ = new Context();
 			encoder_ = new Encoder(encoder_capacity_);
@@ -374,8 +404,16 @@ public class RankerModel implements Serializable {
 					encoder_.append(tree_index, tree_bits_);
 					addSuffixFeatures(form_chars);
 					encoder_.reset();
+					
+					if (cluster_indexes != null) {
+						for (int cluster_index : cluster_indexes) {
+							encoder_.append(Features.tree_cluster_feature.ordinal(), feature_bits_);
+							encoder_.append(tree_index, tree_bits_);
+							encoder_.append(cluster_index, cluster_bits_);
+							addFeature();
+						}
+					}					
 				}
-
 			}
 
 			if (use_alignment_features_) {
@@ -458,7 +496,6 @@ public class RankerModel implements Serializable {
 		encoder_.reset();
 
 		encoder_.append(Features.affix_feature.ordinal(), feature_bits_);
-		addSuffixFeatures(lemma_chars);
 		encoder_.reset();
 	}
 
