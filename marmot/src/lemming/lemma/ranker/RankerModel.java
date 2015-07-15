@@ -51,7 +51,9 @@ public class RankerModel implements Serializable {
 			.values().length - 1);
 	private static final int unigram_count_position_bits_ = Encoder
 			.bitsNeeded(HashLexicon.ARRAY_LENGTH - 1);
-	private static final long max_weights_length_ = 10_000_000;
+	
+	// Random relatively large prime number
+	private static final long max_weights_length_ = 11_549_873;
 	private static final int encoder_capacity_ = 15;
 
 	private Set<Integer> ignores_indexes_;
@@ -80,7 +82,7 @@ public class RankerModel implements Serializable {
 	private transient double[] accumulated_penalties_;
 	private double accumulated_penalty_;
 	private boolean copy_conjunctions_;
-	public boolean offline_feature_extraction_ = false;
+	
 	private final static double EPSILON = 1e-10;
 
 	private static class Context {
@@ -185,14 +187,15 @@ public class RankerModel implements Serializable {
 
 		logger.info("Starting feature index extraction.");
 
-		if (offline_feature_extraction_) {
+		if (options.getUseOfflineFeatureExtraction()) {
 			for (RankerInstance instance : instances) {
 				addIndexes(instance, instance.getCandidateSet(), true);
 			}
 		}
 
-		feat_length_ = 100_000_000l;
-		if (feature_table_ != null && offline_feature_extraction_)
+		// A random relatively large prime number
+		feat_length_ = 1_254_997l;
+		if (feature_table_ != null && options.getUseOfflineFeatureExtraction())
 			feat_length_ = feature_table_.size();
 
 		pos_length_ = (pos_table_ == null) ? 1 : pos_table_.size() + 1;
@@ -206,7 +209,7 @@ public class RankerModel implements Serializable {
 
 		weights_ = new double[length];
 
-		if (feature_table_ != null && offline_feature_extraction_)
+		if (feature_table_ != null && options.getUseOfflineFeatureExtraction())
 			logger.info(String.format("Number of features: %10d",
 					feature_table_.size()));
 

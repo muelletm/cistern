@@ -65,8 +65,6 @@ public class SimpleAnalyzerObjective implements ByGradientValue {
 			value_ -= penalty_ * w * w;
 			gradient_[i] -= 2. * penalty_ * w;
 		}
-
-		model_.setWeights(weights_);
 	}
 
 	public void update(SimpleAnalyzerInstance instance, double step_width,
@@ -99,6 +97,9 @@ public class SimpleAnalyzerObjective implements ByGradientValue {
 			}
 		}
 		model_.update(instance, updates);
+		
+		
+		model_.setWeights(weights_);
 	}
 
 	private double classifierUpdate(double[] scores, double[] updates,
