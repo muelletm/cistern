@@ -82,7 +82,7 @@ def main():
                  'source-url' : 'http://nl.ijs.si/ME/V4/', 
                  'source' : 'Multext-East (2010-05-14)', 
                  'cis-path' : marmot_file, 
-                 'marmot-indexes' : 'form-index=0,tag-index=2,morph-index=3' 
+                 'marmot-indexes' : 'form-index=0,lemma-index=1,tag-index=2,morph-index=3' 
         })
 
         with open(ana_file) as f_in, open(marmot_file, 'w') as f_out:
