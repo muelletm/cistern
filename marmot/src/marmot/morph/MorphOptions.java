@@ -48,6 +48,7 @@ public class MorphOptions extends Options {
 	public static final String LEMMATIZER_FILE = "lemmatizer-file";
 	public static final String LEMMAS_IGNORE_FEATURES = "lemma-ignore-features";
 	public static final String USE_HASH_FEATURE_TABLE_ = "use-hash-feature-table";
+	public static final String LEMMA_PREPRUNING_EXTRACTION_ = "lemma-prepruning-extraction";
 
 	private static final Map<String, String> DEFALUT_VALUES_ = new HashMap<String, String>();
 	private static final Map<String, String> COMMENTS_ = new HashMap<String, String>();
@@ -125,6 +126,8 @@ public class MorphOptions extends Options {
 		COMMENTS_.put(LEMMATIZER_FILE, "Use this pipeline lemmatizer to lemmatizer after tagging.");
 		DEFALUT_VALUES_.put(USE_HASH_FEATURE_TABLE_, "false");
 		COMMENTS_.put(USE_HASH_FEATURE_TABLE_, "Less memory usage sligtly less accurate.");
+		DEFALUT_VALUES_.put(LEMMA_PREPRUNING_EXTRACTION_, "true");
+		COMMENTS_.put(LEMMA_PREPRUNING_EXTRACTION_, "Add lemmas before or after pruning.");
 	}
 
 	public MorphOptions() {
@@ -287,6 +290,10 @@ public class MorphOptions extends Options {
 
 	public boolean getUseHashFeatureTable() {
 		return Boolean.valueOf(getProperty(USE_HASH_FEATURE_TABLE_));
+	}
+
+	public boolean getLemmaPrePruningExtraction() {
+		return Boolean.valueOf(getProperty(LEMMA_PREPRUNING_EXTRACTION_));
 	}
 
 }

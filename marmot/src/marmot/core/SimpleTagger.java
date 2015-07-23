@@ -197,7 +197,7 @@ public class SimpleTagger implements Tagger {
 				State state = new State(tag_index);
 				state.setVector(vector);
 				state.setScore(weight_vector_.dotProduct(state, vector));
-				model_.setLemmaCandidates(token, state);
+				model_.setLemmaCandidates(token, state, true);
 				states.add(state);
 			}
 			assert states.size() > 0;
@@ -284,7 +284,7 @@ public class SimpleTagger implements Tagger {
 						State new_state = new State(tag_index, state);
 						new_state.setVector(vector);
 						new_state.setScore(weight_vector_.dotProduct(new_state, vector) + state.getRealScore());
-						model_.setLemmaCandidates(new_state);
+						model_.setLemmaCandidates(new_state, true);
 						new_current_states.add(new_state);
 					}
 				}
@@ -372,6 +372,25 @@ public class SimpleTagger implements Tagger {
 					incrementStateCounter(level, current_order,
 							lattice.getZeroOrderCandidates(true));
 					assert candidates.size() > 0;
+				}
+				
+				if (current_order == 0) {
+				
+				if (level == 0) {
+					for (List<State> states : candidates) {
+						int index = 0;
+						for (State state : states) {
+							model_.setLemmaCandidates(sentence.get(index), state, false);
+						}
+						index++;
+					}
+				} else if (level + 1 == getNumLevels()) {
+					for (List<State> states : candidates) {
+						for (State state : states) {
+							model_.setLemmaCandidates(state, false);
+						}
+					}
+				}
 				}
 
 				/*

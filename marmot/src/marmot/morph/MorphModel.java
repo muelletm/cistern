@@ -64,7 +64,6 @@ public class MorphModel extends Model {
 	private List<SymbolTable<String>> subtag_tables_;
 	private transient Map<String, Integer> signature_cache;
 	
-
 	private int[] vocab_;
 	private int[][] tag_classes_;
 	private int[][] transitions_;
@@ -80,13 +79,9 @@ public class MorphModel extends Model {
 
 	private boolean split_morphs_;
 	private boolean split_pos_;
-
 	private Mode normalize_forms_;
-
 	private Analyzer analyzer_;
-
 	private RankerModel lemma_model_;
-
 	private List<LemmaCandidateGenerator> generators_;
 
 	public void init(MorphOptions options, Collection<Sequence> sentences) {
@@ -129,7 +124,7 @@ public class MorphModel extends Model {
 			analyzer_ = Analyzer.create(internal_analyzer);
 		}
 
-		if ((shape_)) {
+		if (shape_) {
 
 			File file = null;
 			if (!options.getShapeTriePath().isEmpty()) {
@@ -189,8 +184,8 @@ public class MorphModel extends Model {
 			Collection<Sequence> sentences) {
 
 		lemma_use_morph_ = options.getLemmaUseMorph();
-		
 		marginalize_lemmas_ = options.getMarginalizeLemmas();
+		lemma_prepruning_extraction_ = options.getLemmaPrePruningExtraction();
 		
 		RankerTrainerOptions roptions = new RankerTrainerOptions();
 		roptions.setOption(RankerTrainerOptions.UNIGRAM_FILE, options.getLemmaUnigramFile());
@@ -1038,9 +1033,12 @@ public class MorphModel extends Model {
 		return train(options, train_sequences, null);
 	}
 
+	boolean lemma_prepruning_extraction_ = true;
+	
 	@Override
-	public void setLemmaCandidates(Token token, State state) {
-		if (lemma_model_ == null)
+	public void setLemmaCandidates(Token token, State state, boolean preprune) {
+		
+		if (lemma_model_ == null || preprune != lemma_prepruning_extraction_)
 			return;
 		
 		Word word = (Word) token;
@@ -1077,8 +1075,8 @@ public class MorphModel extends Model {
 	}
 
 	@Override
-	public void setLemmaCandidates(State state) {
-		if (lemma_model_ == null)
+	public void setLemmaCandidates(State state, boolean preprune) {
+		if (lemma_model_ == null  || preprune != lemma_prepruning_extraction_)
 			return;
 
 		assert state.getLevel() == 1;
@@ -1090,14 +1088,9 @@ public class MorphModel extends Model {
 		assert previous_state.getOrder() == 1;
 		assert state.getOrder() == 1;
 		
-		List<RankerCandidate> prev_candidates = previous_state.getLemmaCandidates();
-		assert prev_candidates != null;
-		
-		List<RankerCandidate> candidates = new ArrayList<>(prev_candidates.size());
 		
 		assert previous_state.getLevel() == 0;
 		int pos_index = previous_state.getIndex();
-		
 		
 		int morph_index = state.getIndex();
 		int[] morph_indexes = getTagToSubTags()[state.getLevel()][morph_index];
@@ -1107,6 +1100,9 @@ public class MorphModel extends Model {
 			morph_indexes = RankerInstance.EMPTY_ARRAY;
 		}
 		
+		List<RankerCandidate> prev_candidates = previous_state.getLemmaCandidates();
+		assert prev_candidates != null;
+		List<RankerCandidate> candidates = new ArrayList<>(prev_candidates.size());
 		for (RankerCandidate prev_candidate : prev_candidates) {
 			String pLemma = prev_candidate.getLemma();
 			LemmaCandidate pcandidate = prev_candidate.getCandidate();
