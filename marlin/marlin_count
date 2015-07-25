@@ -96,6 +96,9 @@ def main():
                       help="Output: Word list.", metavar="FILE")
     parser.add_option("-b", "--bigrams", dest="bigrams",
                       help="Output: Bigrams counts.", metavar="FILE")
+    parser.add_option("-m", "--min-occur", dest="min_occur", default=0,
+                      help="If positive, only extract words occurring m times or more.",
+                      type=int)
     parser.add_option("-r", "--rank-limit", dest="rank_limit", default=250000,
                       help="If positive, only extract the r most frequent words.",
                       type=int)
@@ -117,7 +120,9 @@ def main():
     unigram_counts = unigram_counts.items()
     unigram_counts.sort(key=lambda (word, count): count, reverse=True)
     # Add high rank words to table
-    for word, _ in unigram_counts:
+    for word, count in unigram_counts:
+        if options.min_occur > 0 and count < options.min_occur:
+            break
         table[word] = len(table)
         if options.rank_limit >= 0 and len(table) >= options.rank_limit:
             break
