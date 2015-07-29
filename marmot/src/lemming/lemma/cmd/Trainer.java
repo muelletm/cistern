@@ -9,11 +9,15 @@ import java.io.IOException;
 import java.util.List;
 import java.util.logging.Logger;
 
+import lemming.lemma.BackupLemmatizer;
 import lemming.lemma.LemmaInstance;
 import lemming.lemma.LemmaOptions;
 import lemming.lemma.LemmaResult;
 import lemming.lemma.Lemmatizer;
+import lemming.lemma.LemmatizerGenerator;
 import lemming.lemma.LemmatizerTrainer;
+import lemming.lemma.SimpleLemmatizerTrainer;
+import lemming.lemma.SimpleLemmatizerTrainer.SimpleLemmatizerTrainerOptions;
 import marmot.core.Sequence;
 import marmot.core.Token;
 import marmot.morph.Word;
@@ -29,7 +33,7 @@ public class Trainer {
 		String output_file = args[2];
 		String train_file = args[3];
 		
-		Lemmatizer lemmatizer = train(model_type, options_string, train_file);
+		Lemmatizer lemmatizer = train(model_type, options_string, train_file, true);
 		
 		for (int i=4; i < args.length; i += 2) {
 			String test_file = args[i];
@@ -66,7 +70,7 @@ public class Trainer {
 	}
 
 	public static Lemmatizer train(String model_type, String options_string,
-			String train_file) {
+			String train_file, boolean use_backup) {
 		
 		LemmatizerTrainer trainer;
 		try {
@@ -84,6 +88,15 @@ public class Trainer {
 
 		List<LemmaInstance> training_instances = LemmaInstance.getInstances(new SentenceReader(train_file), options.getLimit());
 		Lemmatizer lemmatizer = trainer.train(training_instances, null);
+		
+		
+		if (use_backup) {
+			LemmatizerTrainer simple_trainer = new SimpleLemmatizerTrainer();
+			simple_trainer.getOptions().setOption(SimpleLemmatizerTrainerOptions.USE_BACKUP, false).setOption(SimpleLemmatizerTrainerOptions.HANDLE_UNSEEN, false);
+			Lemmatizer simple = simple_trainer.train(training_instances, null);
+			Lemmatizer backup = new BackupLemmatizer((LemmatizerGenerator) simple, (LemmatizerGenerator) lemmatizer);
+			return backup;
+		}
 		
 		return lemmatizer;
 	}
