@@ -35,7 +35,7 @@ public class Trainer {
 			String test_file = args[i];
 			String pred_file = args[i + 1];
 			
-			test(lemmatizer, test_file);
+			//test(lemmatizer, test_file);
 			annotate(lemmatizer, test_file, pred_file);	
 		}
 		
@@ -47,11 +47,14 @@ public class Trainer {
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(pred_file));
 			for (Sequence sequence : new SentenceReader(test_file)) {
+				
+				int nr = 1;
 				for (Token token : sequence) {
 					LemmaInstance instance = LemmaInstance.getInstance((Word) token);
 					String plemma = lemmatizer.lemmatize(instance);
-					
-					writer.write(String.format("%s\t%s\n", instance, plemma));
+					//writer.write(String.format("%s\t%s\n", instance, plemma));
+					writer.write(String.format("%d\t%s\t%s\t%s\t_\t%s\t_\t%s\n", nr, instance.getForm(), instance.getLemma(), plemma, instance.getPosTag(), instance.getMorphTag()));					
+					nr += 1;
 				}
 				writer.write('\n');				
 			}
