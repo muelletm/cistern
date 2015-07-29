@@ -496,6 +496,7 @@ public class RankerModel implements Serializable {
 		encoder_.reset();
 
 		encoder_.append(Features.affix_feature.ordinal(), feature_bits_);
+		addSuffixFeatures(lemma_chars);
 		encoder_.reset();
 	}
 
