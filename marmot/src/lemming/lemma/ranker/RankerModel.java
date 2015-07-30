@@ -46,7 +46,7 @@ public class RankerModel implements Serializable {
 	private static final int max_affix_length_ = 10;
 
 	private static enum Features {
-		lemma_feature, lemma_form_feature, align_feature, align_copy_feature, tree_feature, affix_feature, lexicon_feature, align_feature_output, tree_cluster_feature
+		lemma_feature, lemma_form_feature, align_feature, align_copy_feature, tree_feature, affix_feature, lexicon_feature, align_feature_output, tree_form_cluster_feature, lemma_cluster_feature, form_cluster_lemma_cluster_feature
 	}
 
 	private static final int feature_bits_ = Encoder.bitsNeeded(Features
@@ -342,9 +342,9 @@ public class RankerModel implements Serializable {
 	public void addIndexes(RankerInstance instance, LemmaCandidateSet set,
 			boolean insert) {
 		
-		int[] cluster_indexes = null;
+		int[] form_cluster_indexes = null;
 		if (cluster_dict_ != null)
-			cluster_indexes = cluster_dict_.getIndexes(instance.getInstance().getForm());
+			form_cluster_indexes = cluster_dict_.getIndexes(instance.getInstance().getForm());
 		
 		if (context_ == null) {
 			context_ = new Context();
@@ -361,19 +361,42 @@ public class RankerModel implements Serializable {
 
 		for (Map.Entry<String, LemmaCandidate> candidate_pair : set) {
 			context_.list.clear();
-
+			
 			String lemma = candidate_pair.getKey();
+			
+			int[] lemma_cluster_indexes = null;
+			if (cluster_dict_ != null)
+				lemma_cluster_indexes = cluster_dict_.getIndexes(lemma);
+
+			if (lemma_cluster_indexes != null) {
+				for (int lemma_cluster_index : lemma_cluster_indexes) {
+					encoder_.append(Features.lemma_cluster_feature.ordinal(), feature_bits_);
+					encoder_.append(lemma_cluster_index, cluster_bits_);
+					addFeature();
+				}
+				
+				if (form_cluster_indexes != null) {
+					for (int form_cluster_index : form_cluster_indexes) {
+						for (int lemma_cluster_index : lemma_cluster_indexes) {
+							encoder_.append(Features.form_cluster_lemma_cluster_feature.ordinal(), feature_bits_);
+							encoder_.append(lemma_cluster_index, cluster_bits_);
+							encoder_.append(form_cluster_index, cluster_bits_);
+							addFeature();
+						}
+					}
+				}
+			}
+
 			int lemma_index = lemma_table_.toIndex(lemma, -1, false);
-
 			LemmaCandidate candidate = candidate_pair.getValue();
-
+			
 			if (use_core_features_) {
-
 				if (lemma_index >= 0) {
 					encoder_.append(Features.lemma_feature.ordinal(),
 							feature_bits_);
 					encoder_.append(lemma_index, lemma_bits_);
 					addFeature();
+					
 				}
 
 				if (lemma_index >= 0 && form_index >= 0) {
@@ -405,9 +428,9 @@ public class RankerModel implements Serializable {
 					addSuffixFeatures(form_chars);
 					encoder_.reset();
 					
-					if (cluster_indexes != null) {
-						for (int cluster_index : cluster_indexes) {
-							encoder_.append(Features.tree_cluster_feature.ordinal(), feature_bits_);
+					if (form_cluster_indexes != null) {
+						for (int cluster_index : form_cluster_indexes) {
+							encoder_.append(Features.tree_form_cluster_feature.ordinal(), feature_bits_);
 							encoder_.append(tree_index, tree_bits_);
 							encoder_.append(cluster_index, cluster_bits_);
 							addFeature();
