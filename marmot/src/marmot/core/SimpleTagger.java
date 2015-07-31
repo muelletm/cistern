@@ -6,7 +6,6 @@ package marmot.core;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import marmot.core.lattice.Hypothesis;
@@ -34,8 +33,6 @@ public class SimpleTagger implements Tagger {
 	private int beam_size_;
 	private boolean oracle_;
 	private final int AVERAGE_NUMBER_OF_CANDIDATES = 5;
-
-	private List<List<List<State>>> candidate_buffer_;
 
 	public SimpleTagger(Model model, int order, WeightVector weight_vector) {
 		order_ = order;
@@ -315,10 +312,6 @@ public class SimpleTagger implements Tagger {
 
 	@Override
 	public SumLattice getSumLattice(boolean train, Sequence sentence) {
-		if (candidate_buffer_ != null) {
-			candidate_buffer_.clear();
-		}
-
 		int order = getOrder();
 
 		List<List<State>> candidates = null;
@@ -327,9 +320,6 @@ public class SimpleTagger implements Tagger {
 		for (int level = 0; level < getNumLevels(); level++) {
 			if (level == 0) {
 				candidates = getStates(sentence);
-				if (candidate_buffer_ != null) {
-					candidate_buffer_.add(candidates);
-				}
 
 			} else {
 				candidates = lattice.getZeroOrderCandidates(prune_);
@@ -342,9 +332,6 @@ public class SimpleTagger implements Tagger {
 				int old_size = candidates.size();
 
 				candidates = increaseLevel(candidates, sentence);
-				if (candidate_buffer_ != null) {
-					candidate_buffer_.add(candidates);
-				}
 
 				assert candidates.size() == old_size;
 				for (List<State> states : candidates) {
@@ -352,8 +339,8 @@ public class SimpleTagger implements Tagger {
 				}
 			}
 
-			lattice = new ZeroOrderSumLattice(candidates, threshs_[level][0],
-					oracle_);
+			lattice = new ZeroOrderSumLattice(candidates, threshs_[level][0], oracle_);
+			
 			if (oracle_ || train)
 				lattice.setGoldCandidates(getGoldIndexes(sentence,
 						lattice.getCandidates()));
@@ -366,9 +353,6 @@ public class SimpleTagger implements Tagger {
 			for (int current_order = 0; current_order < effective_order; current_order++) {
 				if (prune_) {
 					candidates = lattice.prune();
-					if (candidate_buffer_ != null) {
-						candidate_buffer_.add(candidates);
-					}
 
 					incrementStateCounter(level, current_order,
 							lattice.getZeroOrderCandidates(true));
@@ -435,52 +419,6 @@ public class SimpleTagger implements Tagger {
 
 		assert lattice.getCandidates().size() >= sentence.size();
 		return lattice;
-	}
-
-	public void activateCandiateBuffer(boolean active) {
-		if (active) {
-			candidate_buffer_ = new LinkedList<List<List<State>>>();
-		} else {
-			candidate_buffer_ = null;
-		}
-	}
-
-	public void printCandidateBuffer(int limit) {
-		int index = 0;
-		for (List<List<State>> candidates : candidate_buffer_) {
-			System.out.println(index);
-
-			List<List<State>> zero_order = SequenceSumLattice
-					.getZeroOrderCandidates(candidates,
-							model_.getBoundaryIndex());
-
-			for (List<State> states : zero_order.subList(0,
-					zero_order.size() - 1)) {
-
-				boolean truncated = false;
-				if (states.size() > limit) {
-					truncated = true;
-					states = states.subList(0, limit);
-				}
-
-				for (State state : states) {
-					System.out.print(" ");
-					System.out.print(indexesToStrings(stateToIndexes(state)));
-				}
-
-				if (truncated) {
-					System.out.print(" ...");
-				}
-
-				System.out.println();
-
-			}
-
-			System.out.println();
-			System.out.println();
-
-			index++;
-		}
 	}
 
 	private List<Integer> testForGoldCandidates(Sequence sentence,

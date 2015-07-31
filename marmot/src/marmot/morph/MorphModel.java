@@ -203,9 +203,6 @@ public class MorphModel extends Model {
 			generators_ = roptions.getGenerators(instances);
 		}
 		
-		EditTreeAlignerTrainer trainer = new EditTreeAlignerTrainer(roptions.getRandom(), false, 1, -1);
-		EditTreeAligner aligner = (EditTreeAligner) trainer.train(instances);
-		
 		List<RankerInstance> rinstances = RankerInstance.getInstances(instances, generators_);
 		
 		SymbolTable<String> pos_table = getTagTables().get(POS_INDEX_);
@@ -213,7 +210,10 @@ public class MorphModel extends Model {
 		if (MORPH_INDEX_< subtag_tables_.size()) {
 			morph_table = subtag_tables_.get(MORPH_INDEX_);
 		}
-					
+		
+		EditTreeAlignerTrainer trainer = new EditTreeAlignerTrainer(roptions.getRandom(), false, 1, -1);
+		EditTreeAligner aligner = (EditTreeAligner) trainer.train(instances);
+		
 		lemma_model_ = new RankerModel();
 		lemma_model_.init(roptions, rinstances, aligner, pos_table, morph_table);
 		
@@ -1109,8 +1109,6 @@ public class MorphModel extends Model {
 		if (!lemma_use_morph_) {
 			morph_indexes = RankerInstance.EMPTY_ARRAY;
 		}
-		
-		
 		
 		List<RankerCandidate> candidates = new ArrayList<>(prev_candidates.size());
 		for (RankerCandidate prev_candidate : prev_candidates) {
