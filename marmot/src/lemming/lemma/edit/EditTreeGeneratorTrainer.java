@@ -100,15 +100,12 @@ public class EditTreeGeneratorTrainer implements LemmaCandidateGeneratorTrainer 
 			List<EditTree> list = new LinkedList<>();
 			Counter<EditTree> counter = map_entry.getValue();
 			list_map.put(map_entry.getKey(), list);
-			//int nr = 0;
 			for (Map.Entry<EditTree, Double> entry : counter.entrySet()) {
 				double count = entry.getValue();
 				if (count >= options_.getMinCount()) {
 					EditTree tree = entry.getKey();
 					list.add(tree);
-					//System.err.println(nr + "/" + counter.size() + "::" + map_entry.getKey() + " " + tree + " " + count);
 				}
-				//nr ++;
 			}
 		}
 

@@ -20,22 +20,24 @@ public class Stats {
 
 		String train_file = args[0];
 		String dev_file = args[1];
+		int min_count = Integer.parseInt(args[2]);
 		
 		List<LemmaInstance> training_instances = LemmaInstance.getInstances(new SentenceReader(train_file), -1);
 		List<LemmaInstance> dev_instances = LemmaInstance.getInstances(new SentenceReader(dev_file), -1);
 		
-		String tag_independent = getStats(training_instances, dev_instances, false);
-		String tag_dependent = getStats(training_instances, dev_instances, true);
+		String tag_independent = getStats(training_instances, dev_instances, false, min_count);
+		String tag_dependent = getStats(training_instances, dev_instances, true, min_count);
 		
 		System.out.format("%s & %s \\\\\n", tag_independent, tag_dependent);
 		
 	}
 	
 	public static String getStats(List<LemmaInstance> training_instances,
-			List<LemmaInstance> dev_instances, boolean tag_dependent) {
+			List<LemmaInstance> dev_instances, boolean tag_dependent, int min_count) {
 			
 		EditTreeGeneratorTrainer trainer = new EditTreeGeneratorTrainer();
 		trainer.getOptions().setOption(EditTreeGeneratorTrainerOptions.TAG_DEPENDENT, tag_dependent);
+		trainer.getOptions().setOption(EditTreeGeneratorTrainerOptions.MIN_COUNT, min_count);
 		LemmaCandidateGenerator generator = trainer.train(training_instances, null);
 		
 		double num_token_candidates = 0;
