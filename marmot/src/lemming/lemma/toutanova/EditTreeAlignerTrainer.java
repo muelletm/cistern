@@ -23,6 +23,10 @@ public class EditTreeAlignerTrainer implements AlignerTrainer {
 		num_steps_ = num_steps;
 		max_depth_ = max_depth;
 	}
+	
+	public EditTreeAlignerTrainer() {
+		this(new Random(32), true, 1, -1);
+	}
 
 	@Override
 	public Aligner train(List<LemmaInstance> instances) {

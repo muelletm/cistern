@@ -193,6 +193,7 @@ public class MorphModel extends Model {
 		roptions.setOption(RankerTrainerOptions.ASPELL_PATH, options.getLemmaAspellPath());
 		roptions.setOption(RankerTrainerOptions.ASPELL_LANG, options.getLemmaAspellLang());
 		roptions.setOption(RankerTrainerOptions.USE_SHAPE_LEXICON, options.getLemmaUseShapeLexicon());
+		roptions.setOption(RankerTrainerOptions.CLUSTER_FILE, options.getLemmaClusterFile());
 		
 		List<LemmaInstance> instances = LemmaInstance.getInstances(sentences, false, false);
 		
