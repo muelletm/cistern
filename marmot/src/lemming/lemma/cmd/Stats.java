@@ -1,5 +1,7 @@
 package lemming.lemma.cmd;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.List;
 
 import lemming.lemma.LemmaCandidateGenerator;
@@ -29,7 +31,7 @@ public class Stats {
 		
 	}
 	
-	private static String getStats(List<LemmaInstance> training_instances,
+	public static String getStats(List<LemmaInstance> training_instances,
 			List<LemmaInstance> dev_instances, boolean tag_dependent) {
 			
 		EditTreeGeneratorTrainer trainer = new EditTreeGeneratorTrainer();
@@ -60,8 +62,14 @@ public class Stats {
 			num_types+= 1.0;
 		}
 		
-		return String.format("%g & %g & %g & %g", num_token_candidates / num_tokens, correct_tokens / num_tokens, 
-				num_type_candidates / num_types, correct_types / num_types);
+		return String.format("%s & %s & %s & %s", nice(num_token_candidates / num_tokens), nice(correct_tokens / num_tokens), 
+				nice(num_type_candidates / num_types), nice(correct_types / num_types));
+	}
+	
+	private static NumberFormat formatter = new DecimalFormat("#0.00");
+
+	private static String nice(double number) {
+		return formatter.format(number);
 	}
 
 }
