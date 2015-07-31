@@ -943,6 +943,9 @@ public class MorphModel extends Model {
 		
 			model.skip_lemma_ = false;
 			
+			if (options.getVerbose()) {
+				System.err.format("Extracting lemma features from train.\n");
+			}
 			for (Sequence sentence : train_sentences) {
 				for (Token token : sentence) {
 					Word word = (Word) token;
@@ -951,6 +954,9 @@ public class MorphModel extends Model {
 			}
 			
 			if (test_sentences != null) {
+				if (options.getVerbose()) {
+					System.err.format("Extracting lemma features from test.\n");
+				}
 				for (Sequence sentence : test_sentences) {
 					for (Token token : sentence) {
 						Word word = (Word) token;
@@ -959,7 +965,9 @@ public class MorphModel extends Model {
 				}
 			}	
 
-			
+			if (options.getVerbose()) {
+				System.err.format("Training with lemmatizer.\n");
+			}
 			trainer.train(tagger, train_sentences, evaluator);
 		}
 		
