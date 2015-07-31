@@ -280,10 +280,11 @@ public class SimpleTagger implements Tagger {
 						}
 
 						assert state.getOrder() == 1;
-												
+
 						State new_state = new State(tag_index, state);
 						new_state.setVector(vector);
-						new_state.setScore(weight_vector_.dotProduct(new_state, vector) + state.getRealScore());
+						new_state.setScore(weight_vector_.dotProduct(new_state,
+								vector) + state.getRealScore());
 						model_.setLemmaCandidates(new_state, true);
 						new_current_states.add(new_state);
 					}
@@ -373,31 +374,43 @@ public class SimpleTagger implements Tagger {
 							lattice.getZeroOrderCandidates(true));
 					assert candidates.size() > 0;
 				}
-				
+
 				if (current_order == 0) {
-				
-				if (level == 0) {
-					for (List<State> states : candidates) {
+
+					if (level == 0) {
 						int index = 0;
-						for (State state : states) {
-							model_.setLemmaCandidates(sentence.get(index), state, false);
+						for (List<State> states : candidates) {
+							if (index + 1 < candidates.size()) {
+								// Last state is boundary state
+								// Add lemma scores with pos features
+								for (State state : states) {
+									model_.setLemmaCandidates(
+											sentence.get(index), state, false);
+								}
+							}
+							index++;
 						}
-						index++;
-					}
-				} else if (level + 1 == getNumLevels()) {
-					for (List<State> states : candidates) {
-						for (State state : states) {
-							model_.setLemmaCandidates(state, false);
+					} else if (level + 1 == getNumLevels()) {
+						int index = 0;
+						for (List<State> states : candidates) {
+							if (index + 1 < candidates.size()) {
+								// Last state is boundary state
+								// Add lemma scores with morph features
+								for (State state : states) {
+									model_.setLemmaCandidates(state, false);
+								}
+							}
+							index++;
 						}
 					}
-				}
 				}
 
 				/*
-				 * During training, if gold sequence is not among the new candidates
-				 * return the lattice immediately to do an early update.
+				 * During training, if gold sequence is not among the new
+				 * candidates return the lattice immediately to do an early
+				 * update.
 				 */
-				
+
 				if (train
 						&& testForGoldCandidates(sentence, candidates, lattice) == null) {
 					return lattice;
@@ -436,36 +449,37 @@ public class SimpleTagger implements Tagger {
 		int index = 0;
 		for (List<List<State>> candidates : candidate_buffer_) {
 			System.out.println(index);
-			
+
 			List<List<State>> zero_order = SequenceSumLattice
 					.getZeroOrderCandidates(candidates,
 							model_.getBoundaryIndex());
-			
-			for (List<State> states : zero_order.subList(0, zero_order.size() - 1)) {
-				
+
+			for (List<State> states : zero_order.subList(0,
+					zero_order.size() - 1)) {
+
 				boolean truncated = false;
 				if (states.size() > limit) {
 					truncated = true;
 					states = states.subList(0, limit);
 				}
-				
+
 				for (State state : states) {
 					System.out.print(" ");
 					System.out.print(indexesToStrings(stateToIndexes(state)));
 				}
-				
+
 				if (truncated) {
 					System.out.print(" ...");
 				}
-				
+
 				System.out.println();
-				
+
 			}
-			
+
 			System.out.println();
 			System.out.println();
 
-			index ++;
+			index++;
 		}
 	}
 
@@ -581,7 +595,7 @@ public class SimpleTagger implements Tagger {
 
 		return strings;
 	}
-	
+
 	protected List<String> indexesToStrings(int[] indexes) {
 		List<String> sarray = new ArrayList<String>(indexes.length);
 
@@ -593,11 +607,11 @@ public class SimpleTagger implements Tagger {
 
 		return sarray;
 	}
-	
+
 	protected int[] stateToIndexes(State state) {
-		
+
 		int num_levels = state.getLevel() + 1;
-		
+
 		int[] indexes = new int[num_levels];
 		for (int level = num_levels - 1; level >= 0; level--) {
 			assert state != null;
@@ -616,10 +630,12 @@ public class SimpleTagger implements Tagger {
 
 		ViterbiLattice lattice;
 		if (sum_lattice instanceof ZeroOrderSumLattice) {
-			lattice = new ZeroOrderViterbiLattice(candidates, beam_size_, model_.getMarganlizeLemmas());
+			lattice = new ZeroOrderViterbiLattice(candidates, beam_size_,
+					model_.getMarganlizeLemmas());
 		} else {
 			lattice = new SequenceViterbiLattice(candidates,
-					model_.getBoundaryState(getNumLevels() - 1), beam_size_, model_.getMarganlizeLemmas());
+					model_.getBoundaryState(getNumLevels() - 1), beam_size_,
+					model_.getMarganlizeLemmas());
 		}
 
 		Hypothesis h = lattice.getViterbiSequence();
@@ -635,17 +651,17 @@ public class SimpleTagger implements Tagger {
 
 		return list;
 	}
-	
+
 	protected List<int[]> tag_(Sequence sequence) {
 		List<int[]> list = new ArrayList<int[]>(sequence.size());
-		
+
 		List<State> states = tag_states(sequence);
-		
+
 		for (State state : states) {
 			int[] indexes = stateToIndexes(state);
 			list.add(indexes);
 		}
-		
+
 		return list;
 	}
 
