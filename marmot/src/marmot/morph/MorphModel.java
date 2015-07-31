@@ -1046,7 +1046,6 @@ public class MorphModel extends Model {
 	
 	@Override
 	public void setLemmaCandidates(Token token, State state, boolean preprune) {
-		
 		if (lemma_model_ == null || preprune != lemma_prepruning_extraction_)
 			return;
 		
@@ -1098,8 +1097,7 @@ public class MorphModel extends Model {
 		assert state.getOrder() == 1;
 		
 		List<RankerCandidate> prev_candidates = previous_state.getLemmaCandidates();
-		if (prev_candidates == null)
-			return;
+		assert prev_candidates != null;
 		
 		assert previous_state.getLevel() == 0;
 		int pos_index = previous_state.getIndex();
