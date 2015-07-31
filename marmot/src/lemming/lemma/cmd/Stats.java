@@ -6,6 +6,7 @@ import lemming.lemma.LemmaCandidateGenerator;
 import lemming.lemma.LemmaCandidateSet;
 import lemming.lemma.LemmaInstance;
 import lemming.lemma.edit.EditTreeGeneratorTrainer;
+import lemming.lemma.edit.EditTreeGeneratorTrainer.EditTreeGeneratorTrainerOptions;
 import marmot.morph.io.SentenceReader;
 
 public class Stats {
@@ -21,7 +22,18 @@ public class Stats {
 		List<LemmaInstance> training_instances = LemmaInstance.getInstances(new SentenceReader(train_file), -1);
 		List<LemmaInstance> dev_instances = LemmaInstance.getInstances(new SentenceReader(dev_file), -1);
 		
+		String tag_independent = getStats(training_instances, dev_instances, false);
+		String tag_dependent = getStats(training_instances, dev_instances, true);
+		
+		System.out.format("%s & %s \\\\\n", tag_independent, tag_dependent);
+		
+	}
+	
+	private static String getStats(List<LemmaInstance> training_instances,
+			List<LemmaInstance> dev_instances, boolean tag_dependent) {
+			
 		EditTreeGeneratorTrainer trainer = new EditTreeGeneratorTrainer();
+		trainer.getOptions().setOption(EditTreeGeneratorTrainerOptions.TAG_DEPENDENT, tag_dependent);
 		LemmaCandidateGenerator generator = trainer.train(training_instances, null);
 		
 		double num_token_candidates = 0;
@@ -48,7 +60,7 @@ public class Stats {
 			num_types+= 1.0;
 		}
 		
-		System.out.format("%g & %g & %g & %g \\\\", num_token_candidates / num_tokens, correct_tokens / num_tokens, 
+		return String.format("%g & %g & %g & %g", num_token_candidates / num_tokens, correct_tokens / num_tokens, 
 				num_type_candidates / num_types, correct_types / num_types);
 	}
 
