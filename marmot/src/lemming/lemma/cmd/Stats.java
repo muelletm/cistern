@@ -62,7 +62,7 @@ public class Stats {
 			num_types+= 1.0;
 		}
 		
-		return String.format("%s & %s%% & %s & %s%%", nice(num_token_candidates / num_tokens), nice(correct_tokens * 100. / num_tokens), 
+		return String.format("%s & %s\\%% & %s & %s\\%%", nice(num_token_candidates / num_tokens), nice(correct_tokens * 100. / num_tokens), 
 				nice(num_type_candidates / num_types), nice(correct_types * 100. / num_types));
 	}
 	

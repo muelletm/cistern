@@ -137,7 +137,7 @@ public class PipelineTest {
 		options.setProperty(Options.PRUNE, "true");
 		options.setProperty(Options.ORDER, "3");
 		options.setProperty(Options.PENALTY, ".1");
-		options.setProperty(MorphOptions.USE_HASH_FEATURE_TABLE_, "false");
+		options.setProperty(MorphOptions.USE_HASH_FEATURE_TABLE, "false");
 		
 		options.setProperty(MorphOptions.TRAIN_FILE,
 				"form-index=1,tag-index=4,morph-index=6,"
