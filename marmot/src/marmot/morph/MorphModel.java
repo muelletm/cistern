@@ -1089,6 +1089,9 @@ public class MorphModel extends Model {
 		assert previous_state.getOrder() == 1;
 		assert state.getOrder() == 1;
 		
+		List<RankerCandidate> prev_candidates = previous_state.getLemmaCandidates();
+		if (prev_candidates == null)
+			return;
 		
 		assert previous_state.getLevel() == 0;
 		int pos_index = previous_state.getIndex();
@@ -1101,8 +1104,8 @@ public class MorphModel extends Model {
 			morph_indexes = RankerInstance.EMPTY_ARRAY;
 		}
 		
-		List<RankerCandidate> prev_candidates = previous_state.getLemmaCandidates();
-		assert prev_candidates != null;
+		
+		
 		List<RankerCandidate> candidates = new ArrayList<>(prev_candidates.size());
 		for (RankerCandidate prev_candidate : prev_candidates) {
 			String pLemma = prev_candidate.getLemma();
