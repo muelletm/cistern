@@ -24,15 +24,13 @@ import marmot.morph.MorphEvaluator;
 import marmot.morph.MorphModel;
 import marmot.morph.MorphOptions;
 import marmot.morph.MorphResult;
-import marmot.morph.MorphWeightVector;
 import marmot.morph.Sentence;
 import marmot.morph.Word;
 import marmot.morph.io.SentenceReader;
 import marmot.util.Copy;
-import marmot.util.FeatureTable;
+
 import marmot.util.FileUtils;
 import marmot.util.StringUtils.Mode;
-import marmot.util.Sys;
 
 public class PipelineTest {
 

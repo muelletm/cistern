@@ -33,6 +33,8 @@ public class JointTaggerLemmatizer {
 		options.setProperty(MorphOptions.GOLD_LEMMA, "false");
 		options.setProperty(MorphOptions.LEMMA_PRETRAINING, "true");
 		options.setProperty(MorphOptions.MARGINALIZE_LEMMAS, "false");
+		options.setProperty(MorphOptions.LEMMA_TAG_DEPENDENT, "true");
+		options.setProperty(MorphOptions.USE_HASH_FEATURE_TABLE, "true");
 		//options.setProperty(MorphOptions.LEMMAS_IGNORE_FEATURES, "case=*|case=nom|case=acc|case=dat|case=gen");
 		//options.setProperty(MorphOptions.LEMMA_USE_MORPH, "false");
 		options.setProperty(Options.NUM_ITERATIONS, "10");
@@ -69,7 +71,6 @@ public class JointTaggerLemmatizer {
 		
 //		all : 14613 / 18939 = 77,1582%			0.0		1000
 //		all : 14628 / 18939 = 77,2374%			0.01	1000
-
 
 		PipelineTest.testWithOptions(options, train_sentences, test_sentences, 1., 1., 1., 1.);
 		//PipelineTest.testWithOptions(options, train_sentences, test_sentences, 99.56, 53.13, 100., 87.66);

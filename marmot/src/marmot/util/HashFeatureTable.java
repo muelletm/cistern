@@ -7,7 +7,6 @@ public class HashFeatureTable implements FeatureTable {
 
 	private static final long serialVersionUID = 1L;
 	private TIntSet set_; 
-	//private Set<Integer> set_;
 	
 	public HashFeatureTable() {
 		set_ = new TIntHashSet();

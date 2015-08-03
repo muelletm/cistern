@@ -63,7 +63,7 @@ public class MorphModel extends Model {
 
 	private List<SymbolTable<String>> subtag_tables_;
 	private transient Map<String, Integer> signature_cache;
-	
+
 	private int[] vocab_;
 	private int[][] tag_classes_;
 	private int[][] transitions_;
@@ -83,6 +83,8 @@ public class MorphModel extends Model {
 	private Analyzer analyzer_;
 	private RankerModel lemma_model_;
 	private List<LemmaCandidateGenerator> generators_;
+
+	private transient Map<String, List<RankerInstance>> lemma_instance_map_;
 
 	public void init(MorphOptions options, Collection<Sequence> sentences) {
 		verbose_ = options.getVerbose();
@@ -163,9 +165,9 @@ public class MorphModel extends Model {
 		vocab_ = extractVocabulary(options, sentences);
 		transitions_ = extractPossibleTransitions(options, sentences);
 		observed_sets_ = extractObservedSets(sentences);
-		
+
 		tag_classes_ = extractTagClasses(getTagTables());
-		
+
 		tag_to_subtag_ = extractSubTags(options.getSubTagSeparator());
 
 		for (Sequence sentence : sentences) {
@@ -174,7 +176,7 @@ public class MorphModel extends Model {
 				addShape(word, word.getWordForm(), true);
 			}
 		}
-		
+
 		if (options.getLemmatizer()) {
 			initLemmatizer(options, sentences);
 		}
@@ -186,69 +188,68 @@ public class MorphModel extends Model {
 		lemma_use_morph_ = options.getLemmaUseMorph();
 		marginalize_lemmas_ = options.getMarginalizeLemmas();
 		lemma_prepruning_extraction_ = options.getLemmaPrePruningExtraction();
-		
+		lemma_tag_dependent_ = options.getLemmaTagDependent();
+
 		RankerTrainerOptions roptions = new RankerTrainerOptions();
-		roptions.setOption(RankerTrainerOptions.UNIGRAM_FILE, options.getLemmaUnigramFile());
-		roptions.setOption(RankerTrainerOptions.IGNORE_FEATURES, options.getLemmaIgnoreFeatures());
-		roptions.setOption(RankerTrainerOptions.ASPELL_PATH, options.getLemmaAspellPath());
-		roptions.setOption(RankerTrainerOptions.ASPELL_LANG, options.getLemmaAspellLang());
-		roptions.setOption(RankerTrainerOptions.USE_SHAPE_LEXICON, options.getLemmaUseShapeLexicon());
-		roptions.setOption(RankerTrainerOptions.CLUSTER_FILE, options.getLemmaClusterFile());
-		
-		List<LemmaInstance> instances = LemmaInstance.getInstances(sentences, false, false);
-		
+		roptions.setOption(RankerTrainerOptions.UNIGRAM_FILE,
+				options.getLemmaUnigramFile());
+		roptions.setOption(RankerTrainerOptions.IGNORE_FEATURES,
+				options.getLemmaIgnoreFeatures());
+		roptions.setOption(RankerTrainerOptions.ASPELL_PATH,
+				options.getLemmaAspellPath());
+		roptions.setOption(RankerTrainerOptions.ASPELL_LANG,
+				options.getLemmaAspellLang());
+		roptions.setOption(RankerTrainerOptions.USE_SHAPE_LEXICON,
+				options.getLemmaUseShapeLexicon());
+		roptions.setOption(RankerTrainerOptions.CLUSTER_FILE,
+				options.getLemmaClusterFile());
+		roptions.setOption(RankerTrainerOptions.TAG_DEPENDENT,
+				lemma_tag_dependent_);
+		roptions.setOption(RankerTrainerOptions.OFFLINE_FEATURE_EXTRACTION,
+				false);
+		roptions.setOption(RankerTrainerOptions.USE_HASH_FEATURE_TABLE,
+				options.getUseHashFeatureTable());
+
+		List<LemmaInstance> instances = LemmaInstance.getInstances(sentences,
+				true, false);
+
 		if (options.getGoldLemma()) {
-			generators_ = Collections.singletonList((LemmaCandidateGenerator) new GoldLemmaGenerator());
+			generators_ = Collections
+					.singletonList((LemmaCandidateGenerator) new GoldLemmaGenerator());
 		} else {
 			generators_ = roptions.getGenerators(instances);
 		}
-		
-		List<RankerInstance> rinstances = RankerInstance.getInstances(instances, generators_);
-		
+
 		SymbolTable<String> pos_table = getTagTables().get(POS_INDEX_);
+
+		for (Sequence sentence : sentences) {
+			for (Token token : sentence) {
+				Word word = (Word) token;
+				addRankerInstances(word);
+			}
+		}
+
 		SymbolTable<String> morph_table = null;
-		if (MORPH_INDEX_< subtag_tables_.size()) {
+		if (MORPH_INDEX_ < subtag_tables_.size()) {
 			morph_table = subtag_tables_.get(MORPH_INDEX_);
 		}
-		
-		EditTreeAlignerTrainer trainer = new EditTreeAlignerTrainer(roptions.getRandom(), false, 1, -1);
-		EditTreeAligner aligner = (EditTreeAligner) trainer.train(instances);
-		
-		lemma_model_ = new RankerModel();
-		lemma_model_.init(roptions, rinstances, aligner, pos_table, morph_table);
-		
 
-		Map<String, RankerInstance> map = new HashMap<>();
-		for (RankerInstance instance : rinstances) {
-			String key = String.format("%s\t%s", instance.getInstance().getForm(), instance.getInstance().getLemma());
-			assert ! map.containsKey(key);
-			map.put(key, instance);
-		}
-		
-		for (Sequence sequence : sentences) {
-			for (Token token : sequence) {
-				Word word = (Word) token;
-				String key = String.format("%s\t%s", word.getWordForm().toLowerCase(), word.getLemma().toLowerCase());
-				RankerInstance instance = map.get(key);
-				assert instance != null;
-				word.setInstance(instance);
-			}
-		}
-		
+		EditTreeAlignerTrainer trainer = new EditTreeAlignerTrainer(
+				roptions.getRandom(), false, 1, -1);
+		EditTreeAligner aligner = (EditTreeAligner) trainer.train(instances);
+
+		List<RankerInstance> rinstances = new LinkedList<>();
+		for (List<RankerInstance> list : lemma_instance_map_.values())
+			rinstances.addAll(list);
+
+		lemma_model_ = new RankerModel();
+		lemma_model_
+				.init(roptions, rinstances, aligner, pos_table, morph_table);
+
 		if (options.getLemmaPretraining()) {
-			for (RankerInstance instance : rinstances) {
-				clearFeaturesInInstance(instance);
-			}
 			skip_lemma_ = true;
 		} else {
 			skip_lemma_ = false;
-		}
-	}
-	
-	private void clearFeaturesInInstance(RankerInstance instance) {
-		for (Map.Entry<String, LemmaCandidate> entry : instance.getCandidateSet()) {
-			LemmaCandidate candidate = entry.getValue();
-			candidate.setFeatureIndexes(RankerInstance.EMPTY_ARRAY);
 		}
 	}
 
@@ -541,8 +542,11 @@ public class MorphModel extends Model {
 
 	private boolean lemma_use_morph_;
 
+	private boolean lemma_tag_dependent_;
+
 	private void addCharIndexes(Word word, String form, boolean insert) {
-		short[] char_indexes = FeatUtil.getCharIndexes(form, char_table_, insert);
+		short[] char_indexes = FeatUtil.getCharIndexes(form, char_table_,
+				insert);
 		assert char_indexes != null;
 		for (int index = 0; index < form.length(); index++) {
 			char c = form.charAt(index);
@@ -627,7 +631,6 @@ public class MorphModel extends Model {
 			}
 			word.setWeightedTokenFeatureIndexes(indexes);
 		}
-
 	}
 
 	public void addIndexes(Word word, boolean insert) {
@@ -644,26 +647,89 @@ public class MorphModel extends Model {
 		int word_index = word_table_.toIndex(normalized_form, -1, insert);
 		word.setWordIndex(word_index);
 		addCharIndexes(word, normalized_form, insert);
-		
-		addLemmaInstance(word);
-	}
-	
-	private void addLemmaInstance(Word word) {
-		if (lemma_model_ != null && word.getInstance() == null) {
-			LemmaInstance instance = LemmaInstance.getInstance(word, false, false);
-			RankerInstance rinstance = RankerInstance.getInstance(instance, generators_);
-			word.setInstance(rinstance);
-			addLemmaFeatures(word);
-		}
 	}
 
-	private void addLemmaFeatures(Word word) {
-		RankerInstance rinstance = word.getInstance(); 
-		if (skip_lemma_) {
-			clearFeaturesInInstance(rinstance);	
-		} else {
-			lemma_model_.addIndexes(rinstance, rinstance.getCandidateSet(), false);		
+	private RankerInstance getRankerInstance(Word word, int pos_index,
+			boolean training) {
+		List<RankerInstance> instances = word.getRankerIstances();
+
+		if (instances == null) {
+			instances = addRankerInstances(word);
 		}
+
+		if (!lemma_tag_dependent_) {
+			pos_index = 0;
+		}
+		return instances.get(pos_index);
+	}
+
+	private List<RankerInstance> addRankerInstances(Word word) {
+		if (lemma_instance_map_ == null) {
+			lemma_instance_map_ = new HashMap<>();
+		}
+
+		List<RankerInstance> instances = lemma_instance_map_.get(word
+				.getWordForm());
+
+		if (instances == null) {
+
+			SymbolTable<String> pos_table = getTagTables().get(0);
+
+			if (lemma_tag_dependent_) {
+				instances = new ArrayList<>(pos_table.size());
+				for (int index = 0; index < pos_table.size(); index++) {
+					instances.add(null);
+				}
+
+				LemmaCandidateSet total_set = new LemmaCandidateSet();
+				for (Map.Entry<String, Integer> entry : pos_table.entrySet()) {
+					int current_pos_index = entry.getValue();
+					String current_pos = entry.getKey();
+					RankerInstance rinstance = getRankerInstance(word,
+							current_pos, total_set);
+					instances.set(current_pos_index, rinstance);
+				}
+			} else {
+				RankerInstance rinstance = getRankerInstance(word, "_", null);
+				instances = Collections.singletonList(rinstance);
+			}
+
+			lemma_instance_map_.put(word.getWordForm(), instances);
+		}
+
+		word.setRankerIstances(instances);
+		return instances;
+	}
+
+	private RankerInstance getRankerInstance(Word word, String pos,
+			LemmaCandidateSet total_set) {
+
+		LemmaInstance instance = LemmaInstance.getInstance(word, false, false);
+		instance.setPosTag(pos);
+		RankerInstance rinstance = RankerInstance.getInstance(instance,
+				generators_);
+		instance.setPosTag(null);
+
+		if (total_set != null) {
+			LemmaCandidateSet new_set = new LemmaCandidateSet();
+			for (Map.Entry<String, LemmaCandidate> entry : rinstance
+					.getCandidateSet()) {
+				LemmaCandidate candidate = total_set.getCandidate(entry
+						.getKey());
+				new_set.addCandidate(entry.getKey(), candidate);
+			}
+			rinstance.setCandidateSet(new_set);
+		}
+
+		if (rinstance.getCandidateSet().size() == 0) {
+			if (total_set == null) {
+				rinstance.getCandidateSet().getCandidate(instance.getForm());
+			} else {
+				rinstance.getCandidateSet().addCandidate(instance.getForm(),
+						total_set.getCandidate(instance.getForm()));
+			}
+		}
+		return rinstance;
 	}
 
 	private int[] getSubTags(String morph, int level, boolean insert,
@@ -727,14 +793,14 @@ public class MorphModel extends Model {
 		} else {
 			tag_indexes[0] = tag_tables.get(0).toIndex(pos_tag, -1, insert);
 		}
-		
+
 		if (tag_morph_) {
 			if (morph == null) {
 				tag_indexes[1] = -1;
 			} else {
-				tag_indexes[1] = tag_tables.get(1).toIndex(morph, -1, insert);	
+				tag_indexes[1] = tag_tables.get(1).toIndex(morph, -1, insert);
 			}
-			
+
 		}
 		word.setTagIndexes(tag_indexes);
 	}
@@ -938,39 +1004,17 @@ public class MorphModel extends Model {
 		}
 
 		trainer.train(tagger, train_sentences, evaluator);
-		
+
 		if (options.getLemmatizer() && options.getLemmaPretraining()) {
-		
 			model.skip_lemma_ = false;
-			
-			if (options.getVerbose()) {
-				System.err.format("Extracting lemma features from train.\n");
-			}
-			for (Sequence sentence : train_sentences) {
-				for (Token token : sentence) {
-					Word word = (Word) token;
-					model.addLemmaFeatures(word);
-				}
-			}
-			
-			if (test_sentences != null) {
-				if (options.getVerbose()) {
-					System.err.format("Extracting lemma features from test.\n");
-				}
-				for (Sequence sentence : test_sentences) {
-					for (Token token : sentence) {
-						Word word = (Word) token;
-						model.addLemmaFeatures(word);
-					}
-				}
-			}	
 
 			if (options.getVerbose()) {
 				System.err.format("Training with lemmatizer.\n");
 			}
+
 			trainer.train(tagger, train_sentences, evaluator);
 		}
-		
+
 		return tagger;
 	}
 
@@ -1043,65 +1087,101 @@ public class MorphModel extends Model {
 	}
 
 	boolean lemma_prepruning_extraction_ = true;
-	
+
 	@Override
-	public void setLemmaCandidates(Token token, State state, boolean preprune) {
+	public void setLemmaCandidates(Token token, State state, boolean preprune,
+			boolean training) {
 		if (lemma_model_ == null || preprune != lemma_prepruning_extraction_)
 			return;
-		
-		Word word = (Word) token;
-		RankerInstance instance = word.getInstance();
-		assert instance != null;
-		
-		LemmaCandidateSet set = instance.getCandidateSet();
-		List<RankerCandidate> candidates = new ArrayList<>(set.size());
-		
-		assert state.getLevel() == 0;
+
 		int pos_index = state.getIndex();
+		Word word = (Word) token;
+		RankerInstance instance = getRankerInstance(word, pos_index, training);
+		assert instance != null;
+
+		LemmaCandidateSet candidate_set = instance.getCandidateSet();
+		List<RankerCandidate> candidates = new ArrayList<>(candidate_set.size());
+
+		assert state.getLevel() == 0;
 		int[] morph_indexes = RankerInstance.EMPTY_ARRAY;
-		
-		String lemma = word.getInstance().getInstance().getLemma();
-		
-		for (Map.Entry<String, LemmaCandidate> entry : set) {
+
+		String lemma = word.getLemma().toLowerCase();
+
+		for (Map.Entry<String, LemmaCandidate> entry : candidate_set) {
 			String plemma = entry.getKey();
-			
+
 			boolean is_correct = plemma.equals(lemma);
-			
+
 			LemmaCandidate candidate = entry.getValue();
-			double score = lemma_model_.score(candidate, pos_index, morph_indexes);
-			
-			RankerCandidate rcandidate = new RankerCandidate(plemma, candidate, is_correct, score); 
-			
+			assert candidate != null;
+
+			double score = getLemmaCandidateScore(candidate, candidate_set,
+					pos_index, morph_indexes, instance, training);
+
+			RankerCandidate rcandidate = new RankerCandidate(plemma, candidate,
+					is_correct, score);
+
 			assert rcandidate.getCandidate() != null;
-			
+
 			candidates.add(rcandidate);
 		}
-		
+
 		state.setLemmaCandidates(candidates);
 		state.setLemmaScoreSum();
 		assert state.getLemmaCandidates() != null;
 	}
 
+	private double getLemmaCandidateScore(LemmaCandidate candidate,
+			LemmaCandidateSet candidate_set, int pos_index,
+			int[] morph_indexes, RankerInstance instance, boolean training) {
+		if (skip_lemma_) {
+			candidate.setFeatureIndexes(RankerInstance.EMPTY_ARRAY);
+			return 0.0;
+		}
+
+		if (candidate.getFeatureIndexes() == null
+				|| candidate.getFeatureIndexes() == RankerInstance.EMPTY_ARRAY) {
+			for (Map.Entry<String, LemmaCandidate> entry : candidate_set) {
+				if (entry.getValue().getFeatureIndexes() == RankerInstance.EMPTY_ARRAY) {
+					entry.getValue().setFeatureIndexes(null);
+				}
+			}
+
+			candidate.setFeatureIndexes(null);
+			lemma_model_.addIndexes(instance, candidate_set, training);
+
+			for (Map.Entry<String, LemmaCandidate> entry : candidate_set) {
+				assert entry.getValue().getFeatureIndexes() != null;
+				assert entry.getValue().getFeatureIndexes() != RankerInstance.EMPTY_ARRAY;
+			}
+			assert candidate.getFeatureIndexes() != null;
+			assert candidate.getFeatureIndexes() != RankerInstance.EMPTY_ARRAY;
+		}
+
+		return lemma_model_.score(candidate, pos_index, morph_indexes);
+	}
+
 	@Override
 	public void setLemmaCandidates(State state, boolean preprune) {
-		if (lemma_model_ == null  || preprune != lemma_prepruning_extraction_)
+		if (lemma_model_ == null || preprune != lemma_prepruning_extraction_)
 			return;
 
 		assert state.getLevel() == 1;
-		
+
 		State previous_state = state.getSubLevelState();
-		
+
 		assert previous_state != null;
 		assert state != null;
 		assert previous_state.getOrder() == 1;
 		assert state.getOrder() == 1;
-		
-		List<RankerCandidate> prev_candidates = previous_state.getLemmaCandidates();
+
+		List<RankerCandidate> prev_candidates = previous_state
+				.getLemmaCandidates();
 		assert prev_candidates != null;
-		
+
 		assert previous_state.getLevel() == 0;
 		int pos_index = previous_state.getIndex();
-		
+
 		int morph_index = state.getIndex();
 		int[] morph_indexes = getTagToSubTags()[state.getLevel()][morph_index];
 		if (morph_indexes == null)
@@ -1109,15 +1189,19 @@ public class MorphModel extends Model {
 		if (!lemma_use_morph_) {
 			morph_indexes = RankerInstance.EMPTY_ARRAY;
 		}
-		
-		List<RankerCandidate> candidates = new ArrayList<>(prev_candidates.size());
+
+		List<RankerCandidate> candidates = new ArrayList<>(
+				prev_candidates.size());
 		for (RankerCandidate prev_candidate : prev_candidates) {
 			String pLemma = prev_candidate.getLemma();
 			LemmaCandidate pcandidate = prev_candidate.getCandidate();
-			double score = lemma_model_.score(pcandidate, pos_index, morph_indexes);
-			candidates.add(new RankerCandidate(pLemma, pcandidate, prev_candidate.isCorrect(), score));
+
+			double score = lemma_model_.score(pcandidate, pos_index,
+					morph_indexes);
+			candidates.add(new RankerCandidate(pLemma, pcandidate,
+					prev_candidate.isCorrect(), score));
 		}
-		
+
 		state.setLemmaCandidates(candidates);
 		state.setLemmaScoreSum();
 	}

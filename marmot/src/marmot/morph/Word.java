@@ -4,6 +4,7 @@
 package marmot.morph;
 
 import java.util.Arrays;
+import java.util.List;
 
 import lemming.lemma.ranker.RankerInstance;
 import marmot.core.FeatureVector;
@@ -28,7 +29,8 @@ public class Word implements Token {
 	private String[] weighted_token_features_;
 	private double[] weighted_token_feature_weights_;
 	private int[] weighted_token_feature_indexes_;
-	private RankerInstance instance_;
+	//private RankerInstance instance_;
+	private List<RankerInstance> instances_;
 	
 	public Word(String word, String lemma, String tag, String morph, String[] token_features, String[] weighted_token_features, double[] weighted_token_feature_weights) {
 		word_ = word;
@@ -252,12 +254,12 @@ public class Word implements Token {
 		return lemma_;
 	}
 
-	public void setInstance(RankerInstance instance) {
-		instance_ = instance;
+	public List<RankerInstance> getRankerIstances() {
+		return instances_;
 	}
 	
-	public RankerInstance getInstance() {
-		return instance_;
+	public void setRankerIstances(List<RankerInstance> instances) {
+		instances_ = instances;
 	}
-	
+
 }

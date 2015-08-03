@@ -53,7 +53,7 @@ public class RankerModel implements Serializable {
 			.values().length - 1);
 	private static final int unigram_count_position_bits_ = Encoder
 			.bitsNeeded(HashLexicon.ARRAY_LENGTH - 1);
-	
+
 	// Random relatively large prime number
 	private static final long max_weights_length_ = 11_549_873;
 	private static final int encoder_capacity_ = 15;
@@ -86,7 +86,7 @@ public class RankerModel implements Serializable {
 	private double accumulated_penalty_;
 	private boolean copy_conjunctions_;
 	private HashDictionary cluster_dict_;
-		
+
 	private final static double EPSILON = 1e-10;
 
 	private static class Context {
@@ -168,7 +168,7 @@ public class RankerModel implements Serializable {
 		unigram_lexicons_ = new LinkedList<>();
 		for (Object unigram_file : unigram_files)
 			prepareUnigramFeature((String) unigram_file);
-		
+
 		String cluster_file = options.getClusterFile();
 		cluster_dict_ = null;
 		if (!cluster_file.isEmpty()) {
@@ -188,7 +188,7 @@ public class RankerModel implements Serializable {
 		if (cluster_dict_ != null) {
 			cluster_bits_ = Encoder.bitsNeeded(cluster_dict_.numTags());
 		}
-		
+
 		use_shape_lexicon_ = options.getUseShapeLexicon();
 		use_core_features_ = options.getUseCoreFeatures();
 		use_alignment_features_ = options.getUseAlignmentFeatures();
@@ -248,16 +248,18 @@ public class RankerModel implements Serializable {
 	}
 
 	private void prepareClusterFeature(String cluster_file) {
-		MorphDictionaryOptions options = MorphDictionaryOptions.parse(cluster_file + ",indexes=[1],norm=umlaut");
+		MorphDictionaryOptions options = MorphDictionaryOptions
+				.parse(cluster_file + ",indexes=[1],norm=umlaut");
 		cluster_dict_ = new HashDictionary();
 		cluster_dict_.init(options);
-		
+
 		Logger logger = Logger.getLogger(getClass().getName());
 		logger.info(String
 				.format("Creating cluster lexicon from file: %s with %d entries and %d tags",
-						cluster_file, cluster_dict_.size() , cluster_dict_.numTags()));
+						cluster_file, cluster_dict_.size(),
+						cluster_dict_.numTags()));
 	}
-	
+
 	private void prepareUnigramFeature(String unigram_file) {
 		Logger logger = Logger.getLogger(getClass().getName());
 
@@ -331,7 +333,7 @@ public class RankerModel implements Serializable {
 		}
 
 	}
-	
+
 	public void removeIndexes(LemmaCandidateSet set) {
 		for (Map.Entry<String, LemmaCandidate> candidate_pair : set) {
 			LemmaCandidate candidate = candidate_pair.getValue();
@@ -341,11 +343,12 @@ public class RankerModel implements Serializable {
 
 	public void addIndexes(RankerInstance instance, LemmaCandidateSet set,
 			boolean insert) {
-		
+
 		int[] form_cluster_indexes = null;
 		if (cluster_dict_ != null)
-			form_cluster_indexes = cluster_dict_.getIndexes(instance.getInstance().getForm());
-		
+			form_cluster_indexes = cluster_dict_.getIndexes(instance
+					.getInstance().getForm());
+
 		if (context_ == null) {
 			context_ = new Context();
 			encoder_ = new Encoder(encoder_capacity_);
@@ -355,109 +358,122 @@ public class RankerModel implements Serializable {
 		int form_index = form_table_.toIndex(form, -1);
 
 		context_.insert = insert;
-		// context_.shape = instance.getInstance().getShape();
 
 		short[] form_chars = instance.getFormChars(char_table_, false);
 
 		for (Map.Entry<String, LemmaCandidate> candidate_pair : set) {
-			context_.list.clear();
-			
-			String lemma = candidate_pair.getKey();
-			
-			int[] lemma_cluster_indexes = null;
-			if (cluster_dict_ != null)
-				lemma_cluster_indexes = cluster_dict_.getIndexes(lemma);
 
-			if (lemma_cluster_indexes != null) {
-				for (int lemma_cluster_index : lemma_cluster_indexes) {
-					encoder_.append(Features.lemma_cluster_feature.ordinal(), feature_bits_);
-					encoder_.append(lemma_cluster_index, cluster_bits_);
-					addFeature();
-				}
-				
-				if (form_cluster_indexes != null) {
-					for (int form_cluster_index : form_cluster_indexes) {
-						for (int lemma_cluster_index : lemma_cluster_indexes) {
-							encoder_.append(Features.form_cluster_lemma_cluster_feature.ordinal(), feature_bits_);
-							encoder_.append(lemma_cluster_index, cluster_bits_);
-							encoder_.append(form_cluster_index, cluster_bits_);
-							addFeature();
+			if (candidate_pair.getValue().getFeatureIndexes() == null) {
+
+				context_.list.clear();
+
+				String lemma = candidate_pair.getKey();
+
+				int[] lemma_cluster_indexes = null;
+				if (cluster_dict_ != null)
+					lemma_cluster_indexes = cluster_dict_.getIndexes(lemma);
+
+				if (lemma_cluster_indexes != null) {
+					for (int lemma_cluster_index : lemma_cluster_indexes) {
+						encoder_.append(
+								Features.lemma_cluster_feature.ordinal(),
+								feature_bits_);
+						encoder_.append(lemma_cluster_index, cluster_bits_);
+						addFeature();
+					}
+
+					if (form_cluster_indexes != null) {
+						for (int form_cluster_index : form_cluster_indexes) {
+							for (int lemma_cluster_index : lemma_cluster_indexes) {
+								encoder_.append(
+										Features.form_cluster_lemma_cluster_feature
+												.ordinal(), feature_bits_);
+								encoder_.append(lemma_cluster_index,
+										cluster_bits_);
+								encoder_.append(form_cluster_index,
+										cluster_bits_);
+								addFeature();
+							}
 						}
 					}
 				}
-			}
 
-			int lemma_index = lemma_table_.toIndex(lemma, -1, false);
-			LemmaCandidate candidate = candidate_pair.getValue();
-			
-			if (use_core_features_) {
-				if (lemma_index >= 0) {
-					encoder_.append(Features.lemma_feature.ordinal(),
-							feature_bits_);
-					encoder_.append(lemma_index, lemma_bits_);
-					addFeature();
-					
-				}
+				int lemma_index = lemma_table_.toIndex(lemma, -1, false);
+				LemmaCandidate candidate = candidate_pair.getValue();
 
-				if (lemma_index >= 0 && form_index >= 0) {
-					encoder_.append(Features.lemma_form_feature.ordinal(),
-							feature_bits_);
-					encoder_.append(lemma_index, lemma_bits_);
-					encoder_.append(form_index, form_bits_);
-					addFeature();
-				}
+				if (use_core_features_) {
+					if (lemma_index >= 0) {
+						encoder_.append(Features.lemma_feature.ordinal(),
+								feature_bits_);
+						encoder_.append(lemma_index, lemma_bits_);
+						addFeature();
 
-				int tree_index = candidate.getTreeIndex(aligner_.getBuilder(),
-						form, lemma, tree_table_, false);
+					}
 
-				if (tree_index >= 0) {
-					encoder_.append(Features.tree_feature.ordinal(),
-							feature_bits_);
-					encoder_.append(tree_index, tree_bits_);
-					addFeature();
+					if (lemma_index >= 0 && form_index >= 0) {
+						encoder_.append(Features.lemma_form_feature.ordinal(),
+								feature_bits_);
+						encoder_.append(lemma_index, lemma_bits_);
+						encoder_.append(form_index, form_bits_);
+						addFeature();
+					}
 
-					encoder_.append(Features.tree_feature.ordinal(),
-							feature_bits_);
-					encoder_.append(tree_index, tree_bits_);
-					addPrefixFeatures(form_chars);
-					encoder_.reset();
+					int tree_index = candidate.getTreeIndex(
+							aligner_.getBuilder(), form, lemma, tree_table_,
+							false);
 
-					encoder_.append(Features.tree_feature.ordinal(),
-							feature_bits_);
-					encoder_.append(tree_index, tree_bits_);
-					addSuffixFeatures(form_chars);
-					encoder_.reset();
-					
-					if (form_cluster_indexes != null) {
-						for (int cluster_index : form_cluster_indexes) {
-							encoder_.append(Features.tree_form_cluster_feature.ordinal(), feature_bits_);
-							encoder_.append(tree_index, tree_bits_);
-							encoder_.append(cluster_index, cluster_bits_);
-							addFeature();
+					if (tree_index >= 0) {
+						encoder_.append(Features.tree_feature.ordinal(),
+								feature_bits_);
+						encoder_.append(tree_index, tree_bits_);
+						addFeature();
+
+						encoder_.append(Features.tree_feature.ordinal(),
+								feature_bits_);
+						encoder_.append(tree_index, tree_bits_);
+						addPrefixFeatures(form_chars);
+						encoder_.reset();
+
+						encoder_.append(Features.tree_feature.ordinal(),
+								feature_bits_);
+						encoder_.append(tree_index, tree_bits_);
+						addSuffixFeatures(form_chars);
+						encoder_.reset();
+
+						if (form_cluster_indexes != null) {
+							for (int cluster_index : form_cluster_indexes) {
+								encoder_.append(
+										Features.tree_form_cluster_feature
+												.ordinal(), feature_bits_);
+								encoder_.append(tree_index, tree_bits_);
+								encoder_.append(cluster_index, cluster_bits_);
+								addFeature();
+							}
 						}
-					}					
+					}
 				}
+
+				if (use_alignment_features_) {
+					short[] lemma_chars = candidate.getLemmaChars(char_table_,
+							lemma, false);
+
+					List<Integer> alignment = candidate.getAlignment(aligner_,
+							form, lemma);
+
+					addAlignmentIndexes(form_chars, lemma_chars, alignment);
+
+					addAffixIndexes(lemma_chars);
+				}
+
+				int lexicon_index = 0;
+				for (Lexicon lexicon : unigram_lexicons_) {
+					addUnigramFeature(lexicon_index, lexicon, lemma);
+					lemma_index++;
+				}
+
+				candidate
+						.setFeatureIndexes(Converter.toIntArray(context_.list));
 			}
-
-			if (use_alignment_features_) {
-				short[] lemma_chars = candidate.getLemmaChars(char_table_,
-						lemma, false);
-
-				List<Integer> alignment = candidate.getAlignment(aligner_,
-						form, lemma);
-
-				addAlignmentIndexes(form_chars, lemma_chars, alignment);
-
-				addAffixIndexes(lemma_chars);
-			}
-
-			int lexicon_index = 0;
-			for (Lexicon lexicon : unigram_lexicons_) {
-				addUnigramFeature(lexicon_index, lexicon, lemma);
-				lemma_index++;
-			}
-
-			candidate.setFeatureIndexes(Converter.toIntArray(context_.list));
 		}
 	}
 

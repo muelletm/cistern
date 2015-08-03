@@ -169,7 +169,7 @@ public class SimpleTagger implements Tagger {
 	private boolean cache_feature_vector_ = false;
 	private Result result_;
 
-	protected List<List<State>> getStates(Sequence sequence) {
+	protected List<List<State>> getStates(Sequence sequence, boolean training) {
 		List<List<State>> candidates = new ArrayList<List<State>>(
 				sequence.size() + 1);
 		for (int index = 0; index < sequence.size(); index++) {
@@ -194,7 +194,7 @@ public class SimpleTagger implements Tagger {
 				State state = new State(tag_index);
 				state.setVector(vector);
 				state.setScore(weight_vector_.dotProduct(state, vector));
-				model_.setLemmaCandidates(token, state, true);
+				model_.setLemmaCandidates(token, state, true, training);
 				states.add(state);
 			}
 			assert states.size() > 0;
@@ -311,7 +311,7 @@ public class SimpleTagger implements Tagger {
 	}
 
 	@Override
-	public SumLattice getSumLattice(boolean train, Sequence sentence) {
+	public SumLattice getSumLattice(boolean training, Sequence sentence) {
 		int order = getOrder();
 
 		List<List<State>> candidates = null;
@@ -319,12 +319,12 @@ public class SimpleTagger implements Tagger {
 
 		for (int level = 0; level < getNumLevels(); level++) {
 			if (level == 0) {
-				candidates = getStates(sentence);
+				candidates = getStates(sentence, training);
 
 			} else {
 				candidates = lattice.getZeroOrderCandidates(prune_);
 				incrementStateCounter(level - 1, lattice.getOrder(), candidates);
-				if (train
+				if (training
 						&& testForGoldCandidates(sentence, candidates, lattice) == null) {
 					return lattice;
 				}
@@ -341,7 +341,7 @@ public class SimpleTagger implements Tagger {
 
 			lattice = new ZeroOrderSumLattice(candidates, threshs_[level][0], oracle_);
 			
-			if (oracle_ || train)
+			if (oracle_ || training)
 				lattice.setGoldCandidates(getGoldIndexes(sentence,
 						lattice.getCandidates()));
 
@@ -369,7 +369,7 @@ public class SimpleTagger implements Tagger {
 								// Add lemma scores with pos features
 								for (State state : states) {
 									model_.setLemmaCandidates(
-											sentence.get(index), state, false);
+											sentence.get(index), state, false, training);
 								}
 							}
 							index++;
@@ -395,7 +395,7 @@ public class SimpleTagger implements Tagger {
 				 * update.
 				 */
 
-				if (train
+				if (training
 						&& testForGoldCandidates(sentence, candidates, lattice) == null) {
 					return lattice;
 				}
@@ -411,7 +411,7 @@ public class SimpleTagger implements Tagger {
 						threshs_[level][current_order + 1], current_order + 1,
 						false);
 
-				if (oracle_ || train)
+				if (oracle_ || training)
 					lattice.setGoldCandidates(getGoldIndexes(sentence,
 							lattice.getCandidates()));
 			}

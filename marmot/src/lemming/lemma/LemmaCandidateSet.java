@@ -49,5 +49,9 @@ public class LemmaCandidateSet implements Iterable<Map.Entry<String, LemmaCandid
 	public String toString() {
 		return map_.keySet().toString();
 	}
+
+	public void addCandidate(String lemma, LemmaCandidate candidate) {
+		map_.put(lemma, candidate);
+	}
 	
 }

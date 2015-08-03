@@ -116,7 +116,9 @@ public class RankerInstance {
 				+ ", pos_index=" + pos_index_ + ", morph_indexes="
 				+ Arrays.toString(morph_indexes_) + "]";
 	}
-	
-	
 
+	public void setCandidateSet(LemmaCandidateSet set) {
+		set_ = set;
+	}
+	
 }

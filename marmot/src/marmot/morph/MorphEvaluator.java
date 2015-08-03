@@ -121,7 +121,7 @@ public class MorphEvaluator implements Evaluator {
 			if (lemma_candidates != null) {
 				RankerCandidate candidate = RankerCandidate.bestCandidate(lemma_candidates);
 				
-				String lemma = word.getInstance().getInstance().getLemma();
+				String lemma = word.getLemma().toLowerCase();
 				assert lemma != null;
 				
 				String plemma = candidate.getLemma();

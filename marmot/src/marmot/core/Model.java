@@ -68,7 +68,7 @@ public abstract class Model implements Serializable {
 	
 	abstract public int[] getTagCandidates(Sequence sequence, int index, State state);
 
-	public abstract void setLemmaCandidates(Token token, State state, boolean pre_pruning_ext);
+	public abstract void setLemmaCandidates(Token token, State state, boolean pre_pruning_ext, boolean training);
 
 	public abstract void setLemmaCandidates(State state, boolean pre_pruning_ext);
 
