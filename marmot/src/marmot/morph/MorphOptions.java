@@ -135,7 +135,7 @@ public class MorphOptions extends Options {
 		COMMENTS_.put(LEMMA_CLUSTER_FILE, "Passed to lemma model.");
 		DEFALUT_VALUES_.put(LEMMA_TAG_DEPENDENT, "false");
 		COMMENTS_.put(LEMMA_TAG_DEPENDENT, "Passed to lemma model.");
-		DEFALUT_VALUES_.put(LEMMA_LEMMING_GENERATOR, "false");
+		DEFALUT_VALUES_.put(LEMMA_LEMMING_GENERATOR, "0");
 		COMMENTS_.put(LEMMA_LEMMING_GENERATOR, "Passed to lemma model.");
 
 	}
@@ -316,8 +316,8 @@ public class MorphOptions extends Options {
 		return Boolean.valueOf(getProperty(LEMMA_TAG_DEPENDENT));
 	}
 
-	public boolean getLemmaUseLemmingGenerator() {
-		return Boolean.valueOf(getProperty(LEMMA_LEMMING_GENERATOR ));
+	public int getLemmaUseLemmingGenerator() {
+		return Integer.valueOf(getProperty(LEMMA_LEMMING_GENERATOR ));
 	}
 
 }

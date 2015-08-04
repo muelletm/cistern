@@ -223,7 +223,7 @@ public class MorphModel extends Model {
 		if (options.getGoldLemma()) {
 			generators_ = Collections
 					.singletonList((LemmaCandidateGenerator) new GoldLemmaGenerator());
-		} else if (options.getLemmaUseLemmingGenerator()) {
+		} else if (options.getLemmaUseLemmingGenerator() > 0) {
 			LemmatizerGeneratorTrainer trainer = new RankerTrainer();
 			
 			RankerTrainerOptions new_roptions = new RankerTrainerOptions(roptions);
@@ -239,7 +239,7 @@ public class MorphModel extends Model {
 			
 			((RankerTrainer) trainer).setOptions(new_roptions);
 			Ranker ranker = (Ranker) trainer.train(instances, null);
-			ranker.setNumCandidates(2);
+			ranker.setNumCandidates(options.getLemmaUseLemmingGenerator());
 			
 			trainer = new SimpleLemmatizerTrainer();
 			trainer.getOptions().setOption(SimpleLemmatizerTrainerOptions.USE_BACKUP, false);

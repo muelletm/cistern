@@ -46,7 +46,7 @@ public class Annotator {
 		}
 		
 		if (options.getVerbose()) {
-			System.err.format("Loaded model, currently using %g MB of RAM", Sys.getUsedMemoryInMegaBytes());
+			System.err.format("Loaded model, currently using %g MB of RAM\n", Sys.getUsedMemoryInMegaBytes());
 		}
 		
 		if (!options.getMorphDict().isEmpty()) {
