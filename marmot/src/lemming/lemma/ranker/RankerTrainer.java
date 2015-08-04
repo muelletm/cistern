@@ -5,6 +5,7 @@ package lemming.lemma.ranker;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -20,6 +21,7 @@ import lemming.lemma.LemmatizerGeneratorTrainer;
 import lemming.lemma.SimpleLemmatizerTrainer;
 import lemming.lemma.edit.EditTreeGeneratorTrainer;
 import lemming.lemma.edit.EditTreeGeneratorTrainer.EditTreeGeneratorTrainerOptions;
+import lemming.lemma.ranker.RankerTrainer.RankerTrainerOptions;
 import lemming.lemma.toutanova.EditTreeAligner;
 import lemming.lemma.toutanova.EditTreeAlignerTrainer;
 import marmot.util.Sys;
@@ -76,6 +78,10 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
 			map_.put(USE_MALLET, true);
 			map_.put(OFFLINE_FEATURE_EXTRACTION, true);
 			map_.put(CLUSTER_FILE, "");
+		}
+
+		public RankerTrainerOptions(RankerTrainerOptions roptions) {
+			map_ = new HashMap<>(roptions.map_);
 		}
 
 		@SuppressWarnings("unchecked")
@@ -379,6 +385,10 @@ public class RankerTrainer implements LemmatizerGeneratorTrainer {
 	@Override
 	public LemmaOptions getOptions() {
 		return options_;
+	}
+
+	public void setOptions(RankerTrainerOptions roptions) {
+		options_ = roptions;
 	}
 
 }

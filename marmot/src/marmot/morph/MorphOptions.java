@@ -51,6 +51,7 @@ public class MorphOptions extends Options {
 	public static final String USE_HASH_FEATURE_TABLE = "use-hash-feature-table";
 	public static final String LEMMA_CLUSTER_FILE = "lemma-cluster-file";
 	public static final String LEMMA_TAG_DEPENDENT = "lemma-tag-dependent";
+	public static final String LEMMA_LEMMING_GENERATOR = "lemma-use-lemming-generator";
 
 	private static final Map<String, String> DEFALUT_VALUES_ = new HashMap<String, String>();
 	private static final Map<String, String> COMMENTS_ = new HashMap<String, String>();
@@ -134,7 +135,12 @@ public class MorphOptions extends Options {
 		COMMENTS_.put(LEMMA_CLUSTER_FILE, "Passed to lemma model.");
 		DEFALUT_VALUES_.put(LEMMA_TAG_DEPENDENT, "false");
 		COMMENTS_.put(LEMMA_TAG_DEPENDENT, "Passed to lemma model.");
+		DEFALUT_VALUES_.put(LEMMA_LEMMING_GENERATOR, "false");
+		COMMENTS_.put(LEMMA_LEMMING_GENERATOR, "Passed to lemma model.");
+
 	}
+
+	
 
 	public MorphOptions() {
 		super();
@@ -308,6 +314,10 @@ public class MorphOptions extends Options {
 
 	public boolean getLemmaTagDependent() {
 		return Boolean.valueOf(getProperty(LEMMA_TAG_DEPENDENT));
+	}
+
+	public boolean getLemmaUseLemmingGenerator() {
+		return Boolean.valueOf(getProperty(LEMMA_LEMMING_GENERATOR ));
 	}
 
 }

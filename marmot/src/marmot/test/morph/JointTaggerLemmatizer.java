@@ -35,6 +35,7 @@ public class JointTaggerLemmatizer {
 		options.setProperty(MorphOptions.MARGINALIZE_LEMMAS, "false");
 		options.setProperty(MorphOptions.LEMMA_TAG_DEPENDENT, "true");
 		options.setProperty(MorphOptions.USE_HASH_FEATURE_TABLE, "true");
+		options.setProperty(MorphOptions.LEMMA_LEMMING_GENERATOR, "true");
 		//options.setProperty(MorphOptions.LEMMAS_IGNORE_FEATURES, "case=*|case=nom|case=acc|case=dat|case=gen");
 		//options.setProperty(MorphOptions.LEMMA_USE_MORPH, "false");
 		options.setProperty(Options.NUM_ITERATIONS, "10");

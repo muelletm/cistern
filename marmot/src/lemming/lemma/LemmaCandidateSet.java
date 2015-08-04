@@ -3,6 +3,7 @@
 
 package lemming.lemma;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -16,6 +17,10 @@ public class LemmaCandidateSet implements Iterable<Map.Entry<String, LemmaCandid
 		map_ = new HashMap<>();
 	}
 	
+	public LemmaCandidateSet(LemmaCandidateSet set) {
+		map_ = new HashMap<>(set.map_);
+	}
+
 	public LemmaCandidate getCandidate(String lemma) {
 		LemmaCandidate candidate = map_.get(lemma);
 
@@ -52,6 +57,10 @@ public class LemmaCandidateSet implements Iterable<Map.Entry<String, LemmaCandid
 
 	public void addCandidate(String lemma, LemmaCandidate candidate) {
 		map_.put(lemma, candidate);
+	}
+
+	public Collection<LemmaCandidate> getCandidates() {
+		return map_.values();
 	}
 	
 }

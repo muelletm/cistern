@@ -17,14 +17,21 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import lemming.lemma.BackupLemmatizer;
 import lemming.lemma.GoldLemmaGenerator;
 import lemming.lemma.LemmaCandidate;
 import lemming.lemma.LemmaCandidateGenerator;
 import lemming.lemma.LemmaCandidateSet;
 import lemming.lemma.LemmaInstance;
+import lemming.lemma.LemmatizerGeneratorTrainer;
+import lemming.lemma.SimpleLemmatizer;
+import lemming.lemma.SimpleLemmatizerTrainer;
+import lemming.lemma.SimpleLemmatizerTrainer.SimpleLemmatizerTrainerOptions;
+import lemming.lemma.ranker.Ranker;
 import lemming.lemma.ranker.RankerCandidate;
 import lemming.lemma.ranker.RankerInstance;
 import lemming.lemma.ranker.RankerModel;
+import lemming.lemma.ranker.RankerTrainer;
 import lemming.lemma.ranker.RankerTrainer.RankerTrainerOptions;
 import lemming.lemma.toutanova.EditTreeAligner;
 import lemming.lemma.toutanova.EditTreeAlignerTrainer;
@@ -216,6 +223,30 @@ public class MorphModel extends Model {
 		if (options.getGoldLemma()) {
 			generators_ = Collections
 					.singletonList((LemmaCandidateGenerator) new GoldLemmaGenerator());
+		} else if (options.getLemmaUseLemmingGenerator()) {
+			LemmatizerGeneratorTrainer trainer = new RankerTrainer();
+			
+			RankerTrainerOptions new_roptions = new RankerTrainerOptions(roptions);
+			new_roptions.setOption(RankerTrainerOptions.USE_MALLET, false);
+			new_roptions.setOption(RankerTrainerOptions.USE_PERCEPTRON, false);
+			new_roptions.setOption(RankerTrainerOptions.USE_MORPH, false);
+			new_roptions.setOption(RankerTrainerOptions.USE_SHAPE_LEXICON, true);
+			new_roptions.setOption(RankerTrainerOptions.USE_CORE_FEATURES, true);
+			new_roptions.setOption(RankerTrainerOptions.USE_ALIGNMENT_FEATURES, true);
+			new_roptions.setOption(RankerTrainerOptions.OFFLINE_FEATURE_EXTRACTION, false);
+			new_roptions.setOption(RankerTrainerOptions.TAG_DEPENDENT, true);
+			new_roptions.setOption(RankerTrainerOptions.USE_HASH_FEATURE_TABLE, true);
+			
+			((RankerTrainer) trainer).setOptions(new_roptions);
+			Ranker ranker = (Ranker) trainer.train(instances, null);
+			ranker.setNumCandidates(2);
+			
+			trainer = new SimpleLemmatizerTrainer();
+			trainer.getOptions().setOption(SimpleLemmatizerTrainerOptions.USE_BACKUP, false);
+			SimpleLemmatizer simple = (SimpleLemmatizer) trainer.train(instances, null);
+			
+			generators_ = Collections.singletonList((LemmaCandidateGenerator) new BackupLemmatizer(simple, ranker));
+			
 		} else {
 			generators_ = roptions.getGenerators(instances);
 		}

@@ -795,4 +795,15 @@ public class RankerModel implements Serializable {
 		return form_table_.toIndex(instance.getForm(), -1) == -1;
 	}
 
+	public List<Double> scores(RankerInstance rinstance) {
+		LemmaCandidateSet set = rinstance.getCandidateSet();
+		List<Double> scores = new ArrayList<>(set.size());
+		for (LemmaCandidate candidate : set.getCandidates()) {
+			double score = score(candidate, rinstance.getPosIndex(pos_table_, false), rinstance.getMorphIndexes(morph_table_, false));
+			scores.add(score);
+			candidate.setScore(score);
+		}
+		return scores;
+	}
+
 }
