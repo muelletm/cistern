@@ -52,6 +52,7 @@ public class MorphOptions extends Options {
 	public static final String LEMMA_CLUSTER_FILE = "lemma-cluster-file";
 	public static final String LEMMA_TAG_DEPENDENT = "lemma-tag-dependent";
 	public static final String LEMMA_LEMMING_GENERATOR = "lemma-use-lemming-generator";
+	public static final String RESTRICT_POS_TAGS_TO_SEEN_COMBINATIONS = "restrict-pos-tags-to-seen-combinations";
 
 	private static final Map<String, String> DEFALUT_VALUES_ = new HashMap<String, String>();
 	private static final Map<String, String> COMMENTS_ = new HashMap<String, String>();
@@ -137,10 +138,10 @@ public class MorphOptions extends Options {
 		COMMENTS_.put(LEMMA_TAG_DEPENDENT, "Passed to lemma model.");
 		DEFALUT_VALUES_.put(LEMMA_LEMMING_GENERATOR, "0");
 		COMMENTS_.put(LEMMA_LEMMING_GENERATOR, "Passed to lemma model.");
+		DEFALUT_VALUES_.put(RESTRICT_POS_TAGS_TO_SEEN_COMBINATIONS, "false");
+		COMMENTS_.put(RESTRICT_POS_TAGS_TO_SEEN_COMBINATIONS, "Restrict the possible pos tags of a word to the combinations seen in the training set.");
 
 	}
-
-	
 
 	public MorphOptions() {
 		super();
@@ -318,6 +319,10 @@ public class MorphOptions extends Options {
 
 	public int getLemmaUseLemmingGenerator() {
 		return Integer.valueOf(getProperty(LEMMA_LEMMING_GENERATOR ));
+	}
+
+	public boolean getRestrictPosTagsToSeenCombinations() {
+		return Boolean.valueOf(getProperty(RESTRICT_POS_TAGS_TO_SEEN_COMBINATIONS));
 	}
 
 }

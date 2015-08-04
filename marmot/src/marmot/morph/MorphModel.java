@@ -76,6 +76,7 @@ public class MorphModel extends Model {
 	private int[][] transitions_;
 	private int[][][] tag_to_subtag_;
 	private List<Set<Integer>> observed_sets_;
+	private int[][] word_to_observed_tags_;
 
 	private Trie trie_;
 	private boolean verbose_;
@@ -103,6 +104,8 @@ public class MorphModel extends Model {
 		normalize_forms_ = options.getNormalizeForms();
 		special_signature_ = options.getSpecialSignature();
 		num_folds_ = options.getNumFolds();
+		restrict_pos_tags_to_seen_combinations_ = options
+				.getRestrictPosTagsToSeenCombinations();
 
 		init(options, extractCategories(sentences));
 
@@ -225,28 +228,38 @@ public class MorphModel extends Model {
 					.singletonList((LemmaCandidateGenerator) new GoldLemmaGenerator());
 		} else if (options.getLemmaUseLemmingGenerator() > 0) {
 			LemmatizerGeneratorTrainer trainer = new RankerTrainer();
-			
-			RankerTrainerOptions new_roptions = new RankerTrainerOptions(roptions);
+
+			RankerTrainerOptions new_roptions = new RankerTrainerOptions(
+					roptions);
 			new_roptions.setOption(RankerTrainerOptions.USE_MALLET, false);
 			new_roptions.setOption(RankerTrainerOptions.USE_PERCEPTRON, false);
 			new_roptions.setOption(RankerTrainerOptions.USE_MORPH, false);
-			new_roptions.setOption(RankerTrainerOptions.USE_SHAPE_LEXICON, true);
-			new_roptions.setOption(RankerTrainerOptions.USE_CORE_FEATURES, true);
-			new_roptions.setOption(RankerTrainerOptions.USE_ALIGNMENT_FEATURES, true);
-			new_roptions.setOption(RankerTrainerOptions.OFFLINE_FEATURE_EXTRACTION, false);
+			new_roptions
+					.setOption(RankerTrainerOptions.USE_SHAPE_LEXICON, true);
+			new_roptions
+					.setOption(RankerTrainerOptions.USE_CORE_FEATURES, true);
+			new_roptions.setOption(RankerTrainerOptions.USE_ALIGNMENT_FEATURES,
+					true);
+			new_roptions.setOption(
+					RankerTrainerOptions.OFFLINE_FEATURE_EXTRACTION, false);
 			new_roptions.setOption(RankerTrainerOptions.TAG_DEPENDENT, true);
-			new_roptions.setOption(RankerTrainerOptions.USE_HASH_FEATURE_TABLE, true);
-			
+			new_roptions.setOption(RankerTrainerOptions.USE_HASH_FEATURE_TABLE,
+					true);
+
 			((RankerTrainer) trainer).setOptions(new_roptions);
 			Ranker ranker = (Ranker) trainer.train(instances, null);
 			ranker.setNumCandidates(options.getLemmaUseLemmingGenerator());
-			
+
 			trainer = new SimpleLemmatizerTrainer();
-			trainer.getOptions().setOption(SimpleLemmatizerTrainerOptions.USE_BACKUP, false);
-			SimpleLemmatizer simple = (SimpleLemmatizer) trainer.train(instances, null);
-			
-			generators_ = Collections.singletonList((LemmaCandidateGenerator) new BackupLemmatizer(simple, ranker));
-			
+			trainer.getOptions().setOption(
+					SimpleLemmatizerTrainerOptions.USE_BACKUP, false);
+			SimpleLemmatizer simple = (SimpleLemmatizer) trainer.train(
+					instances, null);
+
+			generators_ = Collections
+					.singletonList((LemmaCandidateGenerator) new BackupLemmatizer(
+							simple, ranker));
+
 		} else {
 			generators_ = roptions.getGenerators(instances);
 		}
@@ -271,7 +284,9 @@ public class MorphModel extends Model {
 
 		List<RankerInstance> rinstances = new LinkedList<>();
 		for (List<RankerInstance> list : lemma_instance_map_.values())
-			rinstances.addAll(list);
+			for (RankerInstance instance : list)
+				if (instance != null)
+					rinstances.add(instance);
 
 		lemma_model_ = new RankerModel();
 		lemma_model_
@@ -379,6 +394,23 @@ public class MorphModel extends Model {
 					tags.add(tag_index);
 				}
 
+			}
+		}
+
+		if (restrict_pos_tags_to_seen_combinations_) {
+			word_to_observed_tags_ = new int[vocab_.length][];
+			for (Map.Entry<Integer, Set<Integer>> entry : wordform_to_candidates
+					.get(0).entrySet()) {
+				int word_index = entry.getKey();
+				if (!isRare(word_index)) {
+					Set<Integer> tag_set = entry.getValue();
+					int[] tags = new int[tag_set.size()];
+					int index = 0;
+					for (int tag : tag_set) {
+						tags[index++] = tag;
+					}
+					word_to_observed_tags_[word_index] = tags;
+				}
 			}
 		}
 
@@ -575,6 +607,8 @@ public class MorphModel extends Model {
 
 	private boolean lemma_tag_dependent_;
 
+	private boolean restrict_pos_tags_to_seen_combinations_;
+
 	private void addCharIndexes(Word word, String form, boolean insert) {
 		short[] char_indexes = FeatUtil.getCharIndexes(form, char_table_,
 				insert);
@@ -691,7 +725,10 @@ public class MorphModel extends Model {
 		if (!lemma_tag_dependent_) {
 			pos_index = 0;
 		}
-		return instances.get(pos_index);
+		
+		RankerInstance instance = instances.get(pos_index);
+		assert instance != null;
+		return instance;
 	}
 
 	private List<RankerInstance> addRankerInstances(Word word) {
@@ -716,6 +753,13 @@ public class MorphModel extends Model {
 				for (Map.Entry<String, Integer> entry : pos_table.entrySet()) {
 					int current_pos_index = entry.getValue();
 					String current_pos = entry.getKey();
+
+					if (restrict_pos_tags_to_seen_combinations_
+							&& !isRare(word.getWordFormIndex())
+							&& !hasBeenObserved(word.getWordFormIndex(), 0,
+									current_pos_index))
+						continue;
+
 					RankerInstance rinstance = getRankerInstance(word,
 							current_pos, total_set);
 					instances.set(current_pos_index, rinstance);
@@ -1095,6 +1139,16 @@ public class MorphModel extends Model {
 
 		if (transitions_ != null && level == MORPH_INDEX_) {
 			return transitions_[state.getIndex()];
+		}
+
+		if (level == 0 && restrict_pos_tags_to_seen_combinations_) {
+			Token token = sequence.get(index);
+			Word word = (Word) token;
+			int word_index = word.getWordFormIndex();
+
+			if (!isRare(word_index)) {
+				return word_to_observed_tags_[word_index];
+			}
 		}
 
 		return tag_classes_[level];
