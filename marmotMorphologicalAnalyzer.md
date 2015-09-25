@@ -26,7 +26,7 @@ If the dictionary file is 'mdict.txt' you can train a model using the following 
 $ java -Xmx5G -cp marmot.jar marmot.morph.cmd.Trainer\<br>
 -train-file form-index=1,tag-index=2,train.txt\<br>
 -model-file de.marmot<br>
--type-dict mdict.txt,2,3<br>
+-type-dict mdict.txt,indexes=[2,3]<br>
 </pre>
 
 Where 2 and 3 are the columns that hold features you want to use.
