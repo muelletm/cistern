@@ -28,6 +28,13 @@ public class Trainer {
 	
 	public static void main(String[] args) {
 		
+		if (args.length < 4 || args.length % 2 != 0){
+			
+			System.err.format("Usage: Trainer <model_type> <options_string> <model_file> <train_file> [<test_file> <pred_file>]\n");
+			System.exit(1);
+			
+		}
+		
 		String model_type = args[0];
 		String options_string = args[1];
 		String output_file = args[2];
