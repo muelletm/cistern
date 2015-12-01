@@ -3,10 +3,9 @@
 
 package marmot.tokenize.cmd;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
@@ -21,6 +20,7 @@ import marmot.tokenize.openlp.OpenNlpTokenizerTrainer;
 import marmot.tokenize.preprocess.Pair;
 import marmot.tokenize.preprocess.WikiSelector;
 import marmot.tokenize.rules.RuleProvider;
+import marmot.util.FileUtils;
 import marmot.util.GeneralLevenshteinLattice;
 import marmot.util.LevenshteinLattice;
 
@@ -132,7 +132,7 @@ public class Experimenter {
 		
 		File opennlp_file = File.createTempFile("openlp_file", ".txt");
 		opennlp_file.deleteOnExit();
-		BufferedWriter writer = new BufferedWriter(new FileWriter(opennlp_file));
+		Writer writer = FileUtils.openFileWriter(opennlp_file.getAbsolutePath());
 		converter.convert(trnset, writer, verbosity);		
 		writer.close();
 		

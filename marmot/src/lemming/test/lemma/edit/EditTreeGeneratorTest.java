@@ -3,7 +3,6 @@ package lemming.test.lemma.edit;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,8 +11,6 @@ import lemming.lemma.LemmaInstance;
 import lemming.lemma.edit.EditTreeGenerator;
 import lemming.lemma.edit.EditTreeGeneratorTrainer;
 import lemming.lemma.edit.EditTreeGeneratorTrainer.EditTreeGeneratorTrainerOptions;
-import lemming.lemma.ranker.Ranker;
-import lemming.lemma.ranker.RankerTrainer;
 
 import org.junit.Test;
 
@@ -28,7 +25,6 @@ public class EditTreeGeneratorTest {
 		trainer.getOptions().setOption(EditTreeGeneratorTrainerOptions.NUM_STEPS, 1);
 		
 		List<LemmaInstance> instances = new LinkedList<>();
-		
 		instances.add(new LemmaInstance("abc", "ab", null, "C"));
 		instances.add(new LemmaInstance("dec", "de", null, "C"));
 		instances.add(new LemmaInstance("ccc", "cc", null, "C"));
@@ -39,7 +35,6 @@ public class EditTreeGeneratorTest {
 		EditTreeGenerator gen = (EditTreeGenerator) trainer.train(instances, null);
 		
 		LemmaCandidateSet set = null;
-		
 		
 		set = new LemmaCandidateSet();
 		gen.addCandidates(new LemmaInstance("fgc", null, null, "C"), set);

@@ -3,9 +3,7 @@
 
 package marmot.morph.mapper.czech;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.HashMap;
@@ -15,6 +13,7 @@ import marmot.morph.mapper.Node;
 import marmot.morph.mapper.SyntaxTree;
 import marmot.morph.mapper.SyntaxTreeIterator;
 import marmot.util.Counter;
+import marmot.util.FileUtils;
 
 public class ConllReader {
 
@@ -34,7 +33,7 @@ public class ConllReader {
 				System.exit(1);
 			}
 
-			Writer writer = new BufferedWriter(new FileWriter(outfile));
+			Writer writer = FileUtils.openFileWriter(outfile);
 
 			PdTMsdMapper mapper = new PdTMsdMapper();
 

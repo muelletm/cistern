@@ -3,9 +3,8 @@
 
 package experimental.morfessor;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -92,8 +91,7 @@ public class Vocab {
 		}
 
 		try {
-			BufferedWriter writer = new BufferedWriter(new FileWriter(filename
-					+ ".ascii"));
+			Writer writer = FileUtils.openFileWriter(filename + ".ascii");
 
 			for (Entry<String, Double> entry : counter.entrySet()) {
 				writer.write(String.format("%d %s\n", entry.getValue()

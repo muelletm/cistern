@@ -1,9 +1,10 @@
 package chipmunk.segmenter;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.Iterator;
+
+import marmot.util.FileUtils;
 
 public class Stemmer {
 
@@ -50,7 +51,7 @@ public class Stemmer {
 
 	public void stemToFile(String outfile, SegmentationDataReader words)
 			throws IOException {
-		BufferedWriter writer = new BufferedWriter(new FileWriter(outfile));
+		Writer writer = FileUtils.openFileWriter(outfile);
 		for (Word word : words) {
 			String stem = stem(word);
 			writer.write(word.getWord());

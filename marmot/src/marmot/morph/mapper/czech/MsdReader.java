@@ -3,8 +3,6 @@
 
 package marmot.morph.mapper.czech;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.HashMap;
@@ -13,6 +11,7 @@ import java.util.Map;
 
 import marmot.morph.mapper.czech.MsdTag.Pos;
 import marmot.util.Counter;
+import marmot.util.FileUtils;
 import marmot.util.LineIterator;
 
 // Based on http://nl.ijs.si/ME/V4/msd/html/msd-cs.html
@@ -50,7 +49,7 @@ public class MsdReader {
 	static public void main(String[] args) throws IOException {
 
 		LineIterator iterator = new LineIterator(args[0]);
-		Writer writer = new BufferedWriter(new FileWriter(args[1]));
+		Writer writer = FileUtils.openFileWriter(args[1]);
 
 		int num_words = 0;
 		int token_index = 0;

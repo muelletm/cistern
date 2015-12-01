@@ -3,13 +3,13 @@
 
 package marmot.morph.mapper.latin;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 
 import marmot.morph.mapper.Node;
 import marmot.morph.mapper.SyntaxTree;
 import marmot.morph.mapper.SyntaxTreeIterator;
+import marmot.util.FileUtils;
 
 public class LdtConverter {
 
@@ -20,8 +20,7 @@ public class LdtConverter {
 
 	public void convert(String input_file, String output_file) throws IOException {
 		SyntaxTreeIterator iterator = new SyntaxTreeIterator(input_file, 1, 2, 3, 5, 6, 7, false);
-		BufferedWriter writer = new BufferedWriter(new FileWriter(
-				output_file));
+		Writer writer = FileUtils.openFileWriter(output_file);
 		
 		LdtTagReader reader = new LdtTagReader();
 		

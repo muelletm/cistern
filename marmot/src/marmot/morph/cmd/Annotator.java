@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -59,22 +60,16 @@ public class Annotator {
 			}
 		}
 		
-		
 		try {
 			String pred_file = options.getPredFile();
 			Writer writer;
 			if (pred_file.isEmpty()) {
-				writer = new OutputStreamWriter(System.out);	
+				writer = new BufferedWriter(new OutputStreamWriter(System.out));	
 			} else {
-				writer = new FileWriter(pred_file);
+				writer = FileUtils.openFileWriter(pred_file);
 			}
-			
-			writer = new BufferedWriter(writer);
-			
 			annotate(tagger, options.getTestFile(), writer);
-			
 			writer.close();
-			
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

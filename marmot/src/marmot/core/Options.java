@@ -4,9 +4,8 @@
 package marmot.core;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -134,7 +133,7 @@ public class Options extends java.util.Properties {
 
 	public void writePropertiesToFile(String filename) {
 		try {
-			BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
+			Writer writer = FileUtils.openFileWriter(filename);
 			writer.write(toSimpleString());
 			writer.close();
 		} catch (IOException e) {

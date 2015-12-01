@@ -3,9 +3,8 @@
 
 package lemming.lemma.cmd;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -54,9 +53,8 @@ public class Trainer {
 	static void annotate(Lemmatizer lemmatizer, String test_file, String pred_file) {
 		
 		try {
-			BufferedWriter writer = new BufferedWriter(new FileWriter(pred_file));
+			Writer writer = FileUtils.openFileWriter(pred_file);
 			for (Sequence sequence : new SentenceReader(test_file)) {
-				
 				int nr = 1;
 				for (Token token : sequence) {
 					LemmaInstance instance = LemmaInstance.getInstance((Word) token);

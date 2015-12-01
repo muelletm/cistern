@@ -3,14 +3,14 @@
 
 package marmot.morph.mapper.spanish;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 
 import marmot.morph.mapper.Node;
 import marmot.morph.mapper.SyntaxTree;
 import marmot.morph.mapper.SyntaxTreeIterator;
+import marmot.util.FileUtils;
 
 public class ConllConverter {
 
@@ -29,7 +29,7 @@ public class ConllConverter {
 				System.exit(1);
 			}
 			
-			BufferedWriter writer = new BufferedWriter(new FileWriter(outfile));
+			Writer writer = FileUtils.openFileWriter(outfile);
 			ConllConverter c = new ConllConverter();
 
 			while (iterator.hasNext()) {

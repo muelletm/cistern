@@ -3,9 +3,8 @@
 
 package experimental.analyzer.cmd;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -38,8 +37,7 @@ public class TreebankAnnotator {
 			String pred_file) {
 		Collection<AnalyzerInstance> instances = AnalyzerInstance.getTreebankInstances(test_file);
 		try {
-			BufferedWriter writer = new BufferedWriter(
-					new FileWriter(pred_file));
+			Writer writer = FileUtils.openFileWriter(pred_file);
 			for (AnalyzerInstance instance : instances) {
 				if (analyzer.isUnknown(instance)) {
 					Collection<AnalyzerReading> readings = analyzer
@@ -48,7 +46,7 @@ public class TreebankAnnotator {
 					writer.write(instance.getForm());
 					writer.write('\t');
 					writer.write(readings.toString());
-					writer.newLine();
+					writer.write('\n');
 				}
 			}
 			writer.close();

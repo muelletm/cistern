@@ -3,14 +3,14 @@
 
 package marmot.morph.mapper.spanish;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 
 import marmot.morph.mapper.Node;
 import marmot.morph.mapper.SyntaxTree;
 import marmot.morph.mapper.SyntaxTreeIterator;
 import marmot.morph.mapper.spanish.EaglesTag.Person;
+import marmot.util.FileUtils;
 
 public class IulaConverter {
 
@@ -18,7 +18,7 @@ public class IulaConverter {
 
 		SyntaxTreeIterator iterator = new SyntaxTreeIterator(args[0], 1, 2, 4,
 				5, 6, 7, false);
-		BufferedWriter writer = new BufferedWriter(new FileWriter(args[1]));
+		Writer writer = FileUtils.openFileWriter(args[1]);
 		boolean normalize = true;
 		if (args.length > 2) {
 			normalize = Boolean.parseBoolean(args[2]);

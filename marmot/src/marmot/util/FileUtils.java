@@ -4,6 +4,7 @@
 package marmot.util;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -14,11 +15,25 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 public class FileUtils {
+	
+	public static Writer openFileWriter(String filename) {
+		try {
+			return new BufferedWriter(new OutputStreamWriter(
+					new FileOutputStream(filename), "UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	public static InputStream openFileInputStream(String filename_) {
 

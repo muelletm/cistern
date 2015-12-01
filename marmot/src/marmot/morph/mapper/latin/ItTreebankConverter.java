@@ -3,9 +3,8 @@
 
 package marmot.morph.mapper.latin;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,6 +25,7 @@ import marmot.morph.mapper.SyntaxTree;
 import marmot.morph.mapper.SyntaxTreeIterator;
 import marmot.morph.mapper.latin.LdtMorphTag.Pos;
 import marmot.util.Counter;
+import marmot.util.FileUtils;
 
 public class ItTreebankConverter {
 
@@ -67,8 +67,7 @@ public class ItTreebankConverter {
 		
 		out_treebank_file = out_treebank_file + date_string + ".conll"; 
 		
-		BufferedWriter writer = new BufferedWriter(new FileWriter(
-				out_treebank_file));
+		Writer writer = FileUtils.openFileWriter(out_treebank_file);
 		for (SyntaxTree tree : trees) {
 			tree.write(writer);
 			writer.write('\n');

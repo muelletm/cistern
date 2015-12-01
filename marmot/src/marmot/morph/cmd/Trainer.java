@@ -3,8 +3,6 @@
 
 package marmot.morph.cmd;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.LinkedList;
@@ -91,8 +89,8 @@ public class Trainer {
 
 			if (!options.getPredFile().isEmpty()) {
 				try {
-					Writer writer = new BufferedWriter(new FileWriter(
-							options.getPredFile()));
+					Writer writer = FileUtils.openFileWriter(
+							options.getPredFile());
 					Annotator.annotate(tagger, options.getTestFile(), writer);
 					writer.close();
 				} catch (IOException e) {

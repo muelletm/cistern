@@ -3,9 +3,8 @@
 
 package experimental.analyzer.cmd;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.Collection;
 
 import experimental.analyzer.Analyzer;
@@ -43,21 +42,15 @@ public class Trainer {
 		Collection<AnalyzerInstance> instances = AnalyzerInstance.getInstances(test_file);
 		
 		try {
-			BufferedWriter writer = new BufferedWriter(new FileWriter(pred_file));
-			
+			Writer writer = FileUtils.openFileWriter(pred_file);
 			for (AnalyzerInstance instance : instances) {
-				
 				Collection<AnalyzerReading> readings = analyzer.analyze(instance);
-				
 				writer.write(instance.getForm());
 				writer.write('\t');
 				writer.write(analyzer.represent(instance));
 				writer.write('\t');
 				writer.write(readings.toString());
-				writer.newLine();
-				
-			}
-			
+				writer.write('\n');			}
 			writer.close();
 			
 		} catch (IOException e) {

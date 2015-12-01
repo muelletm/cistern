@@ -1,10 +1,11 @@
 package chipmunk.segmenter.cmd;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.Iterator;
 import java.util.List;
+
+import marmot.util.FileUtils;
 
 import chipmunk.segmenter.SegmentationDataReader;
 import chipmunk.segmenter.SegmentationReading;
@@ -57,7 +58,7 @@ public class Converter {
 		
 		words = tag_reader.map(words);
 		
-		BufferedWriter writer = new BufferedWriter(new FileWriter(config.getString(OUTPUT_FILE)));
+		Writer writer = FileUtils.openFileWriter(config.getString(OUTPUT_FILE));
 		for (Word word : words) {
 			for (SegmentationReading reading : word.getReadings()) {
 				writer.write(word.getWord());

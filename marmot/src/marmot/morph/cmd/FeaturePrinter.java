@@ -3,9 +3,8 @@
 
 package marmot.morph.cmd;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -17,6 +16,7 @@ import marmot.morph.MorphOptions;
 import marmot.morph.MorphWeightVector;
 import marmot.morph.Word;
 import marmot.morph.io.SentenceReader;
+import marmot.util.FileUtils;
 
 
 
@@ -53,29 +53,22 @@ public class FeaturePrinter {
 			MorphWeightVector weights, String filename, String out_filename)
 			throws IOException {
 		String separator = "\t";
-		BufferedWriter writer = new BufferedWriter(new FileWriter(out_filename));
-
+		Writer writer = FileUtils.openFileWriter(out_filename);
 		for (Sequence sentence : new SentenceReader(filename)) {
-			int index = 0;
-			
+			int index = 0;	
 			for (Token token : sentence) {
 				Word word = (Word) token;
 				model.addIndexes(word, false);
 			}
-			
 			for (Token token : sentence) {
 				Word word = (Word) token;
-				
 				FeatureVector vector = weights.extractStateFeatures(sentence, index);
-
 				writer.write("pos=");
 				writer.write(word.getPosTag());
-				
 				if (options.getTagMorph()) {
 					writer.write("|");
 					writer.write(word.getMorphTag());
 				}
-				
 				for (int findex = 0; findex < vector.size(); findex ++) {
 					int feature = vector.get(findex);
 					writer.write(separator);

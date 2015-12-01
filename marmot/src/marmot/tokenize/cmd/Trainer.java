@@ -3,10 +3,9 @@
 
 package marmot.tokenize.cmd;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.Iterator;
 
 import marmot.tokenize.RuleBasedTokenizer;
@@ -16,6 +15,7 @@ import marmot.tokenize.openlp.OpenNlpTokenizerTrainer;
 import marmot.tokenize.preprocess.Pair;
 import marmot.tokenize.preprocess.WikiSelector;
 import marmot.tokenize.rules.RuleProvider;
+import marmot.util.FileUtils;
 
 import com.martiansoftware.jsap.FlaggedOption;
 import com.martiansoftware.jsap.JSAP;
@@ -89,7 +89,7 @@ public class Trainer {
 		
 		System.out.println("Starting alignment for '"+lang+"' textset");
 		File opennlp_file = File.createTempFile("openlp_file", ".txt");
-		BufferedWriter writer = new BufferedWriter(new FileWriter(opennlp_file));
+		Writer writer = FileUtils.openFileWriter(opennlp_file.getAbsolutePath());
 		converter.convert(pairs, writer, verbose);		
 		writer.close();
 			

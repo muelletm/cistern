@@ -3,8 +3,6 @@
 
 package experimental.morfessor;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Iterator;
@@ -82,9 +80,7 @@ public class CorpusSegmenter {
 			System.exit(1);
 		}
 		
-		Writer writer = new BufferedWriter(new FileWriter(
-				config.getString("out-file")));
-
+		Writer writer = FileUtils.openFileWriter(config.getString("out-file"));
 		LineIterator iterator = new LineIterator(config.getString("text-file"));
 		int count = 0;
 		long time = System.currentTimeMillis();

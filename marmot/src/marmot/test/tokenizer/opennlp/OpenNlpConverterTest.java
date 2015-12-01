@@ -3,7 +3,7 @@
 
 package marmot.test.tokenizer.opennlp;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -11,19 +11,21 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
 import marmot.tokenize.openlp.OpenNlpConverter;
-import marmot.tokenize.rules.RuleProvider;
 import marmot.tokenize.preprocess.Pair;
+import marmot.tokenize.rules.RuleProvider;
+import marmot.util.FileUtils;
 
 import org.junit.Test;
 
 public class OpenNlpConverterTest {
 	
 	private OpenNlpConverter es_converter_;
-	private BufferedWriter writer_;
+	private Writer writer_;
 	private BufferedReader reader_;
 	private File tmp_;
 	
@@ -48,7 +50,7 @@ public class OpenNlpConverterTest {
 		List<Pair> pairs = new ArrayList<Pair>();
 		String dummy = "";
 		
-		writer_ = new BufferedWriter(new FileWriter(tmp_, false));
+		writer_ = FileUtils.openFileWriter(tmp_.getAbsolutePath());
 		pairs.add(new Pair(
 				"Eso , es : un ! ejemplo .",
 				"Eso, es: un! ejemplo."
@@ -65,7 +67,7 @@ public class OpenNlpConverterTest {
 		String result_1 = "Eso<SPLIT>, es<SPLIT>: un<SPLIT>! ejemplo<SPLIT>.";
 		assertEquals(prediction_1, result_1);
 		
-		writer_ = new BufferedWriter(new FileWriter(tmp_, false));
+		writer_ = FileUtils.openFileWriter(tmp_.getAbsolutePath());
 		pairs.add(new Pair(
 				"Demonstration , de el poder de : \" una regla sobre todo \" !",
 				"Demonstration, del poder de: \"una regla sobre todo\"!"
@@ -81,7 +83,7 @@ public class OpenNlpConverterTest {
 		String result_2 = "Demonstration<SPLIT>, de el poder de<SPLIT>: \"<SPLIT>una regla sobre todo<SPLIT>\"<SPLIT>!";
 		assertEquals(prediction_2, result_2);
 		
-		writer_ = new BufferedWriter(new FileWriter(tmp_, false));
+		writer_ = FileUtils.openFileWriter(tmp_.getAbsolutePath());
 		pairs.add(new Pair(
 				"Es en este contexto , tal como lo señala el libro de profeta Daniel , cuando el rey Nabucodonosor tiene el sueño de esta colosal estatua .",
 				"Es en este contexto, tal como lo señala el libro de profeta Daniel, cuando el rey Nabucodonosor tiene el sueño de esta colosal estatua."

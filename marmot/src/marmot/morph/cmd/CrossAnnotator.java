@@ -3,8 +3,6 @@
 
 package marmot.morph.cmd;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.LinkedList;
@@ -18,6 +16,7 @@ import marmot.morph.MorphResult;
 import marmot.morph.MorphTagger;
 import marmot.morph.io.SentenceReader;
 import marmot.util.FakeWriter;
+import marmot.util.FileUtils;
 import marmot.util.ListUtils;
 
 public class CrossAnnotator {
@@ -31,23 +30,18 @@ public class CrossAnnotator {
 
 	public static void annotate(MorphOptions options, String infile,
 			String outfile, int num_chunks) throws IOException {
-
 		List<Sequence> sequences = new LinkedList<Sequence>();
 		for (Sequence sequence : new SentenceReader(infile)) {
 			sequences.add(sequence);
 		}
-
 		Writer writer = null;
-		
 		if (outfile == null || outfile.isEmpty()) {
 			writer = new FakeWriter();
 		} else {
-			writer = new BufferedWriter(new FileWriter(outfile));	
+			writer = FileUtils.openFileWriter(outfile);	
 		}
-		
 		annotate(options, sequences, num_chunks, writer);
 		writer.close();
-
 	}
 
 	public static void annotate(MorphOptions options, List<Sequence> sequences,

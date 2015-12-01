@@ -3,8 +3,6 @@
 
 package marmot.morph.mapper.german;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.HashMap;
@@ -17,6 +15,7 @@ import marmot.morph.mapper.Node;
 import marmot.morph.mapper.SyntaxTree;
 import marmot.morph.mapper.SyntaxTreeIterator;
 import marmot.util.Counter;
+import marmot.util.FileUtils;
 import marmot.util.LineIterator;
 
 public class SmorReader {
@@ -38,7 +37,7 @@ public class SmorReader {
 			Map<String, Set<SttsTag>> pos_dict, String string)
 			throws IOException {
 
-		Writer writer = new BufferedWriter(new FileWriter(string + ".lattice"));
+		Writer writer = FileUtils.openFileWriter(string + ".lattice");
 
 		SyntaxTreeIterator iterator = new SyntaxTreeIterator(string, 1, 2, 4,
 				6, 8, 10, false);
