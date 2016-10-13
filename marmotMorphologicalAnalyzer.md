@@ -3,7 +3,7 @@
 This article assumes that you know how to train standard MarMoT models.
 If not read [Training new models](marmotTraining.md) first.
 
-There are two ways of integrating the output of an analyzer.
+There are two ways of integrating the output of an analyzer (or any hard of soft word clustering).
 
 # Morphological Dictionary #
 
