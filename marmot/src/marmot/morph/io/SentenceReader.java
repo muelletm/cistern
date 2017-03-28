@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Hashtable;
 
 import marmot.core.Sequence;
 import marmot.morph.Sentence;
@@ -47,11 +48,34 @@ public class SentenceReader implements Iterable<Sequence> {
 				}
 
 				List<Word> tokens = new LinkedList<Word>();
+				List<String> comments = new LinkedList<String>();
+				Hashtable<Integer, String> segments = new Hashtable<Integer, String>();
+				Hashtable<Integer, String> empty_nodes = new Hashtable<Integer, String>();
 
 				while (line_iterator_.hasNext()) {
 					List<String> row = line_iterator_.next();
 					if (row.isEmpty()) {
 						break;
+					}
+					if (row.get(0).charAt(0) == '#') { // Comment
+						comments.add(row.get(0)); 
+						continue;
+					}
+					if (row.get(0).charAt(0) == '|') { // Segment
+						String segline = row.get(0);
+						String[] splittok = segline.split("\\|\\$\\|");
+						//System.err.println(segline);
+						//System.err.println(splittok[0]);
+						//System.err.println(splittok[1]);
+						//System.err.println(splittok[2]);
+						segments.put(Integer.parseInt(splittok[1]), splittok[2]);
+						continue;
+					}
+					if (row.get(0).charAt(0) == '$') { // Empty node
+						String segline = row.get(0);
+						String[] splittok = segline.split("\\$\\|\\$");
+						empty_nodes.put(Integer.parseInt(splittok[1]), splittok[2]);
+						continue;
 					}
 
 					String word = check_index(form_index, "form_index", row, true);
@@ -116,6 +140,9 @@ public class SentenceReader implements Iterable<Sequence> {
 				number_+= tokens.size();
 
 				Sentence sentence = new Sentence(tokens);
+				sentence.setComments(comments);
+				sentence.setSegments(segments);
+				sentence.setEmptyNodes(empty_nodes);
 
 				return sentence;
 			}
