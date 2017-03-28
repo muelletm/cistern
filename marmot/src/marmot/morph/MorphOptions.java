@@ -53,6 +53,7 @@ public class MorphOptions extends Options {
 	public static final String LEMMA_TAG_DEPENDENT = "lemma-tag-dependent";
 	public static final String LEMMA_LEMMING_GENERATOR = "lemma-use-lemming-generator";
 	public static final String RESTRICT_POS_TAGS_TO_SEEN_COMBINATIONS = "restrict-pos-tags-to-seen-combinations";
+	public static final String OUTPUT_FORMAT_CONLLU = "conllu-format" ; 
 
 	private static final Map<String, String> DEFALUT_VALUES_ = new HashMap<String, String>();
 	private static final Map<String, String> COMMENTS_ = new HashMap<String, String>();
@@ -140,6 +141,8 @@ public class MorphOptions extends Options {
 		COMMENTS_.put(LEMMA_LEMMING_GENERATOR, "Passed to lemma model.");
 		DEFALUT_VALUES_.put(RESTRICT_POS_TAGS_TO_SEEN_COMBINATIONS, "false");
 		COMMENTS_.put(RESTRICT_POS_TAGS_TO_SEEN_COMBINATIONS, "Restrict the possible pos tags of a word to the combinations seen in the training set.");
+		DEFALUT_VALUES_.put(OUTPUT_FORMAT_CONLLU, "false");
+		COMMENTS_.put(OUTPUT_FORMAT_CONLLU, "Use CoNLL-U output format.");
 
 	}
 
@@ -235,6 +238,10 @@ public class MorphOptions extends Options {
 		}
 		
 		return prop;
+	}
+
+	public boolean getFormatIsCoNLLU() {
+		return Boolean.parseBoolean(getProperty(OUTPUT_FORMAT_CONLLU));
 	}
 
 	public int getNumFolds() {

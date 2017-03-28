@@ -21,6 +21,7 @@ public class SimpleTagger implements Tagger {
 	private Model model_;
 	private WeightVector weight_vector_;
 	private int num_level_;
+	private int format_ = 0; // 1 for conllu
 
 	private double[][] threshs_;
 	private double[] candidates_per_state_;
@@ -588,6 +589,15 @@ public class SimpleTagger implements Tagger {
 		}
 
 		return list;
+	}
+
+	public void setFormat(String format) {
+		if(format == "conllu") {
+			format_ = 1;	
+		}
+	}
+	public int getFormat() {
+		return format_;
 	}
 
 	protected List<int[]> tag_(Sequence sequence) {

@@ -12,6 +12,7 @@ import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Hashtable;
 
 import lemming.lemma.Lemmatizer;
 import marmot.core.Sequence;
@@ -33,12 +34,16 @@ public class Annotator {
 	public static void main(String[] args) {
 		MorphOptions options = new MorphOptions();
 		options.setPropertiesFromStrings(args);
-		
+
 		options.dieIfPropertyIsEmpty(MorphOptions.MODEL_FILE);
 		options.dieIfPropertyIsEmpty(MorphOptions.PRED_FILE);
 		options.dieIfPropertyIsEmpty(MorphOptions.TEST_FILE);
 		
 		MorphTagger tagger = FileUtils.loadFromFile(options.getModelFile());
+
+		if(options.getFormatIsCoNLLU()) {
+			tagger.setFormat("conllu");
+		}
 		
 		String lemmatizer_file = options.getLemmatizerFile();
 		if (!lemmatizer_file.isEmpty()) {
@@ -92,6 +97,12 @@ public class Annotator {
 		}
 		
 		List<List<String>> lemma_tags;
+
+		List<String> comments = sentence.getComments(); 
+
+		for (int i = 0; i < comments.size(); i ++) {
+			writer.append(comments.get(i) + '\n');
+		}
 		
 		try {
 		
@@ -110,43 +121,114 @@ public class Annotator {
 			System.err.format("Warning: Can't tag sentence of length: %d (Not enough memory)!\n", sentence.size());
 			
 		}
+
+		Hashtable<Integer, String> segments = sentence.getSegments(); 
+		Hashtable<Integer, String> empty_nodes = sentence.getEmptyNodes(); 
 		
 		for (int i = 0; i < sentence.size(); i ++) {
 			Word word = sentence.getWord(i);
 			
 			List<String> token_lemma_tags = lemma_tags.get(i);
-			
-			writer.append(Integer.toString(i + 1));
-			writer.append(SEPARATOR_);
-			writer.append(word.getWordForm());
-			
-			// Lemma
-			writer.append(SEPARATOR_);
-			writer.append(word.getLemma() != null ? word.getLemma() : EMPTY_);
-			writer.append(SEPARATOR_);
-			
-			String lemma = token_lemma_tags.get(0);
-			writer.append(lemma != null ? lemma : EMPTY_ );
-			
-			// Pos
-			writer.append(SEPARATOR_);
-			writer.append(word.getPosTag() != null ? word.getPosTag() : EMPTY_ );
-			writer.append(SEPARATOR_);
-			
-			String pos = token_lemma_tags.get(1);
-			writer.append(pos);
-			
-			// Feat
-			writer.append(SEPARATOR_);
-			writer.append(word.getMorphTag() != null ? word.getMorphTag() : EMPTY_);
-			writer.append(SEPARATOR_);
-			String morph = EMPTY_;
-			if (2 < token_lemma_tags.size()) {
-				morph = token_lemma_tags.get(2);
+
+			// Segments go before
+
+			if(segments.containsKey(i+1)) {
+				writer.append(segments.get(i+1));
+				for(int j = 0; j < 8; j++) {
+					writer.append(SEPARATOR_);
+					writer.append(EMPTY_);
+				}
+				writer.append('\n');
 			}
-			writer.append(morph);
+
+			if(tagger.getFormat() == 1) {
+				// 0	1		2		3	4	5			6	7	8	9
+				// 1	Komissio	komissio	NOUN	N	Case=Nom|Number=Sing	3	nsubj	5:nsubj	_
+
+				writer.append(Integer.toString(i + 1));		// 0
+				writer.append(SEPARATOR_);
+				writer.append(word.getWordForm());		// 1
+				writer.append(SEPARATOR_);
+				String lemma = token_lemma_tags.get(0);
+				if(word.getLemma() != null) {			// 2
+					writer.append(word.getLemma());
+				} else if(lemma != null) {
+					writer.append(lemma);
+				} else {
+					writer.append(EMPTY_);
+				}
+				writer.append(SEPARATOR_);
+				String pos = token_lemma_tags.get(1);
+				if(word.getPosTag() != null) {			// 3
+					writer.append(word.getPosTag());
+				} else if(pos != null) {
+					writer.append(pos);
+				} else {
+					writer.append(EMPTY_);
+				}
+				writer.append(SEPARATOR_);
+				writer.append(EMPTY_);				// 4
+				writer.append(SEPARATOR_);
+				String morph = EMPTY_;
+				if(word.getMorphTag() != null) {		// 5 
+					writer.append(word.getMorphTag());
+				} else if (2 < token_lemma_tags.size()) {
+					morph = token_lemma_tags.get(2);
+					writer.append(morph);
+				} else {
+					writer.append(EMPTY_);
+				}
+				writer.append(SEPARATOR_);
+				writer.append(EMPTY_);				// 6
+				writer.append(SEPARATOR_);
+				writer.append(EMPTY_);				// 7
+				writer.append(SEPARATOR_);
+				writer.append(EMPTY_);				// 8
+				writer.append(SEPARATOR_);
+				writer.append(EMPTY_);				// 9
+
+			} else {
+				
+				writer.append(Integer.toString(i + 1)); 
+				writer.append(SEPARATOR_);
+				writer.append(word.getWordForm());
+				
+				// Lemma
+				writer.append(SEPARATOR_);
+				writer.append(word.getLemma() != null ? word.getLemma() : EMPTY_);
+				writer.append(SEPARATOR_);
+				
+				String lemma = token_lemma_tags.get(0);
+				writer.append(lemma != null ? lemma : EMPTY_ );
+				
+				// Pos
+				writer.append(SEPARATOR_);
+				writer.append(word.getPosTag() != null ? word.getPosTag() : EMPTY_ );
+				writer.append(SEPARATOR_);
+				
+				String pos = token_lemma_tags.get(1);
+				writer.append(pos);
+				
+				// Feat
+				writer.append(SEPARATOR_);
+				writer.append(word.getMorphTag() != null ? word.getMorphTag() : EMPTY_);
+				writer.append(SEPARATOR_);
+				String morph = EMPTY_;
+				if (2 < token_lemma_tags.size()) {
+					morph = token_lemma_tags.get(2);
+				}
+				writer.append(morph);
+			}
 
 			writer.append('\n');
+
+			// Empty nodes go after 
+
+			if(empty_nodes.containsKey(i+1)) {
+				writer.append(empty_nodes.get(i+1));
+				writer.append('\n');
+			}
+
 		}
 		writer.append('\n');
 	
