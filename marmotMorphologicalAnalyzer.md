@@ -32,6 +32,8 @@ $ java -Xmx5G -cp marmot.jar marmot.morph.cmd.Trainer\<br>
 Where 2 and 3 are the columns that hold features you want to use.
 The word form must be in column 0 and all other columns (the lemma in the example) are ignored.
 
+**Warning:** The dictionary should not include the symbols `-` or `.` as these are treated specially by the format reader.
+
 # Token Features #
 
 While the morphological dictionary allows for simple feature integrating it does not provide a way to include word forms not know at training time. If MarMoT is to be used in a pipeline the token-feature-index is a more powerful alternative.
